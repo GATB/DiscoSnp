@@ -38,27 +38,27 @@ using namespace std;
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-BubbleFinder<span>::BubbleFinder (
-    const Graph& graph,
-    const char* SNP_file_name, int low, int authorised_branching,
-    bool extend_snps, int min_size_extension,bool print_extensions, bool strict_extension
-)
-    : Algorithm ("bubble"),
-
-      graph(graph), modelMin(graph.getKmerSize(), KMER_MINIMUM), modelDirect(graph.getKmerSize(), KMER_DIRECT),
-
-      low(low), authorised_branching(authorised_branching),
-
-      nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0),
-
-      sizeKmer(graph.getKmerSize()),
-nbKmer2(0), SKIP1(0), SKIP2(0), SKIP3(0), checksumPrint1(0),
-      extend_snps(extend_snps), min_size_extension(min_size_extension),
-      print_extensions (print_extensions), strict_extension (strict_extension)
+BubbleFinder<span>::BubbleFinder (const Graph& graph, IProperties* input)
+    : Algorithm ("bubble", -1, input),
+      graph(graph), sizeKmer(graph.getKmerSize()),
+      modelMin(graph.getKmerSize(), KMER_MINIMUM), modelDirect(graph.getKmerSize(), KMER_DIRECT),
+      _outputBank(0), _synchronizer(0),
+      nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)
 {
     threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
+    setOutputBank (new BankFasta ((getInput()->getStr(STR_URI_OUTPUT)+string(".fa")).c_str()));
 
-    outputBank = new BankFasta (SNP_file_name);
+    low                  = getInput()->getInt (STR_LOW_COMPLEXITY);
+    authorised_branching = getInput()->getInt (STR_AUTHORISED_BRANCHING);
+
+    extend_snps        = false;
+    print_extensions   = true;
+    min_size_extension = -1;
+    strict_extension   = true;
+
+    /** We need a synchronizer for dumping high/low sequences into the output file in an atomic way
+     * (ie avoids potential issues with interleaved high/low sequences in multithread execution). */
+    setSynchronizer (System::thread().newSynchronizer());
 }
 
 /*********************************************************************
@@ -72,7 +72,8 @@ nbKmer2(0), SKIP1(0), SKIP2(0), SKIP3(0), checksumPrint1(0),
 template<size_t span>
 BubbleFinder<span>::~BubbleFinder ()
 {
-    if (outputBank)  { delete outputBank; }
+    setOutputBank   (0);
+    setSynchronizer (0);
 }
 
 /*********************************************************************
@@ -83,19 +84,28 @@ BubbleFinder<span>::~BubbleFinder ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
+/** We define a functor that only calls BubbleFinder::start in the context of thread call
+ * made through a Dispatcher object.
+ * NOTE: it would much simpler to use a lambda expression but we must be sure that this
+ * code will compile with old compilers :(
+ */
+template<size_t span>
+struct FunctorExecute
+{
+    BubbleFinder<span>& finder;
+    FunctorExecute (BubbleFinder<span>& finder) : finder(finder) {}
+    void operator() (const Node& node)  {  finder.start (node);  }
+};
+
+/** */
 template<size_t span>
 void BubbleFinder<span>::execute ()
 {
     // We get an iterator for all nodes of the graph.
     ProgressGraphIterator<Node,ProgressTimer> it (graph.iterator<Node>(), "nodes");
 
-    // NOTE: we use a {} block to get the execution time of the loop
-    {
-        TIME_INFO (getTimeInfo(), "find");
-
-        // We loop each node of the graph
-        for (it.first(); !it.isDone(); it.next())  {  start (it.item());  }
-    }
+    /** We launch the iteration over all the nodes of the graph. */
+    IDispatcher::Status status = getDispatcher()->iterate (it, FunctorExecute<span>(*this));
 
     // We aggregate information
     getInfo()->add (0, "config",   "");
@@ -109,21 +119,8 @@ void BubbleFinder<span>::execute ()
     getInfo()->add (1, "nb_high", "%lu", nb_bubbles_high);
     getInfo()->add (1, "nb_low",  "%lu", nb_bubbles_low);
 
-    getInfo()->add (0, getTimeInfo().getProperties("time"));
-
-    stringstream ss;
-    getInfo()->add (0, "checksums",   "");
-    ss.str(""); ss << checksumStart1;   getInfo()->add (1, "checksumStart1",  "%s", ss.str().c_str());
-    ss.str(""); ss << checksumStart2;   getInfo()->add (1, "checksumStart2",  "%s", ss.str().c_str());
-    ss.str(""); ss << checksumStart3;   getInfo()->add (1, "checksumStart3",  "%s", ss.str().c_str());
-    ss.str(""); ss << checksumExpand1;  getInfo()->add (1, "checksumExpand1", "%s", ss.str().c_str());
-    ss.str(""); ss << checksumExpand2;  getInfo()->add (1, "checksumExpand2", "%s", ss.str().c_str());
-    ss.str(""); ss << checksumGraph;    getInfo()->add (1, "checksumGraph",   "%s", ss.str().c_str());
-    ss.str(""); ss << checksumPrint1;   getInfo()->add (1, "checksumPrint1",  "%s", ss.str().c_str());
-    getInfo()->add (1, "nbKmer2", "%d", nbKmer2);
-    getInfo()->add (1, "SKIP1",   "%d", SKIP1);
-    getInfo()->add (1, "SKIP2",   "%d", SKIP2);
-    getInfo()->add (1, "SKIP3",   "%d", SKIP3);
+    getInfo()->add (0, "time", "");
+    getInfo()->add (1, "find", "%d", status.time);
 }
 
 /*********************************************************************
@@ -156,10 +153,6 @@ void BubbleFinder<span>::start (const Node& node)
             /** We mutate the last nucleotide of the current node. */
             kmer_type kmer2 = modelDirect.mutate (kmer1, 0, i);
 
-checksumStart1 += kmer1;
-checksumStart2 += kmer2;
-checksumStart3 += min (kmer2, modelMin.reverse(kmer2));
-
             // BETTER NOT USE IT : avoid some double SNPs: do only A-C, A-G couples instead of G-T and C-T.
             // The problem comes from A-T and C-G that are still double.
 
@@ -167,8 +160,6 @@ checksumStart3 += min (kmer2, modelMin.reverse(kmer2));
             Node::Value val (min (kmer2, modelMin.reverse(kmer2)));
             if (graph.contains(val) == true) // the tried kmer is indexed.
             {
-checksumGraph += kmer2;
-nbKmer2++;
                 /** We update the path2 with the current mutation nucleotide. */
                 path2[sizeKmer-1] = i;
 
@@ -237,9 +228,6 @@ void BubbleFinder<span>::expand (
                 next_kmer1 = modelDirect.codeSeedRight (kmer1, nt, Data::INTEGER);
                 next_kmer2 = modelDirect.codeSeedRight (kmer2, nt, Data::INTEGER);
 
-checksumExpand1 += next_kmer1;
-checksumExpand2 += next_kmer2;
-
                 /** We call recursively the method (recursion on 'pos'). */
                 expand (pos+1, path1, path2,  next_kmer1, next_kmer2,  kmer1, kmer2);
 
@@ -267,21 +255,29 @@ checksumExpand2 += next_kmer2;
                     {
                         char path1_c[2*sizeKmer+2], path2_c[2*sizeKmer+2]; // +2 stands for the \0 character
 
-                        /** We update statistics. */
-                        nb_bubbles++;
-                        if (score < threshold)  { nb_bubbles_high++;  }
-                        else                    { nb_bubbles_low++;   }
+                        /** We update statistics. NOTE: We have to make sure it is protected against concurrent
+                         * accesses since we may be called here from different threads. */
+                        size_t currentNbBubbles = __sync_add_and_fetch (&(nb_bubbles), 1 );
+
+                        if (score < threshold)  { __sync_add_and_fetch (&(nb_bubbles_high), 1 );  }
+                        else                    { __sync_add_and_fetch (&(nb_bubbles_low),  1 );  }
 
                         /** We may have to close the SNP. */
                         int where_to_extend = close_snp (path1, path2, path1_c, path2_c);
 
                         /** We retrieve the two sequences. */
-                        retrieveSequence (path1_c, "higher", score, where_to_extend, seq1);
-                        retrieveSequence (path2_c, "lower",  score, where_to_extend, seq2);
+                        retrieveSequence (path1_c, "higher", score, where_to_extend, currentNbBubbles, seq1);
+                        retrieveSequence (path2_c, "lower",  score, where_to_extend, currentNbBubbles, seq2);
 
-                        /** We insert the two sequences into the output bank. */
-                        outputBank->insert (seq1);
-                        outputBank->insert (seq2);
+                        /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
+                         * a LocalSynchronizer instance with the shared ISynchonizer of the BubbleFinder class. */
+                        {
+                            LocalSynchronizer sync (_synchronizer);
+
+                            /** We insert the two sequences into the output bank. */
+                            _outputBank->insert (seq1);
+                            _outputBank->insert (seq2);
+                        }
                     }
                 }
             }
@@ -382,7 +378,7 @@ bool BubbleFinder<span>::two_possible_extensions (kmer_type kmer1, kmer_type kme
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-void BubbleFinder<span>::retrieveSequence (char* path, const char* type, int score, int where_to_extend, Sequence& seq)
+void BubbleFinder<span>::retrieveSequence (char* path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq)
 {
     //Here, path have 2k, 2k-1 or 2k+1 size
     int size_path = strlen(path);
@@ -393,7 +389,7 @@ void BubbleFinder<span>::retrieveSequence (char* path, const char* type, int sco
     stringstream commentStream;
 
     /** We build the comment for the sequence. */
-    commentStream << "SNP_" << type << "_path_" << nb_bubbles << "|" << (score >= threshold ? "low" : "high");
+    commentStream << "SNP_" << type << "_path_" << seqIndex << "|" << (score >= threshold ? "low" : "high");
 
     /** We may have extra information for the comment. */
     addExtraCommentInformation (commentStream, left_contig, right_contig, where_to_extend);
@@ -504,22 +500,15 @@ bool BubbleFinder<span>::checkKmersDiff (const kmer_type& previous, const kmer_t
 template<size_t span>
 bool BubbleFinder<span>::checkPath (char* path) const
 {
-#if 0
-    char first_kmer[sizeKmer+1], first_kmer_rev[sizeKmer+1];
-    for ( i=0; i<sizeKmer; i++ )
-        first_kmer[i] = bin2NT[path1[i]];
-    first_kmer[sizeKmer]='\0';
+    /** We test whether the first kmer of the first path is smaller than
+     * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
 
-    for ( i=sizeKmer-1; i<2*sizeKmer-1; i++ )
-        first_kmer_rev[i-sizeKmer+1] = bin2NT[path1[i]];
-    first_kmer_rev[sizeKmer]='\0';
+    kmer_type kmerFirst = modelDirect.codeSeed (path + 0,          Data::INTEGER);
+    kmer_type kmerLast  = modelDirect.codeSeed (path + sizeKmer-1, Data::INTEGER);
 
-    revcomp(first_kmer_rev, sizeKmer);
+    kmerLast = modelMin.reverse (kmerLast);
 
-    return (strcmp(first_kmer, first_kmer_rev)<0);
-#else
-    return true;
-#endif
+    return modelMin.toString(kmerFirst).compare (modelMin.toString (kmerLast)) < 0;
 }
 
 /*********************************************************************

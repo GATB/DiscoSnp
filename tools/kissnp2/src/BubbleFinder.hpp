@@ -27,6 +27,10 @@
 #include <gatb/gatb_core.hpp>
 
 /********************************************************************************/
+#define STR_LOW_COMPLEXITY          "-l"
+#define STR_AUTHORISED_BRANCHING    "-b"
+
+/********************************************************************************/
 template<size_t span=KSIZE_1>
 class BubbleFinder : public Algorithm
 {
@@ -37,11 +41,7 @@ public:
     typedef typename Kmer<span>::Type  kmer_type;
 
     /** Constructor. */
-    BubbleFinder (
-        const Graph& graph,
-        const char* SNP_file_name, int low, int authorised_branching,
-        bool extend_snps, int min_size_extension, bool print_extensions, bool strict_extension
-    );
+    BubbleFinder (const Graph& graph, IProperties* input);
 
     /** Destructor. */
     ~BubbleFinder ();
@@ -49,11 +49,10 @@ public:
     /** */
     void execute ();
 
-
-protected:
-
     /** */
     void start (const Node& node);
+
+protected:
 
     /** */
     void expand (
@@ -73,38 +72,25 @@ protected:
     size_t sizeKmer;
     int threshold;
 
-    IBank* outputBank;
+    IBank* _outputBank;
+    void setOutputBank (IBank* outputBank)  { SP_SETATTR(outputBank); }
 
     int low;
     int authorised_branching;
-
-//    bool authorised_branching;
-
-    size_t nb_bubbles;
-    size_t nb_bubbles_high;
-    size_t nb_bubbles_low;
-
-    kmer_type checksumStart1;
-    kmer_type checksumStart2;
-    kmer_type checksumStart3;
-
-    kmer_type checksumExpand1;
-    kmer_type checksumExpand2;
-
-    kmer_type checksumGraph;
-    size_t    nbKmer2;
-
-    size_t checksumPrint1;
-
-    size_t SKIP1;
-    size_t SKIP2;
-    size_t SKIP3;
 
     bool extend_snps;
     bool print_extensions;
     bool strict_extension; // true: strict extension, fales: contig extension
     int  min_size_extension;
     
+    /** We need a synchronizer for dumping the sequences into the output bank. */
+    ISynchronizer* _synchronizer;
+    void setSynchronizer (ISynchronizer* synchronizer)  { SP_SETATTR(synchronizer); }
+
+    size_t nb_bubbles;
+    size_t nb_bubbles_high;
+    size_t nb_bubbles_low;
+
     /**
      * Extends if necessary left and/or right parts of the bubble.
      * Prints results
@@ -113,7 +99,7 @@ protected:
      * where_to_extend : 0=nothing, 1=left only, 2=right only, 3=both
      */
     //extension==0 no extension, =1 only left, =2 only right, =3 both
-    void retrieveSequence (char* path, const char* type, int score, int where_to_extend, Sequence& seq);
+    void retrieveSequence (char* path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq);
 
     bool two_possible_extensions_on_one_path(kmer_type) const;
     bool two_possible_extensions(kmer_type kmer1, kmer_type kmer2) const;

@@ -7,30 +7,11 @@ using namespace std;
 
 /********************************************************************************/
 
-static const char* STR_LOW_COMPLEXITY       = "-l";
-static const char* STR_AUTHORISED_BRANCHING = "-b";
-
-/********************************************************************************/
-
 template<size_t span>
-static void executeAlgorithm (Kissnp2& tool, const Graph& graph, IProperties* input)
+static void executeAlgorithm (Kissnp2& tool, const Graph& graph)
 {
-    bool extend_snps        = false;
-    bool print_extensions   = true;
-    int  min_size_extension = -1;
-    bool strict_extension   = true;
-
     /** We create a bubble instance. */
-    BubbleFinder<span> bubble (
-        graph,
-        (input->getStr(STR_URI_OUTPUT)+string(".fa")).c_str(),
-        input->getInt(STR_LOW_COMPLEXITY),
-        input->getInt(STR_AUTHORISED_BRANCHING),
-        extend_snps,
-        min_size_extension,
-        print_extensions,
-        strict_extension
-    );
+    BubbleFinder<span> bubble (graph, tool.getInput());
 
     // We launch the bubbles lookup.
     bubble.execute ();
@@ -82,9 +63,9 @@ void Kissnp2::execute ()
     size_t kmerSize = graph.getKmerSize();
 
     /** According to the kmer size, we instantiate one DSKAlgorithm class and delegate the actual job to it. */
-         if (kmerSize < KSIZE_1)  { executeAlgorithm <KSIZE_1>  (*this, graph, getInput());  }
-    else if (kmerSize < KSIZE_2)  { executeAlgorithm <KSIZE_2>  (*this, graph, getInput());  }
-    else if (kmerSize < KSIZE_3)  { executeAlgorithm <KSIZE_3>  (*this, graph, getInput());  }
-    else if (kmerSize < KSIZE_4)  { executeAlgorithm <KSIZE_4>  (*this, graph, getInput());  }
+         if (kmerSize < KSIZE_1)  { executeAlgorithm <KSIZE_1>  (*this, graph);  }
+    else if (kmerSize < KSIZE_2)  { executeAlgorithm <KSIZE_2>  (*this, graph);  }
+    else if (kmerSize < KSIZE_3)  { executeAlgorithm <KSIZE_3>  (*this, graph);  }
+    else if (kmerSize < KSIZE_4)  { executeAlgorithm <KSIZE_4>  (*this, graph);  }
     else  { throw Exception ("unsupported kmer size %d", kmerSize);  }
 }
