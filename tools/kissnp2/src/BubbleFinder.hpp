@@ -27,8 +27,9 @@
 #include <gatb/gatb_core.hpp>
 
 /********************************************************************************/
-#define STR_LOW_COMPLEXITY          "-l"
-#define STR_AUTHORISED_BRANCHING    "-b"
+#define STR_DISCOSNP_LOW_COMPLEXITY          "-l"
+#define STR_DISCOSNP_AUTHORISED_BRANCHING    "-b"
+#define STR_DISCOSNP_WITH_EXTENSION          "-e"
 
 /********************************************************************************/
 template<size_t span=KSIZE_1>
@@ -123,6 +124,24 @@ protected:
     bool checkBranching (kmer_type kmer1, kmer_type kmer2) const;
 
     bool checkLowComplexity (char* path1, char* path2, int& score) const;
+};
+
+/********************************************************************************/
+
+template<size_t span=KSIZE_1>
+class BubbleFinderWithExtension : public BubbleFinder<span>
+{
+public:
+
+    /** Constructor. */
+    BubbleFinderWithExtension (const Graph& graph, IProperties* input);
+
+    /** Destructor. */
+    ~BubbleFinderWithExtension ();
+
+protected:
+
+    virtual int close_snp (const char * path1, const char * path2, char * path1_c, char * path2_c);
 };
 
 /********************************************************************************/

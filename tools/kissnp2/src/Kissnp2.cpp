@@ -34,10 +34,11 @@ static void executeAlgorithm (Kissnp2& tool, const Graph& graph)
 Kissnp2::Kissnp2 ()  : Tool ("Kissnp2")
 {
     /** We add options specific to Minia (most important at the end). */
-    getParser()->push_front (new OptionOneParam (STR_URI_INPUT,             "input file (likely a hdf5 file)",  true));
-    getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,            "output name",                      true));
-    getParser()->push_front (new OptionOneParam (STR_LOW_COMPLEXITY,        "conserve low complexity SNPs",     false, "0"));
-    getParser()->push_front (new OptionOneParam (STR_AUTHORISED_BRANCHING,  "input file (likely a hdf5 file)",  false, "1"));
+    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false, "0"));
+    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "input file (likely a hdf5 file)",  false, "1"));
+    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_WITH_EXTENSION,       "extend found SNPs  and conserve only those whose min(left and right extension) is bigger or equal to length",  false, "-1"));
+    getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
+    getParser()->push_front (new OptionOneParam (STR_URI_INPUT,                     "input file (likely a hdf5 file)",  true));
 
     /* authorised_branching =
     *   0: branching forbidden in any path

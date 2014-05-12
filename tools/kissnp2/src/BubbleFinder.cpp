@@ -45,15 +45,25 @@ BubbleFinder<span>::BubbleFinder (const Graph& graph, IProperties* input)
       _outputBank(0), _synchronizer(0),
       nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)
 {
+    /** We set the threshold. */
     threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
-    setOutputBank (new BankFasta ((getInput()->getStr(STR_URI_OUTPUT)+string(".fa")).c_str()));
 
-    low                  = getInput()->getInt (STR_LOW_COMPLEXITY);
-    authorised_branching = getInput()->getInt (STR_AUTHORISED_BRANCHING);
+    /** We set attributes according to user choice. */
+    low                  = getInput()->getInt (STR_DISCOSNP_LOW_COMPLEXITY);
+    authorised_branching = getInput()->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
+    min_size_extension   = getInput()->getInt (STR_DISCOSNP_WITH_EXTENSION);
+
+    /** We set the name of the output file. */
+    stringstream ss;
+    ss << getInput()->getStr(STR_URI_OUTPUT)  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
+    if (min_size_extension > -1)  { ss << "_e_" << min_size_extension; }
+    ss << ".fa";
+
+    /** We set the output file. */
+    setOutputBank (new BankFasta (ss.str()));
 
     extend_snps        = false;
     print_extensions   = true;
-    min_size_extension = -1;
     strict_extension   = true;
 
     /** We need a synchronizer for dumping high/low sequences into the output file in an atomic way
@@ -299,7 +309,6 @@ template<size_t span>
 int BubbleFinder<span>::close_snp (const char* path1, const char* path2, char* path1_c, char* path2_c)
 {
     /** This implementation doesn't close the snp => only reports paths. */
-
     size_t i=0;
     for(i=0; i<2*sizeKmer-1; i++)
     {
@@ -552,6 +561,51 @@ bool BubbleFinder<span>::checkLowComplexity (char* path1, char* path2, int& scor
     score = filterLowComplexity2Paths (path1, path2, 2*sizeKmer-1, threshold);
 
     return (score < threshold || (score>=threshold && low));
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+template<size_t span>
+BubbleFinderWithExtension<span>::BubbleFinderWithExtension (const Graph& graph, IProperties* input)
+    : BubbleFinder<span> (graph,input)
+{
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+template<size_t span>
+BubbleFinderWithExtension<span>::~BubbleFinderWithExtension ()
+{
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+template<size_t span>
+int BubbleFinderWithExtension<span>::close_snp (const char* path1, const char* path2, char* path1_c, char* path2_c)
+{
+//    kmer_type kmer1 = modelDirect.codeSeed (path1 + 0,          Data::INTEGER);
+//    kmer_type kmer2 = modelDirect.codeSeed (path1 + sizeKmer-1, Data::INTEGER);
+//
+//    Node::Value val1 (min (kmer1, modelMin.reverse(kmer1)));
+//    Node::Value val2 (min (kmer2, modelMin.reverse(kmer2)));
 }
 
 /********************************************************************************/
