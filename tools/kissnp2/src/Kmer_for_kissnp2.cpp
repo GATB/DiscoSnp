@@ -1,3 +1,5 @@
+#ifdef ED
+
 //Copyright inria / irisa (2013)
 //
 //
@@ -85,3 +87,5 @@ kmer_type next_kmer_new_norevcomp(kmer_type graine, int added_nt, int strand)
 
     return new_graine;
 }
+
+#endif

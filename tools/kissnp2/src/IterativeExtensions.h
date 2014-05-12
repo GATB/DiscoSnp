@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -92,4 +93,5 @@ class IterativeExtensions {
     static pair<char *, int>  extend_a_snp(string L, int max_depth);
 };
 
+#endif
 #endif

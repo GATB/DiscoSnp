@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -707,3 +708,4 @@ pair<char *, int> IterativeExtensions::extend_a_snp(string L, int max_depth)
     return std::make_pair(node,first_divergence);
 }
 
+#endif

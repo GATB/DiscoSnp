@@ -1,4 +1,5 @@
-#ifdef ED
+#ifndef FILTER_H
+#define FILTER_H
 //Copyright inria / irisa (2013)
 //
 //
@@ -33,9 +34,32 @@
 //The fact that you are presently reading this means that you have had
 //knowledge of the CeCILL license and that you accept its terms.
 
-#include <stdint.h>
-#include "../minia/Kmer.h"
+/**
+ * Logiciel Gassst (Global Alignment Short Sequence Search Tool)
+ * \file filter.h
+ * \brief Module Filter, definit le filtre Low Complexity qui detecte les zones non pertinentes des sequences afin de ne pas les indexer
+ * \author Dominique Lavenier
+ * \author Damien Fleury
+ * \version 5.2
+ * \date 28/08/2008
+ */
 
-kmer_type next_kmer_new(kmer_type graine, int added_nt, int strand);
-kmer_type next_kmer_new_norevcomp(kmer_type graine, int added_nt, int strand);
+/// Fenêtre du filtre Low complexity
+/// #define WS 12
+
+
+using namespace std;
+
+
+/**
+ * Methode permettant d'appliquer le filtre Low Complexity
+ * \param data le tableau des donnees de la banque de sequences
+ * \param id l'index du debut de la sequence
+ * \param lenseq la longueur de la sequence
+ * \return 1 si l'operation s'est deroulee correctement
+ */
+int filterLowComplexity (char* data, int lenseq, int threshold);
+int filterLowComplexity2Paths (char* seq1, char *seq2, int lenseq, int threshold);
+
 #endif
+

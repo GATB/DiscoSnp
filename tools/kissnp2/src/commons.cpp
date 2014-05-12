@@ -1,3 +1,5 @@
+#ifdef ED
+
 /**
  * Copyright INRIA and ENS, contributors Peterlongo and Chikhi
  * pierre.peterlongo@inria.fr
@@ -208,3 +210,4 @@ int valid_character(const char c){
 }
 
 
+#endif

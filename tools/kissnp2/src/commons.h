@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -60,3 +61,4 @@ void print_rev_comp(char s[], FILE * out=stdout);
 #define Sinc24(a)  ((a == 0xFFFFFF ) ? 0xFFFFFF : a++)
 #define Sinc8(a)  ((a == 0xFF ) ? 0xFF : a++)
 #endif /* COMMONS_H_ */
+#endif

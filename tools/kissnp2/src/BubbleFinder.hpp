@@ -56,13 +56,15 @@ protected:
     void start (const Node& node);
 
     /** */
-    void expand(int direction, char* path1, char* path2, kmer_type kmer1, kmer_type kmer2, int pos, char* p1, char* p2, char* p3, char* p4);
-
-    /** */
-    bool next(kmer_type *kmer);
-
-    /** */
-    void read_bubble_file(char *bubble_filename);
+    void expand (
+        int pos,
+        char* path1,
+        char* path2,
+        const kmer_type& kmer1,
+        const kmer_type& kmer2,
+        const kmer_type& previous_kmer1,
+        const kmer_type& previous_kmer2
+    );
 
     const Graph& graph;
     Model        modelMin;
@@ -70,6 +72,8 @@ protected:
 
     size_t sizeKmer;
     int threshold;
+
+    IBank* outputBank;
 
     int low;
     int authorised_branching;
@@ -101,8 +105,6 @@ protected:
     bool strict_extension; // true: strict extension, fales: contig extension
     int  min_size_extension;
     
-    FILE* SNP_file;
-
     /**
      * Extends if necessary left and/or right parts of the bubble.
      * Prints results
@@ -110,25 +112,31 @@ protected:
      * score=complexity score
      * where_to_extend : 0=nothing, 1=left only, 2=right only, 3=both
      */
-    void print_sequence_and_eventually_contigs(char * path1, char * path2, const int score, int where_to_extend); //extension==0 no extension, =1 only left, =2 only right, =3 both
-    unsigned char branching_structure(kmer_type graine);
-    bool is_branching(kmer_type kmer);
+    //extension==0 no extension, =1 only left, =2 only right, =3 both
+    void retrieveSequence (char* path, const char* type, int score, int where_to_extend, Sequence& seq);
 
     bool two_possible_extensions_on_one_path(kmer_type) const;
     bool two_possible_extensions(kmer_type kmer1, kmer_type kmer2) const;
 
+    //returns -1 not closed, 0 no unique extension, 1 only left, 2 only right, 3 both
+    virtual int close_snp (const char * path1, const char * path2, char * path1_c, char * path2_c);
 
-    int close_snp(const char * path1, const char * path2, char * path1_c, char * path2_c); //returns -1 not closed, 0 no unique extension, 1 only left, 2 only right, 3 both
-
-    void prints_contig_informations (
-        FILE* file,
+    virtual void addExtraCommentInformation (
+        std::stringstream& ss,
         std::pair<char*,int> left_extension,
         std::pair<char*,int> right_extension,
-        bool extend_snps,
-        bool strict_extension,
-        int where_to_extend);
+        int where_to_extend
+    );
+
+    bool checkKmersDiff (const kmer_type& previous, const kmer_type& current, const kmer_type& next) const;
+
+    // Check whether the first kmer of the first path is smaller than the first kmer of the revcomp(first path),
+    // this should avoid repeated SNPs
+    bool checkPath (char* path) const;
 
     bool checkBranching (kmer_type kmer1, kmer_type kmer2) const;
+
+    bool checkLowComplexity (char* path1, char* path2, int& score) const;
 };
 
 /********************************************************************************/

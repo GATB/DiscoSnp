@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -933,3 +934,4 @@ void Bubble::find_bubbles(const char * SNP_file_name, int low, int authorised_br
  printf("%d high complexity bubbles and %d low complexity bubbles, with threshold %d", hc_bubbles, lc_bubbles, threshold);
  fclose(bubble_file);
  }*/
+#endif

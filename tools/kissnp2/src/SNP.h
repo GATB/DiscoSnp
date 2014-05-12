@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -94,3 +95,4 @@ public:
 
 
 #endif // SNP_H_INCLUDED
+#endif

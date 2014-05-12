@@ -1,3 +1,4 @@
+#ifdef ED
 //Copyright inria / irisa (2013)
 //
 //
@@ -378,3 +379,4 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+#endif
