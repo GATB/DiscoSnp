@@ -91,7 +91,11 @@ void Kissnp2::configure ()
     low                  = getInput()->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = getInput()->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
     min_size_extension   = getInput()->getInt (STR_DISCOSNP_EXTENSION_SIZE);
-    extensionMode        = (ExtensionMode) getInput()->getInt (STR_DISCOSNP_EXTENSION_MODE);
+
+    /** We set the extension mode. */
+    int mode = getInput()->getInt (STR_DISCOSNP_EXTENSION_MODE);
+    if ( !(mode>=0 && mode<=2) )  { throw Exception ("Bad parameter for extension mode (%d)", mode); }
+    extensionMode = (ExtensionMode) mode;
 
     /** We set the name of the output file. */
     stringstream ss;
@@ -152,6 +156,7 @@ void Kissnp2::execute ()
     getInfo()->add (2, "threshold",   "%d", threshold);
     getInfo()->add (2, "auth_branch", "%d", authorised_branching);
     getInfo()->add (2, "low",         "%d", low);
+    getInfo()->add (2, "extend_mode", "%d", extensionMode);
 
     getInfo()->add (1, "bubbles",   "");
     getInfo()->add (2, "nb",      "%lu", nb_bubbles);
@@ -416,45 +421,6 @@ void Kissnp2::addExtraCommentInformation (
     std::pair<char*,int> right_extension,
     int where_to_extend)
 {
-#if 0
-
-    if (extend_snps && strict_extension)
-    {
-        if(where_to_extend == 0) { ss << "|left_unitig_length_0|right_unitig_length_0"; }
-
-        if(where_to_extend == 1) { ss <<  "|left_unitig_length_%d|right_unitig_length_0", (int)strlen(left_extension.first)-sizeKmer+1); //+1 because of close_snp
-
-        if(where_to_extend == 2)
-            fprintf(file,"|left_unitig_length_0|right_unitig_length_%d", (int)strlen(right_extension.first)-sizeKmer+1);//+1 because of close_snp
-
-        if(where_to_extend == 3)
-            fprintf(file,"|left_unitig_length_%d|right_unitig_length_%d", (int)strlen(left_extension.first)-sizeKmer+1,(int)strlen(right_extension.first)-sizeKmer+1);//+1 because of close_snp
-    }
-
-    if (extend_snps && !strict_extension)
-    {
-        if(where_to_extend == 0)
-        {
-            fprintf(file,"|left_unitig_length_0|right_unitig_length_0");
-            fprintf(file,"|left_contig_length_0|right_contig_length_0");
-        }
-        if(where_to_extend == 1)
-        {
-            fprintf(file,"|left_unitig_length_%d|right_unitig_length_0", left_extension.second-sizeKmer+1); //+1 because of close_snp
-            fprintf(file,"|left_contig_length_%d|right_contig_length_0", (int)strlen(left_extension.first)-sizeKmer+1); //+1 because of close_snp
-        }
-        if(where_to_extend == 2)
-        {
-            fprintf(file,"|left_unitig_length_0|right_unitig_length_%d", right_extension.second-sizeKmer+1);//+1 because of close_snp
-            fprintf(file,"|left_contig_length_0|right_contig_length_%d", (int)strlen(right_extension.first)-sizeKmer+1);//+1 because of close_snp
-        }
-        if(where_to_extend == 3)
-        {
-            fprintf(file,"|left_unitig_length_%d|right_unitig_length_%d", left_extension.second-sizeKmer+1,right_extension.second-sizeKmer+1);//+1 because of close_snp
-            fprintf(file,"|left_contig_length_%d|right_contig_length_%d", (int)strlen(left_extension.first)-sizeKmer+1,(int)strlen(right_extension.first)-sizeKmer+1);//+1 because of close_snp
-        }
-    }
-#endif
 }
 
 /*********************************************************************
