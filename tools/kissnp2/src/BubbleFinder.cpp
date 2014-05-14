@@ -41,7 +41,6 @@ template<size_t span>
 BubbleFinder<span>::BubbleFinder (const Graph& graph, IProperties* input)
     : Algorithm ("bubble", -1, input),
       graph(graph), sizeKmer(graph.getKmerSize()),
-      modelMin(graph.getKmerSize(), KMER_MINIMUM), modelDirect(graph.getKmerSize(), KMER_DIRECT),
       _outputBank(0), _synchronizer(0),
       nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)
 {
@@ -97,14 +96,21 @@ BubbleFinder<span>::~BubbleFinder ()
 /** We define a functor that only calls BubbleFinder::start in the context of thread call
  * made through a Dispatcher object.
  * NOTE: it would much simpler to use a lambda expression but we must be sure that this
- * code will compile with old compilers :(
+ * code will compile with old compilers, so explicit functor struct is mandatory :(
  */
 template<size_t span>
 struct FunctorExecute
 {
     BubbleFinder<span>& finder;
-    FunctorExecute (BubbleFinder<span>& finder) : finder(finder) {}
-    void operator() (const Node& node)  {  finder.start (node);  }
+
+    FunctorExecute (BubbleFinder<span>& finder) : finder(finder)  {}
+
+    void operator() (const Node& node)
+    {
+        /** We start the SNP in both directions (forward and reverse). */
+        finder.start (node);
+        finder.start (finder.getGraph().reverse(node));
+    }
 };
 
 /** */
@@ -142,46 +148,38 @@ void BubbleFinder<span>::execute ()
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-void BubbleFinder<span>::start (const Node& node)
+void BubbleFinder<span>::start (const Node& node1)
 {
-    // Shortcuts
-    kmer_type kmer1 = node.kmer.get<kmer_type>();
-
     char path1[2*sizeKmer-1], path2[2*sizeKmer-1];
 
-    for (int direction=0; direction<=1; direction++)
+    /** We copy the kmer in path1 and path2*/
+#if 0
+    for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = graph.getNT(node1,i);  }
+#else
+    kmer_type kmer = node1.kmer.get<kmer_type>();
+    if (node1.strand == STRAND_FORWARD) {  for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = kmer[sizeKmer-1-i];  } }
+    else                                {  for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = reverse((Nucleotide)kmer[i]);    } }
+#endif
+
+    /** We try all the possible extensions that were not previously tested (clever :-)) */
+    for (int i=path1[sizeKmer-1]+1; i<4; i++)
     {
-        /** We start bubble for kmer in reverse form. */
-        if (direction == 1)  {  kmer1 = modelMin.reverse(kmer1);  }
+        /** We mutate the last nucleotide (index 'sizeKmer-1') of the current node. */
+        Node node2 = graph.mutate (node1, sizeKmer-1, (Nucleotide)i);
 
-        /** We copy the kmer in path1 and path2*/
-        for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = kmer1[sizeKmer-1-i];  }
-
-        /** We try all the possible extensions that were not previously tested (clever :-)) */
-        for (int i=kmer1[0]+1; i<4; i++)
+        /** We check whether the mutated kmer belongs to the graph. */
+        if (graph.contains(node2) == true)
         {
-            /** We mutate the last nucleotide of the current node. */
-            kmer_type kmer2 = modelDirect.mutate (kmer1, 0, i);
+            /** We update the path2 with the current mutation nucleotide. */
+            path2[sizeKmer-1] = i;
 
-            // BETTER NOT USE IT : avoid some double SNPs: do only A-C, A-G couples instead of G-T and C-T.
-            // The problem comes from A-T and C-G that are still double.
+            Node previousNode1 (~0);
+            Node previousNode2 (~0);
 
-            /** We check whether the mutated kmer belongs to the graph. */
-            Node::Value val (min (kmer2, modelMin.reverse(kmer2)));
-            if (graph.contains(val) == true) // the tried kmer is indexed.
-            {
-                /** We update the path2 with the current mutation nucleotide. */
-                path2[sizeKmer-1] = i;
-
-                kmer_type previous_kmer1 (~0);
-                kmer_type previous_kmer2 (~0);
-
-                /** We open a new putative bubble. */
-                expand (1, path1, path2, kmer1, kmer2, previous_kmer1, previous_kmer2);
-            }
+            /** We open a new putative bubble. */
+            expand (1, path1, path2, node1, node2, previousNode1, previousNode2);
         }
-
-    }  // for (direction...)
+    }
 }
 
 /*********************************************************************
@@ -195,106 +193,102 @@ void BubbleFinder<span>::start (const Node& node)
 template<size_t span>
 void BubbleFinder<span>::expand (
     int pos,
-    char* path1, char* path2,
-    const kmer_type& kmer1, const kmer_type& kmer2,
-    const kmer_type& previous_kmer1,
-    const kmer_type& previous_kmer2
+    char* path1,
+    char* path2,
+    const Node& node1,
+    const Node& node2,
+    const Node& previousNode1,
+    const Node& previousNode2
 )
 {
-    kmer_type next_kmer1, next_kmer2;
     Sequence seq1, seq2;
 
-    if (pos > sizeKmer-1)  { return; }
+    /** A little check won't hurt. */
+    if (pos > sizeKmer-1)  { throw Exception("Bad recursion in BubbleFinder..."); }
 
     /** We may have to stop the extension according to the branching mode. */
-    if (checkBranching(kmer1,kmer2) == false)  { return; }
+    if (checkBranching(node1,node2) == false)  { return; }
 
-    for (int nt=0; nt<4; nt++)
+    /** We get the common successors of node1 and node2. */
+    Graph::Vector < pair<Edge,Edge> > successors = graph.successors<Edge> (node1, node2);
+
+    /** We loop over the successors of the two nodes. */
+    for (size_t i=0; i<successors.size(); i++)
     {
-        next_kmer1 = modelMin.codeSeedRight (kmer1, nt, Data::INTEGER);
-        next_kmer2 = modelMin.codeSeedRight (kmer2, nt, Data::INTEGER);
+        /** Shortcuts. */
+        pair<Edge,Edge>& p = successors[i];
+        Node nextNode1 = p.first.to;
+        Node nextNode2 = p.second.to;
+        Nucleotide nt  = p.first.nt;
 
-        Node::Value val1 (next_kmer1);
-        Node::Value val2 (next_kmer2);
+        /** We check whether the new nodes are different from previous ones. */
+        bool checkPrevious =
+            checkKmersDiff (previousNode1, node1, nextNode1) &&
+            checkKmersDiff (previousNode2, node2, nextNode2);
 
-        if (graph.contains(val1) && graph.contains(val2))
+        if (!checkPrevious)  { continue; }
+
+        /** We add the current nucleotide to the bubble paths. */
+        path1[sizeKmer-1+pos] = nt;
+        path2[sizeKmer-1+pos] = nt;
+
+        /************************************************************/
+        /**                   RECURSION CONTINUES                  **/
+        /************************************************************/
+        if (pos < sizeKmer-1)
         {
-            /** We check whether the new kmers are different from previous ones. */
-            bool checkPrevious =
-                checkKmersDiff (previous_kmer1, kmer1, next_kmer1) &&
-                checkKmersDiff (previous_kmer2, kmer2, next_kmer2);
+            /** We call recursively the method (recursion on 'pos'). */
+            expand (pos+1, path1, path2,  nextNode1, nextNode2,  node1, node2);
 
-            if (!checkPrevious)  { continue; }
+            /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
+            if ( authorised_branching==0 || authorised_branching==1 )   {  break;  }
+        }
 
-            /** We add the current nucleotide to the bubble paths. */
-            path1[sizeKmer-1+pos] = nt;
-            path2[sizeKmer-1+pos] = nt;
-
-            /************************************************************/
-            /**                   RECURSION CONTINUES                  **/
-            /************************************************************/
-            if (pos < sizeKmer-1)
+        /************************************************************/
+        /**                   RECURSION FINISHED                   **/
+        /************************************************************/
+        else
+        {
+            /** We check the first path vs. its revcomp. */
+            if (checkPath(path1)==true)
             {
-                next_kmer1 = modelDirect.codeSeedRight (kmer1, nt, Data::INTEGER);
-                next_kmer2 = modelDirect.codeSeedRight (kmer2, nt, Data::INTEGER);
+                int score=0;
 
-                /** We call recursively the method (recursion on 'pos'). */
-                expand (pos+1, path1, path2,  next_kmer1, next_kmer2,  kmer1, kmer2);
+                /** We check the branching properties of the next kmers. */
+                if (checkBranching(nextNode1, nextNode2)==false)  { return; }
 
-                /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
-                if ( authorised_branching==0 || authorised_branching==1 )   {  break;  }
-            }
-
-            /************************************************************/
-            /**                   RECURSION FINISHED                   **/
-            /************************************************************/
-            else
-            {
-                /** We check the first path vs. its revcomp. */
-                if (checkPath(path1)==true)
+                /** We check the low complexity of paths (we also get the score). */
+                if (checkLowComplexity (path1, path2, score) == true)
                 {
-                    int score=0;
+                    char path1_c[2*sizeKmer+2], path2_c[2*sizeKmer+2]; // +2 stands for the \0 character
 
-                    /** We check the branching properties of the next kmers. */
-                    next_kmer1 = modelDirect.codeSeedRight (kmer1, nt, Data::INTEGER);
-                    next_kmer2 = modelDirect.codeSeedRight (kmer2, nt, Data::INTEGER);
-                    if (checkBranching(next_kmer1, next_kmer2)==false)  { return; }
+                    /** We update statistics. NOTE: We have to make sure it is protected against concurrent
+                     * accesses since we may be called here from different threads. */
+                    size_t currentNbBubbles = __sync_add_and_fetch (&(nb_bubbles), 1 );
 
-                    /** We check the low complexity of paths (we also get the score). */
-                    if (checkLowComplexity (path1, path2, score) == true)
+                    if (score < threshold)  { __sync_add_and_fetch (&(nb_bubbles_high), 1 );  }
+                    else                    { __sync_add_and_fetch (&(nb_bubbles_low),  1 );  }
+
+                    /** We may have to close the SNP. */
+                    int where_to_extend = extend (path1, path2, path1_c, path2_c);
+
+                    /** We retrieve the two sequences. */
+                    retrieveSequence (path1_c, "higher", score, where_to_extend, currentNbBubbles, seq1);
+                    retrieveSequence (path2_c, "lower",  score, where_to_extend, currentNbBubbles, seq2);
+
+                    /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
+                     * a LocalSynchronizer instance with the shared ISynchonizer of the BubbleFinder class. */
                     {
-                        char path1_c[2*sizeKmer+2], path2_c[2*sizeKmer+2]; // +2 stands for the \0 character
+                        LocalSynchronizer sync (_synchronizer);
 
-                        /** We update statistics. NOTE: We have to make sure it is protected against concurrent
-                         * accesses since we may be called here from different threads. */
-                        size_t currentNbBubbles = __sync_add_and_fetch (&(nb_bubbles), 1 );
-
-                        if (score < threshold)  { __sync_add_and_fetch (&(nb_bubbles_high), 1 );  }
-                        else                    { __sync_add_and_fetch (&(nb_bubbles_low),  1 );  }
-
-                        /** We may have to close the SNP. */
-                        int where_to_extend = close_snp (path1, path2, path1_c, path2_c);
-
-                        /** We retrieve the two sequences. */
-                        retrieveSequence (path1_c, "higher", score, where_to_extend, currentNbBubbles, seq1);
-                        retrieveSequence (path2_c, "lower",  score, where_to_extend, currentNbBubbles, seq2);
-
-                        /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
-                         * a LocalSynchronizer instance with the shared ISynchonizer of the BubbleFinder class. */
-                        {
-                            LocalSynchronizer sync (_synchronizer);
-
-                            /** We insert the two sequences into the output bank. */
-                            _outputBank->insert (seq1);
-                            _outputBank->insert (seq2);
-                        }
+                        /** We insert the two sequences into the output bank. */
+                        _outputBank->insert (seq1);
+                        _outputBank->insert (seq2);
                     }
                 }
             }
-
-        } /* end of if (graph.contains(val1) && graph.contains(val2)... */
-
-    } /* end of for(nt=0; nt<4; nt++) */
+        }
+    }
 }
 
 /*********************************************************************
@@ -306,7 +300,7 @@ void BubbleFinder<span>::expand (
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-int BubbleFinder<span>::close_snp (const char* path1, const char* path2, char* path1_c, char* path2_c)
+int BubbleFinder<span>::extend (const char* path1, const char* path2, char* path1_c, char* path2_c)
 {
     /** This implementation doesn't close the snp => only reports paths. */
     size_t i=0;
@@ -330,10 +324,8 @@ int BubbleFinder<span>::close_snp (const char* path1, const char* path2, char* p
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-bool BubbleFinder<span>::two_possible_extensions_on_one_path (kmer_type kmer) const
+bool BubbleFinder<span>::two_possible_extensions_on_one_path (const Node& node) const
 {
-    Node::Value val(kmer);
-    Node node (val);
     return graph.indegree(node)>=2 || graph.outdegree(node)>=2;
 }
 
@@ -346,36 +338,11 @@ bool BubbleFinder<span>::two_possible_extensions_on_one_path (kmer_type kmer) co
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-bool BubbleFinder<span>::two_possible_extensions (kmer_type kmer1, kmer_type kmer2) const
+bool BubbleFinder<span>::two_possible_extensions (Node node1, Node node2) const
 {
-    kmer_type next_kmer1, next_kmer2;
-    bool already_an_extension = false;
-
-    for (int d=0; d<=1; d++)
-    {
-        if (d == 1)
-        {
-            kmer1 = modelMin.reverse (kmer1);
-            kmer2 = modelMin.reverse (kmer2);
-        }
-
-        for(int nt=0; nt<4; nt++)
-        {
-            next_kmer1 = modelMin.codeSeedRight (kmer1, nt, Data::INTEGER);
-            next_kmer2 = modelMin.codeSeedRight (kmer2, nt, Data::INTEGER);
-
-            Node::Value val1 (next_kmer1);
-            Node::Value val2 (next_kmer2);
-
-            if (graph.contains (val1) && graph.contains(val2))
-            {
-                if (!already_an_extension)  {  already_an_extension = true;  }
-                else                        {  return true;                  }
-            }
-        }
-        already_an_extension = false;
-    }
-    return false;
+    return
+        graph.successors<Edge> (node1, node2).size() >= 2  ||
+        graph.successors<Edge> (graph.reverse (node1),graph.reverse (node2)).size() >= 2;
 }
 
 /*********************************************************************
@@ -488,14 +455,9 @@ void BubbleFinder<span>::addExtraCommentInformation (
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-bool BubbleFinder<span>::checkKmersDiff (const kmer_type& previous, const kmer_type& current, const kmer_type& next) const
+bool BubbleFinder<span>::checkKmersDiff (const Node& previous, const Node& current, const Node& next) const
 {
-    /** We have to get the min/revcomp of current and previous because they may not be the minimal,
-     * which is mandatory to compare to the 'next' kmer. */
-    kmer_type previousMin = min (previous, modelMin.reverse (previous));
-    kmer_type currentMin  = min (current,  modelMin.reverse (current));
-
-    return (next != currentMin) && (next != previousMin);
+    return (next.kmer != current.kmer) && (next.kmer != previous.kmer);
 }
 
 /*********************************************************************
@@ -511,13 +473,25 @@ bool BubbleFinder<span>::checkPath (char* path) const
 {
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
+    char* p1 = path;
+    char* p2 = path + 2*sizeKmer - 2;
 
-    kmer_type kmerFirst = modelDirect.codeSeed (path + 0,          Data::INTEGER);
-    kmer_type kmerLast  = modelDirect.codeSeed (path + sizeKmer-1, Data::INTEGER);
+    static char tableDirect[]  = { 'A', 'C', 'T', 'G' };
+    static char tableReverse[] = { 'T', 'G', 'A', 'C' };
 
-    kmerLast = modelMin.reverse (kmerLast);
+    /** Here, we do the comparison between the two kmers 'on the fly': we don't get
+     * a string representation of both kmers and then use strcmp for instance.
+     * Instead we test each nucleotide (first translated back in ASCII) */
+    for (size_t i=0; i<sizeKmer; i++)
+    {
+        char n1 = tableDirect  [p1[ i]];
+        char n2 = tableReverse [p2[-i]];
 
-    return modelMin.toString(kmerFirst).compare (modelMin.toString (kmerLast)) < 0;
+             if (n1 < n2)  { return true;  }
+        else if (n1 > n2)  { return false; }
+    }
+
+    return false;
 }
 
 /*********************************************************************
@@ -529,16 +503,16 @@ bool BubbleFinder<span>::checkPath (char* path) const
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-bool BubbleFinder<span>::checkBranching (kmer_type kmer1, kmer_type kmer2) const
+bool BubbleFinder<span>::checkBranching (const Node& node1, const Node& node2) const
 {
     // stop the extension if authorised_branching==0 (not branching in any path) and any of the two paths is branching
-    if (authorised_branching==0 && (two_possible_extensions_on_one_path(kmer1) || two_possible_extensions_on_one_path(kmer2)))
+    if (authorised_branching==0 && (two_possible_extensions_on_one_path(node1) || two_possible_extensions_on_one_path(node2)))
     {
         return false;
     }
 
     // stop the extension if authorised_branching==1 (not branching in both path) and both the two paths are branching
-    if (authorised_branching==1 && two_possible_extensions (kmer1, kmer2))
+    if (authorised_branching==1 && two_possible_extensions (node1, node2))
     {
         return false;
     }
@@ -562,6 +536,16 @@ bool BubbleFinder<span>::checkLowComplexity (char* path1, char* path2, int& scor
 
     return (score < threshold || (score>=threshold && low));
 }
+
+/*********************************************************************
+#######  #     #  #######  #######  #     #   #####   ###  #######  #     #
+#         #   #      #     #        ##    #  #     #   #   #     #  ##    #
+#          # #       #     #        # #   #  #         #   #     #  # #   #
+#####       #        #     #####    #  #  #   #####    #   #     #  #  #  #
+#          # #       #     #        #   # #        #   #   #     #  #   # #
+#         #   #      #     #        #    ##  #     #   #   #     #  #    ##
+#######  #     #     #     #######  #     #   #####   ###  #######  #     #
+*********************************************************************/
 
 /*********************************************************************
 ** METHOD  :
@@ -599,13 +583,8 @@ BubbleFinderWithExtension<span>::~BubbleFinderWithExtension ()
 ** REMARKS :
 *********************************************************************/
 template<size_t span>
-int BubbleFinderWithExtension<span>::close_snp (const char* path1, const char* path2, char* path1_c, char* path2_c)
+int BubbleFinderWithExtension<span>::extend (const char* path1, const char* path2, char* path1_c, char* path2_c)
 {
-//    kmer_type kmer1 = modelDirect.codeSeed (path1 + 0,          Data::INTEGER);
-//    kmer_type kmer2 = modelDirect.codeSeed (path1 + sizeKmer-1, Data::INTEGER);
-//
-//    Node::Value val1 (min (kmer1, modelMin.reverse(kmer1)));
-//    Node::Value val2 (min (kmer2, modelMin.reverse(kmer2)));
 }
 
 /********************************************************************************/
