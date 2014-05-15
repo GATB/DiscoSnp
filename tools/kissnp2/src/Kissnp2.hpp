@@ -21,6 +21,7 @@
 
 /********************************************************************************/
 #include <gatb/gatb_core.hpp>
+#include <Bubble.hpp>
 /********************************************************************************/
 
 /********************************************************************************/
@@ -52,11 +53,18 @@ public:
      * \param[in] node : the starting node. */
     void start (const Node& node);
 
+    /** */
+    void stop ();
+
     /** Getter for the graph.
      * \return the de Bruign graph */
     const Graph& getGraph() const  { return graph; }
 
 protected:
+
+    /** We define a typedef for the nucleotide integer values: A=0, C=1, T=2, G=3 */
+    typedef char NT;
+    typedef NT* PATH;
 
     /** */
     void configure ();
@@ -64,7 +72,7 @@ protected:
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * This method is virtual and may be refined in sub classes to have specific bubble extensions.
      * \return -1 not closed, 0 no unique extension, 1 only left, 2 only right, 3 both */
-    virtual int extend (const char * path1, const char * path2, char * path1_c, char * path2_c);
+    virtual int extend (Bubble& bubble, char* path1_c, char* path2_c);
 
     /** */
     virtual void addExtraCommentInformation (
@@ -79,8 +87,7 @@ protected:
      */
     void expand (
         int pos,
-        char* path1,
-        char* path2,
+        Bubble& bubble,
         const Node& node1,
         const Node& node2,
         const Node& previousNode1,
@@ -133,7 +140,7 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void retrieveSequence (char* path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq);
+    void retrieveSequence (PATH path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq);
 
     bool two_possible_extensions_on_one_path (const Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
@@ -149,7 +156,7 @@ protected:
      * of the revcomp(first path), this should avoid repeated SNPs
      * \param[in] path : branch of a bubble.
      * \return true if first path is lower than last reverse path. */
-    bool checkPath (char* path) const;
+    bool checkPath (Bubble& bubble) const;
 
     /** Check bubble according to user choice for branching.
      * \param[in] node 1 : bubble branch last node
@@ -163,7 +170,7 @@ protected:
      * \param[out] score : complexity score
      * \return true if the complexity is ok
      */
-    bool checkLowComplexity (char* path1, char* path2, int& score) const;
+    bool checkLowComplexity (Bubble& bubble, int& score) const;
 };
 
 /********************************************************************************/

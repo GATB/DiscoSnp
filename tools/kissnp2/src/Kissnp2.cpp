@@ -21,7 +21,24 @@
 
 using namespace std;
 
-/********************************************************************************/
+/********************************************************************************
+ *
+ * A QUICK OVERVIEW...
+ *
+ * This class implements the detection of SNP in a provided de Bruijn graph.
+ *
+ * It is implemented as a subclass of Tool, so we get all the facilities of the
+ * Tool class. We can therefore see two main parts here:
+ *
+ * 1) constructor: we define all the command line parameters available
+ *
+ * 2) 'execute' method: 'main' method of the class where the main loop (ie. iteration
+ *    over nodes of the graph) is done.
+ *
+ * A 'configure' method is called at the beginning of 'execute' in order to configure
+ * all the attributes (with command line parameters information)
+ *
+********************************************************************************/
 
 /** We define string constants for command line options. */
 static const char* STR_DISCOSNP_LOW_COMPLEXITY       = "-l";
@@ -175,30 +192,22 @@ void Kissnp2::execute ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Kissnp2::start (const Node& node1)
+void Kissnp2::start (const Node& starter)
 {
-    char path1[2*sizeKmer-1], path2[2*sizeKmer-1];
+    /** We start a new bubble from the given starter node. */
+    Bubble bubble (graph, starter);
 
-    /** We copy the kmer in path1 and path2*/
-    for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = getGraph().getNT(node1,i);  }
+    /** We get the last nucleotide of the starting node. */
+    int nt = graph.getNT (starter, sizeKmer-1);
 
     /** We try all the possible extensions that were not previously tested (clever :-)) */
-    for (int i=path1[sizeKmer-1]+1; i<4; i++)
+    for (int i=nt+1; i<4; i++)
     {
-        /** We mutate the last nucleotide (index 'sizeKmer-1') of the current node. */
-        Node node2 = getGraph().mutate (node1, sizeKmer-1, (Nucleotide)i);
-
-        /** We check whether the mutated kmer belongs to the getGraph(). */
-        if (getGraph().contains(node2) == true)
+        /** We check whether the bubble can be mutated. */
+        if (bubble.mutate (i) == true)
         {
-            /** We update the path2 with the current mutation nucleotide. */
-            path2[sizeKmer-1] = i;
-
-            Node previousNode1 (~0);
-            Node previousNode2 (~0);
-
             /** We open a new putative bubble. */
-            expand (1, path1, path2, node1, node2, previousNode1, previousNode2);
+            expand (1, bubble, bubble.start1, bubble.start2, Node(~0), Node(~0));
         }
     }
 }
@@ -213,8 +222,7 @@ void Kissnp2::start (const Node& node1)
 *********************************************************************/
 void Kissnp2::expand (
     int pos,
-    char* path1,
-    char* path2,
+    Bubble& bubble,
     const Node& node1,
     const Node& node2,
     const Node& previousNode1,
@@ -249,8 +257,7 @@ void Kissnp2::expand (
         if (!checkPrevious)  { continue; }
 
         /** We add the current nucleotide to the bubble paths. */
-        path1[sizeKmer-1+pos] = nt;
-        path2[sizeKmer-1+pos] = nt;
+        bubble.set (pos, nt);
 
         /************************************************************/
         /**                   RECURSION CONTINUES                  **/
@@ -258,7 +265,7 @@ void Kissnp2::expand (
         if (pos < sizeKmer-1)
         {
             /** We call recursively the method (recursion on 'pos'). */
-            expand (pos+1, path1, path2,  nextNode1, nextNode2,  node1, node2);
+            expand (pos+1, bubble,  nextNode1, nextNode2,  node1, node2);
 
             /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
             if ( authorised_branching==0 || authorised_branching==1 )   {  break;  }
@@ -269,8 +276,11 @@ void Kissnp2::expand (
         /************************************************************/
         else
         {
+            /** We finish the bubble with both last nodes. */
+            bubble.finish (nextNode1, nextNode2);
+
             /** We check the first path vs. its revcomp. */
-            if (checkPath(path1)==true)
+            if (checkPath(bubble)==true)
             {
                 int score=0;
 
@@ -278,7 +288,7 @@ void Kissnp2::expand (
                 if (checkBranching(nextNode1, nextNode2)==false)  { return; }
 
                 /** We check the low complexity of paths (we also get the score). */
-                if (checkLowComplexity (path1, path2, score) == true)
+                if (checkLowComplexity (bubble, score) == true)
                 {
                     char path1_c[2*sizeKmer+2], path2_c[2*sizeKmer+2]; // +2 stands for the \0 character
 
@@ -289,8 +299,8 @@ void Kissnp2::expand (
                     if (score < threshold)  { __sync_add_and_fetch (&(nb_bubbles_high), 1 );  }
                     else                    { __sync_add_and_fetch (&(nb_bubbles_low),  1 );  }
 
-                    /** We may have to close the SNP. */
-                    int where_to_extend = extend (path1, path2, path1_c, path2_c);
+                    /** We may have to close/extend the bubble. */
+                    int where_to_extend = extend (bubble, path1_c, path2_c);
 
                     /** We retrieve the two sequences. */
                     retrieveSequence (path1_c, "higher", score, where_to_extend, currentNbBubbles, seq1);
@@ -320,19 +330,46 @@ void Kissnp2::expand (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-int Kissnp2::extend (const char* path1, const char* path2, char* path1_c, char* path2_c)
+int Kissnp2::extend (Bubble& bubble, char* path1_c, char* path2_c)
 {
-    /** This implementation doesn't close the snp => only reports paths. */
-    size_t i=0;
-    for(i=0; i<2*sizeKmer-1; i++)
-    {
-        path1_c[i]=bin2NT[path1[i]];
-        path2_c[i]=bin2NT[path2[i]];
-    }
-    path1_c[i]='\0';
-    path2_c[i]='\0';
+    static const int BAD = -1;
 
-    return 0;
+    int leftExtension  = BAD;
+    int rightExtension = BAD;
+
+    /** We may have to extend the bubble according to the user choice. */
+    if (extensionMode != NONE)
+    {
+        Graph::Vector<Node> predecessors = graph.predecessors<Node> (bubble.start1);
+        Graph::Vector<Node> successors   = graph.successors<Node>   (bubble.stop1);
+
+        if (predecessors.size()==1)  { leftExtension  = graph.getNT (predecessors[0], 0);           }
+        if (successors.size()  ==1)  { rightExtension = graph.getNT (successors  [0], sizeKmer-1);  }
+    }
+
+    /** We add the left extension if any. Note that we use lower case for extensions. */
+    if (leftExtension != BAD)   {  *(path1_c++) = *(path2_c++) = tolower(bin2NT[leftExtension]);  }
+
+    /** We add the bubble paths. */
+    for (size_t i=0; i<2*sizeKmer-1; i++)
+    {
+        *(path1_c++) = bin2NT[bubble.path1[i]];
+        *(path2_c++) = bin2NT[bubble.path2[i]];
+    }
+
+    /** We add the right extension if any. Note that we use lower case for extensions. */
+    if (rightExtension != BAD)  {  *(path1_c++) = *(path2_c++) = tolower(bin2NT[rightExtension]);  }
+
+    /** We add a null terminator for the strings. */
+    *(path1_c++) = *(path2_c++) = '\0';
+
+    /** We return a code value according to left/right extensions status. */
+         if (leftExtension==BAD && rightExtension==BAD)  { return 0; }
+    else if (leftExtension!=BAD && rightExtension==BAD)  { return 1; }
+    else if (leftExtension==BAD && rightExtension!=BAD)  { return 2; }
+    else if (leftExtension!=BAD && rightExtension!=BAD)  { return 3; }
+
+    throw Exception ("Bad extension status in kissnp2");
 }
 
 /*********************************************************************
@@ -371,7 +408,7 @@ bool Kissnp2::two_possible_extensions (Node node1, Node node2) const
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Kissnp2::retrieveSequence (char* path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq)
+void Kissnp2::retrieveSequence (PATH path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq)
 {
     //Here, path have 2k, 2k-1 or 2k+1 size
     int size_path = strlen(path);
@@ -392,12 +429,6 @@ void Kissnp2::retrieveSequence (char* path, const char* type, int score, int whe
 
     int start = 0;
     int stop  = strlen(path);
-
-    // left: first nucleotide is an extension
-    if (where_to_extend%2==1) {  start++;  }
-
-    // right: last nucleotide is an extension
-    if (where_to_extend>1)    {  stop--;   }
 
     /** We resize the sequence data. */
     seq.getData().resize (stop-start);
@@ -444,12 +475,12 @@ bool Kissnp2::checkKmersDiff (const Node& previous, const Node& current, const N
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool Kissnp2::checkPath (char* path) const
+bool Kissnp2::checkPath (Bubble& bubble) const
 {
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
-    char* p1 = path;
-    char* p2 = path + 2*sizeKmer - 2;
+    PATH p1 = bubble.path1.data();
+    PATH p2 = bubble.path1.data() + 2*sizeKmer - 2;
 
     static char tableDirect[]  = { 'A', 'C', 'T', 'G' };
     static char tableReverse[] = { 'T', 'G', 'A', 'C' };
@@ -502,10 +533,10 @@ bool Kissnp2::checkBranching (const Node& node1, const Node& node2) const
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-bool Kissnp2::checkLowComplexity (char* path1, char* path2, int& score) const
+bool Kissnp2::checkLowComplexity (Bubble& bubble, int& score) const
 {
     /** We compute the low complexity score of the two paths. */
-    score = filterLowComplexity2Paths (path1, path2, 2*sizeKmer-1, threshold);
+    score = filterLowComplexity2Paths (bubble.path1.data(), bubble.path2.data(), 2*sizeKmer-1, threshold);
 
     return (score < threshold || (score>=threshold && low));
 }
