@@ -51,7 +51,7 @@ public:
      * in a second node, and so this couple of nodes is set as the starting branch of a potential
      * bubble.
      * \param[in] node : the starting node. */
-    void start (const Node& node);
+    void start (Bubble& bubble, const Node& node);
 
     /** */
     void stop ();
@@ -70,17 +70,8 @@ protected:
     void configure ();
 
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
-     * This method is virtual and may be refined in sub classes to have specific bubble extensions.
      * \return -1 not closed, 0 no unique extension, 1 only left, 2 only right, 3 both */
-    virtual int extend (Bubble& bubble, char* path1_c, char* path2_c);
-
-    /** */
-    virtual void addExtraCommentInformation (
-        std::stringstream& ss,
-        std::pair<char*,int> left_extension,
-        std::pair<char*,int> right_extension,
-        int where_to_extend
-    );
+    void extend (Bubble& bubble);
 
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      * \param[in] pos : position of the nucleotide to be added to both branches.
@@ -117,9 +108,6 @@ protected:
     *   2: no restriction on branching */
     int authorised_branching;
 
-    enum ExtensionMode {  NONE=0, UNITIG=1, CONTIG=2 };
-    ExtensionMode extensionMode;
-
     bool print_extensions;
     int  min_size_extension;
 
@@ -132,6 +120,18 @@ protected:
     size_t nb_bubbles_high;
     size_t nb_bubbles_low;
 
+    /** */
+    enum TraversalKind { NONE=0, UNITIG=1, CONTIG=2 };
+    TraversalKind traversalKind;
+
+    /** */
+    gatb::core::debruijn::impl::Terminator* _terminator;
+    void setTerminator (gatb::core::debruijn::impl::Terminator* terminator)  { SP_SETATTR(terminator); }
+
+    /** */
+    gatb::core::debruijn::impl::Traversal* _traversal;
+    void setTraversal (gatb::core::debruijn::impl::Traversal* traversal) { SP_SETATTR(traversal); }
+
     /** Fill a Sequence object for a given branch of a bubble.
      * \param[in] path : branch of the bubble.
      * \param[in] type : used to set the comment part of the sequence (likely 'higher' or 'lower')
@@ -140,7 +140,7 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void retrieveSequence (PATH path, const char* type, int score, int where_to_extend, size_t seqIndex, Sequence& seq);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq);
 
     bool two_possible_extensions_on_one_path (const Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
@@ -150,7 +150,7 @@ protected:
      * \param[in] current : current node
      * \param[in] next : next node
      * \return true if next node is different to current and previous nodes.*/
-    bool checkKmersDiff (const Node& previous, const Node& current, const Node& next) const;
+    bool checkNodesDiff (const Node& previous, const Node& current, const Node& next) const;
 
     /** Check whether the first kmer of the first path is smaller than the first kmer
      * of the revcomp(first path), this should avoid repeated SNPs
@@ -170,7 +170,7 @@ protected:
      * \param[out] score : complexity score
      * \return true if the complexity is ok
      */
-    bool checkLowComplexity (Bubble& bubble, int& score) const;
+    bool checkLowComplexity (Bubble& bubble) const;
 };
 
 /********************************************************************************/

@@ -26,22 +26,41 @@
 
 struct Bubble
 {
-    Bubble (const Graph& graph, const Node& starter)
+    Bubble (const Graph& graph)
         : graph(graph), sizeKmer(graph.getKmerSize()),
-          start1(starter), start2(starter),
-          path1(2*graph.getKmerSize()-1), path2(2*graph.getKmerSize()-1)
+          path1(2*graph.getKmerSize()-1), path2(2*graph.getKmerSize()-1), index(0), score(0)
     {
-        /** We copy the kmer in path1 and path2*/
-        for (size_t i=0; i<sizeKmer; i++)  {  path1[i] = path2[i] = graph.getNT(starter,i);  }
+    }
+
+    /** */
+    void init (const Node& starter)
+    {
+        pathsSet = false;
+        start1 = starter;
     }
 
     /** */
     bool mutate  (char nt)
     {
+        /** We build the mutated node from the given nucleotide. */
         start2 = graph.mutate (start1, sizeKmer-1, (Nucleotide)nt);
+
+        /** We check whether the mutation is in the graph or not. If not, direct return. */
+        if (graph.contains(start2) == false) { return false; }
+
+        /** We may have to configure both paths if not set. Note the optimization with the boolean. */
+        if (pathsSet==false)
+        {
+            graph.copy (start1,path1.data());
+            graph.copy (start2,path2.data());
+            pathsSet=true;
+        }
+
+        /** We update the last mutated nucleotide of the mutation branch. */
         path2[sizeKmer-1] = nt;
 
-        return graph.contains(start2);
+        /** The mutation exists in the graph, so we return true. */
+        return true;
     }
 
     /** */
@@ -65,6 +84,25 @@ struct Bubble
 
     std::vector<char> path1;
     std::vector<char> path2;
+    bool pathsSet;
+
+    int nucleotideRight;
+    int nucleotideLeft;
+
+    Path extensionRight;
+    Path extensionLeft;
+
+    int where_to_extend;
+
+    int score;
+
+    size_t index;
+
+    Sequence seq1;
+    Sequence seq2;
+
+    size_t divergenceLeft;
+    size_t divergenceRight;
 };
 
 /********************************************************************************/
