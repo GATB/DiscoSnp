@@ -33,7 +33,10 @@ using namespace std;
  * 1) constructor: we define all the command line parameters available
  *
  * 2) 'execute' method: 'main' method of the class where the main loop (ie. iteration
- *    over nodes of the graph) is done.
+ *    over nodes of the graph) is done. Each node (and its revcomp) is used as the first
+ *    branch of a bubble, the second branch being a mutated node of the first node.
+ *    This bubble [node1,node2] is then expanded kmerSize if possible. If still ok, a few
+ *    checks are done to avoid redundant computations.
  *
  * A 'configure' method is called at the beginning of 'execute' in order to configure
  * all the attributes (with command line parameters information)
@@ -74,6 +77,9 @@ Kissnp2::Kissnp2 ()
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_CONTIG,     "extend found and stop at large polymorphism (extension=contigs) SNPs. Uncompatible with -t",  false));
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
     getParser()->push_front (new OptionOneParam (STR_URI_INPUT,                     "input file (likely a hdf5 file)",  true));
+
+    /** Attribute initialization. */
+    memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend));
 }
 
 /*********************************************************************
@@ -196,6 +202,11 @@ void Kissnp2::execute ()
     getInfo()->add (2, "nb",      "%lu", nb_bubbles);
     getInfo()->add (2, "nb_high", "%lu", nb_bubbles_high);
     getInfo()->add (2, "nb_low",  "%lu", nb_bubbles_low);
+    getInfo()->add (2, "extensions",  "");
+    getInfo()->add (3, "none",       "%d", nb_where_to_extend[0]);
+    getInfo()->add (3, "left",       "%d", nb_where_to_extend[1]);
+    getInfo()->add (3, "right",      "%d", nb_where_to_extend[2]);
+    getInfo()->add (3, "left|right", "%d", nb_where_to_extend[3]);
 
     getInfo()->add (1, "time", "");
     getInfo()->add (2, "find", "%d", status.time);
@@ -209,23 +220,25 @@ void Kissnp2::execute ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Kissnp2::start (Bubble& bubble, const Node& starter)
+void Kissnp2::start (Bubble& bubble, const Node& node)
 {
-    /** We get the last nucleotide of the starting node. */
-    int nt = graph.getNT (starter, sizeKmer-1);
+    /** We get the mutations of the given node at position sizeKmer-1.
+     * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
+     * variants must be greater than the nucleotide at position (sizeKmer-1) of the given node.
+     * => We try all the possible extensions that were not previously tested (clever :-)) */
+    Graph::Vector<Node> mutations = graph.mutate (node, sizeKmer-1, 1);
 
-    /** We initialize the bubble with the given starting node. */
-    bubble.init (starter);
+    /** We initialize the first path of the bubble. */
+    bubble.begin[0] = node;
 
-    /** We try all the possible extensions that were not previously tested (clever :-)) */
-    for (int i=nt+1; i<4; i++)
+    /** We loop over all mutations. */
+    for (size_t i=0; i<mutations.size(); i++)
     {
-        /** We check whether the bubble can be mutated. */
-        if (bubble.mutate (i) == true)
-        {
-            /** We open a new putative bubble. */
-            expand (1, bubble, bubble.start1, bubble.start2, Node(~0), Node(~0));
-        }
+        /** We initialize the second path of the bubble. */
+        bubble.begin[1] = mutations[i];
+
+        /** We try to expand this new putative bubble. */
+        expand (1, bubble, node, mutations[i], Node(~0), Node(~0));
     }
 }
 
@@ -247,22 +260,20 @@ void Kissnp2::expand (
 )
 {
     /** A little check won't hurt. */
-    if (pos > sizeKmer-1)  { throw Exception("Bad recursion in Kissnp2..."); }
+    assert (pos <= sizeKmer-1);
 
     /** We may have to stop the extension according to the branching mode. */
     if (checkBranching(node1,node2) == false)  { return; }
 
     /** We get the common successors of node1 and node2. */
-    Graph::Vector < pair<Edge,Edge> > successors = getGraph().successors<Edge> (node1, node2);
+    Graph::Vector < pair<Node,Node> > successors = getGraph().successors<Node> (node1, node2);
 
     /** We loop over the successors of the two nodes. */
     for (size_t i=0; i<successors.size(); i++)
     {
         /** Shortcuts. */
-        pair<Edge,Edge>& p = successors[i];
-        Node nextNode1 = p.first.to;
-        Node nextNode2 = p.second.to;
-        Nucleotide nt  = p.first.nt;
+        Node& nextNode1 = successors[i].first;
+        Node& nextNode2 = successors[i].second;
 
         /** We check whether the new nodes are different from previous ones. */
         bool checkPrevious =
@@ -270,9 +281,6 @@ void Kissnp2::expand (
             checkNodesDiff (previousNode2, node2, nextNode2);
 
         if (!checkPrevious)  { continue; }
-
-        /** We add the current nucleotide to the bubble paths. */
-        bubble.set (pos, nt);
 
         /************************************************************/
         /**                   RECURSION CONTINUES                  **/
@@ -291,41 +299,21 @@ void Kissnp2::expand (
         /************************************************************/
         else
         {
+            /** We check the branching properties of the next kmers. */
+            if (checkBranching(nextNode1, nextNode2)==false)  { return; }
+
             /** We finish the bubble with both last nodes. */
-            bubble.finish (nextNode1, nextNode2);
+            bubble.end[0] = nextNode1;
+            bubble.end[1] = nextNode2;
 
-            /** We check the first path vs. its revcomp. */
-            if (checkPath(bubble)==true)
+            /** We check several conditions (the first path vs. its revcomp and low complexity). */
+            if (checkPath(bubble)==true && checkLowComplexity(bubble)==true)
             {
-                /** We check the branching properties of the next kmers. */
-                if (checkBranching(nextNode1, nextNode2)==false)  { return; }
-
-                /** We check the low complexity of paths (we also get the score). */
-                if (checkLowComplexity (bubble) == true)
+                /** We extend the bubble on the left and right. */
+                if (extend (bubble) == true)
                 {
-                    /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
-                     * accesses since we may be called here from different threads. */
-                    bubble.index = __sync_add_and_fetch (&(nb_bubbles), 1 );
-
-                    if (bubble.score < threshold)  { __sync_add_and_fetch (&(nb_bubbles_high), 1 );  }
-                    else                           { __sync_add_and_fetch (&(nb_bubbles_low),  1 );  }
-
-                    /** We may have to close/extend the bubble. */
-                    extend (bubble);
-
-                    /** We retrieve the two sequences. */
-                    buildSequence (bubble, 0, "higher", bubble.seq1);
-                    buildSequence (bubble, 1, "lower",  bubble.seq2);
-
-                    /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
-                     * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
-                    {
-                        LocalSynchronizer sync (_synchronizer);
-
-                        /** We insert the two sequences into the output bank. */
-                        _outputBank->insert (bubble.seq1);
-                        _outputBank->insert (bubble.seq2);
-                    }
+                    /** We got all the information about the bubble, we finish it. */
+                    finish (bubble);
                 }
             }
         }
@@ -341,23 +329,58 @@ void Kissnp2::expand (
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void Kissnp2::extend (Bubble& bubble)
+void Kissnp2::finish (Bubble& bubble)
+{
+    /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
+     * accesses since we may be called here from different threads. */
+    bubble.index = __sync_add_and_fetch (&nb_bubbles, 1);
+
+    /** We build two Sequence objects from the information of the bubble. */
+    buildSequence (bubble, 0, "higher", bubble.seq1);
+    buildSequence (bubble, 1, "lower",  bubble.seq2);
+
+    /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
+     * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
+    {
+        LocalSynchronizer sync (_synchronizer);
+
+        /** We insert the two sequences into the output bank. */
+        _outputBank->insert (bubble.seq1);
+        _outputBank->insert (bubble.seq2);
+
+        /** Stats update (in concurrent access protection block). */
+        nb_where_to_extend[bubble.where_to_extend] ++;
+
+        if (bubble.score < threshold)  { nb_bubbles_high++; }
+        else                           { nb_bubbles_low++;  }
+    }
+}
+
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+bool Kissnp2::extend (Bubble& bubble)
 {
     static const int BAD = -1;
 
-    int leftExtension  = BAD;
-    int rightExtension = BAD;
+    int closureLeft  = BAD;
+    int closureRight = BAD;
 
     /** We may have to extend the bubble according to the user choice. */
     if (traversalKind != NONE)
     {
         /** We ask for the predecessors of the first node and successors of the last node. */
-        Graph::Vector<Node> predecessors = graph.predecessors<Node> (bubble.start1);
-        Graph::Vector<Node> successors   = graph.successors<Node>   (bubble.stop1);
+        Graph::Vector<Node> predecessors = graph.predecessors<Node> (bubble.begin[0]);
+        Graph::Vector<Node> successors   = graph.successors<Node>   (bubble.end[0]);
 
         /** If unique, we keep the left/right extensions. */
-        if (predecessors.size()==1)  { leftExtension  = graph.getNT (predecessors[0], 0);           }
-        if (successors.size()  ==1)  { rightExtension = graph.getNT (successors  [0], sizeKmer-1);  }
+        if (predecessors.size()==1)  { closureLeft  = graph.getNT (predecessors[0], 0);           }
+        if (successors.size()  ==1)  { closureRight = graph.getNT (successors  [0], sizeKmer-1);  }
 
         _terminator->reset ();
 
@@ -368,16 +391,18 @@ void Kissnp2::extend (Bubble& bubble)
         /** We compute right extension of the node. */
         _traversal->traverse (successors[0], DIR_OUTCOMING, bubble.extensionRight);
         bubble.divergenceRight = _traversal->getBubbles().empty() ? 0 : _traversal->getBubbles()[0].first;
+
+        /** We return a code value according to left/right extensions status. */
+             if (closureLeft==BAD && closureRight==BAD)  { bubble.where_to_extend = 0; }
+        else if (closureLeft!=BAD && closureRight==BAD)  { bubble.where_to_extend = 1; }
+        else if (closureLeft==BAD && closureRight!=BAD)  { bubble.where_to_extend = 2; }
+        else if (closureLeft!=BAD && closureRight!=BAD)  { bubble.where_to_extend = 3; }
     }
 
-    /** We return a code value according to left/right extensions status. */
-         if (leftExtension==BAD && rightExtension==BAD)  { bubble.where_to_extend = 0; }
-    else if (leftExtension!=BAD && rightExtension==BAD)  { bubble.where_to_extend = 1; }
-    else if (leftExtension==BAD && rightExtension!=BAD)  { bubble.where_to_extend = 2; }
-    else if (leftExtension!=BAD && rightExtension!=BAD)  { bubble.where_to_extend = 3; }
+    bubble.closureLeft  = closureLeft;
+    bubble.closureRight = closureRight;
 
-    bubble.nucleotideLeft  = leftExtension;
-    bubble.nucleotideRight = rightExtension;
+    return true;
 }
 
 /*********************************************************************
@@ -451,26 +476,29 @@ void Kissnp2::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, S
 
     size_t len = (2*sizeKmer-1) + bubble.extensionLeft.size() + bubble.extensionRight.size();
 
-    if (bubble.nucleotideLeft  != BAD)  { len++; }
-    if (bubble.nucleotideRight != BAD)  { len++; }
+    if (bubble.closureLeft  != BAD)  { len++; }
+    if (bubble.closureRight != BAD)  { len++; }
 
     /** We resize the sequence data if needed. Note: +1 for ending '\0'*/
     if (seq.getData().size() < len+1)  {  seq.getData().resize (len+1); }
 
-    char* input  = (pathIdx==0 ? bubble.path1.data() : bubble.path2.data());
     char* output = seq.getDataBuffer();
 
     size_t lenLeft  = bubble.extensionLeft.size ();
     for (size_t i=0; i<lenLeft; i++)  {  *(output++) = tolower(ascii (reverse(bubble.extensionLeft [lenLeft-i-1])));  }
 
     /** We add the left extension if any. Note that we use lower case for extensions. */
-    if (bubble.nucleotideLeft != BAD)   {  *(output++) = tolower(bin2NT[bubble.nucleotideLeft]);  }
+    if (bubble.closureLeft != BAD)   {  *(output++) = tolower(bin2NT[bubble.closureLeft]);  }
 
     /** We add the bubble path. */
-    for (size_t i=0; i<2*sizeKmer-1; i++)  {  *(output++) = bin2NT[input[i]];  }
+    string begin = graph.toString (bubble.begin[pathIdx]);
+    string end   = graph.toString (bubble.end[pathIdx]);
+
+    for (size_t i=0; i<sizeKmer-1; i++)  {  *(output++) = begin[i];  }
+    for (size_t i=0; i<sizeKmer; i++)    {  *(output++) = end  [i];  }
 
     /** We add the right extension if any. Note that we use lower case for extensions. */
-    if (bubble.nucleotideRight != BAD)  {  *(output++) =  tolower(bin2NT[bubble.nucleotideRight]);  }
+    if (bubble.closureRight != BAD)  {  *(output++) =  tolower(bin2NT[bubble.closureRight]);  }
 
     size_t lenRight  = bubble.extensionRight.size ();
     for (size_t i=0; i<lenRight; i++)  {  *(output++) = tolower(ascii (bubble.extensionRight[i]));  }
@@ -504,25 +532,7 @@ bool Kissnp2::checkPath (Bubble& bubble) const
 {
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
-    PATH p1 = bubble.path1.data();
-    PATH p2 = bubble.path1.data() + 2*sizeKmer - 2;
-
-    static char tableDirect[]  = { 'A', 'C', 'T', 'G' };
-    static char tableReverse[] = { 'T', 'G', 'A', 'C' };
-
-    /** Here, we do the comparison between the two kmers 'on the fly': we don't get
-     * a string representation of both kmers and then use strcmp for instance.
-     * Instead we test each nucleotide (first translated back in ASCII) */
-    for (size_t i=0; i<sizeKmer; i++)
-    {
-        char n1 = tableDirect  [p1[ i]];
-        char n2 = tableReverse [p2[-i]];
-
-             if (n1 < n2)  { return true;  }
-        else if (n1 > n2)  { return false; }
-    }
-
-    return false;
+    return graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]));
 }
 
 /*********************************************************************
@@ -560,8 +570,11 @@ bool Kissnp2::checkBranching (const Node& node1, const Node& node2) const
 *********************************************************************/
 bool Kissnp2::checkLowComplexity (Bubble& bubble) const
 {
+    string path1 = graph.toString (bubble.begin[0]).substr(0, sizeKmer-1) + graph.toString (bubble.end[0]);
+    string path2 = graph.toString (bubble.begin[1]).substr(0, sizeKmer-1) + graph.toString (bubble.end[1]);
+
     /** We compute the low complexity score of the two paths. */
-    bubble.score = filterLowComplexity2Paths (bubble.path1.data(), bubble.path2.data(), 2*sizeKmer-1, threshold);
+    bubble.score = filterLowComplexity2Paths (path1, path2);
 
     return (bubble.score < threshold || (bubble.score>=threshold && low));
 }

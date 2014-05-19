@@ -53,9 +53,6 @@ public:
      * \param[in] node : the starting node. */
     void start (Bubble& bubble, const Node& node);
 
-    /** */
-    void stop ();
-
     /** Getter for the graph.
      * \return the de Bruign graph */
     const Graph& getGraph() const  { return graph; }
@@ -71,7 +68,7 @@ protected:
 
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * \return -1 not closed, 0 no unique extension, 1 only left, 2 only right, 3 both */
-    void extend (Bubble& bubble);
+    bool extend (Bubble& bubble);
 
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      * \param[in] pos : position of the nucleotide to be added to both branches.
@@ -84,6 +81,9 @@ protected:
         const Node& previousNode1,
         const Node& previousNode2
     );
+
+    /** */
+    void finish (Bubble& bubble);
 
     /** De Bruijn graph, likely built by the 'dbgh5' binary from GATB-CORE. */
     Graph graph;
@@ -119,6 +119,8 @@ protected:
     size_t nb_bubbles;
     size_t nb_bubbles_high;
     size_t nb_bubbles_low;
+
+    size_t nb_where_to_extend[4];
 
     /** */
     enum TraversalKind { NONE=0, UNITIG=1, CONTIG=2 };

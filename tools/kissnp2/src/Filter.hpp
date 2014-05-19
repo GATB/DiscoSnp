@@ -18,6 +18,8 @@
 #ifndef FILTER_H
 #define FILTER_H
 
+#include <string>
+
 /********************************************************************************/
 
 /** Methode permettant d'appliquer le filtre Low Complexity
@@ -28,6 +30,8 @@
  */
 int filterLowComplexity       (char* data, int lenseq, int threshold);
 int filterLowComplexity2Paths (char* seq1, char *seq2, int lenseq, int threshold);
+
+int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2);
 
 /********************************************************************************/
 
