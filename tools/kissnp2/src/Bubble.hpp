@@ -21,64 +21,155 @@
 
 /********************************************************************************/
 #include <gatb/gatb_core.hpp>
-#include <vector>
 /********************************************************************************/
 
+/** We define string constants for command line options. */
+#define STR_DISCOSNP_LOW_COMPLEXITY        "-l"
+#define STR_DISCOSNP_AUTHORISED_BRANCHING  "-b"
+#define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
+#define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
+#define STR_DISCOSNP_EXTENSION_SIZE        "-e"
+
+/********************************************************************************/
+
+/** We define a structure holding all the information about a bubble. */
 struct Bubble
 {
+    // Here is a description of the attributes defining a bubble.
+    //
+    //    begin      end
+    //   ------X   X------    <-- branch1
+    //   ------X   X------    <-- branch2
+    //
+    //  => the bubble is defined by two branches
+    //
+    //  => a branch is defined by two nodes [begin,end] that overlap on one nucleotide
+    //     so the path length defined by these two nodes is (2*kmerSize - 1)
     Node begin[2];
     Node end  [2];
 
+    // Low complexity score of the two branches
     int score;
 
+    // Index of the bubble
     size_t index;
+
+    // Information about the bubble extension:  0=nothing, 1=left only, 2=right only, 3=both
     int where_to_extend;
 
+    // Closing right nucleotide of the bubble
     int closureRight;
+
+    // Closing left nucleotide of the bubble
     int closureLeft;
 
+    // Unitig/Contig path on the right of the bubble.
     Path extensionRight;
+
+    // Unitig/Contig path on the left of the bubble.
     Path extensionLeft;
 
+    // Length of the right and left unitigs
+    //  - if the traversal is a simple traversal, then this length is equal to the length of the extension
+    //  - else (if the traversal is a monument traversal), then this length is equal to the starting position of the first bubble (if exist))
     size_t divergenceLeft;
     size_t divergenceRight;
 
+    // Sequence instances to be configured and then dumped in the output bank.
     Sequence seq1;
     Sequence seq2;
 };
 
 /********************************************************************************/
 
-/** Forward declaraions. */
-class Kissnp2;
-
-/********************************************************************************/
-
+/** \brief class that tries to build a bubble from a starting node
+ *
+ * This class does all the job for expanding a bubble from a starting node if possible and
+ * potentially extend it with right and left unitigs/contigs.
+ *
+ * This class is intended to be instantiated N times, one per thread.
+ *
+ * The starting node is provided to the operator() (so, one can see this class as a functor).
+ */
 class BubbleFinder
 {
 public:
-    BubbleFinder (Kissnp2& tool, const Graph& graph);
 
+    /** We define a structure gathering information during bubble detection. */
+    struct Stats
+    {
+        Stats ()  : nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0) { memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend)); }
+
+        size_t nb_bubbles;
+        size_t nb_bubbles_high;
+        size_t nb_bubbles_low;
+        size_t nb_where_to_extend[4];
+    };
+
+    /** Constructor. */
+    BubbleFinder (IProperties* props, const Graph& graph, Stats& stats);
+
+    /** Copy constructor. It will be used when cloning N times the instance by the dispatcher
+     * \param[in] bf : instance to be copied.*/
     BubbleFinder (const BubbleFinder& bf);
 
+    /** Destructor. */
     ~BubbleFinder ();
 
+    /** Starting method that gets a node as argument and tries to build a bubble from it.
+     * \param[in] node : the starting node. */
     void operator() (const Node& node);
+
+    /** Get a properties object with the configuration of the finder. */
+    IProperties* getConfig () const;
 
 private:
 
-    Kissnp2&     tool;
+    /** */
     const Graph& graph;
-    size_t       sizeKmer;
+
+    /** Statistics about the bubbles lookup. */
+    Stats& stats;
 
     /** Current Bubble instance built by this BubbleFinder instance. */
     Bubble bubble;
 
-    /** */
+    /** Shortcut attribute for the kmer size of the de Bruijn graph. */
+    size_t sizeKmer;
+
+    /** Threshold (computed from the kmer size). */
+    int threshold;
+
+    bool low;
+
+    /* authorised_branching =
+    *   0: branching forbidden in any path
+    *   1: same branching on both path forbidden (i.e. 2 distinct nucleotides may be used in both paths for extension)
+    *   2: no restriction on branching */
+    int authorised_branching;
+
+    /** TO BE DONE... not used yet. */
+    int  min_size_extension;
+
+    /** Gives the kind of traversal to be done at left/right of the bubble. */
+    Traversal::Kind traversalKind;
+
+    /** Output bank of the bubbles (as a pair of sequences). Note here: we use the IBank
+     * interface here, and not a specific implementation (like BankFasta), so we could
+     * deal with different kinds of banks. */
+    IBank* _outputBank;
+    void setOutputBank (IBank* outputBank)  { SP_SETATTR(outputBank); }
+
+    /** We need a synchronizer for dumping the sequences into the output bank. */
+    ISynchronizer* _synchronizer;
+    void setSynchronizer (ISynchronizer* synchronizer)  { SP_SETATTR(synchronizer); }
+
+    /** Terminator for marking branching nodes (used by the Traversal instance) */
     Terminator* _terminator;
     void setTerminator (Terminator* terminator)  { SP_SETATTR(terminator); }
 
-    /** */
+    /** Used for computing unitigs or contigs (according to traversal kind choice) at the left
+     * and right of the bubble. */
     Traversal* _traversal;
     void setTraversal (Traversal* traversal) { SP_SETATTR(traversal); }
 

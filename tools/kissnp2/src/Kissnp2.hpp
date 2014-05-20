@@ -21,12 +21,8 @@
 
 /********************************************************************************/
 #include <gatb/gatb_core.hpp>
-#include <Bubble.hpp>
-#include <queue>
 /********************************************************************************/
 
-
-/********************************************************************************/
 /** \brief Tool class that looks for SNP
  *
  * The Kissnp2 is the front class for SNP detection in a provided de Bruijn graph.
@@ -43,56 +39,8 @@ public:
     /** Constructor. */
     Kissnp2 ();
 
-    /** Destructor. */
-    ~Kissnp2 ();
-
     /** Implementation of Tool::execute method. */
     void execute ();
-
-protected:
-
-    /** */
-    void configure ();
-
-    /** De Bruijn graph, likely built by the 'dbgh5' binary from GATB-CORE. */
-    Graph graph;
-
-    /** Shortcut attribute for the kmer size of the de Bruijn graph. */
-    size_t sizeKmer;
-
-    /** Threshold (computed from the kmer size). */
-    int threshold;
-
-    /** Output bank of the bubbles (as a pair of sequences). Note here: we use the IBank
-     * interface here, and not a specific implementation (like BankFasta), so we could
-     * deal with different kinds of banks. */
-    IBank* _outputBank;
-    void setOutputBank (IBank* outputBank)  { SP_SETATTR(outputBank); }
-
-    bool low;
-
-    /* authorised_branching =
-    *   0: branching forbidden in any path
-    *   1: same branching on both path forbidden (i.e. 2 distinct nucleotides may be used in both paths for extension)
-    *   2: no restriction on branching */
-    int authorised_branching;
-
-    int  min_size_extension;
-
-    /** We need a synchronizer for dumping the sequences into the output bank. */
-    ISynchronizer* _synchronizer;
-    void setSynchronizer (ISynchronizer* synchronizer)  { SP_SETATTR(synchronizer); }
-
-    /** Statistics about the bubbles lookup. */
-    size_t nb_bubbles;
-    size_t nb_bubbles_high;
-    size_t nb_bubbles_low;
-    size_t nb_where_to_extend[4];
-
-    /** */
-    Traversal::Kind traversalKind;
-
-    friend class BubbleFinder;
 };
 
 /********************************************************************************/

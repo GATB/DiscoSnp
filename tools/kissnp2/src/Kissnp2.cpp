@@ -17,6 +17,7 @@
 *****************************************************************************/
 
 #include <Kissnp2.hpp>
+#include <Bubble.hpp>
 
 using namespace std;
 
@@ -31,25 +32,10 @@ using namespace std;
  *
  * 1) constructor: we define all the command line parameters available
  *
- * 2) 'execute' method: 'main' method of the class where the main loop (ie. iteration
- *    over nodes of the graph) is done. Each node (and its revcomp) is used as the first
- *    branch of a bubble, the second branch being a mutated node of the first node.
- *    This bubble [node1,node2] is then expanded kmerSize if possible. If still ok, a few
- *    checks are done to avoid redundant computations.
- *
- * A 'configure' method is called at the beginning of 'execute' in order to configure
- * all the attributes (with command line parameters information)
- *
- * There are several 'checkXXX' methods used to avoid unwanted (or duplicate) bubbles.
+ * 2) 'execute' method: this is the main method of the class where the main loop
+ *   (ie. iteration over nodes of the graph) is done.
  *
 ********************************************************************************/
-
-/** We define string constants for command line options. */
-static const char* STR_DISCOSNP_LOW_COMPLEXITY       = "-l";
-static const char* STR_DISCOSNP_AUTHORISED_BRANCHING = "-b";
-static const char* STR_DISCOSNP_TRAVERSAL_UNITIG     = "-t";
-static const char* STR_DISCOSNP_TRAVERSAL_CONTIG     = "-T";
-static const char* STR_DISCOSNP_EXTENSION_SIZE       = "-e";
 
 /*********************************************************************
 ** METHOD  :
@@ -59,11 +45,7 @@ static const char* STR_DISCOSNP_EXTENSION_SIZE       = "-e";
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-Kissnp2::Kissnp2 ()
-    : Tool ("Kissnp2"), _outputBank(0), _synchronizer(0), nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0),
-      low(false), authorised_branching(0),
-      sizeKmer (0), min_size_extension(-1), threshold(0),
-      traversalKind(Traversal::NONE)
+Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 {
     /** We add options known by kissnp2. */
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
@@ -76,69 +58,6 @@ Kissnp2::Kissnp2 ()
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_CONTIG,     "extend found and stop at large polymorphism (extension=contigs) SNPs. Uncompatible with -t",  false));
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
     getParser()->push_front (new OptionOneParam (STR_URI_INPUT,                     "input file (likely a hdf5 file)",  true));
-
-    /** Attribute initialization. */
-    memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend));
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-Kissnp2::~Kissnp2 ()
-{
-    setOutputBank    (0);
-    setSynchronizer  (0);
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-void Kissnp2::configure ()
-{
-#if 1
-BankFasta::setDataLineSize (100000);
-#endif
-
-    /** We load the graph from the provided uri. */
-    graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
-
-    /** We retrieve the kmer size. */
-    sizeKmer = graph.getKmerSize();
-
-    /** We set the threshold. */
-    threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
-
-    /** We set attributes according to user choice. */
-    low                  = getInput()->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
-    authorised_branching = getInput()->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-    min_size_extension   = getInput()->getInt (STR_DISCOSNP_EXTENSION_SIZE);
-
-    /** We set the traversal kind. */
-    if (getInput()->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = Traversal::UNITIG; }
-    if (getInput()->get(STR_DISCOSNP_TRAVERSAL_CONTIG) != 0)  { traversalKind = Traversal::CONTIG; }
-
-    /** We set the name of the output file. */
-    stringstream ss;
-    ss << getInput()->getStr(STR_URI_OUTPUT)  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
-    if (min_size_extension > -1)  { ss << "_e_" << min_size_extension; }
-    ss << ".fa";
-
-    /** We set the output file. So far, we force FASTA output usage, but we could make it configurable. */
-    setOutputBank (new BankFasta (ss.str()));
-
-    /** We need a synchronizer for dumping high/low sequences into the output bank in an atomic way
-     * (ie avoids potential issues with interleaved high/low sequences in multithread execution). */
-    setSynchronizer (System::thread().newSynchronizer());
 }
 
 /*********************************************************************
@@ -151,36 +70,39 @@ BankFasta::setDataLineSize (100000);
 *********************************************************************/
 void Kissnp2::execute ()
 {
-    /** We configure the object with command line arguments. */
-    configure ();
+#if 1
+BankFasta::setDataLineSize (100000);
+#endif
+
+    /** We load the graph from the provided uri. */
+    Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
 
     /** We get an iterator over the nodes of the graph. */
     ProgressGraphIterator<Node,ProgressTimer> it (graph.iterator<Node>(), "nodes");
 
-    /** THIS IS THE MAIN ITERATION LOOP... We launch the iteration over all the nodes of the graph.
-     *
-     * NOTE: we provide an instance of BubbleFinder as functor of the iteration.
+    /** We want to get some statistics about the execution. */
+    BubbleFinder::Stats stats;
+
+    /** We create an instance of BubbleFinder, used as a functor by the dispatcher.
      * This instance will be cloned N times, one per thread created by the dispatcher.
      */
-    IDispatcher::Status status = getDispatcher()->iterate (it, BubbleFinder(*this, graph));
+    BubbleFinder bubbleFinder (getInput(), graph, stats);
+
+    /** THIS IS THE MAIN ITERATION LOOP... We launch the iteration over all the nodes of the graph. */
+    IDispatcher::Status status = getDispatcher()->iterate (it, bubbleFinder);
 
     /** We aggregate information for user. */
-    getInfo()->add (1, "config",   "");
-    getInfo()->add (2, "kmer_size",      "%d", sizeKmer);
-    getInfo()->add (2, "threshold",      "%d", threshold);
-    getInfo()->add (2, "auth_branch",    "%d", authorised_branching);
-    getInfo()->add (2, "low",            "%d", low);
-    getInfo()->add (2, "traversal_kind", "%d", traversalKind);
+    getInfo()->add (1, bubbleFinder.getConfig());
 
     getInfo()->add (1, "bubbles",   "");
-    getInfo()->add (2, "nb",      "%lu", nb_bubbles);
-    getInfo()->add (2, "nb_high", "%lu", nb_bubbles_high);
-    getInfo()->add (2, "nb_low",  "%lu", nb_bubbles_low);
+    getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles);
+    getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_high);
+    getInfo()->add (2, "nb_low",  "%lu", stats.nb_bubbles_low);
     getInfo()->add (2, "extensions",  "");
-    getInfo()->add (3, "none",       "%d", nb_where_to_extend[0]);
-    getInfo()->add (3, "left",       "%d", nb_where_to_extend[1]);
-    getInfo()->add (3, "right",      "%d", nb_where_to_extend[2]);
-    getInfo()->add (3, "left|right", "%d", nb_where_to_extend[3]);
+    getInfo()->add (3, "none",       "%d", stats.nb_where_to_extend[0]);
+    getInfo()->add (3, "left",       "%d", stats.nb_where_to_extend[1]);
+    getInfo()->add (3, "right",      "%d", stats.nb_where_to_extend[2]);
+    getInfo()->add (3, "left|right", "%d", stats.nb_where_to_extend[3]);
 
     getInfo()->add (1, "time", "");
     getInfo()->add (2, "find", "%d", status.time);
