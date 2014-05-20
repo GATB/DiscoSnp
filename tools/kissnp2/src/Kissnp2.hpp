@@ -27,10 +27,6 @@
  *
  * The Kissnp2 is the front class for SNP detection in a provided de Bruijn graph.
  * The output is a bank with pairs of sequences defining a bubble.
- *
- * This class may be inherited by refining some methods; for instance, the pairs
- * of sequences in the output bank may have some left/right extensions from the
- * found bubbles.
  */
 class Kissnp2 : public Tool
 {

@@ -21,6 +21,7 @@
 
 /********************************************************************************/
 #include <gatb/gatb_core.hpp>
+#include <set>
 /********************************************************************************/
 
 /** We define string constants for command line options. */
@@ -38,8 +39,8 @@ struct Bubble
     // Here is a description of the attributes defining a bubble.
     //
     //    begin      end
-    //   ------X   X------    <-- branch1
-    //   ------X   X------    <-- branch2
+    //   ------X   X------    <-- branch1   (common X nucleotide)
+    //   ------Y   Y------    <-- branch2   (common Y nucleotide)
     //
     //  => the bubble is defined by two branches
     //
@@ -95,11 +96,19 @@ class BubbleFinder
 {
 public:
 
+    /** */
+#ifdef WITH_SOLID_NODES_AS_STARTERS
+    typedef Node StartingNode;
+#else
+    typedef BranchingNode StartingNode;
+#endif
+
     /** We define a structure gathering information during bubble detection. */
     struct Stats
     {
-        Stats ()  : nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0) { memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend)); }
+        Stats ()  : nb_starters(0), nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)  { memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend)); }
 
+        size_t nb_starters;
         size_t nb_bubbles;
         size_t nb_bubbles_high;
         size_t nb_bubbles_low;
@@ -118,7 +127,7 @@ public:
 
     /** Starting method that gets a node as argument and tries to build a bubble from it.
      * \param[in] node : the starting node. */
-    void operator() (const Node& node);
+    void operator() (const StartingNode& node);
 
     /** Get a properties object with the configuration of the finder. */
     IProperties* getConfig () const;

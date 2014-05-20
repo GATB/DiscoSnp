@@ -88,7 +88,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     setOutputBank   (bf._outputBank);
     setSynchronizer (bf._synchronizer);
 
-    /** NOT A COPY: each instance created by this constructor will have its own
+    /** NOT A TRUE COPY: each instance created by this constructor will have its own
      *  Traversal/Terminator instances. */
     setTerminator (new BranchingTerminator(graph));
     setTraversal  (Traversal::create (traversalKind, graph, *_terminator));
@@ -118,7 +118,7 @@ BubbleFinder::~BubbleFinder ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BubbleFinder::operator() (const Node& node)
+void BubbleFinder::operator() (const StartingNode& node)
 {
     /** We start the SNP in both directions (forward and reverse). */
     start (bubble, node);
@@ -133,49 +133,45 @@ void BubbleFinder::operator() (const Node& node)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-IProperties* BubbleFinder::getConfig () const
-{
-    IProperties* props = new Properties();
-
-    /** We aggregate information for user. */
-    props->add (0, "config",   "");
-    props->add (1, "kmer_size",   "%d", sizeKmer);
-    props->add (1, "threshold",   "%d", threshold);
-    props->add (1, "auth_branch", "%d", authorised_branching);
-    props->add (1, "low",         "%d", low);
-    props->add (1, "traversal",   "%s", Traversal::getName(traversalKind));
-
-    return props;
-}
-
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 void BubbleFinder::start (Bubble& bubble, const Node& node)
 {
+#ifdef WITH_SOLID_NODES_AS_STARTERS
     /** We get the mutations of the given node at position sizeKmer-1.
      * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
      * variants must be greater than the nucleotide at position (sizeKmer-1) of the given node.
      * => We try all the possible extensions that were not previously tested (clever :-)) */
-    Graph::Vector<Node> mutations = graph.mutate (node, sizeKmer-1, 1);
+    Graph::Vector<Node> successors = graph.mutate (node, sizeKmer-1, 1);
 
-    /** We initialize the first path of the bubble. */
     bubble.begin[0] = node;
 
     /** We loop over all mutations. */
-    for (size_t i=0; i<mutations.size(); i++)
+    for (size_t i=1; i<successors.size(); i++)
     {
         /** We initialize the second path of the bubble. */
-        bubble.begin[1] = mutations[i];
+        bubble.begin[1] = successors[i];
 
         /** We try to expand this new putative bubble. */
-        expand (1, bubble, node, mutations[i], Node(~0), Node(~0));
+        expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
     }
+#else
+
+    /** We compute the successors of the node. */
+    Graph::Vector<Node> successors = graph.successors<Node> (node);
+
+    for (size_t i=0; i<successors.size(); i++)
+    {
+        bubble.begin[0] = successors[i];
+
+        for (size_t j=i+1; j<successors.size(); j++)
+        {
+            bubble.begin[1] = successors[j];
+
+            __sync_add_and_fetch (&(stats.nb_starters), 1);
+
+            expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
+        }
+    }
+#endif
 }
 
 /*********************************************************************
@@ -512,3 +508,25 @@ bool BubbleFinder::checkLowComplexity (Bubble& bubble) const
     return (bubble.score < threshold || (bubble.score>=threshold && low));
 }
 
+/*********************************************************************
+** METHOD  :
+** PURPOSE :
+** INPUT   :
+** OUTPUT  :
+** RETURN  :
+** REMARKS :
+*********************************************************************/
+IProperties* BubbleFinder::getConfig () const
+{
+    IProperties* props = new Properties();
+
+    /** We aggregate information for user. */
+    props->add (0, "config",   "");
+    props->add (1, "kmer_size",   "%d", sizeKmer);
+    props->add (1, "threshold",   "%d", threshold);
+    props->add (1, "auth_branch", "%d", authorised_branching);
+    props->add (1, "low",         "%d", low);
+    props->add (1, "traversal",   "%s", Traversal::getName(traversalKind));
+
+    return props;
+}

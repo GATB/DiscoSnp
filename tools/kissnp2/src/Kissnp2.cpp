@@ -78,7 +78,7 @@ BankFasta::setDataLineSize (100000);
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
 
     /** We get an iterator over the nodes of the graph. */
-    ProgressGraphIterator<Node,ProgressTimer> it (graph.iterator<Node>(), "nodes");
+    ProgressGraphIterator<BubbleFinder::StartingNode,ProgressTimer> it (graph.iterator<BubbleFinder::StartingNode>(), "nodes");
 
     /** We want to get some statistics about the execution. */
     BubbleFinder::Stats stats;
@@ -88,13 +88,17 @@ BankFasta::setDataLineSize (100000);
      */
     BubbleFinder bubbleFinder (getInput(), graph, stats);
 
-    /** THIS IS THE MAIN ITERATION LOOP... We launch the iteration over all the nodes of the graph. */
+    /** THIS IS THE MAIN ITERATION LOOP... We launch the iteration over all the nodes of the graph.
+     * Each iterated node is sent in one of N threads where it is provided to the operator() method
+     * of one of the N BubbleFinder instance.
+     */
     IDispatcher::Status status = getDispatcher()->iterate (it, bubbleFinder);
 
     /** We aggregate information for user. */
     getInfo()->add (1, bubbleFinder.getConfig());
-
-    getInfo()->add (1, "bubbles",   "");
+    getInfo()->add (1, "nodes",    "%lu", it.size());
+    getInfo()->add (1, "bubbles",  "");
+    getInfo()->add (2, "starters","%lu", stats.nb_starters);
     getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles);
     getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_high);
     getInfo()->add (2, "nb_low",  "%lu", stats.nb_bubbles_low);
@@ -103,7 +107,6 @@ BankFasta::setDataLineSize (100000);
     getInfo()->add (3, "left",       "%d", stats.nb_where_to_extend[1]);
     getInfo()->add (3, "right",      "%d", stats.nb_where_to_extend[2]);
     getInfo()->add (3, "left|right", "%d", stats.nb_where_to_extend[3]);
-
     getInfo()->add (1, "time", "");
     getInfo()->add (2, "find", "%d", status.time);
 }
