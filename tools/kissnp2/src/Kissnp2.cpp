@@ -74,11 +74,15 @@ void Kissnp2::execute ()
 BankFasta::setDataLineSize (100000);
 #endif
 
+    /** We define which kind of nodes we want to use as starter for bubble building.
+     *  It could be either BranchingNode or Node */
+    typedef BranchingNode StartingNode;
+
     /** We load the graph from the provided uri. */
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
 
     /** We get an iterator over the nodes of the graph. */
-    ProgressGraphIterator<BubbleFinder::StartingNode,ProgressTimer> it (graph.iterator<BubbleFinder::StartingNode>(), "nodes");
+    ProgressGraphIterator<StartingNode,ProgressTimer> it (graph.iterator<StartingNode>(), "nodes");
 
     /** We want to get some statistics about the execution. */
     BubbleFinder::Stats stats;
@@ -98,7 +102,6 @@ BankFasta::setDataLineSize (100000);
     getInfo()->add (1, bubbleFinder.getConfig());
     getInfo()->add (1, "nodes",    "%lu", it.size());
     getInfo()->add (1, "bubbles",  "");
-    getInfo()->add (2, "starters","%lu", stats.nb_starters);
     getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles);
     getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_high);
     getInfo()->add (2, "nb_low",  "%lu", stats.nb_bubbles_low);

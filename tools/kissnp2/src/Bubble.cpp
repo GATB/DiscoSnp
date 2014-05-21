@@ -23,6 +23,8 @@ using namespace std;
 
 static const int BAD_NUCLEOTIDE = -1;
 
+#define DEBUG(a)  // a
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -118,11 +120,28 @@ BubbleFinder::~BubbleFinder ()
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BubbleFinder::operator() (const StartingNode& node)
+template<>
+void BubbleFinder::start (Bubble& bubble, const Node& node)
 {
-    /** We start the SNP in both directions (forward and reverse). */
-    start (bubble, node);
-    start (bubble, graph.reverse(node));
+    DEBUG ((cout << "[BubbleFinder::start] NODE" << endl));
+
+    /** We get the mutations of the given node at position sizeKmer-1.
+     * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
+     * variants must be greater than the nucleotide at position (sizeKmer-1) of the given node.
+     * => We try all the possible extensions that were not previously tested (clever :-)) */
+    Graph::Vector<Node> mutations = graph.mutate (node, sizeKmer-1, 1);
+
+    bubble.begin[0] = node;
+
+    /** We loop over all mutations. */
+    for (size_t i=0; i<mutations.size(); i++)
+    {
+        /** We initialize the second path of the bubble. */
+        bubble.begin[1] = mutations[i];
+
+        /** We try to expand this new putative bubble. */
+        expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
+    }
 }
 
 /*********************************************************************
@@ -133,27 +152,10 @@ void BubbleFinder::operator() (const StartingNode& node)
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BubbleFinder::start (Bubble& bubble, const Node& node)
+template<>
+void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 {
-#ifdef WITH_SOLID_NODES_AS_STARTERS
-    /** We get the mutations of the given node at position sizeKmer-1.
-     * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
-     * variants must be greater than the nucleotide at position (sizeKmer-1) of the given node.
-     * => We try all the possible extensions that were not previously tested (clever :-)) */
-    Graph::Vector<Node> successors = graph.mutate (node, sizeKmer-1, 1);
-
-    bubble.begin[0] = node;
-
-    /** We loop over all mutations. */
-    for (size_t i=1; i<successors.size(); i++)
-    {
-        /** We initialize the second path of the bubble. */
-        bubble.begin[1] = successors[i];
-
-        /** We try to expand this new putative bubble. */
-        expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
-    }
-#else
+    DEBUG ((cout << "[BubbleFinder::start] BRANCHING NODE" << endl));
 
     /** We compute the successors of the node. */
     Graph::Vector<Node> successors = graph.successors<Node> (node);
@@ -166,12 +168,9 @@ void BubbleFinder::start (Bubble& bubble, const Node& node)
         {
             bubble.begin[1] = successors[j];
 
-            __sync_add_and_fetch (&(stats.nb_starters), 1);
-
             expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
         }
     }
-#endif
 }
 
 /*********************************************************************

@@ -96,19 +96,11 @@ class BubbleFinder
 {
 public:
 
-    /** */
-#ifdef WITH_SOLID_NODES_AS_STARTERS
-    typedef Node StartingNode;
-#else
-    typedef BranchingNode StartingNode;
-#endif
-
     /** We define a structure gathering information during bubble detection. */
     struct Stats
     {
-        Stats ()  : nb_starters(0), nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)  { memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend)); }
+        Stats ()  : nb_bubbles(0), nb_bubbles_high(0), nb_bubbles_low(0)  { memset (nb_where_to_extend, 0, sizeof(nb_where_to_extend)); }
 
-        size_t nb_starters;
         size_t nb_bubbles;
         size_t nb_bubbles_high;
         size_t nb_bubbles_low;
@@ -126,8 +118,17 @@ public:
     ~BubbleFinder ();
 
     /** Starting method that gets a node as argument and tries to build a bubble from it.
+     * NOTE: defined as a template, because we can use either Node or BranchingNode instances
+     * as starting nodes. See also 'start' method, which is template too, with too possible
+     * specializations: one for Node, one for BranchingNode
      * \param[in] node : the starting node. */
-    void operator() (const StartingNode& node);
+    template<typename T>
+    void operator() (const T& node)
+    {
+        /** We start the SNP in both directions (forward and reverse). */
+        start (bubble, node);
+        start (bubble, graph.reverse(node));
+    }
 
     /** Get a properties object with the configuration of the finder. */
     IProperties* getConfig () const;
@@ -182,11 +183,12 @@ private:
     Traversal* _traversal;
     void setTraversal (Traversal* traversal) { SP_SETATTR(traversal); }
 
-    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide)
-     * in a second node, and so this couple of nodes is set as the starting branch of a potential
-     * bubble.
+    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide) in a
+     * second node, and so this couple of nodes is set as the starting branch of a potential bubble.
+     * NOTE: defined as template, with 2 specializations: one for Node, one for BranchingNode (see cpp file)
      * \param[in] node : the starting node. */
-    void start (Bubble& bubble, const Node& node);
+    template<typename T>
+    void start (Bubble& bubble, const T& node);
 
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      * \param[in] pos : position of the nucleotide to be added to both branches.
