@@ -21,8 +21,6 @@
 
 using namespace std;
 
-static const int BAD_NUCLEOTIDE = -1;
-
 #define DEBUG(a)  // a
 
 /*********************************************************************
@@ -262,8 +260,8 @@ void BubbleFinder::expand (
 *********************************************************************/
 bool BubbleFinder::extend (Bubble& bubble)
 {
-    int closureLeft  = BAD_NUCLEOTIDE;
-    int closureRight = BAD_NUCLEOTIDE;
+    Nucleotide closureLeft  = NUCL_UNKNOWN;
+    Nucleotide closureRight = NUCL_UNKNOWN;
 
     /** We may have to extend the bubble according to the user choice. */
     if (traversalKind != Traversal::NONE)
@@ -294,10 +292,10 @@ bool BubbleFinder::extend (Bubble& bubble)
     }
 
     /** We return a code value according to left/right extensions status. */
-         if (closureLeft==BAD_NUCLEOTIDE && closureRight==BAD_NUCLEOTIDE)  { bubble.where_to_extend = 0; }
-    else if (closureLeft!=BAD_NUCLEOTIDE && closureRight==BAD_NUCLEOTIDE)  { bubble.where_to_extend = 1; }
-    else if (closureLeft==BAD_NUCLEOTIDE && closureRight!=BAD_NUCLEOTIDE)  { bubble.where_to_extend = 2; }
-    else if (closureLeft!=BAD_NUCLEOTIDE && closureRight!=BAD_NUCLEOTIDE)  { bubble.where_to_extend = 3; }
+         if (closureLeft==NUCL_UNKNOWN && closureRight==NUCL_UNKNOWN)  { bubble.where_to_extend = 0; }
+    else if (closureLeft!=NUCL_UNKNOWN && closureRight==NUCL_UNKNOWN)  { bubble.where_to_extend = 1; }
+    else if (closureLeft==NUCL_UNKNOWN && closureRight!=NUCL_UNKNOWN)  { bubble.where_to_extend = 2; }
+    else if (closureLeft!=NUCL_UNKNOWN && closureRight!=NUCL_UNKNOWN)  { bubble.where_to_extend = 3; }
 
     bubble.closureLeft  = closureLeft;
     bubble.closureRight = closureRight;
@@ -408,33 +406,39 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     seq.setComment (commentStream.str());
 
     size_t lenLeft  = bubble.extensionLeft.size ();
-    size_t lenRight  = bubble.extensionRight.size ();
-    size_t len       = (2*sizeKmer-1);
+    size_t lenRight = bubble.extensionRight.size ();
+    size_t len      = (2*sizeKmer-1);
 
-    if (bubble.closureLeft  != BAD_NUCLEOTIDE)  { len += 1 + lenLeft;  }
-    if (bubble.closureRight != BAD_NUCLEOTIDE)  { len += 1 + lenRight; }
+    if (bubble.closureLeft  != NUCL_UNKNOWN)  { len += 1 + lenLeft;  }
+    if (bubble.closureRight != NUCL_UNKNOWN)  { len += 1 + lenRight; }
 
-    /** We resize the sequence data if needed. Note: +1 for ending '\0'*/
-    if (seq.getData().size() < len+1)  {  seq.getData().resize (len+1); }
+    /** We resize the sequence data if needed. Note: +1 for ending '\0'
+     * NOTE: we use resize if we need more space, setSize otherwise. */
+    if (seq.getData().size() < len+1)  {  seq.getData().resize  (len+1); }
+    else                               {  seq.getData().setSize (len+1); }
 
     char* output = seq.getDataBuffer();
 
-    for (size_t i=0; i<lenLeft; i++)  {  *(output++) = tolower(ascii (reverse(bubble.extensionLeft [lenLeft-i-1])));  }
-
     /** We add the left extension if any. Note that we use lower case for extensions. */
-    if (bubble.closureLeft != BAD_NUCLEOTIDE)   {  *(output++) = tolower(bin2NT[bubble.closureLeft]);  }
+    if (bubble.closureLeft != NUCL_UNKNOWN)
+    {
+        for (size_t i=0; i<lenLeft; i++)  {  *(output++) = tolower(ascii (reverse(bubble.extensionLeft [lenLeft-i-1])));  }
+        *(output++) = tolower(ascii(bubble.closureLeft));
+    }
 
     /** We add the bubble path. */
     string begin = graph.toString (bubble.begin[pathIdx]);
     string end   = graph.toString (bubble.end[pathIdx]);
 
     for (size_t i=0; i<sizeKmer-1; i++)  {  *(output++) = begin[i];  }
-    for (size_t i=0; i<sizeKmer; i++)    {  *(output++) = end  [i];  }
+    for (size_t i=0; i<sizeKmer;   i++)  {  *(output++) = end  [i];  }
 
     /** We add the right extension if any. Note that we use lower case for extensions. */
-    if (bubble.closureRight != BAD_NUCLEOTIDE)  {  *(output++) =  tolower(bin2NT[bubble.closureRight]);  }
-
-    for (size_t i=0; i<lenRight; i++)  {  *(output++) = tolower(ascii (bubble.extensionRight[i]));  }
+    if (bubble.closureRight != NUCL_UNKNOWN)
+    {
+        *(output++) =  tolower(ascii(bubble.closureRight));
+        for (size_t i=0; i<lenRight; i++)  {  *(output++) = tolower(ascii (bubble.extensionRight[i]));  }
+    }
 
     /** We add a null terminator for the strings. */
     *(output++) = '\0';

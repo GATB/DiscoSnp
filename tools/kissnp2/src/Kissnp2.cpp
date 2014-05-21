@@ -70,10 +70,6 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 *********************************************************************/
 void Kissnp2::execute ()
 {
-#if 1
-BankFasta::setDataLineSize (100000);
-#endif
-
     /** We define which kind of nodes we want to use as starter for bubble building.
      *  It could be either BranchingNode or Node */
     typedef BranchingNode StartingNode;

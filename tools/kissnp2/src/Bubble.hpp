@@ -59,10 +59,10 @@ struct Bubble
     int where_to_extend;
 
     // Closing right nucleotide of the bubble
-    int closureRight;
+    Nucleotide closureRight;
 
     // Closing left nucleotide of the bubble
-    int closureLeft;
+    Nucleotide closureLeft;
 
     // Unitig/Contig path on the right of the bubble.
     Path extensionRight;
