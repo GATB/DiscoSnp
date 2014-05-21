@@ -39,8 +39,8 @@ struct Bubble
     // Here is a description of the attributes defining a bubble.
     //
     //    begin      end
-    //   ------X   X------    <-- branch1   (common X nucleotide)
-    //   ------Y   Y------    <-- branch2   (common Y nucleotide)
+    //   ------X   X------    <-- branch1   (X is the common nucleotide between the 2 nodes)
+    //   ------Y   Y------    <-- branch2   (Y is the common nucleotide between the 2 nodes)
     //
     //  => the bubble is defined by two branches
     //

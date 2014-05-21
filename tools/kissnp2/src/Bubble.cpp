@@ -269,23 +269,28 @@ bool BubbleFinder::extend (Bubble& bubble)
     if (traversalKind != Traversal::NONE)
     {
         /** We ask for the predecessors of the first node and successors of the last node. */
-        Graph::Vector<Node> predecessors = graph.predecessors<Node> (bubble.begin[0]);
         Graph::Vector<Node> successors   = graph.successors<Node>   (bubble.end[0]);
-
-        /** If unique, we keep the left/right extensions. */
-        if (predecessors.size()==1)  { closureLeft  = graph.getNT (predecessors[0], 0);           }
-        if (successors.size()  ==1)  { closureRight = graph.getNT (successors  [0], sizeKmer-1);  }
+        Graph::Vector<Node> predecessors = graph.predecessors<Node> (bubble.begin[0]);
 
         /** We need to reset branching nodes between extensions in case of overlapping extensions. */
         _terminator->reset ();
 
-        /** We compute right extension of the node. */
-        _traversal->traverse (successors[0], DIR_OUTCOMING, bubble.extensionRight);
-        bubble.divergenceRight = _traversal->getBubbles().empty() ? bubble.extensionRight.size() : _traversal->getBubbles()[0].first;
+        /** If unique, we keep the left/right extensions. */
+        if (successors.size()==1)
+        {
+            /** We compute right extension of the node. */
+            closureRight = graph.getNT (successors  [0], sizeKmer-1);
+            _traversal->traverse (successors[0], DIR_OUTCOMING, bubble.extensionRight);
+            bubble.divergenceRight = _traversal->getBubbles().empty() ? bubble.extensionRight.size() : _traversal->getBubbles()[0].first;
+        }
 
-        /** We compute left extension of the node. */
-        _traversal->traverse (graph.reverse(predecessors[0]), DIR_OUTCOMING, bubble.extensionLeft);
-        bubble.divergenceLeft = _traversal->getBubbles().empty() ? bubble.extensionLeft.size() : _traversal->getBubbles()[0].first;
+        if (predecessors.size()==1)
+        {
+            /** We compute left extension of the node. */
+            closureLeft  = graph.getNT (predecessors[0], 0);
+            _traversal->traverse (graph.reverse(predecessors[0]), DIR_OUTCOMING, bubble.extensionLeft);
+            bubble.divergenceLeft = _traversal->getBubbles().empty() ? bubble.extensionLeft.size() : _traversal->getBubbles()[0].first;
+        }
     }
 
     /** We return a code value according to left/right extensions status. */
@@ -402,17 +407,18 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     /** We assign the comment of the sequence. */
     seq.setComment (commentStream.str());
 
-    size_t len = (2*sizeKmer-1) + bubble.extensionLeft.size() + bubble.extensionRight.size();
+    size_t lenLeft  = bubble.extensionLeft.size ();
+    size_t lenRight  = bubble.extensionRight.size ();
+    size_t len       = (2*sizeKmer-1);
 
-    if (bubble.closureLeft  != BAD_NUCLEOTIDE)  { len++; }
-    if (bubble.closureRight != BAD_NUCLEOTIDE)  { len++; }
+    if (bubble.closureLeft  != BAD_NUCLEOTIDE)  { len += 1 + lenLeft;  }
+    if (bubble.closureRight != BAD_NUCLEOTIDE)  { len += 1 + lenRight; }
 
     /** We resize the sequence data if needed. Note: +1 for ending '\0'*/
     if (seq.getData().size() < len+1)  {  seq.getData().resize (len+1); }
 
     char* output = seq.getDataBuffer();
 
-    size_t lenLeft  = bubble.extensionLeft.size ();
     for (size_t i=0; i<lenLeft; i++)  {  *(output++) = tolower(ascii (reverse(bubble.extensionLeft [lenLeft-i-1])));  }
 
     /** We add the left extension if any. Note that we use lower case for extensions. */
@@ -428,7 +434,6 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     /** We add the right extension if any. Note that we use lower case for extensions. */
     if (bubble.closureRight != BAD_NUCLEOTIDE)  {  *(output++) =  tolower(bin2NT[bubble.closureRight]);  }
 
-    size_t lenRight  = bubble.extensionRight.size ();
     for (size_t i=0; i<lenRight; i++)  {  *(output++) = tolower(ascii (bubble.extensionRight[i]));  }
 
     /** We add a null terminator for the strings. */
