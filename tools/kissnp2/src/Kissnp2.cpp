@@ -48,6 +48,7 @@ using namespace std;
 Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 {
     /** We add options known by kissnp2. */
+    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_STARTER_MODE,         "starting nodes: 0 all, 1 branching\n", false, "1"));
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
     getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "branching mode\n"
             "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
@@ -70,15 +71,12 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 *********************************************************************/
 void Kissnp2::execute ()
 {
-    /** We define which kind of nodes we want to use as starter for bubble building.
-     *  It could be either BranchingNode or Node */
-    typedef BranchingNode StartingNode;
+    Dispatcher::Status status;
+    u_int64_t nbNodes = 0;
+    int       startingMode = getInput()->getInt(STR_DISCOSNP_STARTER_MODE);
 
     /** We load the graph from the provided uri. */
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
-
-    /** We get an iterator over the nodes of the graph. */
-    ProgressGraphIterator<StartingNode,ProgressTimer> it (graph.iterator<StartingNode>(), "nodes");
 
     /** We want to get some statistics about the execution. */
     BubbleFinder::Stats stats;
@@ -90,13 +88,36 @@ void Kissnp2::execute ()
 
     /** THIS IS THE MAIN ITERATION LOOP... We launch the iteration over all the nodes of the graph.
      * Each iterated node is sent in one of N threads where it is provided to the operator() method
-     * of one of the N BubbleFinder instance.
-     */
-    IDispatcher::Status status = getDispatcher()->iterate (it, bubbleFinder);
+     * of one of the N BubbleFinder instance. */
+
+    if (startingMode == 0)
+    {
+        /** We get an iterator over the nodes of the graph. */
+        ProgressGraphIterator<Node,ProgressTimer> it (graph.iterator<Node>(), "nodes");
+
+        /** We get the number of nodes. */
+        nbNodes = it.size();
+
+        /** We loop the nodes. */
+        status = getDispatcher()->iterate (it, bubbleFinder);
+    }
+    else
+    {
+        /** We get an iterator over the nodes of the graph. */
+        ProgressGraphIterator<BranchingNode,ProgressTimer> it (graph.iterator<BranchingNode>(), "nodes");
+
+        /** We get the number of nodes. */
+        nbNodes = it.size();
+
+        /** We loop the nodes. */
+        status = getDispatcher()->iterate (it, bubbleFinder);
+    }
 
     /** We aggregate information for user. */
     getInfo()->add (1, bubbleFinder.getConfig());
-    getInfo()->add (1, "nodes",    "%lu", it.size());
+    getInfo()->add (1, "nodes",  "");
+    getInfo()->add (2, "kind", "%d",  startingMode);
+    getInfo()->add (2, "nb",   "%lu", nbNodes);
     getInfo()->add (1, "bubbles",  "");
     getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles);
     getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_high);

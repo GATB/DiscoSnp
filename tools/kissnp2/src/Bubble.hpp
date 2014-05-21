@@ -30,6 +30,7 @@
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 #define STR_DISCOSNP_EXTENSION_SIZE        "-e"
+#define STR_DISCOSNP_STARTER_MODE          "-s"
 
 /********************************************************************************/
 
