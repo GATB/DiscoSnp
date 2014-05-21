@@ -121,7 +121,7 @@ BubbleFinder::~BubbleFinder ()
 template<>
 void BubbleFinder::start (Bubble& bubble, const Node& node)
 {
-    DEBUG ((cout << "[BubbleFinder::start] NODE" << endl));
+    DEBUG ((cout << "[BubbleFinder::start] NODE " << graph.toString(node) << endl));
 
     /** We get the mutations of the given node at position sizeKmer-1.
      * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
@@ -153,7 +153,7 @@ void BubbleFinder::start (Bubble& bubble, const Node& node)
 template<>
 void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 {
-    DEBUG ((cout << "[BubbleFinder::start] BRANCHING NODE" << endl));
+    DEBUG ((cout << "[BubbleFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
 
     /** We compute the successors of the node. */
     Graph::Vector<Node> successors = graph.successors<Node> (node);
