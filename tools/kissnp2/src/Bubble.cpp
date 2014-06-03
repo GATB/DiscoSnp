@@ -162,6 +162,16 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     {
         bubble.begin[0] = successors[i];
 
+#if 0
+        Graph::Vector<Node> predecessors = graph.predecessors<Node> (successors[i]);
+        if (predecessors.size()>1)
+        {
+            Node::Value minValue = predecessors[0].kmer;
+            for (size_t k=1; k<predecessors.size(); k++)  { if (predecessors[k].kmer < minValue) { minValue = predecessors[k].kmer; } }
+            if (minValue != node.kmer)  { continue; }
+        }
+#endif
+
         for (size_t j=i+1; j<successors.size(); j++)
         {
             bubble.begin[1] = successors[j];
