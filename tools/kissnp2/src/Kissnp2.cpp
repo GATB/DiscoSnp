@@ -48,7 +48,7 @@ using namespace std;
 Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 {
     /** We add options known by kissnp2. */
-    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_STARTER_MODE,         "starting nodes: 0 all, 1 branching\n", false, "1"));
+    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_STARTER_MODE,         "starting nodes: 0 all, 1 branching", false, "1"));
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
     getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "branching mode\n"
             "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
