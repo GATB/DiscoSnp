@@ -15,7 +15,8 @@ file (GLOB_RECURSE  ProjectFiles  src/*)
 include_directories (src  "include")
 
 # we set compilation flags
-add_definitions ("-Wall -O3 -DOMP")
+#add_definitions ("-Wall -O3 -DOMP")
+add_definitions ("-Wall -O3")
 
 # we may have extra flags
 if (LIVIUS_TESTS)
@@ -34,6 +35,7 @@ endif()
 add_executable  (${PROJECT_NAME}  ${ProjectFiles})
 
 # we define which libraries to be linked with project binary
-target_link_libraries (${PROJECT_NAME}  "-lm -lz -fopenmp")
+#target_link_libraries (${PROJECT_NAME}  "-lm -lz -fopenmp")
+target_link_libraries (${PROJECT_NAME}  "-lm -lz")
 
 

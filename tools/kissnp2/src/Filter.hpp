@@ -22,15 +22,6 @@
 
 /********************************************************************************/
 
-/** Methode permettant d'appliquer le filtre Low Complexity
- * \param data le tableau des donnees de la banque de sequences
- * \param id l'index du debut de la sequence
- * \param lenseq la longueur de la sequence
- * \return 1 si l'operation s'est deroulee correctement
- */
-int filterLowComplexity       (char* data, int lenseq, int threshold);
-int filterLowComplexity2Paths (char* seq1, char *seq2, int lenseq, int threshold);
-
 int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2);
 
 /********************************************************************************/

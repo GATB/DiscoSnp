@@ -28,7 +28,6 @@
 #define STR_DISCOSNP_AUTHORISED_BRANCHING  "-b"
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
-#define STR_DISCOSNP_EXTENSION_SIZE        "-e"
 #define STR_DISCOSNP_STARTER_MODE          "-s"
 
 /********************************************************************************/
@@ -49,7 +48,7 @@ struct Bubble
     Node begin[2];
     Node end  [2];
 
-    // Low complexity score of the two branches
+    // Complexity score of the two branches
     int score;
 
     // Index of the bubble
@@ -81,6 +80,13 @@ struct Bubble
     Sequence seq2;
 };
 
+struct BubbleDel:Bubble{
+    // A BubbleDel is a Bubble in which on of the two paths is smaller than 2k-1.
+    // Thus in this small path, the size of the overlap between the first and the last
+    // kmer is not exactly 1 as this is the case in a SNP bubble.
+    
+    int size_overlap;
+};
 /********************************************************************************/
 
 /** \brief class that tries to build a bubble from a starting node
@@ -158,8 +164,6 @@ private:
     *   2: no restriction on branching */
     int authorised_branching;
 
-    /** TO BE DONE... not used yet. */
-    int  min_size_extension;
 
     /** Gives the kind of traversal to be done at left/right of the bubble. */
     Traversal::Kind traversalKind;

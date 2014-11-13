@@ -21,7 +21,7 @@
 
 using namespace std;
 
-#define DEBUG(a)  // a
+#define DEBUG(a) //  a
 
 /*********************************************************************
 ** METHOD  :
@@ -39,13 +39,12 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We retrieve the kmer size. */
     sizeKmer = graph.getKmerSize();
 
-    /** We set the threshold. */
+    /** We set the complexity threshold. */
     threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
 
     /** We set attributes according to user choice. */
     low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-    min_size_extension   = props->getInt (STR_DISCOSNP_EXTENSION_SIZE);
 
     /** We set the traversal kind. */
     traversalKind = Traversal::NONE;
@@ -55,7 +54,6 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We set the name of the output file. */
     stringstream ss;
     ss << props->getStr(STR_URI_OUTPUT)  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
-    if (min_size_extension > -1)  { ss << "_e_" << min_size_extension; }
     ss << ".fa";
 
     /** We set the output file. So far, we force FASTA output usage, but we could make it configurable. */
@@ -81,7 +79,6 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     threshold            = bf.threshold;
     low                  = bf.low;
     authorised_branching = bf.authorised_branching;
-    min_size_extension   = bf.min_size_extension;
     traversalKind        = bf.traversalKind;
 
     /** Copy by reference (not by value). */
@@ -162,20 +159,18 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     {
         bubble.begin[0] = successors[i];
 
-#if 0
+        // In case two or more branching nodes lead to the same extensions : (b1 -> s1 and b1 -> s2 and b2 -> s1 and b2 -> s2), then
+        // we need to construct the bubble s1... s2... from only one of the two branching nodes b1 or b2.
+        // We chose the smallest from all the possible starting nodes to start a bubble.
         Graph::Vector<Node> predecessors = graph.predecessors<Node> (successors[i]);
         if (predecessors.size()>1)
         {
-            Node::Value minValue = predecessors[0].kmer;
-            for (size_t k=1; k<predecessors.size(); k++)  { if (predecessors[k].kmer < minValue) { minValue = predecessors[k].kmer; } }
-            if (minValue != node.kmer)  { continue; }
+            for (size_t k=0; k<predecessors.size(); k++) { if (predecessors[k].kmer < node.kmer) { return; } }
         }
-#endif
 
         for (size_t j=i+1; j<successors.size(); j++)
         {
             bubble.begin[1] = successors[j];
-
             expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
         }
     }
@@ -205,7 +200,12 @@ void BubbleFinder::expand (
     if (checkBranching(node1,node2) == false)  { return; }
 
     /** We get the common successors of node1 and node2. */
+    /** Returns the successors of two nodes, ie with the same transition nucleotide from both nodes. */
     Graph::Vector < pair<Node,Node> > successors = graph.successors<Node> (node1, node2);
+    
+    /** A second little check won't hurt. */
+    /** We should not have several extensions possible unless authorised_branching==2 */
+    assert(authorised_branching==2 || successors.size==1);
 
     /** We loop over the successors of the two nodes. */
     for (size_t i=0; i<successors.size(); i++)
@@ -226,11 +226,12 @@ void BubbleFinder::expand (
         /************************************************************/
         if (pos < sizeKmer-1)
         {
+            DEBUG((cout<<pos<<" nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
             /** We call recursively the method (recursion on 'pos'). */
             expand (pos+1, bubble,  nextNode1, nextNode2,  node1, node2);
 
             /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
-            if ( authorised_branching==0 || authorised_branching==1 )   {  break;  }
+            if ( authorised_branching==0 || authorised_branching==1 )   {  break; }
         }
 
         /************************************************************/
@@ -238,9 +239,13 @@ void BubbleFinder::expand (
         /************************************************************/
         else
         {
+            DEBUG((cout<<"last "<<pos<<" nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
             /** We check the branching properties of the next kmers. */
             if (checkBranching(nextNode1, nextNode2)==false)  { return; }
-
+            
+            /** We check that the two last kmers can be right extended, leading to at least a common successor */
+            /** As we start a bubble from a branching node, we also have to symetrically check than the bubble is right closed */
+            if (graph.successors<Node> (nextNode1, nextNode2).size()<1) { return; }
             /** We finish the bubble with both last nodes. */
             bubble.end[0] = nextNode1;
             bubble.end[1] = nextNode2;
@@ -483,8 +488,9 @@ bool BubbleFinder::checkPath (Bubble& bubble) const
 }
 
 /*********************************************************************
-** METHOD  :
-** PURPOSE :
+** METHOD  : BubbleFinder::checkBranching
+** PURPOSE : Checks the branching properties of a couple of nodes. If authorised_branching==0: no branching is authorized in any of the two nodes.
+**           If authorised_branching==1: no symetrical branching authorized from the two nodes (ie. N1-->A and N1-->B and N2-->A and N2-->B not authorized)
 ** INPUT   :
 ** OUTPUT  :
 ** RETURN  :

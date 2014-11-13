@@ -54,7 +54,6 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
             "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
             "\t1: forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position (default value)\n"
             "\t2: No limitation on branching (low precision, high recall)",  false, "1"));
-    getParser()->push_front (new OptionOneParam (STR_DISCOSNP_EXTENSION_SIZE,       "extend found SNPs  and conserve only those whose min(left and right extension) is bigger or equal to length",  false, "-1"));
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_UNITIG,     "extend found and stop at first polymorphism (strict extension=unitigs) SNPs. Uncompatible with -T",  false));
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_CONTIG,     "extend found and stop at large polymorphism (extension=contigs) SNPs. Uncompatible with -t",  false));
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
@@ -103,7 +102,7 @@ void Kissnp2::execute ()
     }
     else
     {
-        /** We get an iterator over the nodes of the graph. */
+        /** We get an iterator over the branching nodes of the graph. */
         ProgressGraphIterator<BranchingNode,ProgressTimer> it (graph.iterator<BranchingNode>(), "nodes");
 
         /** We get the number of nodes. */
