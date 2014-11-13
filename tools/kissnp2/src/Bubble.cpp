@@ -107,37 +107,6 @@ BubbleFinder::~BubbleFinder ()
     setTraversal    (0);
 }
 
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
-template<>
-void BubbleFinder::start (Bubble& bubble, const Node& node)
-{
-    DEBUG ((cout << "[BubbleFinder::start] NODE " << graph.toString(node) << endl));
-
-    /** We get the mutations of the given node at position sizeKmer-1.
-     * IMPORTANT: the third argument (set to 1) tells that the allowed nucleotide
-     * variants must be greater than the nucleotide at position (sizeKmer-1) of the given node.
-     * => We try all the possible extensions that were not previously tested (clever :-)) */
-    Graph::Vector<Node> mutations = graph.mutate (node, sizeKmer-1, 1);
-
-    bubble.begin[0] = node;
-
-    /** We loop over all mutations. */
-    for (size_t i=0; i<mutations.size(); i++)
-    {
-        /** We initialize the second path of the bubble. */
-        bubble.begin[1] = mutations[i];
-
-        /** We try to expand this new putative bubble. */
-        expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
-    }
-}
 
 /*********************************************************************
 ** METHOD  :

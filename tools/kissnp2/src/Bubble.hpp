@@ -28,7 +28,7 @@
 #define STR_DISCOSNP_AUTHORISED_BRANCHING  "-b"
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
-#define STR_DISCOSNP_STARTER_MODE          "-s"
+
 
 /********************************************************************************/
 
