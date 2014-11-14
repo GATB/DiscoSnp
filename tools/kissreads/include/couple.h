@@ -39,7 +39,7 @@
  *  Created on: 17 sept. 2010
  *      Author: ppeterlo
  */
-#include<tree.h>
+//#include<tree.h>
 #ifndef COUPLE_H_
 #define COUPLE_H_
 
@@ -55,29 +55,16 @@ typedef struct {
 } charint_couple, * p_charint_couple;
 
 typedef struct {
-	void* a;
+	void *a;
 	void *b;
 } pointers_couple, * p_pointers_couple;
 
 
-typedef struct {
-	p_node t;
-	int b;
-} node_couple, * p_node_couple; // used to store the info of a seed maping one position (b) of a fragment
-
-
+//typedef struct {
+//	p_node t;
+//	int b;
+//} node_couple, * p_node_couple; // used to store the info of a seed maping one position (b) of a fragment
 //
-//typedef struct {
-//	char * left;
-//	char * right;
-//} string_couple, * p_string_couple;
-
-//typedef struct {
-//	char ** left;
-//	int number_of_left_strings;
-//	char ** right;
-//	int number_of_right_strings;
-//} string_set_couple, * p_string_set_couple;
 
 p_couple create_couple(int a,int b);
 void free_couple (const void * v_c);
@@ -87,15 +74,8 @@ void free_charint_couple (const void * v_c);
 
 p_pointers_couple create_pointers_couple(void* a, void * b);
 void free_pointers_couple (const void * v_c);
-
-
-//p_string_couple create_string_couple(char *left, char *right);
-//void free_string_couple( const void * v_sc);
-
-p_node_couple create_node_couple(p_node t, int pos);//, int fragment_id);
-void free_node_couple( const void * v_sc);
-
-//p_string_set_couple create_string_set_couple(char **left, char **right, const int nb_l, const int nb_r);
-//void free_string_set_couple( const void * v_sc);
+//
+////p_node_couple create_node_couple(p_node t, int pos);//, int fragment_id);
+//void free_node_couple( const void * v_sc);
 
 #endif /* COUPLE_H_ */

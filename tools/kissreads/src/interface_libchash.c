@@ -52,15 +52,6 @@
  * prepare the key for the hash table:
  * we only use uppercase keys
  */
-// useless to apply this intensivelly. The input data is already transformed in upper case if necessary.
-//char *prepare_key(const char *key)
-//{
-//	char *key_upped=strdup(key);
-//	int i;
-//	for (i = 0; key_upped[i]; i++)
-//	    key_upped[i] = toupper(key_upped[i]);
-//	return key_upped;
-//}
 
  /*
   * insert an element in the hash table
@@ -133,14 +124,13 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	while (!hash_iterator_is_end(map,iterator))
 	{
 		hash_iterator_return_entry(map,iterator,&key,(void **)&data);
-		specific_free(data);
+		specific_free((void **)&data);
 		iterator=hash_iterator_next(map,iterator);
 	}
 
 	/*
 	 * free hash table
 	 */
-//	printf("map->table : %lu\n", ((struct HashTable*)map)->table);
 	ClearHashTable((struct HashTable*)map);
  }
 
@@ -167,7 +157,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	while (!hash_iterator_is_end(map,iterator))
 	{
 		hash_iterator_return_entry(map,iterator,&key,(void **)&data);
-		specific_free(data);
+		specific_free((void **)&data);
 		iterator=hash_iterator_next(map,iterator);
 	}
 
@@ -185,9 +175,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
   */
  ssize_t hash_entry_by_key(hash_t map, const char *key, void **data){
 	 HTItem *res;
-//	 char *prepared_key=prepare_key(key);
 	 res=HashFind((struct HashTable*)map, PTR_KEY((struct HashTable*)map,key));
-//	 free(prepared_key);
 	 if (res!=NULL)
 	 {
 	    	*data=(void **)(res->data);
@@ -200,7 +188,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	 printf("accessing key %s -- not found\n",key);
 #endif
 	 return 0;// TODO: maybe make it return the length of the data, as specified in the interface,
-		// but for now we don't need it in mapsembler apparently
+		// but for now we don't need it apparently
 
  }
 
@@ -212,7 +200,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
  hash_iter hash_iterator_init(hash_t map){
 	 hash_iter iter;
  	 iter=(hash_iter) HashFirstBucket((struct HashTable*)map);
- 	 if (iter==NULL)
+ 	 if (iter==NULL || iter == (hash_iter)-1)
  		return (hash_iter)-1;
  	return iter;
  }
@@ -224,7 +212,11 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
  }
 
  hash_iter hash_iterator_is_end(hash_t map, hash_iter iter){
- 	 return (hash_iter)(iter==NULL || (int)iter == -1);
+ 	 //return (hash_iter)(iter==NULL || (int) iter == -1);
+	if (iter==NULL || iter == (hash_iter)-1)
+ 		return (hash_iter)1;
+ 	else
+		return (hash_iter)0;
   }
 
   ssize_t hash_iterator_return_entry(hash_t map, hash_iter iter,
@@ -233,7 +225,8 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
  	assert(iter >= 0);
  	assert(key != NULL);
  	assert(data != NULL);
- 	if ((int)iter != -1 && !hash_iterator_is_end(map, iter))
+ 	//if ((int)iter != -1 && !hash_iterator_is_end(map, iter))
+	if (iter != NULL && iter != (hash_iter)-1 &&!hash_iterator_is_end(map, iter))
  	{
  		HTItem *my_iterator=(HTItem*)iter;
  		*key=KEY_PTR((struct HashTable*)map,my_iterator->key);
@@ -358,19 +351,11 @@ void iterate_and_fill_offsets(hash_t map){
         bck->data = sinfo;
         
         nbdiffseeds ++;
-        //sinfo.offset_seed = offset_courant;
-        //offset_courant += sinfo.nb_seeds ;
-        //sinfo.nb_seeds = 0;
-        
-        //bck->data =  *((ulong*) (&sinfo)); //store back in hashtable
-
-        //printf("offset_courant %lli \n",offset_courant);
     }
-    printf("total nb diff seeds %lli  (should use %lli MB) \n",nbdiffseeds,(nbdiffseeds*16)/1024/1024);
     
 }
 
-void hash_fill_kmer_index(hash_t map, const char * key, couple * seed_table, const int fragment_id, const int position_on_fragment){
+void hash_fill_kmer_index(hash_t map, const kmer_type * key, couple * seed_table, const int fragment_id, const int position_on_fragment){
     HTItem *res;
 
     hash_val sinfo;
@@ -378,12 +363,9 @@ void hash_fill_kmer_index(hash_t map, const char * key, couple * seed_table, con
     uint64_t nb_seeds;
     uint64_t indexseed;
     
-    kmer_type graine;
-    graine = codeSeed(key);  // quick testing, TODO :compute binary kmer once and directly
 
     couple new_couple;
-  //  res=HashFind((struct HashTable*)map, PTR_KEY((struct HashTable*)map,graine)); //why PTR_KEY segfault when graine is binary? 
-    res=HashFind((struct HashTable*)map, graine); 
+    res=HashFind((struct HashTable*)map, *key);
 
     assert(res!=NULL); //key should be present
     
@@ -405,17 +387,13 @@ void hash_fill_kmer_index(hash_t map, const char * key, couple * seed_table, con
     
 }
 
-
-int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t * nb_seeds){
-
+int get_seed_info(hash_t map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds){
+    
     HTItem *res;
     hash_val sinfo;
     
-    kmer_type graine;
-    graine = codeSeed(key);
     
-  //  res=HashFind((struct HashTable*)map, PTR_KEY((struct HashTable*)map,graine));
-    res=HashFind((struct HashTable*)map, graine);
+    res=HashFind((struct HashTable*)map, *key);
     
     if(res!=NULL)
     {
@@ -429,19 +407,37 @@ int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t
 }
 
 
-void hash_incr_kmer_count(hash_t map, const char * key){
+//int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t * nb_seeds){
+//
+//    HTItem *res;
+//    hash_val sinfo;
+//    
+//    kmer_type graine;
+//    graine = codeSeed(key);
+//    
+//    res=HashFind((struct HashTable*)map, graine);
+//    
+//    if(res!=NULL)
+//    {
+//        sinfo = (hash_val) (res->data);
+//        get_offset_and_nb_from_sinfo(sinfo, offset_seed, nb_seeds);
+//        
+//        return 1;
+//    }
+//    return 0;
+//    
+//}
+
+
+void hash_incr_kmer_count(hash_t map, const kmer_type * key){
     HTItem *res;
     uint64_t offset_seed;
     uint64_t nb_seeds;
     hash_val sinfo;
     
-    kmer_type graine;
-    graine = codeSeed(key);
 
-    //res=HashFindOrInsert( (struct HashTable*)map, PTR_KEY((struct HashTable*)map,graine),(ulong) 0); // find or insert 0
-    res=HashFindOrInsert( (struct HashTable*)map, graine,(ulong) 0); // find or insert 0
+    res=HashFindOrInsert( (struct HashTable*)map, *key,(ulong) 0); // find or insert 0
     
-    //incr cpt
     sinfo = (hash_val) (res->data);
     get_offset_and_nb_from_sinfo(sinfo, &offset_seed, &nb_seeds);
 

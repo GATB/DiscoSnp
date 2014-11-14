@@ -41,6 +41,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <stdint.h>
+#include "commons.h"
 #ifndef _HASH_H
 #define _HASH_H
 
@@ -65,14 +66,6 @@ typedef uint64_t hash_val;
 
 #include "couple.h"
 
-
-//p_couple create_couple(int a,int b){
-//	p_couple cpl = malloc(sizeof(couple));
-//	test_alloc(cpl);
-//	cpl->a=a;
-//	cpl->b=b;
-//	return cpl;
-//}
 
 /*
  * basic functions:
@@ -128,14 +121,13 @@ void hash_add_int_to_list(hash_t map, char * key, int value);
 
 void hash_add_something_to_list(hash_t map, const char * key, void *something);
 
-void hash_incr_kmer_count(hash_t map, const char * key);
+void hash_incr_kmer_count(hash_t map, const kmer_type * key);
 
 void iterate_and_fill_offsets(hash_t map);
 
-int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t * nb_seeds);
-void hash_fill_kmer_index(hash_t map, const char * key, couple * seed_table, const int fragment_id, const int position_on_fragment);
-
-void hash_fill_kmer_index(hash_t map, const char * key, couple * seed_table, const int fragment_id, const int position_on_fragment);
+//int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t * nb_seeds);
+int get_seed_info(hash_t map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds);
+void hash_fill_kmer_index(hash_t map, const kmer_type * key, couple * seed_table, const int fragment_id, const int position_on_fragment);
 
 void * hash_list_sorted_by_positions(hash_t map);
  void get_offset_and_nb_from_sinfo(hash_val  sinfo, uint64_t * offset_seed,uint64_t * nb_seeds );

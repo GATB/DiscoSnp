@@ -44,7 +44,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <commons.h>
-#include <tree.h>
 p_couple create_couple(int a,int b){
 	p_couple cpl = malloc(sizeof(couple));
 	test_alloc(cpl);
@@ -93,55 +92,18 @@ void free_pointers_couple (const void * v_c){
 		free(c);
 	}
 }
-
 //
-//p_string_couple create_string_couple(char *left, char *right){
-//	p_string_couple sc = (p_string_couple ) malloc(sizeof(string_couple)); test_alloc(sc);
-//
-//	if(sc != NULL) {
-//		// program not happy with strdup(NULL)
-//		if (left!=NULL)
-//			sc->left=strdup(left);
-//		else
-//			sc->left=strdup("\0");
-//		if (right!=NULL)
-//			sc->right=strdup(right);
-//		else
-//			sc->right=strdup("\0");
-//
-//	}
-//	return sc;
+//p_node_couple create_node_couple(p_node t, int pos){//, int fragment_id){
+//	p_node_couple pnc = (p_node_couple) malloc(sizeof(node_couple)); test_alloc(pnc);
+//	pnc->t=t;
+//	pnc->b=pos;
+////	pnc->fragment_id=fragment_id;
+//	return pnc;
 //}
 //
-//void free_string_couple(const void * v_sc){
-//	string_couple * sc = (string_couple *) v_sc;
-//	if(sc != NULL) {
-//		if(sc->left != NULL) free(sc->left);
-//		if(sc->right != NULL) free(sc->right);
-//		free(sc);
+//void free_node_couple( const void * v_nc){
+//	node_couple * nc = (node_couple *) v_nc;
+//	if(nc != NULL) {
+//		free(nc);
 //	}
 //}
-//
-//p_string_set_couple create_string_set_couple(char **left, char **right, const int nb_l, const int nb_r){
-//	p_string_set_couple ssc = (p_string_set_couple) malloc (sizeof (string_set_couple)); test_alloc(ssc);
-//	ssc->number_of_left_strings=nb_l;
-//	ssc->number_of_right_strings=nb_r;
-//	ssc->left=left;
-//	ssc->right=right;
-//	return ssc;
-//}
-
-p_node_couple create_node_couple(p_node t, int pos){//, int fragment_id){
-	p_node_couple pnc = (p_node_couple) malloc(sizeof(node_couple)); test_alloc(pnc);
-	pnc->t=t;
-	pnc->b=pos;
-//	pnc->fragment_id=fragment_id;
-	return pnc;
-}
-
-void free_node_couple( const void * v_nc){
-	node_couple * nc = (node_couple *) v_nc;
-	if(nc != NULL) {
-		free(nc);
-	}
-}

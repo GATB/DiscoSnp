@@ -43,7 +43,7 @@
 #include <fragment_info.h>
 #include <commons.h>
 #include <string.h>
-#include <tree.h>
+//#include <tree.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
@@ -419,10 +419,10 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
                 fprintf(out, "Q%d_%d|",read_set_id+1,avg_up[read_set_id]);
         //#ifdef GET_ONLY_UPPER_CHARS
         if(map_snps)
-            fprintf(out, ";%s%s%s", results_against_set[cycle_id]->left_extension, results_against_set[cycle_id]->w, results_against_set[cycle_id]->right_extension);
+            fprintf(out, "\n%s%s%s\n", results_against_set[cycle_id]->left_extension, results_against_set[cycle_id]->w, results_against_set[cycle_id]->right_extension);
         //#else
         else
-            fprintf(out, ";%s", results_against_set[cycle_id]->w);
+            fprintf(out, "\n%s\n", results_against_set[cycle_id]->w);
         //#endif
         
         
@@ -435,10 +435,10 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
                 fprintf(out, "Q%d_%d|",read_set_id+1,avg_lo[read_set_id]);
         //#ifdef GET_ONLY_UPPER_CHARS
         if(map_snps)
-            fprintf(out, ";%s%s%s", results_against_set[cycle_id+1]->left_extension, results_against_set[cycle_id+1]->w, results_against_set[cycle_id+1]->right_extension);
+            fprintf(out, "\n%s%s%s\n", results_against_set[cycle_id+1]->left_extension, results_against_set[cycle_id+1]->w, results_against_set[cycle_id+1]->right_extension);
         //#else
         else
-            fprintf(out, ";%s", results_against_set[cycle_id+1]->w);
+            fprintf(out, "\n%s\n", results_against_set[cycle_id+1]->w);
         //#endif
     }
     
@@ -454,10 +454,10 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
  */
 void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual){
     int j;
-	int cov_1[number_of_read_sets] ; // coverage path 1
-    int cov_2[number_of_read_sets] ; // coverage path 2
-    int cov_3[number_of_read_sets] ; // coverage path 3
-    int cov_4[number_of_read_sets] ; // coverage path 4
+	int cov_1[number_of_read_sets] ; // coverage path 1 au
+    int cov_2[number_of_read_sets] ; // coverage path 2 vb
+    int cov_3[number_of_read_sets] ; // coverage path 3 av'
+    int cov_4[number_of_read_sets] ; // coverage path 4 u'b
     
     
     int qual_1[number_of_read_sets]; // quality path 1
@@ -465,6 +465,8 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
     int qual_3[number_of_read_sets]; // quality path 3
     int qual_4[number_of_read_sets]; // quality path 4
     int read_set_id;
+    
+    
     
 	if( qual ){// TODO: UNTESTED CODE - APRIL 2013
         // we are providing results for generic dataset
@@ -489,21 +491,40 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
             }
         }
     } // END UNTESTED CODE
-	
-	//	float sum=0;
+    
+    
+    // on upper path
+	int sum_up[number_of_read_sets];
+    
+	// on lower path
+	int sum_lo[number_of_read_sets];
+    
+//    // considering the uncoherent as covered by 0 reads
+//	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+//		cov_1[read_set_id]=results_against_set[cycle_id]->read_coherent[read_set_id]?results_against_set[cycle_id]->number_mapped_reads[read_set_id]:0;
+//        cov_2[read_set_id]=results_against_set[cycle_id+1]->read_coherent[read_set_id]?results_against_set[cycle_id+1]->number_mapped_reads[read_set_id]:0;
+//        sum_up[read_set_id]=cov_1[read_set_id]+cov_2[read_set_id];
+//        cov_3[read_set_id]=results_against_set[cycle_id+2]->read_coherent[read_set_id]?results_against_set[cycle_id+2]->number_mapped_reads[read_set_id]:0;
+//        cov_4[read_set_id]=results_against_set[cycle_id+3]->read_coherent[read_set_id]?results_against_set[cycle_id+3]->number_mapped_reads[read_set_id]:0;
+//        sum_lo[read_set_id]=cov_3[read_set_id]+cov_4[read_set_id];
+//	}
+     // not changing the uncoherent
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 		cov_1[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
         cov_2[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
+        sum_up[read_set_id]=cov_1[read_set_id]+cov_2[read_set_id];
         cov_3[read_set_id]=results_against_set[cycle_id+2]->number_mapped_reads[read_set_id];
         cov_4[read_set_id]=results_against_set[cycle_id+3]->number_mapped_reads[read_set_id];
+        sum_lo[read_set_id]=cov_3[read_set_id]+cov_4[read_set_id];
 	}
-    //  float rank = rank_phi(sum_up,sum_lo,number_of_read_sets);
-    float rank=0;
+   
+
+    float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
     
     if (!standard_fasta)
     {
         // PATH1
-        fprintf(out, "%2f >%s|", rank, results_against_set[cycle_id]->comment);
+        fprintf(out, ">%s|",results_against_set[cycle_id]->comment);
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "C%d_%d|",read_set_id+1,cov_1[read_set_id]);
         if (qual) for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "Q%d_%d|",read_set_id+1,qual_1[read_set_id]);
         fprintf(out, "rank_%.5f",rank);
@@ -511,7 +532,7 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
         fprintf(out, ";");
         
         // PATH2
-        fprintf(out, "%2f >%s|", rank, results_against_set[cycle_id+1]->comment);
+        fprintf(out, ">%s|",results_against_set[cycle_id+1]->comment);
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "C%d_%d|",read_set_id+1,cov_2[read_set_id]);
         if (qual) for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "Q%d_%d|",read_set_id+1,qual_2[read_set_id]);
         fprintf(out, "rank_%.5f",rank);
@@ -519,7 +540,7 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
         fprintf(out, ";");
         
         // PATH3
-        fprintf(out, "%2f >%s|", rank, results_against_set[cycle_id+2]->comment);
+        fprintf(out, ">%s|",results_against_set[cycle_id+2]->comment);
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "C%d_%d|",read_set_id+1,cov_3[read_set_id]);
         if (qual) for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "Q%d_%d|",read_set_id+1,qual_3[read_set_id]);
         fprintf(out, "rank_%.5f",rank);
@@ -527,13 +548,11 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
         fprintf(out, ";");
         
         // PATH4
-        fprintf(out, "%2f >%s|", rank, results_against_set[cycle_id+3]->comment);
+        fprintf(out, ">%s|",results_against_set[cycle_id+3]->comment);
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "C%d_%d|",read_set_id+1,cov_4[read_set_id]);
         if (qual) for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++) fprintf(out, "Q%d_%d|",read_set_id+1,qual_4[read_set_id]);
         fprintf(out, "rank_%.5f",rank);
         fprintf(out, ";%s", results_against_set[cycle_id+3]->w);
-        fprintf(out, ";");
-        
         fprintf(out, "\n");
     }
     else
@@ -611,13 +630,14 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 		}
 	}
     
-	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
-           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+//	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
+//           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+	if (!silent) printf("Among %d bubbles: %d are read coherent\n", nb_events_per_set, nb_read_coherent);
 }
 
-//#define LIVIUS_TESTS
+//#define READ2INV
 
-#ifdef LIVIUS_TESTS
+#ifdef READ2INV
 
 void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual){
     int i;
@@ -629,11 +649,10 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
     // av' path2 (i+2)    [0/1]        [0/1]
     // u'b path2 (i+3)    [0/1]        [0/1]
     if(number_of_read_sets!=2){
-        fprintf(stderr,"this kind of test is available only on exactly 2 datasets - please use 2 datasets or recompile kissreads after commenting ligne \"#define LIVIUS_TESTS\"\n");
+        fprintf(stderr,"this kind of test is available only on exactly 2 datasets - please use 2 datasets or recompile kissreads after commenting ligne \"#define READ2INV\"\n");
         exit(1);
     }
-    printf("OUTPUTS ONLY MOTIFS WHERE au-vb is specific to one datasets and av'-u'b is specific to the other\n");
-    
+    printf("\nOUTPUTS ONLY MOTIFS WHERE au-vb is specific to one datasets (non existing in the other) and av'-u'b is specific to the other \n");
     for(i=0;i<nb_events_per_set*4;i+=4){
         char coherent=0;
         if(results_against_set[i]->read_coherent[0] && results_against_set[i+1]->read_coherent[0] && //au and vb coherent in C1
@@ -641,11 +660,14 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
            (!results_against_set[i]->read_coherent[1] || !results_against_set[i+1]->read_coherent[1]) && //au or vb uncoherent in C2
            results_against_set[i+2]->read_coherent[1] && results_against_set[i+3]->read_coherent[1]) //av' and u'b coherent in C2
             coherent = 1;
+        
         if(results_against_set[i]->read_coherent[1] && results_against_set[i+1]->read_coherent[1] && //au and vb coherent in C2
            (!results_against_set[i+2]->read_coherent[1] || !results_against_set[i+3]->read_coherent[1]) && //av' or u'b uncoherent in C2
            (!results_against_set[i]->read_coherent[0] || !results_against_set[i+1]->read_coherent[0]) && //au or vb uncoherent in C1
            results_against_set[i+2]->read_coherent[0] && results_against_set[i+3]->read_coherent[0]) //av' and u'b coherent in C1
             coherent=1;
+        
+        
         if(coherent){
 			nb_read_coherent++;
 			print_quadruplet_i(coherent_out, results_against_set, i, number_of_read_sets, qual);
@@ -656,12 +678,12 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
 		}
 	}
     
-	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
+	if (!silent)  printf("Among %d inversions:\n\t%d read coherent and\n\t%d not read coherent\n",
            nb_events_per_set, nb_read_coherent, nb_unread_coherent);
     
     
 }
-#else // LIVIUS_TESTS
+#else // !READ2INV
 
 void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual){
     int i;
@@ -697,12 +719,75 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
 		}
 	}
     
-	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
+	if (!silent) printf("Among %d inversions:\n\t%d read coherent and\n\t%d not read coherent\n",
            nb_events_per_set, nb_read_coherent, nb_unread_coherent);
 }
-#endif // LIVIUS_TESTS
+#endif // !READ2INV
 
 
+
+/**
+ * prints a sequence
+ */
+void print_sequence_i(FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual){
+	
+	int sum[number_of_read_sets];
+	int avg[number_of_read_sets];
+    int read_set_id;
+    int j;
+    
+	if( qual ){
+        // we are providing results for generic dataset
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            avg[read_set_id] = 0;
+            for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id]->w)-kmer_size;j++){
+                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]){
+        #ifdef CHARQUAL
+                    avg[read_set_id] = avg[read_set_id] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j];
+        #else
+                    avg[read_set_id] = avg_up[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]);
+        #endif
+                }
+            }
+        }
+    }
+	
+	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+		sum[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
+	}
+    
+    fprintf(out, ">%s|", results_against_set[cycle_id]->comment);
+    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++)
+        fprintf(out, "C%d_%d|",read_set_id+1,sum[read_set_id]);
+    if (qual)
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++)
+            fprintf(out, "Q%d_%d|",read_set_id+1,avg[read_set_id]);
+    fprintf(out, "%s%s\n", standard_fasta?"\n":";",results_against_set[cycle_id]->w);
+    
+    
+	
+}
+
+
+
+void print_generic_results(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual){
+    
+    int i;
+	int nb_read_coherent=0;
+	int nb_unread_coherent=0;
+    for(i=0;i<nb_events_per_set;i++){
+        if(one_coherent(results_against_set,i,number_of_read_sets)){
+            nb_read_coherent++;
+            print_sequence_i(coherent_out, results_against_set, i, number_of_read_sets, qual);
+        }
+        else{
+            nb_unread_coherent++;
+            print_sequence_i(uncoherent_out, results_against_set, i, number_of_read_sets, qual);
+        }
+    }
+    if (!silent)  printf("Among %d sequences:\n\t%d read coherent and\n\t%d not read coherent\n",
+           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+}
 
 
 

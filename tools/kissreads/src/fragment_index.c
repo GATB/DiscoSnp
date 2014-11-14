@@ -71,17 +71,12 @@ void index_one_seed(const char * seed, const int fragment_id, const int position
 
 
 
-//void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int fragment_id, const int position_on_fragment){
-void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int position_on_fragment){
-	node_couple * seed_info = create_node_couple(fragment_node, position_on_fragment);//, fragment_id);
-	hash_add_something_to_list(seeds,(char *)seed,seed_info);
-}
+////void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int fragment_id, const int position_on_fragment){
+//void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int position_on_fragment){
+//	node_couple * seed_info = create_node_couple(fragment_node, position_on_fragment);
+//	hash_add_something_to_list(seeds,(char *)seed,seed_info);
+//}
 
-
-int valid_character(const char c){
-	if(c=='A' || c=='C' || c=='G' || c=='T') return 1;
-	return 0;
-}
 
 
 
@@ -122,7 +117,6 @@ char * strdup_last_lower(char * in){
     int i;
     for(i=strlen(in)-1;i>=0;i--)
         if(in[i]>='a' && in[i]<='z') {
-            //            printf("in[i] = %c, +1\n", in[i]);
             count++;
         }
         else break;
@@ -131,7 +125,6 @@ char * strdup_last_lower(char * in){
     int j=count-1;
     for(i=strlen(in)-1;i>=0;i--)
         if(in[i]>='a' && in[i]<='z'){
-            //            printf("j=%d\n", j);
             temp[j--]=in[i];
         }
         else break;
@@ -145,21 +138,18 @@ char * strdup_last_lower(char * in){
 // index by seeds of length k all these fragments.
 // each fragment is stored twice: one direct, one reverse complement.
 p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per_set, const int nb_fragment_per_event, const char input_only_upper, const int index_stride){
-    //  printf("sizeof list %li  cell %li \n",sizeof(list),sizeof(cell));
 	char * temp_fragment = (char *) calloc (sizeof(char)*1048576,1); // fragment used for reading line by line
 	test_alloc(temp_fragment);
 	char * temp_fragment2 = (char *) malloc (sizeof(char)*131072); // fragment used for reading line by line
 	test_alloc(temp_fragment2);
 	int witness;                                              // is a fragment was read ?
-	char * seed = (char *) malloc (sizeof(char)*(k+1)); // fragment used for reading seeds
+	kmer_type coded_seed;
 	int i,j,z,stop;
 	char validSeed;
-	//kmer_type graine;
     char * line = malloc(sizeof(char)*1048576);
     
     uint64_t total_seeds = 0 ;
     seeds = hash_create(100000);  	test_alloc(seeds);
-    //seeds_count = hash_create(100000);  // todo  change to binary key (hash_t)AllocateHashTable(kmersize,1); //
     seeds_count = hash_create_binarykey(100000);  // todo  change to binary key (hash_t)AllocateHashTable(kmersize,1); //
     
 	p_fragment_info * all_starters;                   // all existing starters are stored in this array.
@@ -173,7 +163,7 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
 	// each fragment has an id. each seed pobints to couples (id, position). and the fragment is then found thanks to all_fragment[id];
 	int fragment_id=0;
 	do{
-        if(fragment_id%1000==0) printf("\r%d fragments stored", fragment_id);
+//        if(fragment_id%1000==0) printf("\r%d fragments stored", fragment_id);
 		if ( fragment_id+1 > nb_events_per_set*nb_fragment_per_event ) break; // we read the starters we needed to read
 		witness=get_next_sequence_and_comments_for_starters(temp_fragment, temp_fragment2, input_only_upper,line);
         
@@ -199,19 +189,23 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         
         
         //#endif
+        all_starters[fragment_id]->mapped_with_current_read = (char *)malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->mapped_with_current_read);
+        all_starters[fragment_id]->tested_pwis_with_current_read = (listint **)malloc(sizeof(listint *)*number_of_read_sets); test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read);
 		all_starters[fragment_id]->read_coherent = (char*) malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent);
 		all_starters[fragment_id]->number_mapped_reads = (int*) malloc(sizeof(int)*number_of_read_sets);test_alloc(all_starters[fragment_id]->number_mapped_reads);
 		all_starters[fragment_id]->read_coherent_positions = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent_positions);
 #ifdef CHARQUAL
 		all_starters[fragment_id]->sum_quality_per_position = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->sum_quality_per_position);
 #else
-        all_starters[fragment_id]->sum_quality_per_position = (int **) malloc(sizeof(int*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->sum_quality_per_position);
+        all_starters[fragment_id]->sum_quality_per_position = (int **) malloc(sizeof(int*)*number_of_read_sets); test_alloc(all_starters[fragment_id]->sum_quality_per_position);
         
 #endif
 		all_starters[fragment_id]->comment = format_comment(temp_fragment2);
         
 		for (i=0; i<number_of_read_sets; i++)
 		{
+            all_starters[fragment_id]->mapped_with_current_read[i] = 0;
+            all_starters[fragment_id]->tested_pwis_with_current_read[i] = listint_create();
 			all_starters[fragment_id]->read_coherent_positions[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char)); test_alloc(all_starters[fragment_id]->read_coherent_positions[i]);
 #ifdef CHARQUAL
 			all_starters[fragment_id]->sum_quality_per_position[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char)); test_alloc(all_starters[fragment_id]->sum_quality_per_position[i]);
@@ -255,45 +249,44 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
 #endif
 		// read all the seeds present on the fragment
 		stop=strlen(all_starters[fragment_id]->w)-k+1;
-        //        printf("a1 %s-\n", all_starters[fragment_id]->w);
+//        char validSeed;
 		for (i=0;i<stop;i+= index_stride){
-			validSeed=1;
-			for(j=0;j<k;j++) {
-				seed[j]=all_starters[fragment_id]->w[i+j];// read the seed
-				if(!valid_character(seed[j])){validSeed=0; break;}
-			}
-			if(validSeed){
-				seed[j]='\0';
-#ifdef DEBUG_INDEXING
-				printf("%s-\n", seed);
-#endif
-                hash_incr_kmer_count(seeds_count,seed);
+//            validSeed=1;
+//            for(j=0;j<k && validSeed==1;j++)// read all characters to check if its a valid seed
+//                if(!valid_character(all_starters[fragment_id]->w[j+i])){ // if i+j character is not valid
+//                    i+=j; // don't test the next j+1 next positions (+1 will come from the 'for' loop)
+//                    validSeed=0;
+//                }
+//            if(validSeed){
+                coded_seed=codeSeed(all_starters[fragment_id]->w+i); // init the seed (as seeds are not consecutives
+                hash_incr_kmer_count(seeds_count,&coded_seed);
                 total_seeds++;
-			}
+//            }
+			
 		}
 		fragment_id++;
         
-        //  if(fragment_id%50000 ==0)printf("%i\n",fragment_id);
 	}while (1);
-    //  printf("------------ Second loop -----------\n");
-    printf("\r%d fragments stored\n", fragment_id);
     
-    printf("total seeds in fragments %lli  size %lli MB \n",total_seeds,total_seeds*sizeof(couple)/1024LL/1024LL);
+#ifdef DEBUG_INDEXING
+    printf("%d seeds\n", total_seeds);
+#endif
+    
+//    printf("\r%d fragments stored\n", fragment_id);
+    
     
     seed_table  = calloc(total_seeds,sizeof(couple));
     
-    // new couple[total_seeds];
     
     iterate_and_fill_offsets(seeds_count);
     
     
-    // printf("Allocate  sum=%lli  = %lli Mo  sum strdup %lli Mo \n", sum_memory, sum_memory /1024LL/1024LL, sum_memory_strdup /1024LL/1024LL);
     
     
     ///second loop over fragments  : create the index
     fragment_id=0;
 	do{
-        //         if(fragment_id%100000==0) printf("%d fragments indexed\n", fragment_id);
+        
 		if ( fragment_id+1 > nb_events_per_set*nb_fragment_per_event ) break; // we read the starters we needed to read
         
 #ifdef DEBUG_INDEXING
@@ -301,32 +294,32 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
 #endif
 		// read all the seeds present on the fragment
 		stop=strlen(all_starters[fragment_id]->w)-k+1;
-        //        printf("a2 %s-\n", all_starters[fragment_id]->w);
+//        char validSeed=1;
 		for (i=0;i<stop;i+= index_stride){
-			validSeed=1;
-			for(j=0;j<k;j++) {
-				seed[j]=all_starters[fragment_id]->w[i+j];// read the seed
-				if(!valid_character(seed[j])){validSeed=0; break;}
-			}
-			if(validSeed){
-				seed[j]='\0';
-                hash_fill_kmer_index(seeds_count,seed,seed_table, fragment_id, i);
-			}
+//            validSeed=1;
+//            for(j=0;j<k && validSeed==1;j++)// read all characters to check if its a valid seed
+//                if(!valid_character(all_starters[fragment_id]->w[j+i])){ // if i+j character is not valid
+//                    validSeed=0;
+//                    i+=j; // don't test the next j+1 next positions (+1 will come from the 'for' loop)
+//                    continue;
+//                }
+//            if(validSeed){
+                coded_seed=codeSeed(all_starters[fragment_id]->w+i); // init the seed
+                hash_fill_kmer_index(seeds_count,&coded_seed,seed_table, fragment_id, i);
+//            }
+			
 		}
 		fragment_id++;
-        //  if(fragment_id%50000 ==0)printf("%i\n",fragment_id);
         
 	}while (1);
     
 	free(temp_fragment);
     
     free(line);
-    // exit(0);
     return all_starters;
 }
 
 
 void free_seeds_index (){
-	//	hash_delete(seeds, free_couple);
 	hash_delete(seeds, list_of_generic_free);
 }

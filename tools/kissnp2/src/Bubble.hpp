@@ -85,7 +85,7 @@ struct BubbleDel:Bubble{
     // Thus in this small path, the size of the overlap between the first and the last
     // kmer is not exactly 1 as this is the case in a SNP bubble.
     
-    int size_overlap;
+    int smaller_path_size_overlap;
 };
 /********************************************************************************/
 
@@ -258,6 +258,10 @@ private:
 };
 
 /********************************************************************************/
+
+class BubbleDelFinder:BubbleFinder{
+    
+};
 
 #endif /* _TOOL_BUBBLE_HPP_ */
 

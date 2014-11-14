@@ -45,6 +45,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<couple.h>
+#include<commons.h>
+#include <string.h>
 
 
 typedef struct CELL {
@@ -60,12 +62,40 @@ typedef struct {
 list *list_create(void);
 void list_add(list *l, void* val);
 
+
+
 void list_free(const void *list, void (*specific_free)(void *));
 void list_of_generic_free(const void *v_list);
+void list_of_generic_empty(const void * v_list);
 
-void list_del(list *l, cell *c);
 
 int numberInList (list *l);
+
+/////////////////////////////////////////////////////////////////////////////////
+///////// For speed purpose, here is a list dedicated to int only ///////////////
+/////////////////////////////////////////////////////////////////////////////////
+
+typedef struct CELLINT {
+    int val;
+    struct CELLINT *prox;
+} cellint, * p_cellint;
+
+typedef struct {
+	int size;
+	p_cellint first;
+} listint;
+
+listint *listint_create(void);
+void listint_add(listint *l, int val);
+
+
+char listint_contains(listint *l, int val);
+
+void listint_free(const void *v_list);
+void listint_empty(const void * v_list);
+
+
+int numberInListint (listint *l);
 
 
 #endif /* LIST_H_ */

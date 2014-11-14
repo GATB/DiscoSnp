@@ -43,13 +43,13 @@
 #ifndef EXTENSION_ALGORITHM_H_
 #define EXTENSION_ALGORITHM_H_
 
-#include <extending_fragment.h>
 #include<fragment_info.h>
 #include<stdio.h>
+#include <zlib.h>
 
 
 
-float read_coherence (FILE * reads_file,
+float read_coherence (gzFile reads_file,
                       char * reads_file_name,
                       const int k,
                       const int min_coverage,
@@ -61,6 +61,7 @@ float read_coherence (FILE * reads_file,
                       int nb_fragment_per_event,
                       FILE * sam_out,
                       int subst_allowed,
-                      const char no_subsutitution_on_central_position);
+                      const char no_subsutitution_on_central_position,
+                      const int minimal_read_overlap);
 
 #endif /* EXTENSION_ALGORITHM_H_ */

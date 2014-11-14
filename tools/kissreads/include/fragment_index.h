@@ -54,13 +54,8 @@ hash_t seeds; // hash table seed -> (fragment id, position)
 hash_t seeds_count;
 couple * seed_table;
 
-p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per_set, const int nb_fragment_per_event, const char input_only_upper, const int index_stride);           // read store all starters presents in the pointed file.
-                                                                      // index by seeds of length k all these starters.
+p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per_set, const int nb_fragment_per_event, const char input_only_upper, const int index_stride);           // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
 
-
-/**
- * index by seeds of length k all the fragments that were extended during last extension.
- */
 void  free_seeds_index ();
 
 #endif /* FRAGMENT_INDEX_H_ */

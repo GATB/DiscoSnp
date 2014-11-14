@@ -47,11 +47,17 @@
 #include <string.h>
 #include <zlib.h> // Added by Pierre Peterlongo on 10/09/2012.
 #include <stdint.h>
+#include<math.h>
+
+
+#include<inttypes.h> // DEBUG
 
 //#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in upper case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
 
 #define MAX_SIZE_LINE 1048576
 //char line[MAX_SIZE_LINE];
+
+extern kmer_type mask_code_seed;
 
 static int
 cmpstringp(const void *p1, const void *p2)
@@ -111,9 +117,24 @@ void init_static_variables(const int k){
 	nuc[3]='T';
 
 	anykmer = (char *) malloc(k+1); test_alloc(anykmer);
+    
+    
+    mask_code_seed=1; // don't know why but 1<<(2*k)  does not work with k>32. This is why I made this stupid loop/
+    int z;
+    for (z=0;z<(2*k);z++){
+        mask_code_seed = mask_code_seed<<1;
+    }
+    
+    mask_code_seed = mask_code_seed-1;
+    
 }
 
-void print_rev_comp(char s[], gzFile out){
+int valid_character(const char c){
+	if(c=='A' || c=='C' || c=='G' || c=='T') return 1;
+	return 0;
+}
+
+void print_rev_comp(char s[], FILE* out){
 	int i;
 	const int len=strlen(s);
 	for(i=len-1;i>-1;i--)fprintf(out, "%c",comp[(int)s[i]]);
@@ -300,7 +321,7 @@ int get_next_fasta_sequence (gzFile file, char * sequence , char * line){
 //char * line = malloc(sizeof(char)*1048576);
 	
  rv=gzgets(file, (char *)line,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
-	if(rv == NULL) return 0;
+	if(rv == NULL) return -1;
 	do{
 	  rv=gzgets(file,(char *)sequence,MAX_SIZE_LINE); //
 	}while(sequence[0]=='>');
@@ -339,13 +360,13 @@ int get_next_sequence_for_fastq (gzFile file, char * sequence, char * quality, c
 //char * line = malloc(sizeof(char)*MAX_SIZE_LINE);
 
 	rv=gzgets(file,(char *)line,MAX_SIZE_LINE);// read comment ('@read00xxxx...\n')
-	if(rv == NULL) return 0;
+	if(rv == NULL) return -1;
 	do{
 		rv=gzgets(file,(char *)sequence,MAX_SIZE_LINE); //
 	}while(sequence[0]=='@');
 
 	qv=gzgets(file,(char *)line,MAX_SIZE_LINE);// read comment ('+read00xxxx...\n')
-	if(qv == NULL) return 0;
+	if(qv == NULL) return -1;
 	qv=gzgets(file,(char *)quality,MAX_SIZE_LINE); //
 
 	p = (char *)strchr((char*)sequence, '\n');
@@ -409,7 +430,6 @@ int number_of_sequences_in_fastq_file(gzFile file, char * line){
 int number_of_sequences_in_file(gzFile file, char * line){
 
 	gzrewind(file);
-//	char line[1048576];
 	if(gzgets(file,line,MAX_SIZE_LINE) == NULL) return 0;
 	gzrewind(file);
 	
@@ -420,25 +440,41 @@ int number_of_sequences_in_file(gzFile file, char * line){
 	return 0;
 }
 
-int NT2int(char nt)
+
+// binary code of any character coded on 2 bits.
+// Among them: N or n or G or G=11 --- A or a = 00 --- C or c = 01 --- T or t = 10
+inline int NT2int(const char nt)
 {
-    int i;
-    i = nt;
-    i = (i>>1)&3; // that's quite clever, guillaume.
-    return i;
+    return (nt>>1)&3;
+    
 }
 
 
-kmer_type  codeSeed(const char *seq)
+
+// update a code of a seed with a new character O(1)
+kmer_type  updateCodeSeed(const char *seq, kmer_type *x) // update of a seed (shift and adding a new character)
+{
+//    printf("seed2 %" PRIu64 " mask %" PRIu64 "\n", *x, mask_code_seed);
+    *x = (*x)*4 + NT2int(seq[size_seeds-1]); // add the code of the new nucleotid
+    
+    *x = *x & mask_code_seed; // remove the leftmost couple of bits
+//    printf("seed3 %" PRIu64 " mask %" PRIu64 "\n", *x, mask_code_seed);
+    return *x;
+}
+
+
+// transform a character seed into a code seed O(size seed)
+kmer_type codeSeed(const char *seq) // initialisation of a seed
 {
     int i;
-    kmer_type x;
-    
-    x=0;
+    kmer_type x=0;
     for (i=0; i<size_seeds; ++i)
     {
-        x = x*4 + NT2int(seq[i]);
+        x = x<<2;
+        x+=NT2int(seq[i]);
+        
     }
+
     return x;
 }
 

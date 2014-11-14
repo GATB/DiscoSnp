@@ -43,25 +43,28 @@
 #define COMMONS_H_
 
 
-//#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in upper case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
+//#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in lower case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
 #include<stdio.h>
 #include <stdint.h>
 #include<zlib.h>
+typedef  uint64_t kmer_type;
 //int artificial_overlap;
 char comp ['t'+1];
 char nuc [4];
 char standard_fasta;
-char verbose;
 char silent;
-char whole_coverage;
 char quality;
+char only_print;
 int kmer_size;
 int size_seeds;
+int minimal_read_overlap;
+kmer_type mask_code_seed;
 
 #ifdef INPUT_FROM_KISSPLICE
 int min_overlap;
 int countingOption;
 #endif
+int valid_character(const char c);
 int average_size_reads;
 int nb_event_sets;
 int number_of_read_sets;
@@ -71,7 +74,7 @@ char **  sort_strings (char ** strings, int number);
 void * mymalloc(const int size);
 void * mycalloc(const int size, const int size_2);
 char * mystrdup (const char *s1);
-void print_rev_comp(char s[], gzFile out);
+void print_rev_comp(char s[], FILE* out);
 void revcomp(char s[], int len);
 void rev(char s[], int len);
 void init_static_variables(const int k);
@@ -96,8 +99,8 @@ unsigned int nbits_nbseeds;
 // macro to test if a variable is null (i.e., a malloc failed)
 #define test_alloc( variable) {	if(variable == NULL){		fprintf(stderr,"cannot allocate memory for variable %s, exit\n",#variable);		exit(1);	}}
 
-typedef  uint64_t kmer_type;
 kmer_type  codeSeed(const char *seq);
+kmer_type  updateCodeSeed(const char *seq, kmer_type *x);
 
 //saturated increment of unsigned char
 #define Sinc8(a)  ((a == 0xFF ) ? 0xFF : a++)
