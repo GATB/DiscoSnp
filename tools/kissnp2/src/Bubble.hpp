@@ -48,6 +48,7 @@ struct Bubble
     Node begin[2];
     Node end  [2];
     
+    
     // A Bubble may represent a deletion. In this case a path if of
     // length 2k-1 and another is of length 2k-1-d (with d the size of the overlap.
     // Thus, the overlap of one of the two paths is always of length 1 and this other is of length
@@ -139,7 +140,10 @@ public:
 
     /** Get a properties object with the configuration of the finder. */
     IProperties* getConfig () const;
-
+    
+    /** Constants */
+    static const char* STR_BFS_MAX_DEPTH;
+    static const char* STR_BFS_MAX_BREADTH;
 protected:
 
     /** */
@@ -158,6 +162,9 @@ protected:
     int threshold;
 
     bool low;
+    
+    int max_depth;
+    int max_breadth;
 
     /* authorised_branching =
     *   0: branching forbidden in any path
@@ -165,24 +172,7 @@ protected:
     *   2: no restriction on branching */
     int authorised_branching;
     
-    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide) in a
-     * second node, and so this couple of nodes is set as the starting branch of a potential bubble.
-     * NOTE: defined as template, with 2 specializations: one for Node, one for BranchingNode (see cpp file)
-     * \param[in] node : the starting node. */
-    template<typename T>
-    void start (Bubble& bubble, const T& node);
     
-    /** Extension of a bubble by testing extensions from both branches of the bubble.
-     * \param[in] pos : position of the nucleotide to be added to both branches.
-     */
-    void expand (
-                 int pos,
-                 Bubble& bubble,
-                 const Node& node1,
-                 const Node& node2,
-                 const Node& previousNode1,
-                 const Node& previousNode2
-                 );
 
     
 
@@ -208,7 +198,24 @@ protected:
     Traversal* _traversal;
     void setTraversal (Traversal* traversal) { SP_SETATTR(traversal); }
 
+    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide) in a
+     * second node, and so this couple of nodes is set as the starting branch of a potential bubble.
+     * NOTE: defined as template, with 2 specializations: one for Node, one for BranchingNode (see cpp file)
+     * \param[in] node : the starting node. */
+    template<typename T>
+    void start (Bubble& bubble, const T& node);
     
+    /** Extension of a bubble by testing extensions from both branches of the bubble.
+     * \param[in] pos : position of the nucleotide to be added to both branches.
+     */
+    void expand (
+                 int pos,
+                 Bubble& bubble,
+                 const Node& node1,
+                 const Node& node2,
+                 const Node& previousNode1,
+                 const Node& previousNode2
+                 );
 
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * \return true if the bubble has been extended, false otherwise. */

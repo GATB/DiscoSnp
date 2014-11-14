@@ -22,7 +22,8 @@
 using namespace std;
 
 #define DEBUG(a) //  a
-
+const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
+const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -47,7 +48,10 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We set attributes according to user choice. */
     low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-
+    
+    
+    max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
+    max_breadth = props->getInt (STR_BFS_MAX_BREADTH);
     /** We set the traversal kind. */
     traversalKind = Traversal::NONE;
     if (props->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = Traversal::UNITIG; }
@@ -90,7 +94,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     /** NOT A TRUE COPY: each instance created by this constructor will have its own
      *  Traversal/Terminator instances. */
     setTerminator (new BranchingTerminator(graph));
-    setTraversal  (Traversal::create (traversalKind, graph, *_terminator));
+    setTraversal  (Traversal::create (traversalKind, graph, *_terminator, 0, bf.max_depth, bf.max_breadth));
 }
 
 /*********************************************************************

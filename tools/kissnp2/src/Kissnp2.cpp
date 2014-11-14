@@ -57,6 +57,10 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_CONTIG,     "extend found and stop at large polymorphism (extension=contigs) SNPs. Uncompatible with -t",  false));
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
     getParser()->push_front (new OptionOneParam (STR_URI_INPUT,                     "input file (likely a hdf5 file)",  true));
+    
+    getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_DEPTH,   "maximum depth for BFS",    false,  "200"));
+    getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_BREADTH, "maximum breadth for BFS",  false,  "20"));
+
 }
 
 /*********************************************************************
