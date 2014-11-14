@@ -86,6 +86,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     low                  = bf.low;
     authorised_branching = bf.authorised_branching;
     traversalKind        = bf.traversalKind;
+    bubble.smaller_path_size_overlap = 1; // TODO: to adapt to the bubble kind.
 
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
