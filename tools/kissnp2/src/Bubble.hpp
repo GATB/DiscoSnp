@@ -47,6 +47,13 @@ struct Bubble
     //     so the path length defined by these two nodes is (2*kmerSize - 1)
     Node begin[2];
     Node end  [2];
+    
+    // A Bubble may represent a deletion. In this case a path if of
+    // length 2k-1 and another is of length 2k-1-d (with d the size of the overlap.
+    // Thus, the overlap of one of the two paths is always of length 1 and this other is of length
+    //  1 (SNP) or
+    //  d+1 (deletion).
+    int smaller_path_size_overlap;
 
     // Complexity score of the two branches
     int score;
@@ -80,13 +87,7 @@ struct Bubble
     Sequence seq2;
 };
 
-struct BubbleDel:Bubble{
-    // A BubbleDel is a Bubble in which on of the two paths is smaller than 2k-1.
-    // Thus in this small path, the size of the overlap between the first and the last
-    // kmer is not exactly 1 as this is the case in a SNP bubble.
-    
-    int smaller_path_size_overlap;
-};
+
 /********************************************************************************/
 
 /** \brief class that tries to build a bubble from a starting node
@@ -139,7 +140,7 @@ public:
     /** Get a properties object with the configuration of the finder. */
     IProperties* getConfig () const;
 
-private:
+protected:
 
     /** */
     const Graph& graph;
@@ -163,7 +164,27 @@ private:
     *   1: same branching on both path forbidden (i.e. 2 distinct nucleotides may be used in both paths for extension)
     *   2: no restriction on branching */
     int authorised_branching;
+    
+    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide) in a
+     * second node, and so this couple of nodes is set as the starting branch of a potential bubble.
+     * NOTE: defined as template, with 2 specializations: one for Node, one for BranchingNode (see cpp file)
+     * \param[in] node : the starting node. */
+    template<typename T>
+    void start (Bubble& bubble, const T& node);
+    
+    /** Extension of a bubble by testing extensions from both branches of the bubble.
+     * \param[in] pos : position of the nucleotide to be added to both branches.
+     */
+    void expand (
+                 int pos,
+                 Bubble& bubble,
+                 const Node& node1,
+                 const Node& node2,
+                 const Node& previousNode1,
+                 const Node& previousNode2
+                 );
 
+    
 
     /** Gives the kind of traversal to be done at left/right of the bubble. */
     Traversal::Kind traversalKind;
@@ -187,24 +208,7 @@ private:
     Traversal* _traversal;
     void setTraversal (Traversal* traversal) { SP_SETATTR(traversal); }
 
-    /** Start a bubble detection from a given node. This node is mutated (its last nucleotide) in a
-     * second node, and so this couple of nodes is set as the starting branch of a potential bubble.
-     * NOTE: defined as template, with 2 specializations: one for Node, one for BranchingNode (see cpp file)
-     * \param[in] node : the starting node. */
-    template<typename T>
-    void start (Bubble& bubble, const T& node);
-
-    /** Extension of a bubble by testing extensions from both branches of the bubble.
-     * \param[in] pos : position of the nucleotide to be added to both branches.
-     */
-    void expand (
-        int pos,
-        Bubble& bubble,
-        const Node& node1,
-        const Node& node2,
-        const Node& previousNode1,
-        const Node& previousNode2
-    );
+    
 
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * \return true if the bubble has been extended, false otherwise. */
@@ -250,7 +254,7 @@ private:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, const int size_overlap);
 
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;
@@ -259,7 +263,19 @@ private:
 
 /********************************************************************************/
 
+class BubbleSNPFinder:BubbleFinder{
+    
+private:
+    // START ET EXPAND. Tout le reste devrait être générique
+    
+};
+
 class BubbleDelFinder:BubbleFinder{
+    
+private:
+    // START ET EXPAND. Tout le reste devrait être générique
+    
+    
     
 };
 

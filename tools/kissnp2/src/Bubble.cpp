@@ -41,6 +41,8 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
 
     /** We set the complexity threshold. */
     threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
+    
+    
 
     /** We set attributes according to user choice. */
     low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
@@ -302,8 +304,8 @@ void BubbleFinder::finish (Bubble& bubble)
     bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles), 1);
 
     /** We build two Sequence objects from the information of the bubble. */
-    buildSequence (bubble, 0, "higher", bubble.seq1);
-    buildSequence (bubble, 1, "lower",  bubble.seq2);
+    buildSequence (bubble, 0, "higher", bubble.seq1,1);
+    buildSequence (bubble, 1, "lower",  bubble.seq2,bubble.smaller_path_size_overlap);
 
     /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
      * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
@@ -332,7 +334,7 @@ void BubbleFinder::finish (Bubble& bubble)
 *********************************************************************/
 bool BubbleFinder::two_possible_extensions_on_one_path (const Node& node) const
 {
-    return graph.indegree(node)>=2 || graph.outdegree(node)>=2;
+    return graph.indegree(node)>1 || graph.outdegree(node)>1;
 }
 
 /*********************************************************************
@@ -358,7 +360,7 @@ bool BubbleFinder::two_possible_extensions (Node node1, Node node2) const
 ** RETURN  :
 ** REMARKS :
 *********************************************************************/
-void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq)
+void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, const int size_overlap)
 {
     stringstream commentStream;
 
@@ -414,7 +416,7 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     string begin = graph.toString (bubble.begin[pathIdx]);
     string end   = graph.toString (bubble.end[pathIdx]);
 
-    for (size_t i=0; i<sizeKmer-1; i++)  {  *(output++) = begin[i];  }
+    for (size_t i=0; i<sizeKmer-size_overlap; i++)  {  *(output++) = begin[i];  }
     for (size_t i=0; i<sizeKmer;   i++)  {  *(output++) = end  [i];  }
 
     /** We add the right extension if any. Note that we use lower case for extensions. */

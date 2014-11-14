@@ -30,6 +30,7 @@ static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
 int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2)
 {
+    //TODO; FAIRE UN FILTRAGE SUR L'UN OU L'AUTRE DES 2 chemins (adapté à des chemins de taille différentes)
     int DUSTSCORE1[64], DUSTSCORE2[64];
     int i, j, k, s1, m, s2;
 
