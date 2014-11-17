@@ -29,6 +29,8 @@
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 
+#define STR_MAX_DEL_SIZE                   "-d"
+
 
 /********************************************************************************/
 
@@ -50,11 +52,13 @@ struct Bubble
     
     
     // A Bubble may represent a deletion. In this case a path if of
-    // length 2k-1 and another is of length 2k-1-d (with d the size of the overlap.
+    // length 2k-1 and another is of length 2k-1-d (with d the size of the overlap).
     // Thus, the overlap of one of the two paths is always of length 1 and this other is of length
     //  1 (SNP) or
     //  d+1 (deletion).
+    //  We always consider that the smaller path is branch2 (corresponding to begin[1] and end[1])
     int smaller_path_size_overlap;
+    
 
     // Complexity score of the two branches
     int score;
@@ -160,6 +164,9 @@ protected:
 
     /** Threshold (computed from the kmer size). */
     int threshold;
+    
+    /** Max deletion size **/
+    int max_del_size;
 
     bool low;
     
@@ -261,29 +268,11 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, const int size_overlap);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* polymorphism, const char* type, Sequence& seq, const int size_overlap);
 
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
-};
-
-/********************************************************************************/
-
-class BubbleSNPFinder:BubbleFinder{
-    
-private:
-    // START ET EXPAND. Tout le reste devrait être générique
-    
-};
-
-class BubbleDelFinder:BubbleFinder{
-    
-private:
-    // START ET EXPAND. Tout le reste devrait être générique
-    
-    
-    
 };
 
 #endif /* _TOOL_BUBBLE_HPP_ */
