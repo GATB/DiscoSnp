@@ -144,8 +144,7 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
 	test_alloc(temp_fragment2);
 	int witness;                                              // is a fragment was read ?
 	kmer_type coded_seed;
-	int i,j,z,stop;
-	char validSeed;
+	int i,z,stop;
     char * line = malloc(sizeof(char)*1048576);
     
     uint64_t total_seeds = 0 ;

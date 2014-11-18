@@ -24,6 +24,7 @@ using namespace std;
 #define DEBUG(a) //  a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
+
 /*********************************************************************
 ** METHOD  :
 ** PURPOSE :
@@ -124,7 +125,7 @@ BubbleFinder::~BubbleFinder ()
  ** INPUT   :
  ** OUTPUT  :
  ** RETURN  : A unique successor of a node at depth d if exist. Else return nullptr
- ** REMARKS :
+ ** REMARKS : DEPRECATED
  *********************************************************************/
 Node get_successors (const Graph& graph, const Node& node, const int depth){
     Graph::Vector<Node> successors = graph.successors<Node> (node);
@@ -150,7 +151,8 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
     /** We compute the successors of the node. */
     Graph::Vector<Node> successors = graph.successors<Node> (node);
-    
+            DEBUG((cout << "successor size"<<successors.size()<<endl));
+    if(successors.size()<2) return; // false branching (no extention in one or the other direction).
     for (size_t i=0; i<successors.size(); i++)
     {
         bubble.begin[0] = successors[i];
@@ -159,10 +161,13 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         // we need to construct the bubble s1... s2... from only one of the two branching nodes b1 or b2.
         // We chose the smallest from all the possible starting nodes to start a bubble.
         Graph::Vector<Node> predecessors = graph.predecessors<Node> (successors[i]);
+        
         if (predecessors.size()>1)
         {
             for (size_t k=0; k<predecessors.size(); k++) { if (predecessors[k].kmer < node.kmer) { return; } }
         }
+        
+        
         
         for (size_t j=i+1; j<successors.size(); j++)
         {
@@ -170,20 +175,24 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             bubble.begin[1] = successors[j];
             expand (1, bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0));
             
-            // Deal with indels
-            for (size_t del_size=1;del_size<=max_del_size;del_size++){
-                bubble.smaller_path_size_overlap=del_size+1;
-                Node suc = get_successors(graph, bubble.begin[1], del_size);
-                if(suc.kmer != ~0)
-                    expand (1+del_size, bubble, suc, bubble.begin[0], Node(~0), Node(~0)); // Starts expand with bubble.begin[0] and suc at depth 1+del_size
-                
-                suc = get_successors(graph, bubble.begin[0], del_size);
-                if(suc.kmer != ~0)
-                    expand (1+del_size, bubble, suc, bubble.begin[1], Node(~0), Node(~0)); // Starts expand with bubble.begin[0] and suc at depth 1+del_size
-                
-                // TODO:
-                // for all successor suc at depth del_size of bubble.begin[1] or bubble.begin[0]. Currently, limited to successors on simple paths
-                
+            // Consider a deletion in the upper path (avance on the lower)
+            Node current;
+            
+            for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
+                current= bubble.begin[extended_path_id]; // 0 or 1
+                for (size_t del_size=1;del_size<=max_del_size;del_size++){
+                    Graph::Vector<Node> successors = graph.successors<Node> (current);
+                    if (successors.size()==1){
+                        current=successors[0];
+                        if ( graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1] == graph.toString(current)[sizeKmer-1] ){
+                            bubble.smaller_path_size_overlap=del_size+1;
+                            expand (1+del_size, bubble, current, bubble.begin[(extended_path_id+1)%2], Node(~0), Node(~0)); // Starts expand with bubble.begin[0/1] and suc at depth 1+del_size
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
             }
         }
     }
@@ -206,6 +215,7 @@ void BubbleFinder::expand (
                               const Node& previousNode2
                               )
 {
+    DEBUG((cout<<pos<<" node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
     /** A little check won't hurt. */
     assert (pos <= sizeKmer-1);
     
@@ -255,7 +265,6 @@ void BubbleFinder::expand (
             DEBUG((cout<<"last "<<pos<<" nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
             /** We check the branching properties of the next kmers. */
             if (checkBranching(nextNode1, nextNode2)==false)  { return; }
-            
             /** We check that the two last kmers can be right extended, leading to at least a common successor */
             /** As we start a bubble from a branching node, we also have to symetrically check than the bubble is right closed */
             if (graph.successors<Node> (nextNode1, nextNode2).size()<1) { return; }
@@ -343,34 +352,60 @@ bool BubbleFinder::extend (Bubble& bubble)
 *********************************************************************/
 void BubbleFinder::finish (Bubble& bubble)
 {
-    /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
-     * accesses since we may be called here from different threads. */
-    bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles), 1);
+    
 
     /** We build two Sequence objects from the information of the bubble. */
     
     stringstream polymorphism_type;
-    if(bubble.smaller_path_size_overlap==1)
+    if(bubble.smaller_path_size_overlap==1){
+        
+        /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
+         * accesses since we may be called here from different threads. */
+        bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles_snp), 1);
         polymorphism_type<<"SNP";
-    else
+        buildSequence (bubble, 0, polymorphism_type.str().c_str(), "higher", bubble.seq1,1);
+        buildSequence (bubble, 1, polymorphism_type.str().c_str(),"lower",  bubble.seq2,bubble.smaller_path_size_overlap);
+        
+        /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
+         * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
+        {
+            LocalSynchronizer sync (_synchronizer);
+            
+            /** We insert the two sequences into the output bank. */
+            _outputBank->insert (bubble.seq1);
+            _outputBank->insert (bubble.seq2);
+            
+            /** Stats update (in concurrent access protection block). */
+            stats.nb_where_to_extend_snp[bubble.where_to_extend] ++;
+            
+            if (bubble.score < threshold)  { stats.nb_bubbles_snp_high++; }
+            else                           { stats.nb_bubbles_snp_low++;  }
+        }
+    }
+    else{
+        
+        /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
+         * accesses since we may be called here from different threads. */
+        bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles_del), 1);
         polymorphism_type<<"DEL_"<<bubble.smaller_path_size_overlap-1;
-    buildSequence (bubble, 0, polymorphism_type.str().c_str(), "higher", bubble.seq1,1);
-    buildSequence (bubble, 1, polymorphism_type.str().c_str(),"lower",  bubble.seq2,bubble.smaller_path_size_overlap);
-
-    /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
-     * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
-    {
-        LocalSynchronizer sync (_synchronizer);
-
-        /** We insert the two sequences into the output bank. */
-        _outputBank->insert (bubble.seq1);
-        _outputBank->insert (bubble.seq2);
-
-        /** Stats update (in concurrent access protection block). */
-        stats.nb_where_to_extend[bubble.where_to_extend] ++;
-
-        if (bubble.score < threshold)  { stats.nb_bubbles_high++; }
-        else                           { stats.nb_bubbles_low++;  }
+        buildSequence (bubble, 0, polymorphism_type.str().c_str(), "higher", bubble.seq1,1);
+        buildSequence (bubble, 1, polymorphism_type.str().c_str(),"lower",  bubble.seq2,bubble.smaller_path_size_overlap);
+        
+        /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
+         * a LocalSynchronizer instance with the shared ISynchonizer of the Kissnp2 class. */
+        {
+            LocalSynchronizer sync (_synchronizer);
+            
+            /** We insert the two sequences into the output bank. */
+            _outputBank->insert (bubble.seq1);
+            _outputBank->insert (bubble.seq2);
+            
+            /** Stats update (in concurrent access protection block). */
+            stats.nb_where_to_extend_del[bubble.where_to_extend] ++;
+            
+            if (bubble.score < threshold)  { stats.nb_bubbles_del_high++; }
+            else                           { stats.nb_bubbles_del_low++;  }
+        }
     }
 }
 
@@ -505,6 +540,7 @@ bool BubbleFinder::checkPath (Bubble& bubble) const
 {
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
+    DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
     return graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]));
 }
 
@@ -567,11 +603,12 @@ IProperties* BubbleFinder::getConfig () const
 
     /** We aggregate information for user. */
     props->add (0, "config",   "");
-    props->add (1, "kmer_size",   "%d", sizeKmer);
-    props->add (1, "threshold",   "%d", threshold);
-    props->add (1, "auth_branch", "%d", authorised_branching);
-    props->add (1, "low",         "%d", low);
-    props->add (1, "traversal",   "%s", Traversal::getName(traversalKind));
+    props->add (1, "kmer_size",    "%d", sizeKmer);
+    props->add (1, "threshold",    "%d", threshold);
+    props->add (1, "auth_branch",  "%d", authorised_branching);
+    props->add (1, "max_del_size", "%d", max_del_size);
+    props->add (1, "low",          "%d", low);
+    props->add (1, "traversal",    "%s", Traversal::getName(traversalKind));
 
     return props;
 }

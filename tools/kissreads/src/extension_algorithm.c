@@ -314,7 +314,7 @@ float read_coherence (gzFile reads_file,
     uint64_t nb_seeds;
     
 	// working variables
-	int read_len, i, ii, j, starter_id,  pwi, stop, read_coherence;
+	int read_len, i, ii, starter_id,  pwi, stop, read_coherence;
     long int  read_number=0;
     
 	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
