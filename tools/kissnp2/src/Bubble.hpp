@@ -29,7 +29,7 @@
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 
-#define STR_MAX_DEL_SIZE                   "-d"
+#define STR_MAX_DEL_SIZE                   "-D"
 
 
 /********************************************************************************/

@@ -17,6 +17,8 @@
 *****************************************************************************/
 
 #include <Filter.hpp>
+#include <gatb/gatb_core.hpp>
+using namespace std;
 
 /*********************************************************************
 ** METHOD  :
@@ -28,6 +30,15 @@
 *********************************************************************/
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS : The smaller the score, the higher the complexity
+ *********************************************************************/
 int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2)
 {
     //TODO; FAIRE UN FILTRAGE SUR L'UN OU L'AUTRE DES 2 chemins (adapté à des chemins de taille différentes)
@@ -59,5 +70,6 @@ int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2)
         s2 = s2 + (m*(m-1))/2;
     }
 
+    
     return s1+s2;
 }

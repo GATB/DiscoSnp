@@ -58,7 +58,7 @@
 #endif
 
 char * getVersion(){
-    return  "kissreads module 1.2.6 - Copyright INRIA - CeCILL License";
+    return  "kissreads module 2.0.0 - Copyright INRIA - CeCILL License";
 }
 
 

@@ -54,7 +54,7 @@
 #include<assert.h>
 
 
-//#define DEBUG_MAPPING
+//c#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
 int number_of_reads;
@@ -340,7 +340,6 @@ float read_coherence (gzFile reads_file,
 		else
 			read_len = get_next_fasta_sequence(reads_file, read,line);
 		if(read_len<0) break; // we have read all the file.
-        
         
         const int minimal_pwi = minimal_read_overlap - read_len;
         // The read must overlap the fragment with at least minimal_read_overlap positions.

@@ -62,8 +62,7 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We set the name of the output file. */
     stringstream ss;
     ss << props->getStr(STR_URI_OUTPUT)  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
-    if(max_del_size>0)
-        ss << "_d_"<<max_del_size;
+    ss << "_D_"<<max_del_size;
     ss << ".fa";
 
     /** We set the output file. So far, we force FASTA output usage, but we could make it configurable. */
@@ -209,8 +208,8 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 void BubbleFinder::expand (
                               int pos,
                               Bubble& bubble,
-                              const Node& node1,
-                              const Node& node2,
+                              const Node& node1, // In case of indels, this node is the real extended one.
+                              const Node& node2, // In case of indels, this node has been virtually extended
                               const Node& previousNode1,
                               const Node& previousNode2
                               )
@@ -295,7 +294,7 @@ void BubbleFinder::expand (
 ** INPUT   :
 ** OUTPUT  :
 ** RETURN  :
-** REMARKS :
+** REMARKS : In case of indel, the extended nodes are those from the full path of length 2k-1
 *********************************************************************/
 bool BubbleFinder::extend (Bubble& bubble)
 {
