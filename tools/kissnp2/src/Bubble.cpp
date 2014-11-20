@@ -41,13 +41,12 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We retrieve the kmer size. */
     sizeKmer = graph.getKmerSize();
 
-    /** We set the complexity threshold. TODO: adapt this to the overlap length*/
-    threshold  = (sizeKmer/2-2)*(sizeKmer/2-3);
+
     
     
 
     /** We set attributes according to user choice. */
-    low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
+    accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
     
     max_del_size         = props->getInt (STR_MAX_DEL_SIZE);
@@ -85,8 +84,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     :  graph(bf.graph), stats(bf.stats), _terminator(0), _traversal(0), _outputBank(0), _synchronizer(0)
 {
     sizeKmer             = bf.sizeKmer;
-    threshold            = bf.threshold;
-    low                  = bf.low;
+    accept_low           = bf.accept_low;
     authorised_branching = bf.authorised_branching;
     traversalKind        = bf.traversalKind;
     max_del_size         = bf.max_del_size;
@@ -377,7 +375,7 @@ void BubbleFinder::finish (Bubble& bubble)
             /** Stats update (in concurrent access protection block). */
             stats.nb_where_to_extend_snp[bubble.where_to_extend] ++;
             
-            if (bubble.score < threshold)  { stats.nb_bubbles_snp_high++; }
+            if (bubble.high_complexity)  { stats.nb_bubbles_snp_high++; }
             else                           { stats.nb_bubbles_snp_low++;  }
         }
     }
@@ -402,7 +400,7 @@ void BubbleFinder::finish (Bubble& bubble)
             /** Stats update (in concurrent access protection block). */
             stats.nb_where_to_extend_del[bubble.where_to_extend] ++;
             
-            if (bubble.score < threshold)  { stats.nb_bubbles_del_high++; }
+            if (bubble.high_complexity)    { stats.nb_bubbles_del_high++; }
             else                           { stats.nb_bubbles_del_low++;  }
         }
     }
@@ -449,7 +447,7 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char * p
     stringstream commentStream;
 
     /** We build the comment for the sequence. */
-    commentStream << polymorphism << "_" << type << "_path_" << bubble.index << "|" << (bubble.score >= threshold ? "low" : "high");
+    commentStream << polymorphism << "_" << type << "_path_" << bubble.index << "|" << (bubble.high_complexity ? "high" : "low");
 
     /** We may have extra information for the comment. */
     if (traversalKind == Traversal::UNITIG)
@@ -533,7 +531,7 @@ bool BubbleFinder::checkNodesDiff (const Node& previous, const Node& current, co
 ** INPUT   :
 ** OUTPUT  :
 ** RETURN  :
-** REMARKS :
+** REMARKS : TODO: don't we miss occurrences (if this is not the same upper and lower path that are used as reference between 2 bubbles ?)
 *********************************************************************/
 bool BubbleFinder::checkPath (Bubble& bubble) const
 {
@@ -550,7 +548,7 @@ bool BubbleFinder::checkPath (Bubble& bubble) const
 ** INPUT   :
 ** OUTPUT  :
 ** RETURN  :
-** REMARKS :
+** REMARKS : TODO: check also the reverse complement.
 *********************************************************************/
 bool BubbleFinder::checkBranching (const Node& node1, const Node& node2) const
 {
@@ -583,9 +581,9 @@ bool BubbleFinder::checkLowComplexity (Bubble& bubble) const
     string path2 = graph.toString (bubble.begin[1]).substr(0, sizeKmer-1) + graph.toString (bubble.end[1]);
 
     /** We compute the low complexity score of the two paths. */
-    bubble.score = filterLowComplexity2Paths (path1, path2);
+    bubble.high_complexity = filterLowComplexity2Paths (path1, path2);
 
-    return (bubble.score < threshold || (bubble.score>=threshold && low));
+    return (accept_low || bubble.high_complexity);
 }
 
 /*********************************************************************
@@ -603,10 +601,9 @@ IProperties* BubbleFinder::getConfig () const
     /** We aggregate information for user. */
     props->add (0, "config",   "");
     props->add (1, "kmer_size",    "%d", sizeKmer);
-    props->add (1, "threshold",    "%d", threshold);
     props->add (1, "auth_branch",  "%d", authorised_branching);
     props->add (1, "max_del_size", "%d", max_del_size);
-    props->add (1, "low",          "%d", low);
+    props->add (1, "low",          "%d", accept_low);
     props->add (1, "traversal",    "%s", Traversal::getName(traversalKind));
 
     return props;

@@ -59,9 +59,8 @@ struct Bubble
     //  We always consider that the smaller path is branch2 (corresponding to begin[1] and end[1])
     int smaller_path_size_overlap;
     
-
-    // Complexity score of the two branches
-    int score;
+    // is this bubble of high complexity.
+    bool high_complexity;
 
     // Index of the bubble
     size_t index;
@@ -169,13 +168,13 @@ protected:
     /** Shortcut attribute for the kmer size of the de Bruijn graph. */
     size_t sizeKmer;
 
-    /** Threshold (computed from the kmer size). */
-    int threshold;
+   
     
     /** Max deletion size **/
     int max_del_size;
 
-    bool low;
+    bool accept_low; // Option set: do we accept low complexity bubbles
+   
     
     int max_depth;
     int max_breadth;
@@ -259,11 +258,10 @@ protected:
      * \return true if bubble is ok */
     bool checkBranching (const Node& node1, const Node& node2) const;
 
-    /** Check complexity for a bubble. Also returns a complexity score.
+    /** Check complexity for a bubble.
      * \param[in] path1 : branch of the bubble
      * \param[in] path2 : branch of the bubble
-     * \param[out] score : complexity score
-     * \return true if the complexity is ok
+     * \return true if the complexity is ok or if we accept low complexity bubbles.
      */
     bool checkLowComplexity (Bubble& bubble) const;
 

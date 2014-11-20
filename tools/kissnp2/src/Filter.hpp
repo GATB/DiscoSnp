@@ -22,8 +22,8 @@
 
 /********************************************************************************/
 
-int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2);
-
+bool filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2);
+bool filterLowComplexityPath   (const std::string& seq);
 /********************************************************************************/
 
 #endif

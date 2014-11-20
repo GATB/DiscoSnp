@@ -110,6 +110,16 @@ fi
 	
 
 
+######### CHECK THE k PARITY ##########
+rest=$(( $k % 2 ))
+if [ $rest -eq 0 ]
+then
+echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
+k=$(($k-1))
+fi
+#######################################
+prefix=$prefix\_k_$k\_c_$c
+
 #######################################################################
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
@@ -138,26 +148,23 @@ echo
 
 
 
+if [ ! -e $prefix.h5 ]; then
+	echo -e "\t############################################################"
+	echo -e "\t#################### GRAPH CREATION  #######################"
+	echo -e "\t############################################################"
 
-######### CHECK THE k PARITY ##########
-rest=$(( $k % 2 ))
-if [ $rest -eq 0 ]
-then
-echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
-k=$(($k-1))
+	./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c 
+	if [ $? -ne 0 ]
+	then
+		echo "there was a problem with kissnp2, command line: ./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c  "
+		exit
+	fi
+
+else
+	echo -e "File $prefix.h5 exists. We use it as input graph"
 fi
-#######################################
+	
 
-echo -e "\t############################################################"
-echo -e "\t#################### GRAPH CREATION  #######################"
-echo -e "\t############################################################"
-
-./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c 
-if [ $? -ne 0 ]
-then
-    echo "there was a problem with kissnp2, command line: ./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c  "
-    exit
-fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
@@ -183,10 +190,10 @@ i=4 #avoid modidy this (or increase this if memory needed by kissread is too hig
 smallk=$(($k-$i-1)) # DON'T modify this.
 
 
-./tools/kissreads/kissreads $prefix\_k_$k\_c_$c\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_k_$k\_c_$c\_D_$D\_coherent -u $prefix\_k_$k\_c_$c\_D_$D\_uncoherent 
+./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent 
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: ./tools/kissreads/kissreads $prefix\_k_$k\_c_$c\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_k_$k\_c_$c\_D_$D\_coherent -u $prefix\_k_$k\_c_$c\_D_$D\_uncoherent" 
+echo "there was a problem with kissnp2, command line: ./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent" 
 exit
 fi
 
@@ -198,10 +205,10 @@ echo -e "\t###############################################################"
 #######################################################################
 #################### SORT AND FORMAT COHERENT RESULTS #################
 #######################################################################
-sort -rg $prefix\_k_$k\_c_$c\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_k_$k\_c_$c\_D_$D\_coherent.fa
+sort -rg $prefix\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_coherent.fa
 if [ $? -ne 0 ]
 then
-echo "there was a problem with the result sorting, command line: sort -rg $prefix\_k_$k\_c_$c\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_k_$k\_c_$c\_D_$D\_coherent.fa"
+echo "there was a problem with the result sorting, command line: sort -rg $prefix\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_coherent.fa"
 exit
 fi
 
@@ -209,7 +216,7 @@ fi
 
 echo -e -n "\t ending date="
 date
-echo -e "\t SNPs are stored in \""$prefix\_k_$k\_c_$c\_D_$D\_coherent.fa"\""
+echo -e "\t SNPs are stored in \""$prefix\_D_$D\_coherent.fa"\""
 echo -e "\t Thanks for using discoSnp - http://colibread.inria.fr/discoSnp/"
 
 

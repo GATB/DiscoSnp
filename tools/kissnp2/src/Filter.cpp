@@ -20,14 +20,6 @@
 #include <gatb/gatb_core.hpp>
 using namespace std;
 
-/*********************************************************************
-** METHOD  :
-** PURPOSE :
-** INPUT   :
-** OUTPUT  :
-** RETURN  :
-** REMARKS :
-*********************************************************************/
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
 
@@ -36,40 +28,34 @@ static int NT2int(char nt)  {  return (nt>>1)&3;  }
  ** PURPOSE :
  ** INPUT   :
  ** OUTPUT  :
- ** RETURN  :
+ ** RETURN  : True if the sequence is of high complexity else return false
+ ** REMARKS : TODO: comment and validate this function.
+ *********************************************************************/
+bool filterLowComplexityPath(const std::string& seq){
+    int DUSTSCORE[64]; // all tri-nucleotides
+    for (int i=0; i<64; i++) DUSTSCORE[i]=0;
+    size_t lenseq = seq.size();
+    for (int j=2; j<lenseq; ++j) ++DUSTSCORE[NT2int(seq[j-2])*16 + NT2int(seq[j-1])*4 + NT2int(seq[j])];
+    int m,s=0;
+    
+    for (int i=0; i<64; ++i)
+    {
+        m = DUSTSCORE[i];
+        s  += (m*(m-1))/2;
+    }
+    
+    return s<((lenseq-2)/4 * (lenseq-6)/4)/2;
+}
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  : True if the two sequences are of high complexity else return false
  ** REMARKS : The smaller the score, the higher the complexity
  *********************************************************************/
-int filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2)
+bool filterLowComplexity2Paths (const std::string& seq1, const std::string& seq2)
 {
-    //TODO; FAIRE UN FILTRAGE SUR L'UN OU L'AUTRE DES 2 chemins (adapté à des chemins de taille différentes)
-    int DUSTSCORE1[64], DUSTSCORE2[64];
-    int i, j, k, s1, m, s2;
-
-    for (i=0; i<64; i++)
-    {
-        DUSTSCORE1[i]=0;
-        DUSTSCORE2[i]=0;
-
-    }
-
-    size_t lenseq = seq1.size();
-    for (j=2; j<lenseq; ++j)
-    {
-        k = NT2int(seq1[j-2])*16 + NT2int(seq1[j-1])*4 + NT2int(seq1[j]);
-        ++DUSTSCORE1[k];
-        k = NT2int(seq2[j-2])*16 + NT2int(seq2[j-1])*4 + NT2int(seq2[j]);
-        ++DUSTSCORE2[k];
-    }
-
-    s1=0;s2=0;
-    for (i=0; i<64; ++i)
-    {
-        m = DUSTSCORE1[i];
-        s1 = s1 + (m*(m-1))/2;
-        m = DUSTSCORE2[i];
-        s2 = s2 + (m*(m-1))/2;
-    }
-
-    
-    return s1+s2;
+    return filterLowComplexityPath(seq1) && filterLowComplexityPath(seq2);
 }
