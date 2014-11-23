@@ -21,6 +21,7 @@
 
 /********************************************************************************/
 #include <gatb/gatb_core.hpp>
+#include <string>
 /********************************************************************************/
 
 /** We define string constants for command line options. */
@@ -51,13 +52,34 @@ struct Bubble
     Node end  [2];
     
     
-    // A Bubble may represent a deletion. In this case a path if of
-    // length 2k-1 and another is of length 2k-1-d (with d the size of the overlap).
-    // Thus, the overlap of one of the two paths is always of length 1 and this other is of length
-    //  1 (SNP) or
-    //  d+1 (deletion).
-    //  We always consider that the smaller path is branch2 (corresponding to begin[1] and end[1])
-    int smaller_path_size_overlap;
+    // A Bubble may represent a SNP or a deletion (currently).
+    // SNP case:
+    // ---A
+    //    A---
+    //   and
+    // ---T
+    //    T---
+    // We have 2 upper nodes (begin[0] and end[0]) overlaping by 1 nucleotides
+    // We have 2 lower nodes (begin[1] and end[1]) overlaping by 1 nucleotides
+    // Thus in the SNP case, size_overlap[0] == size_overlap[1] == 1
+    
+    // In the DELETION case:
+    //   123456
+    // 123IiiiY456 (I is the insertion here of length 5)
+    // The output is : one path:
+    // 1234 (k=4)
+    //   3456
+    // other path:
+    // 123I and Y456
+    // In this case we store
+    //      begin[0]=1234 end[0]=3456 size_overlap[0]=2
+    //  and begin[1]=123I end[1]=Y456 size_overlap[1]=0 and we store the insertion removing hte first and last character (iii in this example).
+    int size_overlap [2];
+    
+    // strings storing central information between the two nodes of a path.
+    // In case of an isolated SNP the tow strings are empty
+    // In case of insertion, one of the two string is empyt (central_string[1]) while the other contains the insertion without the first and last nucleotides (that are contained into the first and last nodes)
+    std::string central_string[2];
     
     // is this bubble of high complexity.
     bool high_complexity;
@@ -221,7 +243,7 @@ protected:
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      * \param[in] pos : position of the nucleotide to be added to both branches.
      */
-    void expand (
+    bool expand (
                  int pos,
                  Bubble& bubble,
                  const Node& node1,
@@ -273,7 +295,7 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* polymorphism, const char* type, Sequence& seq, const int size_overlap);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* polymorphism, const char* type, Sequence& seq);
 
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;
