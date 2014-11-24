@@ -169,7 +169,7 @@ echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
 
-./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix -T -b $b 
+./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b 
 
 if [ $? -ne 0 ]
 then

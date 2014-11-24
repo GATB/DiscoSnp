@@ -60,8 +60,8 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
 
     /** We set the name of the output file. */
     stringstream ss;
-    ss << props->getStr(STR_URI_OUTPUT)  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
-    ss << "_D_"<<max_del_size;
+    ss << props->getStr(STR_URI_OUTPUT);//  << "_k_" << sizeKmer  << "_c_" << graph.getInfo().getInt("abundance");
+//    ss << "_D_"<<max_del_size;
     ss << ".fa";
 
     /** We set the output file. So far, we force FASTA output usage, but we could make it configurable. */
@@ -196,7 +196,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
                         current=successors[0];
                         if ( graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1] == graph.toString(current)[sizeKmer-1] ){
                             if(expand (1, bubble, extended_path_id==0?current:bubble.begin[0], extended_path_id==1?current:bubble.begin[1], Node(~0), Node(~0)) )
-                                break; // stop after finding one insertion.
+                                break; // stop after finding one insertion. //TODO : return or break ?
                         }
                         bubble.central_string[extended_path_id]+=graph.toString(current)[sizeKmer-1];
                     }
