@@ -81,8 +81,12 @@ struct Bubble
     // In case of insertion, one of the two string is empyt (central_string[1]) while the other contains the insertion without the first and last nucleotides (that are contained into the first and last nodes)
     std::string central_string[2];
     
+    std::string polymorphism_type;
+    
     // is this bubble of high complexity.
     bool high_complexity;
+    
+    int type; // 0 = isolated SNP, 1 = isolated insertion, ... other to come
 
     // Index of the bubble
     size_t index;
@@ -295,7 +299,7 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* polymorphism, const char* type, Sequence& seq);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq);
 
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;

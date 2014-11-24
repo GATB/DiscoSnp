@@ -11,6 +11,7 @@ b=0 # smart branching approach: bubbles in which both paths are equaly branching
 c=4 # minimal coverage
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
+l=""
 #######################################################################
 #################### END HEADER                 #######################
 #######################################################################
@@ -27,8 +28,9 @@ echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid SNPs for wich any of the two paths is branching (high precision, lowers the recal in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-echo -e "\t\t -D value. If specified, discoXXX will search for deletions of size from 1 to D included. Default=0"
+echo -e "\t\t -D value. If specified, discoMore will search for deletions of size from 1 to D included. Default=0"
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
+echo -e "\t\t -l: accept low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
 echo -e "\t\t -c value. Set the minimal coverage: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
@@ -40,13 +42,16 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:d:D:b:h" opt; do
+while getopts ":r:p:k:c:d:D:b:hl" opt; do
 case $opt in
 
 	w)
 	remove=0
 	;;
 	
+	l)
+	l="-l"
+	;;
 h)
 help
 exit
@@ -168,8 +173,8 @@ fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-
-./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b 
+echo "./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l"
+./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l
 
 if [ $? -ne 0 ]
 then
@@ -189,7 +194,7 @@ echo -e "\t#############################################################"
 i=4 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 smallk=$(($k-$i-1)) # DON'T modify this.
 
-
+echo "./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent"
 ./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent 
 if [ $? -ne 0 ]
 then
