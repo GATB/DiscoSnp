@@ -152,7 +152,7 @@ if [ ! -e $prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-
+	echo "./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c "
 	./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c 
 	if [ $? -ne 0 ]
 	then

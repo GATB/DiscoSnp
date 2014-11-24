@@ -199,6 +199,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
                                 break; // stop after finding one insertion. //TODO : return or break ?
                         }
                         bubble.central_string[extended_path_id]+=graph.toString(current)[sizeKmer-1];
+//                        cout<<"   "<<del_size<<" "<<bubble.central_string[extended_path_id]<<endl;
                     }
                     else {
                         break;
