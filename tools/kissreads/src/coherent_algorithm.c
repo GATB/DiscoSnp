@@ -91,7 +91,10 @@ char read_coherent_generic(const int pwi, const char * fragment, const char * re
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
 		//if(fragment[pos_on_fragment]!=read[pos_on_read]) && fragment[pos_on_fragment]!='*') {// one subsitution
-		if(fragment[pos_on_fragment]!=read[pos_on_read] && fragment[pos_on_fragment]!='*' && fragment[pos_on_fragment]!='?' && fragment[pos_on_fragment]!='N'){ // one subsitution
+		if(fragment[pos_on_fragment]!=read[pos_on_read] &&
+           fragment[pos_on_fragment]!='*' &&
+           fragment[pos_on_fragment]!='?' &&
+           fragment[pos_on_fragment]!='N'){ // one subsitution
 			substitution_seen++;
 			if(substitution_seen>subst_allowed) break; // too much subsitutions
 		}

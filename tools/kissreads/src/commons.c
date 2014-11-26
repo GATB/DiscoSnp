@@ -338,19 +338,18 @@ int get_next_fasta_sequence (gzFile file, char * sequence , char * line){
 	{
 	  
 	  gzseek(file, -1, SEEK_CUR);
-	  rv=gzgets(file, (char *)line,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
+	  rv=gzgets(file, (char *)line,MAX_SIZE_LINE);// read a line
 	  rv = strchr(line, '\n'); // find the last \n char
 	  if(rv) *rv = '\0';       // change it into \0
 	  rv = strchr(line, '\r'); // find the last \r char
 	  if(rv) *rv = '\0';       // change it into \0
 	  
-	  strcat(sequence, line); // concat the restult in the sequence
+	  strcat(sequence, line); // concat the result in the sequence
 	  
 	  nextchar=gzgetc(file); // cheat, reads the next '>' character in order to induce EOF
 	}
-	//	gzseek(file, -1, SEEK_CUR); // Go back to previous read character
+    // gzseek(file, -1, SEEK_CUR); // Go back to previous read character
 	to_upper(sequence);
-//free(line);
 	return strlen(sequence); // readlen
 }
 int get_next_sequence_for_fastq (gzFile file, char * sequence, char * quality, char * line){

@@ -67,7 +67,8 @@ typedef struct {
     listint ** tested_pwis_with_current_read; // For every read set (because of parrallelization): in run time, all tested positions of the current read on this starter are stored. Avoids the computation redundances.
 //#endif
 	char * comment;                // first line of the comment (fasta format)
-	char * read_coherent;           // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
+    char isASNP;                      // if true (1), the sequence is a unique SNP. In this case we do not authorize any subsitution at this position.
+	char * read_coherent;          // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
 	unsigned char ** read_coherent_positions;           //  number of reads covering this position can be a char, min coverage required is low
 #ifdef INPUT_FROM_KISSPLICE
     char upperpath; // are we dealing with ASB path (==upper path) (else it's an AB path)

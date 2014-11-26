@@ -132,6 +132,11 @@ char * strdup_last_lower(char * in){
     return temp;
 }
 
+char prefix(const char *pre, const char *str)
+{
+    return strncmp(pre, str, strlen(pre)) == 0;
+}
+
 
 
 // read and store all fragments presents in the pointed file.
@@ -200,6 +205,10 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         
 #endif
 		all_starters[fragment_id]->comment = format_comment(temp_fragment2);
+        all_starters[fragment_id]->isASNP = 0;
+        if (prefix("SNP",all_starters[fragment_id]->comment)) {
+            all_starters[fragment_id]->isASNP=1;
+        }
         
 		for (i=0; i<number_of_read_sets; i++)
 		{

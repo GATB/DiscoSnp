@@ -124,13 +124,11 @@ int main(int argc, char **argv) {
     char map_invs=0; // input is an intl (read2sv) output.
     only_print=0; // if "only_print" == 1 do not separate between coherent and uncoherent.
     
-    char no_subsutitution_on_central_position=0; // By default: authorize a subsitution on the central position
     char input_only_upper=0; // By default: all characters (upper or lower) are read
     int number_paths_per_event=1; // By default (generic usage) each event is composed by a unique sequence.
 #ifdef INPUT_FROM_KISSPLICE
     min_overlap=3; // default value.
     countingOption = 0 ; // default value
-    no_subsutitution_on_central_position=0; // just to be sure, as normaly this is the default behaviour
     input_only_upper=1; // don't considere the lower script characters.
     number_paths_per_event=2; // each splicing event is composed by two sequences in the fasta file.
 #endif
@@ -236,14 +234,12 @@ int main(int argc, char **argv) {
 #ifndef INPUT_FROM_KISSPLICE
             case 'n':
                 map_snps=1;
-                no_subsutitution_on_central_position=1;
                 input_only_upper=1;
                 number_paths_per_event=2;
                 
                 break;
             case 'I':
                 map_invs=1;
-                no_subsutitution_on_central_position=0;
                 input_only_upper=0; // read all characters for now (still no extension pluged to intl).
                 number_paths_per_event=4;
                 
@@ -442,7 +438,7 @@ int main(int argc, char **argv) {
         
         
         
-        read_coherence(reads_files[i], reads_file_names[i], size_seeds,  min_coverage, results_against_set,  number_of_starters, i, quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, no_subsutitution_on_central_position, minimal_read_overlap);
+        read_coherence(reads_files[i], reads_file_names[i], size_seeds,  min_coverage, results_against_set,  number_of_starters, i, quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, minimal_read_overlap);
         
         
         gzclose(reads_files[i]);

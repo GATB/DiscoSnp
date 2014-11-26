@@ -54,7 +54,7 @@
 #include<assert.h>
 
 
-//c#define DEBUG_MAPPING
+//#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
 int number_of_reads;
@@ -302,7 +302,6 @@ float read_coherence (gzFile reads_file,
                       int nb_fragment_per_event,
                       FILE * sam_out,
                       int subst_allowed,
-                      const char no_subsutitution_on_central_position,
                       const int minimal_read_overlap
                       ){
     
@@ -357,7 +356,7 @@ float read_coherence (gzFile reads_file,
         
 		stop = read_len-k+1;
 #ifdef DEBUG_MAPPING
-        		printf("new read = %s-\n", read);
+        		printf("new read = X%sX Y%sY\n", line, read);
         #endif
 		// read all seeds present on the read:
         int direction;
@@ -425,7 +424,7 @@ float read_coherence (gzFile reads_file,
                         
      
                         read_coherence=0;
-                        if(no_subsutitution_on_central_position)
+                        if(all_starters[value->a]->isASNP)
                             read_coherence = read_coherent_SNP(pwi, starter, read, subst_allowed);
                         else
                             read_coherence = read_coherent_generic(pwi, starter, read, subst_allowed);

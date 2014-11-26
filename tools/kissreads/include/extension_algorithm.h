@@ -61,7 +61,6 @@ float read_coherence (gzFile reads_file,
                       int nb_fragment_per_event,
                       FILE * sam_out,
                       int subst_allowed,
-                      const char no_subsutitution_on_central_position,
                       const int minimal_read_overlap);
 
 #endif /* EXTENSION_ALGORITHM_H_ */
