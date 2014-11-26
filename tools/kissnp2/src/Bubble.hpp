@@ -74,12 +74,10 @@ struct Bubble
     // In this case we store
     //      begin[0]=1234 end[0]=3456 size_overlap[0]=2
     //  and begin[1]=123I end[1]=Y456 size_overlap[1]=0 and we store the insertion removing hte first and last character (iii in this example).
-    int size_overlap [2];
+
     
-    // strings storing central information between the two nodes of a path.
-    // In case of an isolated SNP the tow strings are empty
-    // In case of insertion, one of the two string is empyt (central_string[1]) while the other contains the insertion without the first and last nucleotides (that are contained into the first and last nodes)
-    std::string central_string[2];
+    // strings storing central information coming after the first node of a path.
+    std::string extended_string[2];
     
     std::string polymorphism_type;
     
@@ -250,21 +248,23 @@ protected:
     bool expand (
                  int pos,
                  Bubble& bubble,
-                 const Node& node1,
-                 const Node& node2,
+                 const Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
+                 const Node& node2, // In case of indels, this node is not extended (depth 1)
                  const Node& previousNode1,
-                 const Node& previousNode2
+                 const Node& previousNode2,
+                 std::string local_extended_string1,
+                 std::string local_extended_string2
                  );
-
+    
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * \return true if the bubble has been extended, false otherwise. */
-    bool extend (Bubble& bubble);
-
+    void extend (Bubble& bubble);
+    
     /** Finish the bubble, ie output the pair of sequences in the output bank.
      * \param[in] bubble: bubble to be dumped in the output bank
      */
     void finish (Bubble& bubble);
-
+    
     /** Check whether new node is similar to two previous nodes.
      * \param[in] previous : previous node
      * \param[in] current : current node
@@ -304,6 +304,9 @@ protected:
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
+private:
+    void start_snp_prediction(Bubble& bubble);
+    void start_indel_prediction(Bubble& bubble);
 };
 
 #endif /* _TOOL_BUBBLE_HPP_ */

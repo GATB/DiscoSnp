@@ -12,6 +12,7 @@ c=4 # minimal coverage
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
 l=""
+remove=0
 #######################################################################
 #################### END HEADER                 #######################
 #######################################################################
@@ -21,9 +22,10 @@ echo "run_discoSnp.sh, a pipelining kissnp2 and kissreads for calling SNPs from 
 echo "Version "$version
 echo "Usage: ./run_discoSnp.sh OPT"
 echo -e "\tMANDATORY:"
-echo -e "\t \t -r list of reads separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
-echo -e "\t \t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
+echo -e "\t\t -r list of reads separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
+echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
 echo -e "\tOPT:"
+echo -e "\t\t -E: do not reuse a potential already created graph with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid SNPs for wich any of the two paths is branching (high precision, lowers the recal in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
@@ -42,11 +44,11 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:d:D:b:hl" opt; do
+while getopts ":r:p:k:c:d:D:b:hlE" opt; do
 case $opt in
 
-	w)
-	remove=0
+	E)
+	remove=1
 	;;
 	
 	l)
@@ -125,6 +127,8 @@ fi
 #######################################
 prefix=$prefix\_k_$k\_c_$c
 
+
+
 #######################################################################
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
@@ -151,7 +155,9 @@ echo
 
 
 
-
+if [ $remove -eq 1 ]; then
+	rm -f $prefix.h5
+fi
 
 if [ ! -e $prefix.h5 ]; then
 	echo -e "\t############################################################"
