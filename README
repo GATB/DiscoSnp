@@ -1,0 +1,8 @@
+############### COMPILATION ##################
+./compile_discoSnp.sh
+
+############### QUICK START ##################
+./run_discoMore.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz"
+
+############### MORE DOCUMENTATION ###########
+See doc/doc/discoSnp_user_guide.pdf

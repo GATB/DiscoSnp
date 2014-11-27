@@ -5,11 +5,21 @@ cmake_minimum_required(VERSION 2.6)
 ################################################################################
 # Define cmake modules directory
 ################################################################################
-FOREACH (path "cmake" "../cmake"  "thirdparty/gatb-core/cmake"  "../../thirdparty/gatb-core/gatb-core/cmake")
-IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/")
-SET (CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
-ENDIF()
+#FOREACH (path "cmake" "../cmake"  "thirdparty/gatb-core/cmake"  "../../thirdparty/gatb-core/gatb-core/cmake")
+#IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/")
+#SET (CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
+#ENDIF()
+#ENDFOREACH(path)
+
+################################################################################
+# Define cmake modules directory (TAKEABREAK)
+################################################################################
+FOREACH (path "cmake" "../../cmake")
+    IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
+        SET (CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
+    ENDIF()
 ENDFOREACH(path)
+
 
 ################################################################################
 # THIRD PARTIES
@@ -27,3 +37,32 @@ include (GatbCore)
 #  TOOLS GENERATION 
 ################################################################################
 ADD_SUBDIRECTORY(tools)
+
+
+
+################################################################################
+#  PACKAGING 
+################################################################################
+
+# We chose the kind of archive we want to generate
+SET (CPACK_GENERATOR            "TGZ")
+SET (CPACK_SOURCE_GENERATOR     "TGZ")
+
+# We copy other stuff 
+# For creating the BINARY package we include the files we want
+INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools                          DESTINATION .)
+INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DESTINATION .)
+INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data_sample                    DESTINATION .)
+INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output_analyses                DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp.sh            DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt                 DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoMore.sh               DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README                         DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
+
+# For the source archive, we exclude some unwanted directories.
+# For creating the SOURCE package we should ignore some files
+SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "my_local_data")
+
+# To be done at the end. 
+INCLUDE (Delivery)

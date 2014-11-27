@@ -8,6 +8,7 @@ project(kissreads)
 
 ################################################################################
 
+
 # we define the files to be compiled
 file (GLOB_RECURSE  ProjectFiles  src/*)
 

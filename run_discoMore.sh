@@ -1,3 +1,23 @@
+#*****************************************************************************
+#   DiscoMore: discovering polymorphism from raw unassembled NGS reads
+#   A tool from the GATB (Genome Assembly Tool Box)
+#   Copyright (C) 2014  INRIA
+#   Authors: P.Peterlongo, E.Drezen
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as
+#  published by the Free Software Foundation, either version 3 of the
+#  License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#*****************************************************************************
+
 #!/bin/bash
 
 ###########################################################
@@ -5,14 +25,18 @@
 ###########################################################
 version="2.0.0"
 read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
-prefix="discoRes" # all temp and final files will be written will start with this prefix
+prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
 c=4 # minimal coverage
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
 l=""
-remove=0
+remove=1
+DISCO_BUILD_PATH="./build"
+
+
+
 #######################################################################
 #################### END HEADER                 #######################
 #######################################################################
@@ -25,7 +49,7 @@ echo -e "\tMANDATORY:"
 echo -e "\t\t -r list of reads separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
 echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
 echo -e "\tOPT:"
-echo -e "\t\t -E: do not reuse a potential already created graph with same prefix and same k and c parameters."
+echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid SNPs for wich any of the two paths is branching (high precision, lowers the recal in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
@@ -36,6 +60,7 @@ echo -e "\t\t -l: accept low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
 echo -e "\t\t -c value. Set the minimal coverage: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+echo -e "\t\t -B value. Locate the build directory. Default ./build"
 echo -e "\t\t -h: Prints this message and exist"
 echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
 }
@@ -44,11 +69,11 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:d:D:b:hlE" opt; do
+while getopts ":r:p:k:c:d:D:b:B:hlg" opt; do
 case $opt in
 
-	E)
-	remove=1
+	g)
+	remove=0
 	;;
 	
 	l)
@@ -62,6 +87,11 @@ exit
 r)
 echo "use read set: $OPTARG" >&2
 read_sets=$OPTARG
+;;
+
+B)
+echo "Build path: $OPTARG" >&2
+DISCO_BUILD_PATH=$OPTARG
 ;;
 
 b)
@@ -116,6 +146,14 @@ exit
 fi
 	
 
+if [ -d "$DISCO_BUILD_PATH" ] ; then
+echo "Binaries in $DISCO_BUILD_PATH"
+else
+ls "$DISCO_BUILD_PATH"
+echo "error; for some reason, the discoSnp build path ($DISCO_BUILD_PATH) is not accessible"
+echo "Please indicate (option -B) the location of the discoSnp build directory"
+exit 1  # fail
+fi
 
 ######### CHECK THE k PARITY ##########
 rest=$(( $k % 2 ))
@@ -163,11 +201,11 @@ if [ ! -e $prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo "./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c "
-	./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c 
+	echo "$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c "
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c
 	if [ $? -ne 0 ]
 	then
-		echo "there was a problem with kissnp2, command line: ./ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c  "
+		echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $prefix -kmer-size $k -abundance $c  "
 		exit
 	fi
 
@@ -179,15 +217,24 @@ fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l"
-./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D\_b_$b -T -b $b $l
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: ./tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix -T -b $b "
+    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l "
     exit
 fi
 
+
+if [ ! -f $prefix\_D_$D\_b_$b.fa ]
+then
+ echo "No polymorphism predicted by discoSnp"
+echo -e -n "\t ending date="
+date
+echo -e "\t Thanks for using discoSnp - http://colibread.inria.fr/discoSnp/"
+ exit
+fi
 
 #######################################################################
 #################### KISSREADS                  #######################
@@ -200,34 +247,52 @@ echo -e "\t#############################################################"
 i=4 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 smallk=$(($k-$i-1)) # DON'T modify this.
 
-echo "./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent"
-./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent 
+
+echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_b_$b\_coherent -u $prefix\_D_$D\_b_$b\_uncoherent"
+
+
+$DISCO_BUILD_PATH/tools/kissreads/kissreads $prefix\_D_$D\_b_$b.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_b_$b\_coherent -u $prefix\_D_$D\_b_$b\_uncoherent
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: ./tools/kissreads/kissreads $prefix\_D_$D.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_coherent -u $prefix\_D_$D\_uncoherent" 
+echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $prefix\_D_$D\_b_$b.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $prefix\_D_$D\_b_$b\_coherent -u $prefix\_D_$D\_b_$b\_uncoherent"
 exit
 fi
 
+echo -e "\t###############################################################"
+echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
+echo -e "\t###############################################################"
+#######################################################################
+#################### SORT AND FORMAT  RESULTS #########################
+#######################################################################
+echo "sort -rg $prefix\_D_$D\_b_$b\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_coherent.fa"
+sort -rg $prefix\_D_$D\_b_$b\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_coherent.fa
+if [ $? -ne 0 ]
+then
+echo "there was a problem with the result sorting, command line: sort -rg $prefix\_D_$D\_b_$b\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_coherent.fa"
+exit
+fi
 
+echo "sort -rg $prefix\_D_$D\_b_$b\_uncoherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_uncoherent.fa"
+sort -rg $prefix\_D_$D\_b_$b\_uncoherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_uncoherent.fa
+if [ $? -ne 0 ]
+then
+echo "there was a problem with the result sorting, command line: sort -rg $prefix\_D_$D\_b_$b\_uncoherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_b_$b\_uncoherent.fa"
+exit
+fi
+
+rm -f $prefix\_D_$D\_b_$b.fa $prefix\_D_$D\_b_$b\_coherent $prefix\_D_$D\_b_$b\_uncoherent
+
+
+#######################################################################
+#################### DISCOSNPs FINISHED ###############################
+#######################################################################
 
 echo -e "\t###############################################################"
 echo -e "\t#################### DISCOSNPs FINISHED #######################"
 echo -e "\t###############################################################"
-#######################################################################
-#################### SORT AND FORMAT COHERENT RESULTS #################
-#######################################################################
-sort -rg $prefix\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_coherent.fa
-if [ $? -ne 0 ]
-then
-echo "there was a problem with the result sorting, command line: sort -rg $prefix\_D_$D\_coherent | cut -d " " -f 2 | tr ';' '\n' > $prefix\_D_$D\_coherent.fa"
-exit
-fi
-
-
-
 echo -e -n "\t ending date="
 date
-echo -e "\t SNPs are stored in \""$prefix\_D_$D\_coherent.fa"\""
+echo -e "\t SNPs are stored in \""$prefix\_D_$D\_b_$b\_coherent.fa"\""
 echo -e "\t Thanks for using discoSnp - http://colibread.inria.fr/discoSnp/"
 
 
