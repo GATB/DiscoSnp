@@ -218,7 +218,7 @@ echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
 echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D\_b_$b -T -b $b $l
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D\_b_$b  -b $b $l
 
 if [ $? -ne 0 ]
 then

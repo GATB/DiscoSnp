@@ -163,6 +163,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
                 tried_extension+=graph.toString(current)[sizeKmer-1];
                 //                tried_extension+=graph.getNT(current,sizeKmer-1); // TODO: je sais pas quoi faire de ce Nucleotide (pas trouvé dans la doc)
                 if ( graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1] == graph.toString(current)[sizeKmer-1] ){
+                    DEBUG((cout<<"try with "<<tried_extension<<" and nodes "<<graph.toString(bubble.begin[(extended_path_id+1)%2])<<" "<<extended_path_id<<graph.toString(current)<<endl));
                     bubble.polymorphism_type="DEL_"+std::to_string(del_size);
                     if(extended_path_id==0?
                        expand (2, bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
@@ -292,14 +293,16 @@ bool BubbleFinder::expand (
             /** We check the branching properties of the next kmers. */
             
             
+            
             /** We finish the bubble with last distinct nodes. */
             bubble.end[0] = node1;
             bubble.end[1] = node2;
             
+            
             /** We check several conditions (the first path vs. its revcomp and low complexity). */
             if (checkPath(bubble)==true && checkLowComplexity(bubble)==true)
             {
-                
+                cout<<"YEAH"<<endl;
                 /** We extend the bubble on the left and right (unitigs or contigs). */
                 extend (bubble);
                 /** We got all the information about the bubble, we finish it. */
@@ -579,6 +582,9 @@ bool BubbleFinder::checkPath (Bubble& bubble) const
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
     DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
+//    if(graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]))) cout<<"true"<<endl; //DEB
+//    else cout<<"false"<<endl; //DEB
+    
     return graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]));
 }
 
