@@ -1,18 +1,21 @@
 
-    in=coli_formated.fasta
+in=coli_formated.fasta
     muted=coli_muted.fasta
     inreads=$in\_reads
     mutedreads=$muted\_reads
     logfile=$in\_log
-    nb=50
+    nb=100
     c=5
-    b=0
     k=31
     min=1
     max=10
-    python genome_mutator.py $in $muted $logfile $nb $min $max
-    ~/workspace/mutareads/mutareads $in $inreads 2000000 100 0.01 0 0
-    ~/workspace/mutareads/mutareads $muted $mutedreads 2000000 100 0.01 0 0
-    ~/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/run_discoMore.sh -r "$inreads.fasta $mutedreads.fasta" -D $max -p test -B ~/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build/ -c $c -k $k -b $b
 
-     for seq in `grep -v ">" $logfile`; do echo $seq; rcgrep.sh $seq test_k_$k\_c_$c\_D_$max\_b_$b\_coherent.fa; done
+    for ((expe_id=0;expe_id<1000;expe_id++)); do
+         python genome_mutator.py $in $muted $logfile $nb $min $max
+         ~/workspace/mutareads/mutareads $in $inreads 2000000 100 0.01 0 0
+         ~/workspace/mutareads/mutareads $muted $mutedreads 2000000 100 0.01 0 0
+         for b in 0 1; do
+              ~/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/run_discoMore.sh -r "$inreads.fasta $mutedreads.fasta" -D $max -p test -B ~/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build/ -c $c -k $k -b $b
+              python align_predictions_on_ref_bubbles.py -b $logfile -p test_k_$k\_c_$c\_D_$max\_b_$b\_coherent.fa -d 0 -k 10 >> res_b_$b
+         done;
+     done;
