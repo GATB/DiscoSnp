@@ -31,10 +31,12 @@ b=0 # smart branching approach: bubbles in which both paths are equaly branching
 c=4 # minimal coverage
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
+P=1 # number of polymorphsim per bubble
 l=""
 remove=1
-DISCO_BUILD_PATH="./build"
-
+#DISCO_BUILD_PATH="./build"
+EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+DISCO_BUILD_PATH="$EDIR/build/"
 
 
 #######################################################################
@@ -54,13 +56,14 @@ echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid SNPs for wich any of the two paths is branching (high precision, lowers the recal in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-echo -e "\t\t -D value. If specified, discoMore will search for deletions of size from 1 to D included. Default=0"
+echo -e "\t\t -D value. DiscoMore will search for deletions of size from 1 to D included. Default=0"
+echo -e "\t\t -P value. DiscoMore will search up to P SNPs in a unique bubble. Default=1"
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
 echo -e "\t\t -l: accept low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
 echo -e "\t\t -c value. Set the minimal coverage: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
-echo -e "\t\t -B value. Locate the build directory. Default ./build"
+# echo -e "\t\t -B value. Locate the build directory. Default ./build"
 echo -e "\t\t -h: Prints this message and exist"
 echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
 }
@@ -69,7 +72,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:d:D:b:B:hlg" opt; do
+while getopts ":r:p:k:c:d:D:b:P:hlg" opt; do
 case $opt in
 
 	g)
@@ -89,10 +92,10 @@ echo "use read set: $OPTARG" >&2
 read_sets=$OPTARG
 ;;
 
-B)
-echo "Build path: $OPTARG" >&2
-DISCO_BUILD_PATH=$OPTARG
-;;
+# B)
+# echo "Build path: $OPTARG" >&2
+# DISCO_BUILD_PATH=$OPTARG
+# ;;
 
 b)
 echo "use branching strategy: $OPTARG" >&2
@@ -107,6 +110,12 @@ prefix=$OPTARG
 k)
 echo "use k=$OPTARG" >&2
 k=$OPTARG
+;;
+
+
+P)
+echo "use P=$OPTARG" >&2
+P=$OPTARG
 ;;
 
 c)
@@ -217,12 +226,12 @@ fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D\_b_$b  -b $b $l
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D  -b $b $l -P $P"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D\_b_$b  -b $b $l -P $P
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D -T -b $b $l "
+    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $prefix.h5 -out $prefix\_D_$D  -b $b $l -P $P"
     exit
 fi
 

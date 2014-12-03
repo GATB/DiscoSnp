@@ -33,7 +33,7 @@
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 
 #define STR_MAX_DEL_SIZE                   "-D"
-#define STR_MAX_POLYMORPHISM               "-p"
+#define STR_MAX_POLYMORPHISM               "-P"
 
 
 /********************************************************************************/
