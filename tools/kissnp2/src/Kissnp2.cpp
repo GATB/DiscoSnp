@@ -61,6 +61,8 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
     getParser()->push_front (new OptionOneParam (STR_URI_INPUT,                     "input file (likely a hdf5 file)",  true));
     
     getParser()->push_front (new OptionOneParam (STR_MAX_DEL_SIZE,                  "maximal size of a deletion", false, "0"));
+    getParser()->push_front (new OptionOneParam (STR_MAX_POLYMORPHISM,              "maximal number of polymorphism per bubble", false, "1"));
+    
     
     getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_DEPTH,   "maximum depth for BFS",    false,  "200"));
     getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_BREADTH, "maximum breadth for BFS",  false,  "20"));
@@ -103,6 +105,9 @@ void Kissnp2::execute ()
     
     /** We loop the nodes. */
     status = getDispatcher()->iterate (it, bubbleFinder);
+    
+
+    
     
     
     /** We aggregate information for user. */

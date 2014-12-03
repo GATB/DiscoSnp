@@ -80,26 +80,29 @@ def align_a_read_or_rev_comp(read,genome,index,k,dmax):
     return align_a_read(read,genome,index,k,dmax)+align_a_read(revComp(read),genome,index,k,dmax)
     
     
-def align_ref_bubbles(index, ref_sequence, bubble_file, k, dmax, nb_predicted_bubbles):
+def align_ref_bubbles(index, ref_sequence, bubble_file, k, dmax, nb_predicted_bubbles, restrict_to):
     pythonDict.queryIndex(index,ref_sequence[0:k])
     nb_ref_bubbles=0
     nb_mapped=0
     sequence_id=0
-    all_sequences=[seq_record.seq for seq_record in SeqIO.parse(bubble_file, "fasta")]
+    all_sequences=[seq_record for seq_record in SeqIO.parse(bubble_file, "fasta")]
     while sequence_id<len(all_sequences):
-        sequence_up = str(all_sequences[sequence_id])
-        sequence_down = str(all_sequences[sequence_id+1])
+        if not str(all_sequences[sequence_id].id).startswith(restrict_to): 
+            sequence_id+=2
+            continue
+        sequence_up = str(all_sequences[sequence_id].seq)
+        sequence_down = str(all_sequences[sequence_id+1].seq)
         sequence_id+=2
         nb_ref_bubbles+=1
         bubble_mapped=False;
         if align_a_read_or_rev_comp( sequence_up,  ref_sequence, index, k, dmax)>=1 and align_a_read_or_rev_comp(sequence_down,  ref_sequence, index, k, dmax)>=1: bubble_mapped=True
         if bubble_mapped: nb_mapped+=1
-    print "nb_ref_bubbles="+str(nb_ref_bubbles)
-    print "nb_predicted_bubbles="+str(nb_predicted_bubbles)
-    print "nb_mapped="+str(nb_mapped)
+    print "nb_"+restrict_to+"_ref_bubbles="+str(nb_ref_bubbles)
+    print "nb_"+restrict_to+"_predicted_bubbles="+str(nb_predicted_bubbles)
+    print "nb_"+restrict_to+"_mapped="+str(nb_mapped)
     
-    print "precision=%.2f "%(100*nb_mapped/float(nb_predicted_bubbles))
-    print "recall=%.2f "%(100*nb_mapped/float(nb_ref_bubbles))
+    print "precision_"+restrict_to+"=%.2f "%(100*nb_mapped/float(nb_predicted_bubbles))
+    print "recall_"+restrict_to+"=%.2f "%(100*nb_mapped/float(nb_ref_bubbles))
     
         
     
@@ -157,35 +160,19 @@ def main():
         sys.exit(2)
     
 
-    ref_sequence=""
-    nb_predictions=0
-    for seq in SeqIO.parse(predicted_file, "fasta"):
-        nb_predictions+=1
-        ref_sequence+=str(seq.seq)+"$"
+    for type_polymorphism in {"SNP","DEL"}:
+        ref_sequence=""
+        nb_predictions=0
+        for seq in SeqIO.parse(predicted_file, "fasta"):
+            if str(seq.id).startswith(type_polymorphism):
+                nb_predictions+=1
+                ref_sequence+=str(seq.seq)+"$"
     
-    nb_predicted_bubbles=nb_predictions/2
+        nb_predicted_bubbles=nb_predictions/2
     
-    t0=time()
-    # GENERATE The indexes
-    ref_index=pythonDict.indexGenome(str(ref_sequence),k)
-    
-    
-    
-    # pythonDict.queryIndex(ref_sequence[0:k],ref_index)
+        ref_index=pythonDict.indexGenome(str(ref_sequence),k)
+        align_ref_bubbles(ref_index, ref_sequence, bubble_file, k, dmax, nb_predicted_bubbles, type_polymorphism)
 
-    #
-    # print(using("After indexation"))
-
-    t1=time()    #
-    # print "time for indexing = "+ str(t1-t0)
-
-    # basicHashTable.statsIndex(index,5)
-    # ALIGN ALL READS
-    align_ref_bubbles(ref_index, ref_sequence, bubble_file, k, dmax, nb_predicted_bubbles)
-    
-    t2=time()    #
-    # print "time for mapping = "+ str(t2-t1)
-    # print "total time = "+ str(t2-t0)
 
 
 if __name__ == "__main__":

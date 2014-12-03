@@ -33,6 +33,7 @@
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 
 #define STR_MAX_DEL_SIZE                   "-D"
+#define STR_MAX_POLYMORPHISM               "-p"
 
 
 /********************************************************************************/
@@ -87,6 +88,9 @@ struct Bubble
     bool high_complexity;
     
     int type; // 0 = isolated SNP, 1 = isolated insertion, ... other to come
+    
+    
+    int final_nb_polymorphism; // number of SNPs in a bubble, could be one (isolated SNP or an insertion) or more (an indel+n SNPs (n+1)) or n SNPs (n)
 
     // Index of the bubble
     size_t index;
@@ -194,7 +198,8 @@ protected:
     /** Shortcut attribute for the kmer size of the de Bruijn graph. */
     size_t sizeKmer;
 
-   
+    /** Maximal number of polymorphism per bubble. Isolated = zero **/
+    int max_polymorphism;
     
     /** Max deletion size **/
     int max_del_size;
@@ -244,11 +249,26 @@ protected:
     template<typename T>
     void start (Bubble& bubble, const T& node);
     
+    /** Extension of a bubble given two nextNodes to be tested.
+     *
+     */
+    bool expand_hearth(
+                       const int nb_polymorphism,
+                       Bubble& bubble,
+                       const Node& nextNode1,
+                       const Node& nextNode2,
+                       const Node& node1,
+                       const Node& node2,
+                       const Node& previousNode1,
+                       const Node& previousNode2,
+                       std::string local_extended_string1,
+                       std::string local_extended_string2);
+    
     /** Extension of a bubble by testing extensions from both branches of the bubble.
-     * \param[in] pos : position of the nucleotide to be added to both branches.
+     *
      */
     bool expand (
-                 int pos,
+                 const int nb_polymorphism,
                  Bubble& bubble,
                  const Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
                  const Node& node2, // In case of indels, this node is not extended (depth 1)
