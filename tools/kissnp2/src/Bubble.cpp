@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define DEBUG(a) //  a
+#define DEBUG(a) // a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 
@@ -147,6 +147,53 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
     expand (1,bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0),"","");
 }
 
+/** Transform a nucleotide in ASCII form into an integer form as:
+ *     - A=0
+ *     - C=1
+ *     - T=2
+ *     - G=3
+ * \param[in] nt : the nucleotide in ASCII
+ * \return the translated nucleotide */
+static int NT2int(char nt)  {  return (nt>>1)&3;  }
+
+
+
+bool BubbleFinder::recursive_indel_prediction(
+                                              Bubble& bubble,
+                                              int extended_path_id,
+                                              string tried_extension,
+                                              Node current,
+                                              size_t insert_size,
+                                              const char end_insertion){
+    if (insert_size>max_del_size) return false;
+    DEBUG((cout<<insert_size<<" "<<max_del_size<<endl));
+    Graph::Vector<Node> successors = graph.successors<Node> (current);
+    
+    /** No branching authorized in the insertion in b0 mode. */
+    if (successors.size()>1 && authorised_branching==0) return false;
+    
+    /** first find an eventual exension with the end_insertion character: */
+    bool exists;
+    Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
+    DEBUG((cout<<"exists "<<graph.toString(current)<<" extended with "<<end_insertion<<" : "<<exists<<endl));
+    if(exists){
+        bubble.polymorphism_type="DEL_"+std::to_string(insert_size);
+        if(extended_path_id==0?
+           expand (1,bubble, successor, bubble.begin[1], Node(~0), Node(~0),tried_extension+end_insertion,"")
+           :
+           expand (1,bubble, bubble.begin[0], successor, Node(~0), Node(~0),"",tried_extension+end_insertion))
+            return true; // stop after finding one insertion.
+    }
+    /** Here: No extension was closed with the end_insertion character. We have to continue the depth exploration */
+    for (size_t successor_id=0; successor_id<successors.size() ; successor_id++) {
+        if (recursive_indel_prediction(bubble, extended_path_id, tried_extension+graph.toString(successors[successor_id])[sizeKmer-1], successors[successor_id], insert_size+1, end_insertion)) {
+            return true; // we stop as soon as we find a good insersion
+        }
+    }
+    return false;
+}
+
+
 void BubbleFinder::start_indel_prediction(Bubble& bubble){
     bubble.type=1;
     // Consider a deletion in the upper path (avance on the lower) and then try the opposite
@@ -155,29 +202,35 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
     
     for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
         current= bubble.begin[extended_path_id]; // 0 or 1
-        DEBUG((cout<<"extend "<<extended_path_id<<graph.toString(current)<<endl));
-        string tried_extension="";
-        for (size_t del_size=1;del_size<=max_del_size;del_size++){
-            Graph::Vector<Node> successors = graph.successors<Node> (current);
-            
-            if (successors.size()==1){
-                current=successors[0];
-                tried_extension+=graph.toString(current)[sizeKmer-1];
-                //                tried_extension+=graph.getNT(current,sizeKmer-1); // TODO: je sais pas quoi faire de ce Nucleotide (pas trouvé dans la doc)
-                if ( graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1] == graph.toString(current)[sizeKmer-1] ){
-                    DEBUG((cout<<"try with "<<tried_extension<<" and nodes "<<graph.toString(bubble.begin[(extended_path_id+1)%2])<<" "<<extended_path_id<<graph.toString(current)<<endl));
-                    bubble.polymorphism_type="DEL_"+std::to_string(del_size);
-                    if(extended_path_id==0?
-                       expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
-                       :
-                       expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension))
-                        break; // stop after finding one insertion. //TODO : return or break ?
-                }
-            }
-            else {
-                break;
-            }
-        }
+        const char end_insertion=graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1];
+        DEBUG((cout<<"start recursion with  "<<end_insertion<<" extending path "<<extended_path_id<<endl));
+        if(recursive_indel_prediction(bubble, extended_path_id, "", current, 1, end_insertion))
+            break; // stop after finding one insertion. //TODO : return or break ?
+        
+//        DEBUG((cout<<"extend "<<extended_path_id<<graph.toString(current)<<endl));
+//        string tried_extension="";
+//        for (size_t del_size=1;del_size<=max_del_size;del_size++){
+//            Graph::Vector<Node> successors = graph.successors<Node> (current);
+//            // No branching authorized in the insertion in b0 mode.
+//            if (successors.size()>1 && authorised_branching==0) break;
+//            if (successors.size()==1){
+//                current=successors[0];
+//                tried_extension+=graph.toString(current)[sizeKmer-1];
+//                //                tried_extension+=graph.getNT(current,sizeKmer-1); // TODO: je sais pas quoi faire de ce Nucleotide (pas trouvé dans la doc)
+//                if (end_insertion  == graph.toString(current)[sizeKmer-1] ){ //TODO optimize
+//                    DEBUG((cout<<"try with "<<tried_extension<<" and nodes "<<graph.toString(bubble.begin[(extended_path_id+1)%2])<<" "<<extended_path_id<<graph.toString(current)<<endl));
+//                    bubble.polymorphism_type="DEL_"+std::to_string(del_size);
+//                    if(extended_path_id==0?
+//                       expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
+//                       :
+//                       expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension))
+//                        break; // stop after finding one insertion. //TODO : return or break ?
+//                }
+//            }
+//            else {
+//                break;
+//            }
+//        }
     }
 }
 
@@ -226,12 +279,13 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /*************************************************/
             /** Try an isolated insertion                   **/
             /*************************************************/
+            DEBUG ((cout << " start with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
             start_indel_prediction(bubble);
         }
     }
 }
 
-bool BubbleFinder::expand_hearth(
+bool BubbleFinder::expand_heart(
                                  const int nb_polymorphism,
                                  Bubble& bubble,
                                  const Node& nextNode1,
@@ -287,7 +341,7 @@ bool BubbleFinder::expand_hearth(
     /************************************************************/
     else
     {
-        DEBUG((cout<<" nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
+        DEBUG((cout<<"continue with nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
         /** We call recursively the method (recursion on 'pos'). */
         finished_bubble |= expand (nb_polymorphism,
                                    bubble,
@@ -323,18 +377,19 @@ bool BubbleFinder::expand (
                            string local_extended_string2
                            )
 {
-    DEBUG((cout<<pos<<" node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
+    DEBUG((cout<<"expand with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
 //    if (pos==sizeKmer) return false; // we were not able to close the bubble. Note that this test won't be correct for finding close events
     
     
-    
+    DEBUG((cout<<"check branching"<<endl));
     /** We may have to stop the extension according to the branching mode. */
     if (checkBranching(node1,node2) == false)  { return false; }
+    
     
     /** We get the common successors of node1 and node2. */
     /** Returns the successors of two nodes, ie with the same transition nucleotide from both nodes. */
     Graph::Vector < pair<Node,Node> > successors = graph.successors<Node> (node1, node2);
-    
+    DEBUG((cout<<"successors size "<<successors.size()<<endl));
     /** We should not have several extensions possible unless authorised_branching==2 */
     assert(authorised_branching==2 || successors.size==1);
     
@@ -347,9 +402,10 @@ bool BubbleFinder::expand (
         Node& nextNode2 = successors[i].second;
         
         /** extend the bubble with the couple of nodes */
-        finished_bubble |= expand_hearth(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+        finished_bubble |= expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
     } /* end of for (size_t i=0; i<successors.size(); i++) */
     
+    DEBUG((cout<<"stop try"<<endl));
     if(finished_bubble) return true; //TODO: should we also authorise to try to find close SNPs, in case an isolated SNP was found?
     
     
@@ -363,7 +419,7 @@ bool BubbleFinder::expand (
             for (size_t i2=0; i2<successors2.size(); i2++){
                 if ( graph.toString(successors1[i1])[sizeKmer-1] == graph.toString(successors2[i2])[sizeKmer-1])  // TODO: optimize
                     continue; // This has already been tested in previous loop
-                finished_bubble |= expand_hearth(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+                finished_bubble |= expand_heart(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
             }
         }
     }

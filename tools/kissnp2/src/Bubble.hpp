@@ -252,7 +252,7 @@ protected:
     /** Extension of a bubble given two nextNodes to be tested.
      *
      */
-    bool expand_hearth(
+    bool expand_heart(
                        const int nb_polymorphism,
                        Bubble& bubble,
                        const Node& nextNode1,
@@ -327,6 +327,13 @@ protected:
     bool two_possible_extensions_on_one_path (const Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
 private:
+    bool recursive_indel_prediction(
+                                    Bubble& bubble,
+                                    int extended_path_id,
+                                    std::string tried_extension,
+                                    Node current,
+                                    size_t insert_size,
+                                    const char end_insertion);
     void start_snp_prediction(Bubble& bubble);
     void start_indel_prediction(Bubble& bubble);
 };
