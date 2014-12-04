@@ -157,7 +157,6 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
 
-
 bool BubbleFinder::recursive_indel_prediction(
                                               Bubble& bubble,
                                               int extended_path_id,
@@ -165,13 +164,15 @@ bool BubbleFinder::recursive_indel_prediction(
                                               Node current,
                                               size_t insert_size,
                                               const char end_insertion){
-    if (insert_size>max_del_size) return false;
+   
+    if (insert_size>max_del_size) {//depth_stack--;
+        return false;}
     DEBUG((cout<<insert_size<<" "<<max_del_size<<endl));
     Graph::Vector<Node> successors = graph.successors<Node> (current);
     
     /** No branching authorized in the insertion in b0 mode. */
-    if (successors.size()>1 && authorised_branching==0) return false;
-    
+    if (successors.size()>1 && authorised_branching==0) {//depth_stack--;
+        return false;}
     /** first find an eventual exension with the end_insertion character: */
     bool exists;
     Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
@@ -193,14 +194,17 @@ bool BubbleFinder::recursive_indel_prediction(
     return false;
 }
 
-
+//int nb_snp_start=0;
 void BubbleFinder::start_indel_prediction(Bubble& bubble){
     bubble.type=1;
     // Consider a deletion in the upper path (avance on the lower) and then try the opposite
     
     Node current;
     
+    
     for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
+//        nb_snp_start++;
+//        cout<<"nb_snp_start "<<nb_snp_start<<endl;
         current= bubble.begin[extended_path_id]; // 0 or 1
         const char end_insertion=graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1];
         DEBUG((cout<<"start recursion with  "<<end_insertion<<" extending path "<<extended_path_id<<endl));
@@ -366,6 +370,7 @@ bool BubbleFinder::expand_heart(
  ** RETURN  : True if expended, else return false
  ** REMARKS :
  *********************************************************************/
+
 bool BubbleFinder::expand (
                            const int nb_polymorphism,
                            Bubble& bubble,
@@ -377,13 +382,14 @@ bool BubbleFinder::expand (
                            string local_extended_string2
                            )
 {
+
     DEBUG((cout<<"expand with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
-//    if (pos==sizeKmer) return false; // we were not able to close the bubble. Note that this test won't be correct for finding close events
     
     
     DEBUG((cout<<"check branching"<<endl));
     /** We may have to stop the extension according to the branching mode. */
-    if (checkBranching(node1,node2) == false)  { return false; }
+    if (checkBranching(node1,node2) == false)  {
+        return false; }
     
     
     /** We get the common successors of node1 and node2. */
@@ -406,7 +412,9 @@ bool BubbleFinder::expand (
     } /* end of for (size_t i=0; i<successors.size(); i++) */
     
     DEBUG((cout<<"stop try"<<endl));
-    if(finished_bubble) return true; //TODO: should we also authorise to try to find close SNPs, in case an isolated SNP was found?
+    if(finished_bubble) {
+        return true; //TODO: should we also authorise to try to find close SNPs, in case an isolated SNP was found?
+    }
     
     
     /** Maybe we can search for a close SNP */
