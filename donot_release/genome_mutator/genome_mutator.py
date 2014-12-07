@@ -4,8 +4,8 @@ import sys
 import io
 
 
-if(len(sys.argv)!=8):
-    print "usage = python "+sys.argv[0]+" [input sequence file (a unique sequence)] [output file name] [log fasta file] [nb insertions] [min size insertion] [max size insertion] [nb_snps]"
+if(len(sys.argv)!=9):
+    print "usage = python "+sys.argv[0]+" [input sequence file (a unique sequence)] [output file name] [log fasta file] [nb indel] [min size indel] [max size indel] [nb ins/nbindel *100] [nb_snps]"
     sys.exit(0)
 
 my_input=sys.argv[1]
@@ -19,12 +19,14 @@ print "#logfile = "+my_log
 nb_insertions=int(sys.argv[4])
 min_size_insertions=int(sys.argv[5])
 max_size_insertions=int(sys.argv[6])
+prop_insertion=int(sys.argv[7])
 
-nb_snps=int(sys.argv[7])
+nb_snps=int(sys.argv[8])
 
 print "#nb_insertions = "+str(nb_insertions)
 print "#min_size_insertions = "+str(min_size_insertions)
 print "#max_size_insertions = "+str(max_size_insertions)
+print "#insertion proportion (wrt deletions) = "+str(prop_insertion)
 print "#nb_snps "+str(nb_snps)
 
 sys.stdout = open(my_log, 'w') # all incoming stuffs are written in the log file
@@ -61,6 +63,7 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
     positions = [0]*nb_snps
     for i in range(nb_snps): positions[i]=randint(0,limit)
     positions = sorted(positions) # cuter
+    seq_record.id+=" with SNP positions "+str(positions) 
     for snp_id in range(nb_snps):
         pos = positions[snp_id]
         init=seq_record.seq[pos]
@@ -81,20 +84,32 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
     positions = [0]*nb_insertions
     for i in range(nb_insertions): positions[i]=randint(0,limit)
     positions = sorted(positions, cmp=reverse_numeric) # In order to insert from right to left so the insertion positions are correct w.r.t the original genome. 
-    seq_record.id+=" with insertions positions "+str(positions)
+    seq_record.id+=" with indel positions "+str(positions)
     for insertion_id in range(nb_insertions):
         pos = positions[insertion_id]
-        insertion_size = randint(min_size_insertions,max_size_insertions)
-        insertion = random_dna_sequence(insertion_size)
-        comment=">DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(insertion_size)+"|"+str(insertion)
-        sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
-        print comment              
-        print sequence
-        comment=">DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(insertion_size)+"|"+str(insertion)
-        seq_record.seq=seq_record.seq[0:pos]+insertion+seq_record.seq[pos:]
-        sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor+insertion_size]
-        print comment
-        print sequence
+        indel_size = randint(min_size_insertions,max_size_insertions)
+        if(randint(0,100)<prop_insertion):
+            insertion = random_dna_sequence(indel_size)
+            comment=">INDEL|INS_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
+            print comment              
+            print sequence
+            comment=">INDEL|INS_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            seq_record.seq=seq_record.seq[0:pos]+insertion+seq_record.seq[pos:]
+            sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor+indel_size]
+            print comment
+            print sequence
+        else: # DELETION
+            comment=">INDEL|DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)
+            sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor+indel_size/2] 
+            print comment              
+            print sequence
+            comment=">INDEL|DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)
+            seq_record.seq=seq_record.seq[0:pos-indel_size]+seq_record.seq[pos:]
+            sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor]
+            print comment
+            print sequence
+        
         
         
         

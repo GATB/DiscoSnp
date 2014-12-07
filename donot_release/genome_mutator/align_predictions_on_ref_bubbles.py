@@ -100,8 +100,8 @@ def align_ref_bubbles(index, ref_sequence, bubble_file, k, dmax, nb_predicted_bu
     print "nb_"+restrict_to+"_ref_bubbles="+str(nb_ref_bubbles)
     print "nb_"+restrict_to+"_predicted_bubbles="+str(nb_predicted_bubbles)
     print "nb_"+restrict_to+"_mapped="+str(nb_mapped)
-    
-    print "precision_"+restrict_to+"=%.2f "%(100*nb_mapped/float(nb_predicted_bubbles))
+    if(nb_predicted_bubbles>0):
+        print "precision_"+restrict_to+"=%.2f "%(100*nb_mapped/float(nb_predicted_bubbles))
     print "recall_"+restrict_to+"=%.2f "%(100*nb_mapped/float(nb_ref_bubbles))
     
         
@@ -160,7 +160,7 @@ def main():
         sys.exit(2)
     
 
-    for type_polymorphism in {"SNP","DEL"}:
+    for type_polymorphism in {"SNP","INDEL"}:
         ref_sequence=""
         nb_predictions=0
         for seq in SeqIO.parse(predicted_file, "fasta"):

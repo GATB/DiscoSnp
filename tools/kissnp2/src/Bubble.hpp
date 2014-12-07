@@ -206,9 +206,14 @@ protected:
 
     bool accept_low; // Option set: do we accept low complexity bubbles
    
+    std::queue<std::pair<Node,std::string>> breadth_first_queue;
     
-    int max_depth;
-    int max_breadth;
+    
+    int max_recursion_depth;
+    int current_recursion_depth;
+    
+    int max_depth;   // for unitigs/contigs extensions
+    int max_breadth; // for unitigs/contigs extensions
 
     /* authorised_branching =
     *   0: branching forbidden in any path

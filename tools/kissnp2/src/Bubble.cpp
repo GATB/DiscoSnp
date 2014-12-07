@@ -55,6 +55,7 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     max_polymorphism     = props->getInt (STR_MAX_POLYMORPHISM);
     
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
+    max_recursion_depth=100; // TODO: parameter?
     max_breadth = props->getInt (STR_BFS_MAX_BREADTH);
     /** We set the traversal kind. */
     traversalKind = Traversal::NONE;
@@ -92,6 +93,8 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     traversalKind        = bf.traversalKind;
     max_del_size         = bf.max_del_size;
     max_polymorphism     = bf.max_polymorphism;
+    max_recursion_depth  = bf.max_recursion_depth;
+    breadth_first_queue  = bf.breadth_first_queue;
     
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
@@ -156,85 +159,196 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
  * \return the translated nucleotide */
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
+///*********************************************************************
+// ** METHOD  :
+// ** PURPOSE :
+// ** INPUT   :
+// ** OUTPUT  :
+// ** RETURN  :
+// ** REMARKS :
+// *********************************************************************/
+//bool BubbleFinder::recursive_indel_prediction(
+//                                              Bubble& bubble,
+//                                              int extended_path_id,
+//                                              string tried_extension,
+//                                              Node current,
+//                                              size_t insert_size,
+//                                              const char end_insertion){
+//    current_recursion_depth++;
+//    if (current_recursion_depth>max_recursion_depth) {
+////        cout<<current_recursion_depth<<">"<<max_recursion_depth<<" exit"<<endl; //DEB
+//        return false;
+//    }
+//    if (insert_size>max_del_size) {
+//        current_recursion_depth--;
+//        return false;}
+//    DEBUG((cout<<insert_size<<" "<<max_del_size<<endl));
+//    Graph::Vector<Node> successors = graph.successors<Node> (current);
+//    
+//    /** No branching authorized in the insertion in b0 mode. */
+//    if (successors.size()>1 && authorised_branching==0) {
+//        current_recursion_depth--;
+//        return false;}
+//    /** first find an eventual exension with the end_insertion character: */
+//    bool exists;
+//    Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
+//    DEBUG((cout<<"exists "<<graph.toString(current)<<" extended with "<<end_insertion<<" : "<<exists<<endl));
+//    if(exists){
+//        bubble.polymorphism_type="INDEL_"+std::to_string(insert_size);
+//        if(extended_path_id==0?
+//           expand (1,bubble, successor, bubble.begin[1], Node(~0), Node(~0),tried_extension+end_insertion,"")
+//           :
+//           expand (1,bubble, bubble.begin[0], successor, Node(~0), Node(~0),"",tried_extension+end_insertion)){
+//            current_recursion_depth--;
+//            return true; // stop after finding one insertion.
+//        }
+//    }
+//    /** Here: No extension was closed with the end_insertion character. We have to continue the depth exploration */
+//    for (size_t successor_id=0; successor_id<successors.size() ; successor_id++) {
+//        if (recursive_indel_prediction(bubble, extended_path_id, tried_extension+graph.toString(successors[successor_id])[sizeKmer-1], successors[successor_id], insert_size+1, end_insertion)) {
+//            current_recursion_depth--;
+//            return true; // we stop as soon as we find a good insersion
+//        }
+//    }
+//    current_recursion_depth--;
+//    return false;
+//}
 
-bool BubbleFinder::recursive_indel_prediction(
-                                              Bubble& bubble,
-                                              int extended_path_id,
-                                              string tried_extension,
-                                              Node current,
-                                              size_t insert_size,
-                                              const char end_insertion){
-   
-    if (insert_size>max_del_size) {//depth_stack--;
-        return false;}
-    DEBUG((cout<<insert_size<<" "<<max_del_size<<endl));
-    Graph::Vector<Node> successors = graph.successors<Node> (current);
-    
-    /** No branching authorized in the insertion in b0 mode. */
-    if (successors.size()>1 && authorised_branching==0) {//depth_stack--;
-        return false;}
-    /** first find an eventual exension with the end_insertion character: */
-    bool exists;
-    Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
-    DEBUG((cout<<"exists "<<graph.toString(current)<<" extended with "<<end_insertion<<" : "<<exists<<endl));
-    if(exists){
-        bubble.polymorphism_type="DEL_"+std::to_string(insert_size);
-        if(extended_path_id==0?
-           expand (1,bubble, successor, bubble.begin[1], Node(~0), Node(~0),tried_extension+end_insertion,"")
-           :
-           expand (1,bubble, bubble.begin[0], successor, Node(~0), Node(~0),"",tried_extension+end_insertion))
-            return true; // stop after finding one insertion.
-    }
-    /** Here: No extension was closed with the end_insertion character. We have to continue the depth exploration */
-    for (size_t successor_id=0; successor_id<successors.size() ; successor_id++) {
-        if (recursive_indel_prediction(bubble, extended_path_id, tried_extension+graph.toString(successors[successor_id])[sizeKmer-1], successors[successor_id], insert_size+1, end_insertion)) {
-            return true; // we stop as soon as we find a good insersion
-        }
-    }
-    return false;
-}
 
-//int nb_snp_start=0;
+///*********************************************************************
+// ** METHOD  :
+// ** PURPOSE :
+// ** INPUT   :
+// ** OUTPUT  :
+// ** RETURN  :
+// ** REMARKS : TODO: change the recursive approach for a breadth first one (queue already stored in the bubbleFinder class. 
+//   Then limit the queue size. Thus early possible bubbles are tested even if longer insers are too complex to be treated.
+// *********************************************************************/
+//void BubbleFinder::start_indel_prediction(Bubble& bubble){
+//    bubble.type=1;
+//    // Consider a deletion in the upper path (avance on the lower) and then try the opposite
+//    
+//    Node current;
+//    
+//    
+//    for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
+////        nb_snp_start++;
+////        cout<<"nb_snp_start "<<nb_snp_start<<endl;
+//        current= bubble.begin[extended_path_id]; // 0 or 1
+//        const char end_insertion=graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1];
+//        DEBUG((cout<<"start recursion with  "<<end_insertion<<" extending path "<<extended_path_id<<endl));
+//        current_recursion_depth=0;
+//        if(recursive_indel_prediction(bubble, extended_path_id, "", current, 1, end_insertion))
+//            break; // stop after finding one insertion. //TODO : return or break ?
+//        
+////        DEBUG((cout<<"extend "<<extended_path_id<<graph.toString(current)<<endl));
+////        string tried_extension="";
+////        for (size_t del_size=1;del_size<=max_del_size;del_size++){
+////            Graph::Vector<Node> successors = graph.successors<Node> (current);
+////            // No branching authorized in the insertion in b0 mode.
+////            if (successors.size()>1 && authorised_branching==0) break;
+////            if (successors.size()==1){
+////                current=successors[0];
+////                tried_extension+=graph.toString(current)[sizeKmer-1];
+////                //                tried_extension+=graph.getNT(current,sizeKmer-1); // TODO: je sais pas quoi faire de ce Nucleotide (pas trouvé dans la doc)
+////                if (end_insertion  == graph.toString(current)[sizeKmer-1] ){ //TODO optimize
+////                    DEBUG((cout<<"try with "<<tried_extension<<" and nodes "<<graph.toString(bubble.begin[(extended_path_id+1)%2])<<" "<<extended_path_id<<graph.toString(current)<<endl));
+////                    bubble.polymorphism_type="DEL_"+std::to_string(del_size);
+////                    if(extended_path_id==0?
+////                       expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
+////                       :
+////                       expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension))
+////                        break; // stop after finding one insertion. //TODO : return or break ?
+////                }
+////            }
+////            else {
+////                break;
+////            }
+////        }
+//    }
+//}
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS : TODO: change the recursive approach for a breadth first one (queue already stored in the bubbleFinder class.
+ Then limit the queue size. Thus early possible bubbles are tested even if longer insers are too complex to be treated.
+ *********************************************************************/
 void BubbleFinder::start_indel_prediction(Bubble& bubble){
     bubble.type=1;
     // Consider a deletion in the upper path (avance on the lower) and then try the opposite
     
     Node current;
     
+    /** 
+     XXXXXXYYYYYY
+     XXXXXXATYYYYYY
+     
+     XXXXXY
+     XXXXXA XXXXAT XXXATY 
+     
+     */
+    
     
     for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
-//        nb_snp_start++;
-//        cout<<"nb_snp_start "<<nb_snp_start<<endl;
+        //        nb_snp_start++;
+        //        cout<<"nb_snp_start "<<nb_snp_start<<endl;
         current= bubble.begin[extended_path_id]; // 0 or 1
         const char end_insertion=graph.toString(bubble.begin[(extended_path_id+1)%2])[sizeKmer-1];
-        DEBUG((cout<<"start recursion with  "<<end_insertion<<" extending path "<<extended_path_id<<endl));
-        if(recursive_indel_prediction(bubble, extended_path_id, "", current, 1, end_insertion))
-            break; // stop after finding one insertion. //TODO : return or break ?
         
-//        DEBUG((cout<<"extend "<<extended_path_id<<graph.toString(current)<<endl));
-//        string tried_extension="";
-//        for (size_t del_size=1;del_size<=max_del_size;del_size++){
-//            Graph::Vector<Node> successors = graph.successors<Node> (current);
-//            // No branching authorized in the insertion in b0 mode.
-//            if (successors.size()>1 && authorised_branching==0) break;
-//            if (successors.size()==1){
-//                current=successors[0];
-//                tried_extension+=graph.toString(current)[sizeKmer-1];
-//                //                tried_extension+=graph.getNT(current,sizeKmer-1); // TODO: je sais pas quoi faire de ce Nucleotide (pas trouvé dans la doc)
-//                if (end_insertion  == graph.toString(current)[sizeKmer-1] ){ //TODO optimize
-//                    DEBUG((cout<<"try with "<<tried_extension<<" and nodes "<<graph.toString(bubble.begin[(extended_path_id+1)%2])<<" "<<extended_path_id<<graph.toString(current)<<endl));
-//                    bubble.polymorphism_type="DEL_"+std::to_string(del_size);
-//                    if(extended_path_id==0?
-//                       expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
-//                       :
-//                       expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension))
-//                        break; // stop after finding one insertion. //TODO : return or break ?
-//                }
-//            }
-//            else {
-//                break;
-//            }
-//        }
+        DEBUG((cout<<"start indel finding with  "<<end_insertion<<" extending path "<<extended_path_id<<endl));
+        string tried_extension;
+        breadth_first_queue.push(pair<Node, string>(current, string("")));
+        while(!breadth_first_queue.empty()){
+            
+            DEBUG((cout<<"queue size  "<<breadth_first_queue.size()<<" max_breadth "<<max_recursion_depth<<endl));
+            if(breadth_first_queue.size()>max_recursion_depth){
+                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
+                break; // This bubble is too complex, we stop.
+            }
+            pair<Node,string> element=breadth_first_queue.front();
+            breadth_first_queue.pop();
+            DEBUG((cout<<"and now queue size  "<<breadth_first_queue.size()<<endl));
+            current = element.first;
+            tried_extension=element.second;
+            int insert_size = tried_extension.length();
+            if (end_insertion  == graph.toString(current)[sizeKmer-1] ){
+                DEBUG((cout<<"start an INDEL detection  "<<endl));
+                bubble.polymorphism_type="INDEL_"+std::to_string(insert_size);
+                if(extended_path_id==0?
+                   expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
+                   :
+                   expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension)){
+                    queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
+                    break; // stop after finding one insertion.
+                }
+            }
+            
+            if(tried_extension.length()==max_del_size     ) continue;
+            Graph::Vector<Node> successors = graph.successors<Node> (current);
+            
+            /** No branching authorized in the insertion in b0 mode. */
+            if (successors.size()>1 && authorised_branching==0) {
+                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
+                break; // stop after finding one insertion.
+            }
+            //TODO tester sur papier qu'on respecte bien l'idée de mon mail à propos des branching.
+            bool exists;
+            Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
+            if(exists)
+                breadth_first_queue.push(pair<Node, string>(successor,tried_extension+end_insertion));
+            
+           
+            for (size_t successor_id=0; successor_id<successors.size() ; successor_id++) {
+                if(graph.toString(successors[successor_id])[sizeKmer-1] != end_insertion)
+                    breadth_first_queue.push(pair<Node, string>(successors[successor_id], tried_extension+graph.toString(successors[successor_id])[sizeKmer-1]));
+            }
+        
+        
+        }
     }
 }
 
@@ -278,7 +392,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /*************************************************/
             /** Try an isolated SNP                         **/
             /*************************************************/
-            start_snp_prediction(bubble);
+//            start_snp_prediction(bubble);
             
             /*************************************************/
             /** Try an isolated insertion                   **/
