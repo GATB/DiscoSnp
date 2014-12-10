@@ -282,17 +282,9 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
     // Consider a deletion in the upper path (avance on the lower) and then try the opposite
     
     Node current;
+    int found_del_size=max_del_size+10; // No indel found for now (we could also use MAXINT)
     
-    /** 
-     XXXXXXYYYYYY
-     XXXXXXATYYYYYY
-     
-     XXXXXY
-     XXXXXA XXXXAT XXXATY 
-     
-     */
-    
-    
+
     for(int extended_path_id=0;extended_path_id<2;extended_path_id++){
         //        nb_snp_start++;
         //        cout<<"nb_snp_start "<<nb_snp_start<<endl;
@@ -303,7 +295,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
         string tried_extension;
         breadth_first_queue.push(pair<Node, string>(current, string("")));
         while(!breadth_first_queue.empty()){
-            
+            // TODO maybe we could stop the whole breadth first search in case a bubble was found at a found_del_size and the current insert_size is <= found_del_size-2
             DEBUG((cout<<"queue size  "<<breadth_first_queue.size()<<" max_breadth "<<max_recursion_depth<<endl));
             if(breadth_first_queue.size()>max_recursion_depth){
                 queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
@@ -315,33 +307,53 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             current = element.first;
             tried_extension=element.second;
             int insert_size = tried_extension.length();
+            /** if we already found an indel bubble: we need to check to other possible bubbles of the same size (indels of the same size) */
+            /** however, if we reach a node at depth lower than the succesfull bubble, as no other bubbles are stored in the queue with */
+            /** a higher length (property of the queue), then we can safelly stop the breadth first search */
+            if (insert_size == found_del_size-1){
+                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue...
+                break; // ...and stop
+            }
+            /** checks if an indel was already found at a lower depth */
+            // TODO: maybe impossible, to check.
+            if (insert_size > found_del_size) {
+                continue;
+            }
             if (end_insertion  == graph.toString(current)[sizeKmer-1] ){
                 DEBUG((cout<<"start an INDEL detection  "<<endl));
                 bubble.polymorphism_type="INDEL_"+std::to_string(insert_size);
+                
+                /** try to close the bubble from the two initial (with one extended) node */
                 if(extended_path_id==0?
                    expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
                    :
                    expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension)){
-                    queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
-                    break; // stop after finding one insertion.
+                    found_del_size=insert_size;   // an extension was found. We'll check if other extensions with same size can be found.
+                    continue;                     // we won't add stuffs in the queue, we can continue.
+//                    queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
+//                    break; // stop after finding one insertion.
                 }
             }
             
-            if(tried_extension.length()==max_del_size     ) continue;
+            if(
+               insert_size == found_del_size || // no need to try longer extension than the one already found.
+               insert_size == max_del_size      // no need to try longer extension than the maximal length
+               ) continue;
             Graph::Vector<Node> successors = graph.successors<Node> (current);
             
             /** No branching authorized in the insertion in b0 mode. */
             if (successors.size()>1 && authorised_branching==0) {
-                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
-                break; // stop after finding one insertion.
+                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue...
+                break; // ...and stop
             }
-            //TODO tester sur papier qu'on respecte bien l'idée de mon mail à propos des branching.
+
+            /** checks if a successor with the good starting letter (the one potentially closing the indel) exists */
             bool exists;
             Node successor = graph.successor<Node>(current,(Nucleotide)NT2int(end_insertion),exists);
             if(exists)
                 breadth_first_queue.push(pair<Node, string>(successor,tried_extension+end_insertion));
             
-           
+            /** then checks for the other possible extensions */
             for (size_t successor_id=0; successor_id<successors.size() ; successor_id++) {
                 if(graph.toString(successors[successor_id])[sizeKmer-1] != end_insertion)
                     breadth_first_queue.push(pair<Node, string>(successors[successor_id], tried_extension+graph.toString(successors[successor_id])[sizeKmer-1]));
@@ -392,7 +404,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /*************************************************/
             /** Try an isolated SNP                         **/
             /*************************************************/
-//            start_snp_prediction(bubble);
+            start_snp_prediction(bubble);
             
             /*************************************************/
             /** Try an isolated insertion                   **/

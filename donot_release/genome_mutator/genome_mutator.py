@@ -90,21 +90,21 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
         indel_size = randint(min_size_insertions,max_size_insertions)
         if(randint(0,100)<prop_insertion):
             insertion = random_dna_sequence(indel_size)
-            comment=">INDEL|INS_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            comment=">INDEL_INS_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
             sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
             print comment              
             print sequence
-            comment=">INDEL|INS_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            comment=">INDEL_INS_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
             seq_record.seq=seq_record.seq[0:pos]+insertion+seq_record.seq[pos:]
             sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor+indel_size]
             print comment
             print sequence
         else: # DELETION
-            comment=">INDEL|DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)
+            comment=">INDEL_DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)
             sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor+indel_size/2] 
             print comment              
             print sequence
-            comment=">INDEL|DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)
+            comment=">INDEL_DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)
             seq_record.seq=seq_record.seq[0:pos-indel_size]+seq_record.seq[pos:]
             sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor]
             print comment
