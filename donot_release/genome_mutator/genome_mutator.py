@@ -47,7 +47,7 @@ def random_dna_sequence(size):
 def mutate(nuclotide):
     while True:
         mutated=random_dna_sequence(1)
-        if mutated!=nuclotide:
+        if mutated!=nuclotide.upper():
             return mutated
 
 def reverse_numeric(x, y):
@@ -67,6 +67,7 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
     for snp_id in range(nb_snps):
         pos = positions[snp_id]
         init=seq_record.seq[pos]
+        if init =='N': continue # cannot insert a stuff in the N zones
         mutated=mutate(init)
         comment=">SNP_"+str(snp_id)+"|upper|"+str(pos)+"|"+init+"/"+mutated
         sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
@@ -87,6 +88,7 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
     seq_record.id+=" with indel positions "+str(positions)
     for insertion_id in range(nb_insertions):
         pos = positions[insertion_id]
+        if seq_record.seq[pos] == 'N': continue # cannot insert a stuff in the N zones
         indel_size = randint(min_size_insertions,max_size_insertions)
         if(randint(0,100)<prop_insertion):
             insertion = random_dna_sequence(indel_size)
