@@ -12,6 +12,7 @@ import getopt
 # Compute Number of predicted polymorphism
 def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
     list_predicted_polymorphism={}
+    list_predicted_polymorphism_positions={} # for each polymorphism, contains the position of the polymorphism.
     filin = open(discoResultsFile, 'r') 
     nb_pol=0
     while 1: 
@@ -23,10 +24,18 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
             if rank>=threshold:
                 nb_pol+=int(line.split("|")[2].split("_")[-1])
                 list_predicted_polymorphism[pol_id] = False # This polymorphism has not been confirmed yet
-            filin.readline() # read sequence upper, we don't care
+            upper_path=filin.readline() # read sequence upper, we don't care
             filin.readline() # read comment lower, we don't care
-            filin.readline() # read sequence lower, we don't care
-    return list_predicted_polymorphism,nb_pol
+            lower_path=filin.readline() # read sequence lower, we don't care
+            
+            # We store the SNP positions
+            if rank>=threshold and typePolymorphism!="INDEL":
+                list_predicted_polymorphism_positions[pol_id] = []
+                for i in range(len(upper_path)):
+                    if upper_path[i] != lower_path[i]:
+                        list_predicted_polymorphism_positions[pol_id].append(i)
+                        
+    return list_predicted_polymorphism,nb_pol,list_predicted_polymorphism_positions
     
    
 
@@ -58,40 +67,43 @@ def storeThePolymorphismPositions(referencePositionFile, typePolymorphism):
 #                         MAPPING
 ####################################################################
 # Stores polymorphisms whose both paths map the reference genome.
-def checkDoubleMappedPaths(gassstOutFile,typePolymorphism):
-    predicted_polymorphism_lower_mapped={}
-    predicted_polymorphism_upper_mapped={}
-    predicted_polymorphism_both_mapped={}
-    filin = open(gassstOutFile, 'r')
-    for line in filin.readlines(): # SNP_higher_path_1390|high|nb_pol_1|C1_629|C2_12|Q1_54|Q2_69|rank_0.98621        12      1       200256
-        if line.startswith(typePolymorphism): 
-            predicted_pol_id=int(line.split("|")[0].split("_")[-1])
-            upper=True
-            if line.split("|")[0].split("_")[1]=="lower":
-                upper=False
-            if upper:
-                predicted_polymorphism_upper_mapped[predicted_pol_id] = True
-            else:
-                predicted_polymorphism_lower_mapped[predicted_pol_id] = True
-            if predicted_pol_id in predicted_polymorphism_upper_mapped and predicted_pol_id in predicted_polymorphism_lower_mapped:
-                predicted_polymorphism_both_mapped[predicted_pol_id] = True
-    return predicted_polymorphism_both_mapped
+# def checkDoubleMappedPaths(gassstOutFile,typePolymorphism):
+#     predicted_polymorphism_lower_mapped={}
+#     predicted_polymorphism_upper_mapped={}
+#     predicted_polymorphism_both_mapped={}
+#     filin = open(gassstOutFile, 'r')
+#     for line in filin.readlines(): # SNP_higher_path_1390|high|nb_pol_1|C1_629|C2_12|Q1_54|Q2_69|rank_0.98621        12      1       200256
+#         if line.startswith(typePolymorphism):
+#             predicted_pol_id=int(line.split("|")[0].split("_")[-1])
+#             upper=True
+#             if line.split("|")[0].split("_")[1]=="lower":
+#                 upper=False
+#             if upper:
+#                 predicted_polymorphism_upper_mapped[predicted_pol_id] = True
+#             else:
+#                 predicted_polymorphism_lower_mapped[predicted_pol_id] = True
+#             if predicted_pol_id in predicted_polymorphism_upper_mapped and predicted_pol_id in predicted_polymorphism_lower_mapped:
+#                 predicted_polymorphism_both_mapped[predicted_pol_id] = True
+#     return predicted_polymorphism_both_mapped
     
     
-def findNbMachedPolymorphism(list_reference_polymorphism, start, stop):
+def findNbMachedPolymorphism(list_reference_polymorphism, start, stop,predicted_positions):
     nbMapped=0 # True positive prediction 
+    rev_repredicted_positions=[]
+    for pos in predicted_positions:
+        rev_repredicted_positions.append(stop-start-pos-1) # stores also the reverse positions (in case the mapping ins in the reverse order)
     for pos in range(start, stop+1):
         if pos in list_reference_polymorphism and list_reference_polymorphism[pos]==False:
-            list_reference_polymorphism[pos]=True
-            nbMapped+=1
-            # uncomment if you want to see where FP are.
-    # if nbMapped==0:
-  #       print start
+            if pos-start-1 in predicted_positions or pos-start-1 in rev_repredicted_positions:
+                list_reference_polymorphism[pos]=True
+                nbMapped+=1
+
+        
     return nbMapped
     
 
 # Compare mapped positions with reference positions
-def checkMappedPaths(gassstOutFile,typePolymorphism, list_reference_polymorphism, list_predicted_polymorphism,predicted_polymorphism_both_mapped, threshold):
+def checkMappedPaths(gassstOutFile,typePolymorphism, list_reference_polymorphism, list_predicted_polymorphism, threshold, list_predicted_positions):
     filin = open(gassstOutFile, 'r')
     for line in filin.readlines(): # SNP_higher_path_1390|high|nb_pol_1|C1_629|C2_12|Q1_54|Q2_69|rank_0.98621        12      1       200256
         if line.startswith(typePolymorphism): 
@@ -107,8 +119,13 @@ def checkMappedPaths(gassstOutFile,typePolymorphism, list_reference_polymorphism
              # check if this mapping is in the list of reference stuffs
             localNbMapped=0
             if not matching_chromosome in list_reference_polymorphism: continue
-            if predicted_pol_id in list_predicted_polymorphism and not predicted_pol_id in predicted_polymorphism_both_mapped:
-                localNbMapped = findNbMachedPolymorphism(list_reference_polymorphism[matching_chromosome],matching_position-1,matching_position+span_match-1)
+            if predicted_pol_id in list_predicted_polymorphism:# and not predicted_pol_id in predicted_polymorphism_both_mapped:
+                start=matching_position-1
+                stop=matching_position+span_match-1
+                if typePolymorphism == "INDEL":
+                    localNbMapped = findNbMachedPolymorphism(list_reference_polymorphism[matching_chromosome],start,stop,[i for i in range(stop-start+1)]) # fake acceptation of all mapped indel.
+                else:
+                    localNbMapped = findNbMachedPolymorphism(list_reference_polymorphism[matching_chromosome],start,stop,list_predicted_positions[predicted_pol_id])
             if localNbMapped>0:
                 list_predicted_polymorphism[predicted_pol_id] = True # We mapped the polymorphism(s) corresponding to this predicted id. 
 
@@ -160,9 +177,11 @@ def doAll(discoResFile, logFile, gassstResFile, polymorphism, threshold, verbose
     res=getPredictedPolymorphism(discoResFile, threshold,  polymorphism)
     list_predicted=res[0]
     nb_predicted=res[1]
+    list_predicted_positions=res[2]
     list_reference=storeThePolymorphismPositions(logFile, polymorphism)
-    predicted_polymorphism_both_mapped = checkDoubleMappedPaths(gassstResFile,polymorphism)
-    checkMappedPaths(gassstResFile,polymorphism, list_reference, list_predicted,predicted_polymorphism_both_mapped,threshold)
+    # predicted_polymorphism_both_mapped = checkDoubleMappedPaths(gassstResFile,polymorphism)
+    # checkMappedPaths(gassstResFile,polymorphism, list_reference, list_predicted,predicted_polymorphism_both_mapped,threshold,list_predicted_positions)
+    checkMappedPaths(gassstResFile,polymorphism, list_reference, list_predicted,threshold,list_predicted_positions)
     print_results(nb_predicted, list_reference, polymorphism, threshold)
     if verbose:
         FP(list_predicted,polymorphism)
@@ -236,7 +255,7 @@ def main():
          sys.exit(2)
     
 
-    for type_polymorphism in {"SNP", "INDEL"}:
+    for type_polymorphism in {"SNP","INDEL"}:
          doAll(discoFile, logFile, gassstFile, type_polymorphism, threshold, verbose)
 
 if __name__ == "__main__":
