@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads2/src/Test.cpp
+gatb/gatb_core.hpp
+-
+

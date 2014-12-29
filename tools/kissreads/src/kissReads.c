@@ -36,7 +36,6 @@
 #include <time.h>
 #include <libchash.h>
 
-//#define OMP
 
 #ifdef OMP
 #include <omp.h>

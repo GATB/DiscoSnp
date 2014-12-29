@@ -8,6 +8,12 @@ project(kissreads)
 
 ################################################################################
 
+FIND_PACKAGE(OpenMP)
+if (OPENMP_FOUND)
+    add_definitions ("-Wall -O3 -DOMP")
+else ()
+    add_definitions ("-Wall -O3")
+endif()
 
 # we define the files to be compiled
 file (GLOB_RECURSE  ProjectFiles  src/*)
@@ -15,9 +21,7 @@ file (GLOB_RECURSE  ProjectFiles  src/*)
 # we set the include directories
 include_directories (src  "include")
 
-# we set compilation flags
-#add_definitions ("-Wall -O3 -DOMP")
-add_definitions ("-Wall -O3")
+
 
 # we may have extra flags
 if (LIVIUS_TESTS)

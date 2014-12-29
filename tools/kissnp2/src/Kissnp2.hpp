@@ -36,7 +36,7 @@ public:
 
     /** Constructor. */
     Kissnp2 ();
-
+    
     /** Implementation of Tool::execute method. */
     void execute ();
 };
