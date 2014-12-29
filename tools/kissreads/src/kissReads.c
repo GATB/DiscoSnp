@@ -37,7 +37,7 @@
 #include <libchash.h>
 
 
-#ifdef OMP
+#if OMP
 #include <omp.h>
 #endif
 
@@ -92,6 +92,10 @@ void print_usage_and_exit(char * name){
 
 
 int main(int argc, char **argv) {
+#if OMP
+    printf("Kissreads will use %d threds\n", omp_get_num_threads());
+#endif
+    
 #ifdef READ2INV
     printf("Compiled with READ2INV: output only motifs where au-vb is specific to one datasets and av'-u'b is specific to the other\n");
 #endif
@@ -404,14 +408,14 @@ int main(int argc, char **argv) {
     }
 
     int silented=0;
-#ifdef OMP
+#if OMP
     if (!silent) silented=1;
     silent=1; // avoids melting messages
 #endif
     
 
     
-#ifdef OMP
+#if OMP
 #pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 #endif
     for (i=0;i<number_of_read_sets;i++){
