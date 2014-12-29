@@ -37,7 +37,7 @@
 #include <libchash.h>
 
 
-#if OMP
+#ifdef OMP
 #include <omp.h>
 #endif
 
@@ -92,7 +92,7 @@ void print_usage_and_exit(char * name){
 
 
 int main(int argc, char **argv) {
-#if OMP
+#ifdef OMP
     printf("Kissreads will use %d threds\n", omp_get_num_threads());
 #endif
     
@@ -408,14 +408,14 @@ int main(int argc, char **argv) {
     }
 
     int silented=0;
-#if OMP
+#ifdef OMP
     if (!silent) silented=1;
     silent=1; // avoids melting messages
 #endif
     
 
     
-#if OMP
+#ifdef OMP
 #pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 #endif
     for (i=0;i<number_of_read_sets;i++){
