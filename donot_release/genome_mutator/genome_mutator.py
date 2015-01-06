@@ -29,7 +29,7 @@ print "#max_size_insertions = "+str(max_size_insertions)
 print "#insertion proportion (wrt deletions) = "+str(prop_insertion)
 print "#nb_snps "+str(nb_snps)
 
-sys.stdout = open(my_log, 'w') # all incoming stuffs are written in the log file
+sys.stdout = open(my_log, 'w') # all stuffs are written in the log file
 
 def int2nuc(value):
     if value%4==0: return 'A'
@@ -57,23 +57,22 @@ def reverse_numeric(x, y):
 size_neighbor=20
 
 for seq_record in SeqIO.parse(my_input, "fasta"):
+    current_id=seq_record.id.split("|")[0].strip()
     limit=len(seq_record.seq)
-    
-
     positions = [0]*nb_snps
     for i in range(nb_snps): positions[i]=randint(0,limit)
     positions = sorted(positions) # cuter
-    seq_record.id+=" with SNP positions "+str(positions) 
+    seq_record.id+=" with SNP positions "+str(positions)
     for snp_id in range(nb_snps):
         pos = positions[snp_id]
         init=seq_record.seq[pos]
         if init =='N': continue # cannot insert a stuff in the N zones
         mutated=mutate(init)
-        comment=">SNP_"+str(snp_id)+"|upper|"+str(pos)+"|"+init+"/"+mutated
+        comment=">SNP_"+str(snp_id)+"|upper|"+str(pos)+"|"+current_id+"|"+init+"/"+mutated
         sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
         print comment              
         print sequence
-        comment=">SNP_"+str(snp_id)+"|lower|"+str(pos)+"|"+init+"/"+mutated
+        comment=">SNP_"+str(snp_id)+"|lower|"+str(pos)+"|"+current_id+"|"+init+"/"+mutated
         seq_record.seq=seq_record.seq[0:pos]+mutated+seq_record.seq[pos+1:]
         sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
         print comment              
@@ -92,21 +91,21 @@ for seq_record in SeqIO.parse(my_input, "fasta"):
         indel_size = randint(min_size_insertions,max_size_insertions)
         if(randint(0,100)<prop_insertion):
             insertion = random_dna_sequence(indel_size)
-            comment=">INDEL_INS_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            comment=">INDEL_INS_"+str(insertion_id)+"|upper|"+str(pos)+"|"+current_id+"|"+str(indel_size)+"|"+str(insertion)
             sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor]
             print comment              
             print sequence
-            comment=">INDEL_INS_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)+"|"+str(insertion)
+            comment=">INDEL_INS_"+str(insertion_id)+"|lower|"+str(pos)+"|"+current_id+"|"+str(indel_size)+"|"+str(insertion)
             seq_record.seq=seq_record.seq[0:pos]+insertion+seq_record.seq[pos:]
             sequence=seq_record.seq[pos-size_neighbor:pos+size_neighbor+indel_size]
             print comment
             print sequence
         else: # DELETION
-            comment=">INDEL_DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+str(indel_size)
+            comment=">INDEL_DEL_"+str(insertion_id)+"|upper|"+str(pos)+"|"+current_id+"|"+str(indel_size)
             sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor+indel_size/2] 
             print comment              
             print sequence
-            comment=">INDEL_DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+str(indel_size)
+            comment=">INDEL_DEL_"+str(insertion_id)+"|lower|"+str(pos)+"|"+current_id+"|"+str(indel_size)
             seq_record.seq=seq_record.seq[0:pos-indel_size]+seq_record.seq[pos:]
             sequence=seq_record.seq[pos-size_neighbor-indel_size/2:pos+size_neighbor]
             print comment

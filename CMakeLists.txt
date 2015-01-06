@@ -54,9 +54,9 @@ INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools                          DE
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data_sample                    DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output_analyses                DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp.sh            DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp++.sh            DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt                 DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoMore.sh               DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh               DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README                         DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
 
