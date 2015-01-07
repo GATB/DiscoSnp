@@ -1,0 +1,393 @@
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
+
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\def\includegraphic{}
+\def\includegraphics{}
+
+
+
+%%% Put your definitions there:
+\startlocaldefs
+
+\usepackage{xspace}
+\newcommand{\disco}{{\it DiscoSnp}\xspace}
+\newcommand{\discopp}{{\it DiscoSnp++}\xspace}
+
+\endlocaldefs
+
+
+%%% Begin ...
+\begin{document}
+
+%%% Start of article front matter
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Technical Note}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{{\it DiscoSnp++}: detection of all kind of SNPs and of indels from raw unassembled read set(s)}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
+   corref={aff1},                       % id of corresponding address, if any
+   % noteref={n1},                        % id's of article notes, if any
+   email={pierre.peterlongo@inria.fr}   % email address
+]{\inits{PP}\fnm{Pierre} \snm{Peterlongo}}
+ \author[
+    addressref={aff1},
+    email={erwan.drezen@inria.fr}
+ ]{\inits{ED}\fnm{Erwan} \snm{Drezen}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=aff1]{%                           % unique id
+  \orgname{GenScale, INRIA Rennes Bretagne-Atlantique, IRISA}, % university, etc
+  \street{Campus de Beaulieu},                     %
+  %\postcode{}                                % post or zip code
+  \city{Rennes},                              % city
+  \cny{France}                                    % country
+}
+% \address[id=aff2]{%
+%   \orgname{Marine Ecology Department, Institute of Marine Sciences Kiel},
+%   \street{D\"{u}sternbrooker Weg 20},
+%   \postcode{24105}
+%   \city{Kiel},
+%   \cny{Germany}
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+% \note[id=n1]{Equal contributor} % note, connected to author
+\end{artnotes}
+
+\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Abstract begins here                 %%
+%%                                          %%
+%% Please refer to the Instructions for     %%
+%% authors on http://www.biomedcentral.com  %%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstractbox}
+
+\begin{abstract} % abstract
+\parttitle{First part title} %if any
+
+NGS data provides an unprecedented access to life mechanisms. In particular these data enable to detect polymorphisms such as SNPs and indels. 
+These polymorphisms represent a fundamental source of information in agronomy, environment or medicine.  Thus detecting these polymorphisms is a routine task with NGS data. The main methods for their prediction usually need a reference genome. However, non-model organisms and highly divergent genomes such as in cancer studies  are more and more investigated. 
+
+\parttitle{Second part title} %if any
+Text for this section.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The keywords begin here                  %%
+%%                                          %%
+%% Put each keyword in separate \kwd{}.     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{keyword}
+\kwd{sample}
+\kwd{article}
+\kwd{author}
+\end{keyword}
+
+% MSC classifications codes, if any
+%\begin{keyword}[class=AMS]
+%\kwd[Primary ]{}
+%\kwd{}
+%\kwd[; secondary ]{}
+%\end{keyword}
+
+\end{abstractbox}
+%
+%\end{fmbox}% uncomment this for twcolumn layout
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Main Body begins here                %%
+%%                                          %%
+%% Please refer to the instructions for     %%
+%% authors on:                              %%
+%% http://www.biomedcentral.com/info/authors%%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%% See the Results and Discussion section   %%
+%% for details on how to create sub-sections%%
+%%                                          %%
+%% use \cite{...} to cite references        %%
+%%  \cite{koon} and                         %%
+%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
+%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
+% <put your article body there>
+
+%%%%%%%%%%%%%%%%
+%% Background %%
+%%
+
+\section*{Findings}
+
+NGS data provides an unprecedented access to life mechanisms. In particular these data enable to asses genetic differences between chromosomes, individuals or species. 
+Such polymorphisms represent a fundamental source of information in many aspect of biology with numerous applications in agronomy, environment or medicine. 
+
+
+Within the democratization of the sequencing provided by the NGS technologies, determining genetic differences as SNPs or indels has become a routine task the last decade. There exists large number of applications designed for predicting such polymorphisms. Majoritairement, these methods are based on the use of a reference genome as this is a case for GATK~\cite{}, SamTools~\cite{}, DISCOVAR, FERMI~\cite{} to cite a few. Basically they first map the NGS reads on the reference and in a second phase the differences between the reference and the reads are analyzed to be classified and ranked with respect to distinct criteria, and output. 
+
+These methods are highly accepted and used. However, they present severe drawbacks. First they suffer from the mapping quality. Highly repeated regions of the reference genome are difficult to map with a high degree of confidence.  Polymorphism detected from these repeated regions may be erroneous as the quantification of mapped reads is erroneous and as the differences between occurrences of the repeats can be interpreted as the output polymorphism. Secondly, they suffer from the fact that they need a high quality reference genome. This evident and strong condition limit the application to reference species. 
+
+In practice, biologists are more and more working on species for which there exists no confident reference genome. Additionally, despite large improvements in the sequencing techniques this last decade, reconstructing a perfect and complete genome from reads remains a highly complex task~\cite{}. In this context there is an important need for \emph{reference-free} methods detecting SNPs and indels, directly from NGS reads, without requiring an assembled reference sequence. A method may consists in first assemble reads before to map them back on the so obtained reference, as this is the case in~\cite{Willing2011}. However such methods cumulate both the assembly and the mapping difficulties.
+
+Recently a few methods~\cite{8-12 de disco} were proposed for \emph{de-novo} detection of polymorphism.  All these methods are based on the use of the \emph{de Bruijn graph}, i.e. a directed graph where the set of vertices corresponds to the set of words of length $k$ ($k$-mers) contained in the reads, and there is an edge between two $k$-mers if they overlap on $k-1$ nucleotides. In this data structure polymorphism generate recognizable patterns called the \emph{bubbles}. FIN PRESENTATION STATE OF THE ART. 
+
+We recently proposed \disco, a \emph{reference-free} method for detecting isolated SNPs~\cite{Uricaru2014a}. The \disco approach outperforms other \emph{reference-free} methods both in term of computational needs and in term of results quality. Its main features are its extremely low memory usage (several billion reads may be analyzed with no more than 6 GB RAM memory), its high execution speed, its high precision and recall, the fact that is can be applied on one to $n$ read sets, and the kind of SNPs it detects, called \emph{isolated}. Isolated SNPs are SNPs that are distant to the left and to the right by at least $k$ nucleotides from any other polymorphism, with $k$ one of the main parameters of a SNP detection tool. Isolated SNPs have the advantage to be easily amplified by PCR. However isolated SNPs do jot represent all SNPs. In particular in case of highly polymorphic genomes and in case of numerous distinct genomes, only a fraction of SNPs are isolated and so detected by \disco.
+
+
+In this paper, we present \discopp that is an extension of the \disco tool. The tool was re-implemented from scratch using the GATB library~\cite{Drezen2014}. Except the running time that has been even improved, the detection of isolated SNPs remains exactly the same with \disco and \discopp.
+
+\subsection*{Improvements in \disco}
+
+\subsection*{Results on synthetic datasets}
+
+
+\subsection*{Results on real datasets}
+
+
+\section*{Availability and requirements}
+
+\section*{Availability of supporting data}
+
+
+
+\section*{Abbreviations}
+NGS: Next Generation Sequencing; SNPs: Single Nucleotide Polymorphism; indels: insertions and deletions; PCR: Polymerase Chain Reaction
+
+
+
+% section section_name (end)
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Backmatter begins here                   %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{backmatter}
+
+\section*{Competing interests}
+  The authors declare that they have no competing interests.
+
+\section*{Author's contributions}
+    Text for this section \ldots
+
+\section*{Acknowledgements}
+  Text for this section \ldots
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                  The Bibliography                       %%
+%%                                                         %%
+%%  Bmc_mathpys.bst  will be used to                       %%
+%%  create a .BBL file for submission.                     %%
+%%  After submission of the .TEX file,                     %%
+%%  you will be prompted to submit your .BBL file.         %%
+%%                                                         %%
+%%                                                         %%
+%%  Note that the displayed Bibliography will not          %%
+%%  necessarily be rendered by Latex exactly as specified  %%
+%%  in the online Instructions for Authors.                %%
+%%                                                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% if your bibliography is in bibtex format, use those commands:
+\bibliographystyle{bmc-mathphys} % Style BST file
+\bibliography{discoSnp++_giga_science}      % Bibliography file (usually '*.bib' )
+
+% or include bibliography directly:
+% \begin{thebibliography}
+% \bibitem{b1}
+% \end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Figures                       %%
+%%                               %%
+%% NB: this is for captions and  %%
+%% Titles. All graphics must be  %%
+%% submitted separately and NOT  %%
+%% included in the Tex document  %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
+%% Do not use \listoffigures as most will included as separate files
+
+\section*{Figures}
+  \begin{figure}[h!]
+  \caption{\csentence{Sample figure title.}
+      A short description of the figure content
+      should go here.}
+      \end{figure}
+
+\begin{figure}[h!]
+  \caption{\csentence{Sample figure title.}
+      Figure legend text.}
+      \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Tables                        %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use of \listoftables is discouraged.
+%%
+\section*{Tables}
+\begin{table}[h!]
+\caption{Sample table title. This is where the description of the table should go.}
+      \begin{tabular}{cccc}
+        \hline
+           & B1  &B2   & B3\\ \hline
+        A1 & 0.1 & 0.2 & 0.3\\
+        A2 & ... & ..  & .\\
+        A3 & ..  & .   & .\\ \hline
+      \end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Additional Files              %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Additional Files}
+  \subsection*{Additional file 1 --- Sample additional file title}
+    Additional file descriptions text (including details of how to
+    view the file, if it is in a non-standard format or the file extension).  This might
+    refer to a multi-page table or a figure.
+
+  \subsection*{Additional file 2 --- Sample additional file title}
+    Additional file descriptions text.
+
+
+\end{backmatter}
+\end{document}
