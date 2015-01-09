@@ -70,7 +70,9 @@ Additionally you may change some kissnp2 / kissreads options. In this case you m
 
 Sample example:
 You can test discoSnp++ on a toy example containing 3 SNPs. In the discoSnp++ directory, type:
-./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta data_sample/reads_sequence2.fasta.gz"
+./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta data_sample/reads_sequence2.fasta.gz" -T
+
+(use -T in order to obtain the left and right contigs of each found polymorphism)
 Output
 Final results are in discoRes_k_31_c_4_D_0_P_1_b_0_coherent.fa file. This is a simple fasta file composed of a succession of pairs of sequences. Each pair corresponds to a SNP. Let's look at an example :
 >SNP_higher_path_3|high|left_unitig_length_86|right_unitig_length_261|left_contig_length_169|right_contig_length_764|C1_0|C2_134|rank_1.00000

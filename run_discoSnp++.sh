@@ -86,6 +86,7 @@ case $opt in
 	
 	T)
 	extend="-T"
+	;;
 
 	g)
 	remove=0
