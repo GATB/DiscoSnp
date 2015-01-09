@@ -59,6 +59,8 @@ This is the only mandatory parameter.
 -p prefix_name: All out files will start with this prefix. Default="discoRes"
 -l: accept low complexity bubbles
 -k kmer_size:  size of kmers (default: 31)
+-t: extends each polymorphism with left and right unitigs
+-T: extends each polymorphism with left and right contigs
 -c value. Minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4
 [beta] -C value. Maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1
 -d error_threshold: max number of errors per read (used by kissreads only). 

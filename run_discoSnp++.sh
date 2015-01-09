@@ -37,6 +37,7 @@ d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble
 l=""
+extend=""
 remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
@@ -64,6 +65,8 @@ echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. 
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
 echo -e "\t\t -l: accept low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
+echo -e "\t\t -t: extend found polymorphisms with unitigs"
+echo -e "\t\t -T: extend found polymorphisms with contigs"
 echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
@@ -75,8 +78,14 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:hlg" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlg" opt; do
 case $opt in
+	t)
+	extend="-t"
+	;;
+	
+	T)
+	extend="-T"
 
 	g)
 	remove=0
@@ -227,7 +236,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
 	echo "$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max"
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max -verbose 0
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max"
@@ -242,12 +251,12 @@ fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P"
+    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend"
     exit
 fi
 

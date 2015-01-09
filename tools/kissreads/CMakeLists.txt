@@ -8,13 +8,13 @@ project(kissreads)
 
 ################################################################################
 
+
 FIND_PACKAGE(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     add_definitions ("-DOMP")
 endif()
-
 
 # we define the files to be compiled
 file (GLOB_RECURSE  ProjectFiles  src/*)

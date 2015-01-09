@@ -93,7 +93,7 @@ void print_usage_and_exit(char * name){
 
 int main(int argc, char **argv) {
 #ifdef OMP
-    printf("Kissreads will use %d threds\n", omp_get_num_threads());
+    printf("Kissreads will use %d threads\n", omp_get_num_procs());
 #endif
     
 #ifdef READ2INV
