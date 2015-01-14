@@ -415,6 +415,15 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     }
 }
 
+
+/*********************************************************************
+ ** METHOD  : Heart of the expand method. Factorisation of code, used twice in the expand method.
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  : True if expended, else return false
+ ** REMARKS :
+ *********************************************************************/
 bool BubbleFinder::expand_heart(
                                  const int nb_polymorphism,
                                  Bubble& bubble,
@@ -432,8 +441,6 @@ bool BubbleFinder::expand_heart(
     checkNodesDiff (previousNode2, node2, nextNode2);
     if (!checkPrevious)  { return false;}
     
-    const char added_nucleotide1 = graph.toString(nextNode1)[sizeKmer-1]; //TODO: optimize
-    const char added_nucleotide2 = graph.toString(nextNode2)[sizeKmer-1]; //TODO: optimize
     bool finished_bubble=false;
     
     
@@ -471,6 +478,9 @@ bool BubbleFinder::expand_heart(
     /************************************************************/
     else
     {
+        
+        const Nucleotide added_nucleotide1 = graph.getNT(nextNode1,sizeKmer-1);
+        const Nucleotide added_nucleotide2 = graph.getNT(nextNode2,sizeKmer-1);
         DEBUG((cout<<"continue with nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
         /** We call recursively the method (recursion on 'pos'). */
         finished_bubble |= expand (nb_polymorphism,
@@ -479,8 +489,8 @@ bool BubbleFinder::expand_heart(
                                    nextNode2,
                                    node1,
                                    node2,
-                                   local_extended_string1+added_nucleotide1,
-                                   local_extended_string2+added_nucleotide2);
+                                   local_extended_string1+ascii(added_nucleotide1),
+                                   local_extended_string2+ascii(added_nucleotide2));
         
         //            /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
         //            if ( authorised_branching==0 || authorised_branching==1 )   {  break; }
@@ -551,7 +561,7 @@ bool BubbleFinder::expand (
         /** We loop over the successors of the two nodes found with distinct extending nucleotides. */
         for (size_t i1=0; i1<successors1.size(); i1++){
             for (size_t i2=0; i2<successors2.size(); i2++){
-                if ( graph.toString(successors1[i1])[sizeKmer-1] == graph.toString(successors2[i2])[sizeKmer-1])  // TODO: optimize
+                    if ( graph.getNT(successors1[i1],sizeKmer-1) == graph.getNT(successors2[i2],sizeKmer-1))
                     continue; // This has already been tested in previous loop
                 finished_bubble |= expand_heart(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
             }

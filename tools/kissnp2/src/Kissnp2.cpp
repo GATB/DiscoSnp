@@ -104,6 +104,7 @@ void Kissnp2::execute ()
     nbNodes = it.size();
     
     /** We loop the nodes. */
+    
     status = getDispatcher()->iterate (it, bubbleFinder);
     
 
