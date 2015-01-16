@@ -71,8 +71,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\def\includegraphic{}
-\def\includegraphics{}
+% \def\includegraphic{}
+% \def\includegraphics{}
 
 
 
@@ -82,6 +82,8 @@
 \usepackage{xspace}
 \newcommand{\disco}{{\it DiscoSnp}\xspace}
 \newcommand{\discopp}{{\it DiscoSnp++}\xspace}
+
+\usepackage{graphicx}
 
 \endlocaldefs
 
@@ -200,9 +202,9 @@ Text for this section.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{keyword}
-\kwd{sample}
-\kwd{article}
-\kwd{author}
+\kwd{SNP}
+\kwd{Indel}
+\kwd{reference-free}
 \end{keyword}
 
 % MSC classifications codes, if any
@@ -267,6 +269,7 @@ In this paper, we present \discopp that is an extension of the \disco tool. The 
 \subsection*{Improvements in \disco}
 
 \subsection*{Results on synthetic datasets}
+\subsubsection*{Two and more bacterial read sets}
 
 
 \subsection*{Results on real datasets}
@@ -320,7 +323,7 @@ NGS: Next Generation Sequencing; SNPs: Single Nucleotide Polymorphism; indels: i
 
 % if your bibliography is in bibtex format, use those commands:
 \bibliographystyle{bmc-mathphys} % Style BST file
-\bibliography{discoSnp++_giga_science}      % Bibliography file (usually '*.bib' )
+\bibliography{discoSnppp_giga_science}      % Bibliography file (usually '*.bib' )
 
 % or include bibliography directly:
 % \begin{thebibliography}
@@ -342,16 +345,44 @@ NGS: Next Generation Sequencing; SNPs: Single Nucleotide Polymorphism; indels: i
 %% Do not use \listoffigures as most will included as separate files
 
 \section*{Figures}
-  \begin{figure}[h!]
-  \caption{\csentence{Sample figure title.}
-      A short description of the figure content
-      should go here.}
-      \end{figure}
 
-\begin{figure}[h!]
-  \caption{\csentence{Sample figure title.}
-      Figure legend text.}
-      \end{figure}
+
+
+
+\begin{figure}[h!]  
+\includegraphics[width=\linewidth]{../tests_n_coli_NAR/expes/res_b0_D_10_P_4_c_4_d_1.png}
+\caption{\csentence{Precision Recall of \discopp on a various number of E. Coli read sets.}
+      $b=0, D=10, P=4, c=4, d=1$.}
+\end{figure}
+
+
+
+\begin{figure}[h!]  
+\includegraphics[width=\linewidth]{../tests_n_coli_NAR/expes/res_b1_D_10_P_4_c_4_d_1.png}
+\caption{\csentence{Precision Recall of \discopp on a various number of E. Coli read sets.}
+      $b=1, D=10, P=4, c=4, d=1$.}
+\end{figure}
+
+
+\begin{figure}[h!]  
+\includegraphics[width=\linewidth]{../tests_n_coli_NAR/expes/res_b1_D_10_P_1_c_4_d_1.png}
+\caption{\csentence{Precision Recall of \discopp on a various number of E. Coli read sets.}
+      $b=1, D=10, P=1, c=4, d=1$.}
+\end{figure}
+
+\begin{figure}[h!]  
+\includegraphics[width=\linewidth]{../tests_n_coli_NAR/expes/res_b2_D_10_P_4_c_4_d_1.png}
+\caption{\csentence{Precision Recall of \discopp on a various number of E. Coli read sets.}
+      $b=2, D=10, P=4, c=4, d=1$.}
+\end{figure}
+
+
+\begin{figure}[h!]  
+\includegraphics[width=\linewidth]{../tests_n_coli_NAR/res_cortex_sabre/results.png}
+\caption{\csentence{Precision Recall of Cortex on a various number of E. Coli read sets.}
+      $k=31$.}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
@@ -362,16 +393,16 @@ NGS: Next Generation Sequencing; SNPs: Single Nucleotide Polymorphism; indels: i
 %% Use of \listoftables is discouraged.
 %%
 \section*{Tables}
-\begin{table}[h!]
-\caption{Sample table title. This is where the description of the table should go.}
-      \begin{tabular}{cccc}
-        \hline
-           & B1  &B2   & B3\\ \hline
-        A1 & 0.1 & 0.2 & 0.3\\
-        A2 & ... & ..  & .\\
-        A3 & ..  & .   & .\\ \hline
-      \end{tabular}
-\end{table}
+% \begin{table}[h!]
+% \caption{Sample table title. This is where the description of the table should go.}
+%       \begin{tabular}{cccc}
+%         \hline
+%            & B1  &B2   & B3\\ \hline
+%         A1 & 0.1 & 0.2 & 0.3\\
+%         A2 & ... & ..  & .\\
+%         A3 & ..  & .   & .\\ \hline
+%       \end{tabular}
+% \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
@@ -384,9 +415,9 @@ NGS: Next Generation Sequencing; SNPs: Single Nucleotide Polymorphism; indels: i
     Additional file descriptions text (including details of how to
     view the file, if it is in a non-standard format or the file extension).  This might
     refer to a multi-page table or a figure.
-
-  \subsection*{Additional file 2 --- Sample additional file title}
-    Additional file descriptions text.
+  %
+  % \subsection*{Additional file 2 --- Sample additional file title}
+  %   Additional file descriptions text.
 
 
 \end{backmatter}

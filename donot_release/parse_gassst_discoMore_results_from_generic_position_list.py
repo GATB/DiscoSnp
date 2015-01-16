@@ -63,6 +63,7 @@ def storeThePolymorphismPositionsFromLogFile(simulatorLogFile, typePolymorphism)
 # Compare mapped positions with reference positions
 def checkMappedDiscoPaths(gassstOutFile,typePolymorphism, list_reference_polymorphism, list_predicted_polymorphism, threshold, list_predicted_positions):
     filin = open(gassstOutFile, 'r')
+    nbindel=0 #DEB
     for line in filin.readlines(): # SNP_higher_path_1390|high|nb_pol_1|C1_629|C2_12|Q1_54|Q2_69|rank_0.98621        12      1       200256
                                 # or INDEL_9_higher_path_995|high|nb_pol_1|C1_32|C2_0|rank_1.00000	gi|545778205|gb|U00096.3|
         if line.startswith(typePolymorphism): 
@@ -73,23 +74,43 @@ def checkMappedDiscoPaths(gassstOutFile,typePolymorphism, list_reference_polymor
                 continue
             matching_chromosome=line.split("\t")[1].split("|")[0].strip()
             matching_position=int(line.split("\t")[3])
-            predicted_pol_id=int(line.split("|")[0].split("_")[-1])
-            span_match=int(line.split("\t")[4][:-1])
+            good_prefix=line.split("|")[0] # if this is a discoSnp++ output, this is correct
+            if len(good_prefix.split("\t")[0]) < len (good_prefix): # this is a cortex output: "SNP_higher_path_1	gi|545778205|gb|U00096.3|	0	3595700	63M"
+                good_prefix=good_prefix.split("\t")[0]
+            predicted_pol_id=int(good_prefix.split("_")[-1])
+            # avoid to map twice the same variant (both upper and lower path as the mapping is not exact)
+            if predicted_pol_id in list_predicted_polymorphism and list_predicted_polymorphism[predicted_pol_id] == True: continue
+            span_match=len(line.split("\t")[7])
+            forward=False
+            if int(line.split("\t")[5])==1: forward=True
              # check if this mapping is in the list of reference stuffs
             localNbMapped=0
             if not matching_chromosome in list_reference_polymorphism: continue
-            if predicted_pol_id in list_predicted_polymorphism:# and not predicted_pol_id in predicted_polymorphism_both_mapped:
+            if predicted_pol_id in list_predicted_polymorphism:
                 start=matching_position-1
                 stop=matching_position+span_match-1
                 if typePolymorphism == "INDEL":
-                    localNbMapped = parse_gassst_common.findNbMachedPolymorphism(list_reference_polymorphism[matching_chromosome],start,stop,[i for i in range(stop-start+1)]) # fake acceptation of all mapped indel.
+                    nbindel+=1
+                    localNbMapped = parse_gassst_common.findNbMachedPolymorphism(
+                        list_reference_polymorphism[matching_chromosome],
+                        start,
+                        stop,
+                        [i for i in range(stop-start+1)], # fake acceptation of all mapped indel.
+                        typePolymorphism, 
+                        forward) 
                 else:
-                    localNbMapped = parse_gassst_common.findNbMachedPolymorphism(list_reference_polymorphism[matching_chromosome],start,stop,list_predicted_positions[predicted_pol_id])
+                    localNbMapped = parse_gassst_common.findNbMachedPolymorphism(
+                    list_reference_polymorphism[matching_chromosome],
+                    start,
+                    stop,
+                    list_predicted_positions[predicted_pol_id], 
+                    typePolymorphism, 
+                    forward)
             if localNbMapped>0:
                 list_predicted_polymorphism[predicted_pol_id] = True # We mapped the polymorphism(s) corresponding to this predicted id. 
+                
 
-
-
+    print "nbindel",nbindel
 
 
 ####################################################################

@@ -1,0 +1,275 @@
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
+
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% \def\includegraphic{}
+% \def\includegraphics{}
+
+
+
+%%% Put your definitions there:
+\startlocaldefs
+
+\usepackage{xspace}
+\newcommand{\disco}{{\it DiscoSnp}\xspace}
+\newcommand{\discopp}{{\it DiscoSnp++}\xspace}
+
+\usepackage{graphicx}
+
+\endlocaldefs
+
+
+%%% Begin ...
+\begin{document}
+
+%%% Start of article front matter
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Technical Note}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{{\it DiscoSnp++}: Additional File}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+   addressref={aff1},                   % id's of addresses, e.g. {aff1,aff2}
+   corref={aff1},                       % id of corresponding address, if any
+   % noteref={n1},                        % id's of article notes, if any
+   email={pierre.peterlongo@inria.fr}   % email address
+]{\inits{PP}\fnm{Pierre} \snm{Peterlongo}}
+ \author[
+    addressref={aff1},
+    email={erwan.drezen@inria.fr}
+ ]{\inits{ED}\fnm{Erwan} \snm{Drezen}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=aff1]{%                           % unique id
+  \orgname{GenScale, INRIA Rennes Bretagne-Atlantique, IRISA}, % university, etc
+  \street{Campus de Beaulieu},                     %
+  %\postcode{}                                % post or zip code
+  \city{Rennes},                              % city
+  \cny{France}                                    % country
+}
+% \address[id=aff2]{%
+%   \orgname{Marine Ecology Department, Institute of Marine Sciences Kiel},
+%   \street{D\"{u}sternbrooker Weg 20},
+%   \postcode{24105}
+%   \city{Kiel},
+%   \cny{Germany}
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+% \note[id=n1]{Equal contributor} % note, connected to author
+\end{artnotes}
+
+\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Abstract begins here                 %%
+%%                                          %%
+%% Please refer to the Instructions for     %%
+%% authors on http://www.biomedcentral.com  %%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{abstractbox}
+%
+% \begin{abstract} % abstract
+% \parttitle{First part title} %if any
+%
+% NGS data provides an unprecedented access to life mechanisms. In particular these data enable to detect polymorphisms such as SNPs and indels.
+% These polymorphisms represent a fundamental source of information in agronomy, environment or medicine.  Thus detecting these polymorphisms is a routine task with NGS data. The main methods for their prediction usually need a reference genome. However, non-model organisms and highly divergent genomes such as in cancer studies  are more and more investigated.
+%
+% \parttitle{Second part title} %if any
+% Text for this section.
+% \end{abstract}
+%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%                                          %%
+% %% The keywords begin here                  %%
+% %%                                          %%
+% %% Put each keyword in separate \kwd{}.     %%
+% %%                                          %%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \begin{keyword}
+% \kwd{sample}
+% \kwd{article}
+% \kwd{author}
+% \end{keyword}
+%
+% % MSC classifications codes, if any
+% %\begin{keyword}[class=AMS]
+% %\kwd[Primary ]{}
+% %\kwd{}
+% %\kwd[; secondary ]{}
+% %\end{keyword}
+
+% \end{abstractbox}
+%
+%\end{fmbox}% uncomment this for twcolumn layout
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Main Body begins here                %%
+%%                                          %%
+%% Please refer to the instructions for     %%
+%% authors on:                              %%
+%% http://www.biomedcentral.com/info/authors%%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%% See the Results and Discussion section   %%
+%% for details on how to create sub-sections%%
+%%                                          %%
+%% use \cite{...} to cite references        %%
+%%  \cite{koon} and                         %%
+%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
+%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
+% <put your article body there>
+
+%%%%%%%%%%%%%%%%
+%% Background %%
+%%
+
+\section*{Data Simulation}
+\subsection*{Simulating 2 to $n$ E. Coli datasets}
+
+\section*{Prediction validations}
+Both on real datasets or synthetic ones, predicted polymorphisms can be compared to a reference set. In all the performed tests, one dispose from a reference genome that is used only in the purpose of simulating and validating predictions.
+Whatever the tested method, the predicted polymorphisms are validated using the following process:
+\begin{itemize}
+	\item All predicted sequences are fully mapped using Gassst~\cite{Rizk2010} on the reference genome with a least 90\% similarity.
+	\item For SNPs:
+	\begin{itemize}
+		\item For each couple of sequences predicting one or more SNPs: if one or the two sequence(s) map the reference genome: for each predicted SNP of the mapped sequence(s), if its position matches exactly a position on which a SNP was simulated, then this SNP is considered as a True Positive (TP).
+	\end{itemize}
+	\item For indels:
+	\begin{itemize}
+		\item If one or the two sequence(s) of a predicted indel matches a simulated indel position, then such a prediction is considered as a True Positive (TP).
+	\end{itemize}
+	\item A predicted polymorphism that is not a True Positive is a False Positive (FP).
+	\item A simulated polymorphism not mapped by a predicted polymorphism is a False Negative (FN).
+\end{itemize}
+
+The precision defined by $$precision=\frac{number TP}{number TP+ number FP}$$ and the recall is defined by $$recall=\frac{number TP}{number TP+ number FN}$$.
+
+% if your bibliography is in bibtex format, use those commands:
+\bibliographystyle{bmc-mathphys} % Style BST file
+\bibliography{discoSnppp_giga_science}      % Bibliography file (usually '*.bib' )
+\end{document}
