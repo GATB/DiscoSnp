@@ -1,0 +1,12 @@
+## memory in GB, time in seconds 
+type	name	memory	time
+bact	"discoSnp++ 2sets"	0.32	31 
+bact	"discoSnp++ 30sets"	2.04	332 
+bact	"cortex 2 sets"	7.04	230 #memoire calculee avec un 'top' 
+bact	"cortex 30 sets"	29	3479 #memoire calculee avec un 'top' 
+bact	"Soap+gatk 2 sets" 9.45 675 
+bact	"Soap+gatk 30 sets" 9.45 4958 
+human	Bubbleparse	105	39600 # A FAIRE
+human	Cortex	105	36540 # A FAIRE
+human	"Soap+Gatk" 54	38040 # A FAIRE
+human	discoSnp	5	17040 # A FAIRE

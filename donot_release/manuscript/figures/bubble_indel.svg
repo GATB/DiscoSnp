@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="bubble_indel.svg"
+   inkscape:export-filename="/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/donot_release/manuscript/figures/bubble_snp.png"
+   inkscape:export-xdpi="1000"
+   inkscape:export-ydpi="1000">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Mend"
+       style="overflow:visible;">
+      <path
+         id="path4033"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.4) rotate(180) translate(10,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="166.73391"
+     inkscape:cy="846.12039"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1436"
+     inkscape:window-height="856"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3960"
+       transform="translate(8.4347687,-2.2349243)">
+      <text
+         sodipodi:linespacing="125%"
+         id="text3755"
+         y="266.16833"
+         x="145.68663"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+           y="266.16833"
+           x="145.68663"
+           id="tspan3757"
+           sodipodi:role="line"><tspan
+             style="fill:#ff0000"
+             id="tspan4795">G</tspan><tspan
+             style="font-style:normal;font-weight:bold;fill:#000000"
+             id="tspan4002">TT</tspan><tspan
+             style="fill:#008000"
+             id="tspan4801">A</tspan></tspan><tspan
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+           id="tspan3759"
+           y="276.16833"
+           x="145.68663"
+           sodipodi:role="line" /></text>
+      <rect
+         y="217.66794"
+         x="141.14651"
+         height="13.129425"
+         width="30.232571"
+         id="rect3862"
+         style="fill:none;stroke:#000000;stroke-opacity:1" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-opacity:1"
+         id="rect3870"
+         width="30.232571"
+         height="13.129425"
+         x="141.14651"
+         y="256.93762" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3892"
+         y="226.89865"
+         x="145.61632"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Italic"
+           y="226.89865"
+           x="145.61632"
+           id="tspan3894"
+           sodipodi:role="line"><tspan
+             style="fill:#ff0000"
+             id="tspan4783">G</tspan><tspan
+             style="fill:#008000;font-style:normal;-inkscape-font-specification:Goudy Old Style Italic;font-weight:normal"
+             id="tspan4000">A</tspan><tspan
+             style="fill:#008000"
+             id="tspan4785">CC</tspan></tspan><tspan
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+           id="tspan3896"
+           y="236.89865"
+           x="145.61632"
+           sodipodi:role="line" /></text>
+    </g>
+    <g
+       id="g3950"
+       transform="translate(3.1819763,-2.2349243)">
+      <rect
+         style="fill:none;stroke:#000000;stroke-opacity:1"
+         id="rect3864"
+         width="30.232571"
+         height="13.129425"
+         x="97.45742"
+         y="217.66794" />
+      <rect
+         y="256.93762"
+         x="97.45742"
+         height="13.129425"
+         width="30.232571"
+         id="rect3872"
+         style="fill:none;stroke:#000000;stroke-opacity:1" />
+      <text
+         xml:space="preserve"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="102.33738"
+         y="266.16833"
+         id="text3874"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3876"
+           x="102.33738"
+           y="266.16833"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"><tspan
+             style="fill:#ff0000"
+             id="tspan4789">TG</tspan><tspan
+             style="font-style:normal;font-weight:bold;fill:#000000"
+             id="tspan3996">TT</tspan></tspan><tspan
+           sodipodi:role="line"
+           x="102.33738"
+           y="276.16833"
+           id="tspan3878"
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic" /></text>
+      <text
+         xml:space="preserve"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="102.26707"
+         y="226.89865"
+         id="text3898"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3900"
+           x="102.26707"
+           y="226.89865"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Italic"><tspan
+             style="fill:#ff0000"
+             id="tspan4779">TG</tspan><tspan
+             style="fill:#008000;font-style:normal;-inkscape-font-specification:Goudy Old Style Italic;font-weight:normal"
+             id="tspan3998">A</tspan><tspan
+             style="fill:#008000"
+             id="tspan4781">C</tspan></tspan><tspan
+           sodipodi:role="line"
+           x="102.26707"
+           y="236.89865"
+           id="tspan3902"
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic" /></text>
+    </g>
+    <g
+       id="g3940"
+       transform="translate(3.7375641,-2.2349243)">
+      <rect
+         style="fill:none;stroke:#000000;stroke-opacity:1"
+         id="rect3860"
+         width="30.232571"
+         height="13.129425"
+         x="47.959946"
+         y="217.66794" />
+      <rect
+         y="256.93762"
+         x="47.959946"
+         height="13.129425"
+         width="30.232571"
+         id="rect3868"
+         style="fill:none;stroke:#000000;stroke-opacity:1" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text3880"
+         y="266.16833"
+         x="52.619202"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+           y="266.16833"
+           x="52.619202"
+           id="tspan3882"
+           sodipodi:role="line"><tspan
+             style="fill:#ff0000"
+             id="tspan4787">CTG</tspan><tspan
+             style="fill:#000000;font-weight:bold;font-style:normal"
+             id="tspan3994">T</tspan></tspan><tspan
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+           id="tspan3884"
+           y="276.16833"
+           x="52.619202"
+           sodipodi:role="line" /></text>
+      <g
+         id="g4019">
+        <text
+           xml:space="preserve"
+           style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+           x="52.533264"
+           y="226.89865"
+           id="text3904"
+           sodipodi:linespacing="125%"><tspan
+             sodipodi:role="line"
+             id="tspan3906"
+             x="52.533264"
+             y="226.89865"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"><tspan
+               style="font-weight:normal;-inkscape-font-specification:Goudy Old Style Italic;fill:#ff0000"
+               id="tspan4025">CTG</tspan><tspan
+               id="tspan3992"
+               style="fill:#008000;font-weight:normal;-inkscape-font-specification:Goudy Old Style Bold Italic;font-style:normal">A</tspan></tspan><tspan
+             sodipodi:role="line"
+             x="52.533264"
+             y="236.89865"
+             id="tspan3908"
+             style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic" /></text>
+      </g>
+    </g>
+    <g
+       id="g3986">
+      <rect
+         y="233.3253"
+         x="5.5335364"
+         height="13.381958"
+         width="27.454649"
+         id="rect2985"
+         style="fill:none;stroke:#000000;stroke-opacity:1" />
+      <text
+         xml:space="preserve"
+         style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         x="7.8992453"
+         y="242.80856"
+         id="text3910"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan3912"
+           x="7.8992453"
+           y="242.80856"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Italic;fill:#ff0000">ACTG</tspan><tspan
+           sodipodi:role="line"
+           x="7.8992453"
+           y="252.80856"
+           id="tspan3914"
+           style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic" /></text>
+    </g>
+    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect3866"
+       width="30.232571"
+       height="13.129425"
+       x="297.26559"
+       y="236.14114" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text3886"
+       y="245.37381"
+       x="302.37018"
+       style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#008000;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+         y="245.37381"
+         x="302.37018"
+         id="tspan3888"
+         sodipodi:role="line">ACCT</tspan><tspan
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+         id="tspan3890"
+         y="255.37381"
+         x="302.37018"
+         sodipodi:role="line" /></text>
+    <rect
+       y="254.7027"
+       x="198.52318"
+       height="13.129425"
+       width="30.232571"
+       id="rect3916"
+       style="fill:none;stroke:#000000;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="203.409"
+       y="263.93536"
+       id="text3918"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3920"
+         x="203.409"
+         y="263.93536"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ff0000;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"><tspan
+           id="tspan4803"
+           style="fill:#000000">TT</tspan><tspan
+           id="tspan4805"
+           style="font-weight:normal;fill:#008000">AC</tspan></tspan><tspan
+         sodipodi:role="line"
+         x="203.409"
+         y="273.93536"
+         id="tspan3922"
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic" /></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3924"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:8px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion3926"><rect
+           id="rect3928"
+           width="51.51778"
+           height="35.102802"
+           x="180.05969"
+           y="246.26045" /></flowRegion><flowPara
+         id="flowPara3930" /></flowRoot>    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="M 33.082496,240.45207 50.760165,222.77441"
+       id="path4464"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 33.082496,240.45207 17.67767,21.21321"
+       id="path4650"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m -5.0304572,240.24227 8.838833,0.25254"
+       id="path4834"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path5018"
+       d="m 130.81475,222.14307 17.93021,-0.25254"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path5022"
+       d="m 81.822347,261.53902 17.93021,-0.25254"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 131.06728,261.53901 17.93021,-0.25254"
+       id="path5024"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path5026"
+       d="m 179.30206,261.53902 17.93021,-0.25254"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path5028"
+       d="m 278.04449,262.17035 17.67767,-17.67766"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 82.579966,222.14307 17.930214,-0.25254"
+       id="path3059"
+       inkscape:connector-curvature="0" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-opacity:1"
+       id="rect4820"
+       width="30.232571"
+       height="13.129425"
+       x="248.02065"
+       y="254.7027" />
+    <text
+       sodipodi:linespacing="125%"
+       id="text4822"
+       y="263.93536"
+       x="252.90646"
+       style="font-size:8px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ff0000;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+         y="263.93536"
+         x="252.90646"
+         id="tspan4824"
+         sodipodi:role="line"><tspan
+           style="fill:#000000"
+           id="tspan4826">T</tspan><tspan
+           style="font-weight:normal;fill:#008000"
+           id="tspan4828">ACC</tspan></tspan><tspan
+         style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Goudy Old Style;-inkscape-font-specification:Goudy Old Style Bold Italic"
+         id="tspan4830"
+         y="273.93536"
+         x="252.90646"
+         sodipodi:role="line" /></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 228.79953,261.53902 17.93021,-0.25254"
+       id="path4832"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 180.05969,221.76426 98.99495,0 17.93021,21.71828"
+       id="path4835"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path5019"
+       d="m 328.06735,242.51512 8.83883,0.25254"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)" />
+  </g>
+</svg>

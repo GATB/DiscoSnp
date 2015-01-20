@@ -248,9 +248,17 @@
 %%
 
 \section*{Data Simulation}
-\subsection*{Simulating 2 to $n$ E. Coli datasets}
 
-\section*{Prediction validations}
+\subsection*{Simulating 2 human read sets}
+TODO
+\subsection*{Simulating 2 to $n$ E. Coli datasets}
+We propose an experiment simulating more than two haploid bacterial individuals. For doing this, we created 30 copies (that we call individuals) of the E. coli K-12 MG1655 strain. We then simulated SNPs with a uniform distribution such that $\approx$4200 SNPs ($\approx$0.1\% of the genome length) are common to any pair of individuals, half this number is common to any trio of individuals, a third to any quadruplet, and so on. With this strategy, while considering all the 30 individuals together, 69 600 SNP sites were generated, covering $\approx$1.5\% of the genome. We also simulated INDELs following exactly the same process, with a ratio of one INDEL for ten SNPs. 
+
+We simulated a 40x sequencing of each of the 30 individuals, with 100-bp reads and 0.1\% error rate. Thus, 1 855 870 reads were generated per read set.
+
+
+
+\section*{Validation of predictions and precision/recall computations}
 Both on real datasets or synthetic ones, predicted polymorphisms can be compared to a reference set. In all the performed tests, one dispose from a reference genome that is used only in the purpose of simulating and validating predictions.
 Whatever the tested method, the predicted polymorphisms are validated using the following process:
 \begin{itemize}

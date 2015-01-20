@@ -38,7 +38,8 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
         if not line: break
         if line.startswith(">"+typePolymorphism):
             pol_id=int(line.split("|")[0].split("_")[-1])
-            if len(line.split("|")) > 1:
+            if "rank" in line :
+                print line
                 rank=float(line.split("|")[-1].split("_")[-1])                      
             else:
                 rank=1
