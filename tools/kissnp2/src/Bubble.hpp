@@ -226,7 +226,7 @@ protected:
     
 
     /** Gives the kind of traversal to be done at left/right of the bubble. */
-    Traversal::Kind traversalKind;
+    TraversalKind traversalKind;
 
     /** Output bank of the bubbles (as a pair of sequences). Note here: we use the IBank
      * interface here, and not a specific implementation (like BankFasta), so we could

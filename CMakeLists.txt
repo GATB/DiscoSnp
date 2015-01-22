@@ -1,4 +1,4 @@
-project(DiscoSNP)
+project(DiscoSNP++)
 
 cmake_minimum_required(VERSION 2.6)
 
@@ -45,8 +45,8 @@ ADD_SUBDIRECTORY(tools)
 ################################################################################
 
 # We chose the kind of archive we want to generate
-SET (CPACK_GENERATOR            "TGZ")
-SET (CPACK_SOURCE_GENERATOR     "TGZ")
+SET (CPACK_GENERATOR            "ZIP")
+SET (CPACK_SOURCE_GENERATOR     "ZIP")
 
 # We copy other stuff 
 # For creating the BINARY package we include the files we want

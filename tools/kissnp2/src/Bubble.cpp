@@ -59,9 +59,8 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     max_breadth = props->getInt (STR_BFS_MAX_BREADTH);
     /** We set the traversal kind. */
     traversalKind = Traversal::NONE;
-    printf("HEY\n");
-    if (props->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = Traversal::UNITIG; printf("HEY unitig !!!\n");}
-    if (props->get(STR_DISCOSNP_TRAVERSAL_CONTIG) != 0)  { traversalKind = Traversal::CONTIG; printf("HEY contig !!!\n");}
+    if (props->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = Traversal::UNITIG; }
+    if (props->get(STR_DISCOSNP_TRAVERSAL_CONTIG) != 0)  { traversalKind = Traversal::CONTIG; }
     
     /** We set the name of the output file. */
     stringstream ss;
