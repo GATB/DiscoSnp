@@ -58,9 +58,9 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     max_recursion_depth=100; // TODO: parameter?
     max_breadth = props->getInt (STR_BFS_MAX_BREADTH);
     /** We set the traversal kind. */
-    traversalKind = Traversal::NONE;
-    if (props->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = Traversal::UNITIG; }
-    if (props->get(STR_DISCOSNP_TRAVERSAL_CONTIG) != 0)  { traversalKind = Traversal::CONTIG; }
+    traversalKind = TRAVERSAL_NONE;
+    if (props->get(STR_DISCOSNP_TRAVERSAL_UNITIG) != 0)  { traversalKind = TRAVERSAL_UNITIG; }
+    if (props->get(STR_DISCOSNP_TRAVERSAL_CONTIG) != 0)  { traversalKind = TRAVERSAL_CONTIG; }
     
     /** We set the name of the output file. */
     stringstream ss;
@@ -586,7 +586,7 @@ void BubbleFinder::extend (Bubble& bubble)
     Nucleotide closureRight = NUCL_UNKNOWN;
     
     /** We may have to extend the bubble according to the user choice. */
-    if (traversalKind != Traversal::NONE)
+    if (traversalKind != TRAVERSAL_NONE)
     {
         /** We ask for the predecessors of the first node and successors of the last node. */
         Graph::Vector<Node> successors   = graph.successors<Node>   (bubble.end[0]);
@@ -724,14 +724,14 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     commentStream << bubble.polymorphism_type << "_" << type << "_path_" << bubble.index << "|" << (bubble.high_complexity ? "high" : "low")<< "|nb_pol_" <<bubble.final_nb_polymorphism;
     
     /** We may have extra information for the comment. */
-    if (traversalKind == Traversal::UNITIG)
+    if (traversalKind == TRAVERSAL_UNITIG)
     {
         commentStream << "|left_unitig_length_";
         commentStream << (bubble.where_to_extend%2==1 ? (bubble.extensionLeft.size() +1) : 0);
         commentStream << "|right_unitig_length_";
         commentStream << (bubble.where_to_extend>1    ? (bubble.extensionRight.size()+1) : 0);
     }
-    if (traversalKind == Traversal::CONTIG)
+    if (traversalKind == TRAVERSAL_CONTIG)
     {
         commentStream << "|left_unitig_length_";
         commentStream << (bubble.where_to_extend%2==1 ? (bubble.divergenceLeft +1) : 0);
@@ -884,7 +884,7 @@ IProperties* BubbleFinder::getConfig () const
     props->add (1, "max_del_size",     "%d", max_del_size);
     props->add (1, "max_polymorphism", "%d", max_polymorphism);
     props->add (1, "low",              "%d", accept_low);
-    props->add (1, "traversal",        "%s", Traversal::getName(traversalKind));
+    props->add (1, "traversal",        "%s", toString (traversalKind).c_str());
     
     return props;
 }
