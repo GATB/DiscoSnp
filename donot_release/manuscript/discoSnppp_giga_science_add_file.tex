@@ -82,8 +82,13 @@
 \usepackage{xspace}
 \newcommand{\disco}{{\it DiscoSnp}\xspace}
 \newcommand{\discopp}{{\it DiscoSnp++}\xspace}
+\newcommand{\co}{{\it cortex}\xspace}
 
 \usepackage{graphicx}
+
+
+\usepackage{algorithm} %ctan.org\pkg\algorithms
+\usepackage{algpseudocode}
 
 \endlocaldefs
 
@@ -129,6 +134,14 @@
     addressref={aff1},
     email={erwan.drezen@inria.fr}
  ]{\inits{ED}\fnm{Erwan} \snm{Drezen}}
+ \author[
+    addressref={aff1},
+    email={claire.lemaitre@inria.fr}
+ ]{\inits{ED}\fnm{Claire} \snm{Lemaitre}}
+ \author[
+    addressref={aff1},
+    email={chloe.riou@inria.fr}
+ ]{\inits{ED}\fnm{Chloé} \snm{Riou}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -247,19 +260,8 @@
 %% Background %%
 %%
 
-\section*{Data Simulation}
-
-\subsection*{Simulating 2 human read sets}
-TODO
-\subsection*{Simulating 2 to $n$ E. Coli datasets}
-We propose an experiment simulating more than two haploid bacterial individuals. For doing this, we created 30 copies (that we call individuals) of the E. coli K-12 MG1655 strain. We then simulated SNPs with a uniform distribution such that $\approx$4200 SNPs ($\approx$0.1\% of the genome length) are common to any pair of individuals, half this number is common to any trio of individuals, a third to any quadruplet, and so on. With this strategy, while considering all the 30 individuals together, 69 600 SNP sites were generated, covering $\approx$1.5\% of the genome. We also simulated INDELs following exactly the same process, with a ratio of one INDEL for ten SNPs. 
-
-We simulated a 40x sequencing of each of the 30 individuals, with 100-bp reads and 0.1\% error rate. Thus, 1 855 870 reads were generated per read set.
-
-
-
 \section*{Validation of predictions and precision/recall computations}
-Both on real datasets or synthetic ones, predicted polymorphisms can be compared to a reference set. In all the performed tests, one dispose from a reference genome that is used only in the purpose of simulating and validating predictions.
+Both on real datasets or synthetic ones, predicted polymorphisms can be compared to a reference set. In all the performed tests, one dispose from a reference genome that is used in the purpose of simulating and validating predictions.
 Whatever the tested method, the predicted polymorphisms are validated using the following process:
 \begin{itemize}
 	\item All predicted sequences are fully mapped using Gassst~\cite{Rizk2010} on the reference genome with a least 90\% similarity.
@@ -275,9 +277,241 @@ Whatever the tested method, the predicted polymorphisms are validated using the 
 	\item A simulated polymorphism not mapped by a predicted polymorphism is a False Negative (FN).
 \end{itemize}
 
-The precision defined by $$precision=\frac{number TP}{number TP+ number FP}$$ and the recall is defined by $$recall=\frac{number TP}{number TP+ number FN}$$.
+The precision defined by $$precision=\frac{number TP}{number TP+ number FP}$$ and the recall is defined by $$recall=\frac{number TP}{number TP+ number FN}.$$
 
-% if your bibliography is in bibtex format, use those commands:
+Note that in the case of real datasets, the $precision$ is meaningless as the reference sets are not exhaustive. The main manuscript does not provide $precision$ for real read sets.
+
+\section*{Simulation experiments}
+
+
+\subsection*{Two to $n$ E. Coli datasets: simulations and experiments}
+\subsubsection*{Simulations}
+We propose an experiment simulating more than two haploid bacterial individuals. For doing this, we created 30 copies (that we call individuals) of the E. coli K-12 MG1655 strain. We then simulated SNPs with a uniform distribution such that $\approx$4200 SNPs ($\approx$0.1\% of the genome length) are common to any pair of individuals, half this number is common to any trio of individuals, a third to any quadruplet, and so on. With this strategy, while considering all the 30 individuals together, 69 600 SNP sites were generated, covering $\approx$1.5\% of the genome. We also simulated indels following exactly the same process, with a ratio of one indel for ten SNPs. 
+
+We simulated a 40x sequencing of each of the 30 individuals, with 100-bp reads and 0.1\% error rate. Thus, 1,855,870 reads were generated per read set. 
+
+\subsubsection*{Experiments}
+Experiments were made on subsets of two Coli individuals (the two first read sets), three individuals (the three first read sets), and so on up to 30 experiments. The command used are reported Table~\ref{tab:colicommands}. 
+
+
+\begin{table*}[ht]
+	\hrule~\\
+\emph\textbf{{\discopp}}
+	\scriptsize\begin{verbatim}
+	for ((i=2;i<=31;i++)); do
+	 list=""
+	 for((j=0;j<i;j++)); do list=$list" "coli_muted_n_30_genome_$j\_reads.fasta; done
+	 run_discoSnp++.sh -r  "$list" -p dsc_$i\_genomes -P 4 -D 10
+	done
+	\end{verbatim}	\normalsize
+~\hrule~\\
+\emph\textbf{{\co}}
+\scriptsize\begin{verbatim}
+#(needs a compilation per number of input read sets):
+for ((i=1;i<31;i++)); do make MAXK=31 NUM_COLS=$i cortex_var; done 
+for ((i=0;i<30;i++)); do echo coli_muted_n_30_genome_$i\_reads.fasta > ind$i; done
+for ((i=2;i<31;i++)); do 
+ for ((j=0;j<i;j++)); do echo -e "IND$j\tind$j\t.\t." >> INDEX$i; done; 
+done
+for ((i=0;i<30;i++)); do
+ cortex_var_31_c2 --se_list ind$i --kmer_size 31 --mem_height 20 --mem_width 75 \ 
+  --dump_binary genome_$i\_reads.ctx  --sample_id sample$i --remove_low_coverage_supernodes 3
+done
+for ((i=0;i<30;i++)); do
+ echo  "genome_$i\_reads.ctx" > ind$i\_ctx
+ for ((i=0;i<$nb;i++));
+  do echo ind$i\_ctx >> my_cortex_list_ctx_$nb
+ done
+ cortex_var_31_c$nb --colour_list my_cortex_list_ctx_$nb --kmer_size 31 --mem_height 22 --mem_width 75 \
+  --detect_bubbles1 0/1 --output_bubbles1 my_res_cortex_$nb --remove_low_coverage_supernodes 3 
+done
+	\end{verbatim}	\normalsize
+~\hrule~\\
+\emph\textbf{Hybrid approach}
+\scriptsize\begin{verbatim}
+SOAPdenovo-63mer pregraph -s soap.config  -o soapNAR30A -K $k -d 5 
+SOAPdenovo-63mer contig -g soapNAR30A
+#remove contigs whose size is < 100:
+python ./filter_fasta_by_length.py soapNAR30A.contig NAR30A_ref.contigs.fa 100 
+mv  soapNAR30A.contig  NAR30A_ref.contigs.fa
+bowtie2-build -f NAR30A_ref.contigs.fa NAR30A_ref.contigs_index  ;
+
+basen=coli_muted_n_30_genome_
+suffixn=_reads.fasta
+for i in $(seq 0 30); do
+ bowtie2 -f --non-deterministic --threads 8  --rg-id "read$i" --rg "SM:read$i" \
+  --rg "PL:Illumina" --rg "LB:simumima" -x NAR30A_ref.contigs_index  -U ${basen}${i}${suffixn} \
+  |  samtools view -bS - >  NAR30A_${i}_bw2.bam;
+ samtools sort  -m 25000000000 NAR30A_${i}_bw2.bam NAR30A_${i}_bw2.sorted.bam
+ mv NAR30A_${i}_bw2.sorted.bam.bam NAR30A_${i}_bw2.bam
+ samtools index NAR30A_${i}_bw2.bam
+ samtools flagstat NAR30A_${i}_bw2.bam > NAR30A_${i}_bw2.flagstat
+done
+
+samtools faidx hum_ref.contigs.fa
+java -Xmx4g -jar ./CreateSequenceDictionary.jar  R=hum_ref.contigs.fa  O=hum_ref.contigs.dict
+gpar="-I hum_0_bw2.bam"
+for i in $(seq 1 30); do
+gpar="$gpar -I hum_${i}_bw2.bam"
+java -Xmx8g -jar /softs/local/GATK/2.8.1/GenomeAnalysisTK.jar -R hum_ref.contigs.fa -T UnifiedGenotyper \
+-glm BOTH ${gpar} -o hum_both_${i}.vcf
+done
+
+	\end{verbatim}	\normalsize
+	\caption{Commands used for calling SNPs and indels from 2 to 30 E. Coli read sets ({coli\_muted\_n\_30\_genome\_$i$\_reads.fasta} for $i$ in $[1,30]$) with \discopp, \co or the hybrid approach. \label{tab:colicommands}}
+\end{table*}
+
+
+
+
+\subsection*{Two human read sets: simulations and experiments}
+\subsubsection*{Simulations}
+An experiment was performed on two human diploid read sets. This experiment applied on human chromosome 1, (GRCh37/hg19 reference assembly version), $\approx249$ million base pairs. SNPs and indels were simulated following the 1000 genome project~\cite{Altshuler2012} predictions. Precisely, from the phase 1 vcf file~\cite{vcf}, we extracted SNPs and indels of individuals HG00096 and HG00100. Variants having the same genotypes in both individuals were discarded. For each of the two individuals, two version of the chromosome were created. On each of these two versions, SNPs and indels were placed following the VCF file, i.e., $0|0$: no modification of the chromosomes, $0|1$: modification of one of the two chromosomes (randomly chosen), $1|1$: modification of the two chromosomes. 
+
+For each individual, we simulated a 40x illumina sequencing with 0.1\% error rate (20x per chromosome). Thus, 99,600,000 reads were generated per read set. 
+
+\subsubsection*{Experiments}
+Experiments were performed using \discopp, \co and the hybrid approach using the commands indicated Table~\ref{tab:humancommands}.
+
+\begin{table*}[ht]
+	\hrule~\\
+\emph\textbf{{\discopp}}
+	\scriptsize\begin{verbatim}
+	run_discoSnp++.sh -r "humch1_00096_reads.fasta humch1_00100_reads.fasta" -P 4 -D 10
+	\end{verbatim}	\normalsize
+~\hrule~\\
+\emph\textbf{{\co}}
+\scriptsize\begin{verbatim}
+for i in 096 100; do
+ cortex_var_31_c2 --se_list data$i.txt --kmer_size 31 --mem_height 25 --mem_width 100 \
+  --dump_binary genome_$i\_reads.ctx  --sample_id sample$i --remove_low_coverage_supernodes 3
+done
+for i in 096 100; do
+ echo  "genome_$i\_reads.ctx" > ind$i\_ctx
+ echo ind$i\_ctx >> my_cortex_list_ctx
+done
+cortex_var_31_c2 --colour_list my_cortex_list_ctx --kmer_size 31 --mem_height 25 --mem_width 100 \
+ --detect_bubbles1 0,1/0,1 --output_bubbles1 my_res_cortex --remove_low_coverage_supernodes 3 
+ 
+	\end{verbatim}	\normalsize
+~\hrule~\\
+\emph\textbf{Hybrid approach}
+\scriptsize\begin{verbatim}
+SOAPdenovo-63mer pregraph -s soap.config  -o soaphum -K $k -d 5 
+SOAPdenovo-63mer contig -g soaphum
+#remove contigs whose size is < 100:
+./filter_fasta_by_length.py soaphum.contig hum_ref.contigs.fa 100
+mv  soaphum.contig  hum_ref.contigs.fa
+${path_bw2}bowtie2-build -f hum_ref.contigs.fa hum_ref.contigs_index 
+for i in 096 100; do
+ bowtie2 -f --non-deterministic --threads 8  --rg-id "read$i" --rg "SM:read$i" --rg "PL:Illumina" \ 
+ --rg "LB:simumima" -x hum_ref.contigs_index  -U /WORKS/tests_human/data/humch1_00$i\_reads.fasta \ 
+ |  ${path_sam}samtools view -bS - >  hum_${i}_bw2.bam;
+ samtools sort  -m 25000000000 hum_${i}_bw2.bam hum_${i}_bw2.sorted.bam
+ mv hum_${i}_bw2.sorted.bam.bam hum_${i}_bw2.bam
+ samtools index hum_${i}_bw2.bam
+ samtools flagstat hum_${i}_bw2.bam > hum_${i}_bw2.flagstat
+done
+samtools faidx hum_ref.contigs.fa
+java -Xmx4g -jar ./CreateSequenceDictionary.jar  R=${ref}  O=hum_ref.contigs.dict
+gpar="-I hum_0_bw2.bam"
+for i in 096 100; do
+ gpar="$gpar -I hum_${i}_bw2.bam"
+ java -Xmx62g -jar GenomeAnalysisTK.jar -R hum_ref.contigs.fa -T UnifiedGenotyper \
+  -glm BOTH ${gpar} -o hum_both_${i}.vcf
+done
+	\end{verbatim}	\normalsize
+	\caption{Commands used for calling SNPs and indels from two human chromosome 1 read sets (humch1\_00096\_reads.fasta humch1\_00100\_reads.fasta) with \discopp, \co or the hybrid approach. \label{tab:humancommands}}
+\end{table*}
+
+\section*{Saccharomyces cerevisiae: experiment}
+We used reads provided by the Kvitek~\cite{Kvitek2013} study. The 24 read sets were downloaded from the NCBI Sequence Read Archive (with the accession number SRA054922), and processed to remove barcode and adapter sequences as in the initial study. \discopp was run independently on populations E1, E2
+and E3. For each population, \discopp was applied on the eight read sets corresponding to the eight time points, with
+the default parameters and $c=11$, $D=60$ (searching for indels of length at most 60) and $P=4$ (authorizing up to 4 close SNPs in a unique bubble).
+
+The command were the following:
+
+\scriptsize\begin{verbatim}
+run_discoSnp++.sh -r "`ls data/E1_gen*`" -D 60 -P 4 -c 11
+run_discoSnp++.sh -r "`ls data/E2_gen*`" -D 60 -P 4 -c 11
+run_discoSnp++.sh -r "`ls data/E3_gen*`" -D 60 -P 4 -c 11
+\end{verbatim}	\normalsize
+\section{VCF creation} % (fold)
+\subsection{Mapping predictions on a reference genome} % (fold)
+Depending on the user choice and the availability of a reference genome, \discopp may map its predictions. We performed tests using BWA~\cite{bwa} and we provide an automatic pipeline based on this tool. However, user may provide a BAM file generated by any other alignment tool. 
+
+
+\begin{algorithm}
+ \begin{algorithmic}[1]
+ \State Map \discopp output on the reference genome, authorizing at most $t$ errors (indels and mismatches)
+ \For{each \discopp prediction $p$ (couple of sequence \{$S_A$,$S_B$\})}
+ \For{$d$ (distance) in range 0:$t$}
+ \State Compute $U=\{$genomic positions  where $S_A$ and/or $S_B$ mapped at distance $<=d\}$
+ \If{$|U|==1$}
+ \State Set prediction $p$ as mapped at this unique position (within distance $d$)
+ \State Break
+ \EndIf
+ \If{$|U|>1$}
+ \State Set prediction $p$ as unmappable at a unique position
+ \State Break
+ \EndIf
+ \EndFor
+ \EndFor
+ \end{algorithmic}
+ \caption{Mapping and validation of mapped variants}
+ \label{alg:mapping}
+\end{algorithm}
+The reference genome and the predictions may present differences due to distinct individuals, bad assembly of the reference or reference species distant from analyzed reads. Thus, errors (indel and mismatches) are authorized during the mapping. By default we use BWA authorizing at most $t=3$ errors and using a seed of length $10$.
+Each prediction (each couple of sequence \{$S_A$,$S_B$\}) is considered as mapped at a unique genomic position if there exists a minimal distance $d\leq t$ for which either $S_A$ and $S_B$ have a unique match on the reference genome. In this case the position of this match is indicated in the VCF file. Algorithm~\ref{alg:mapping}, presents how this unique position, if exists, is detected for each couple.
+
+
+\subsection{Detailed VCF content}
+The proposed VCF file contains the following fields:
+\begin{itemize}
+	\item \textbf{CHROM}: Chromosome id where the prediction is mapped, or `.' if no reference genome provided
+	\item \textbf{POS}: 
+	\begin{itemize}
+		\item If a reference genome is provided and if the couple is mapped on a unique position: position of the variant
+		\item If a reference genome is provided and if the couple is not uniquely mapped: one of the positions of the variant (randomly chosen)
+		\item Else (no reference genome provided or couple unmapped): position of the variant from the beginning of the upper case \discopp prediction (excluding the eventual left local assembly)
+	\end{itemize}
+	\item \textbf{ID}: identification of the SNP or the indel. 
+	\item \textbf{REF}: 
+	\begin{itemize}
+		\item If one of the two predictions maps this position: the corresponding variant
+		\item Else, or if no reference genome provided: the lexicographically smallest of the two variants
+	\end{itemize}
+	\item \textbf{ALT}: The variant non reported as the ``REF'' variant
+	\item \textbf{QUAL}: `*'
+	\item \textbf{FILTER}: 
+	\begin{itemize}
+		\item PASS if the variant is mapped on a unique position
+		\item MULTIPLE if the variant is mapped on multiple positions
+		\item `.' if no reference genome provided
+	\end{itemize}
+	\item \textbf{INFO}:
+	\begin{itemize}
+		\item \textbf{Ty}: Type of variant: `INDEL' or `SNP' XXX
+		\item \textbf{Rk}: Rank of the prediction computed by \discopp
+		\item \textbf{OK}: 
+			If the variant is mapped on a unique position: distance of the mapping (see Algorithm~\ref{alg:mapping}). If the variant is unmapped or mapped on multiple positions: `-1'
+		\item \textbf{GT}: Genotype: TODO XXX
+		\item \textbf{UL}: Length of the left unitig (`None' if not computed)
+		\item \textbf{UR}: Length of the right unitig (`None' if not computed)
+		\item \textbf{CL}: Length of the left contig (`None' if not computed)
+		\item \textbf{CR}: Length of the right contig (`None' if not computed)
+		\item \textbf{DP}: Combined depth across all samples (average)
+		\item \textbf{AR}: Applies only for SNPs when a reference genome is provided (`.' for INDELS and when no reference genome provided XXX). Reference allele nucleotide.   \textbf{Important Remark}: If one of the two prediction matches the reference: equal to the ``REF'' field, else equal to the nucleotide of the reference genome.
+		\item \textbf{Sd}: Applies only when a reference genome is provided (`.' if no reference genome provided XXX). Strand of the prediction mapping. `1': Forward, `-1': Reverse XXX. \textbf{Important Remark}: Fields ``REF'', ``ALT'' and ``AR'' are based on the mapped predictions. If Sd is `1' then these fields correspond to the \discopp prediction, else if Sd is `-1', then they correspond to the reverse complement of the \discopp predictions. 
+		
+	\end{itemize}
+		
+	
+\end{itemize}
+
+\section{Genotyping} % (fold)
+TODO
+
 \bibliographystyle{bmc-mathphys} % Style BST file
 \bibliography{discoSnppp_giga_science}      % Bibliography file (usually '*.bib' )
 \end{document}

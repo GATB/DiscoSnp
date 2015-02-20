@@ -140,8 +140,10 @@ public:
     /** We define a structure gathering information during bubble detection. */
     struct Stats
     {
-        Stats ()  : nb_bubbles_snp(0), nb_bubbles_snp_high(0), nb_bubbles_snp_low(0), nb_bubbles_del(0), nb_bubbles_del_high(0), nb_bubbles_del_low(0)  { memset (nb_where_to_extend_snp, 0, sizeof(nb_where_to_extend_snp)); memset (nb_where_to_extend_del, 0, sizeof(nb_where_to_extend_del)); }
+        Stats ()  : nb_bubbles(0), nb_bubbles_snp(0), nb_bubbles_snp_high(0), nb_bubbles_snp_low(0), nb_bubbles_del(0), nb_bubbles_del_high(0), nb_bubbles_del_low(0)  { memset (nb_where_to_extend_snp, 0, sizeof(nb_where_to_extend_snp)); memset (nb_where_to_extend_del, 0, sizeof(nb_where_to_extend_del)); }
 
+        size_t nb_bubbles;
+        
         size_t nb_bubbles_snp;
         size_t nb_bubbles_snp_high;
         size_t nb_bubbles_snp_low;

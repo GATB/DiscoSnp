@@ -2,7 +2,7 @@ perf=read.table("data_perf.tab",h=T)
 perf
 ## 2 barplot :	
 #barplot(perf$memory[perf$type=="bact"],names=perf$name[perf$type=="bact"],col="lightblue")
-library(plotrix)
+#library(plotrix)
 
 doubleBarPlot=function(tab){
 
@@ -76,7 +76,7 @@ tab=tab[order(-tab$memory),]
 mem.tick=c(0,50,100)
   axis(2,at=mem.tick,label=mem.tick,tcl=0.5,tck=0.02,lwd=2)
   #time.tick=pretty(c(0,tab$time))
-time.tick=c(0,250,500,750)
+time.tick=c(0,250,500,750,1000)
   axis(4,at=time.tick*max1/max2,label=time.tick,tcl=0.5,tck=0.02,lwd=2)
   mtext("Time (m)", side=4, line=3, cex.lab=1,las=0, cex=2.5,padj=-1)
   mtext("Memory (GB)", side=2, line=3, cex.lab=1,las=0, cex=2.5, padj=1)
@@ -127,4 +127,3 @@ segments(3.75,0,3.75,30,col="grey50",lty=2,lwd=2)
  # legend(tail(s,1)+1,49,legend=c("Memory","Time"),fill=c(col[2],col[1]),xjust=1,yjust=0,bty='n',horiz=T)
 legend(s[3],20,legend=c("Memory","Time"),col=c(col[2],col[1]),xjust=1,yjust=0,bty='n',horiz=F, pch=c(15,15))
 dev.off()
-

@@ -1,0 +1,738 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{16}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\textsf{#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem{gatk}
+\begin{barticle}
+\bauthor{\bsnm{DePristo}, \binits{M.A.}},
+\bauthor{\bsnm{Banks}, \binits{E.}},
+\bauthor{\bsnm{Poplin}, \binits{R.}},
+\bauthor{\bsnm{Garimella}, \binits{K.V.}},
+\bauthor{\bsnm{Maguire}, \binits{J.R.}},
+\bauthor{\bsnm{Hartl}, \binits{C.}},
+\bauthor{\bsnm{Philippakis}, \binits{A.A.}},
+\bauthor{\bparticle{del} \bsnm{Angel}, \binits{G.}},
+\bauthor{\bsnm{Rivas}, \binits{M.A.}},
+\bauthor{\bsnm{Hanna}, \binits{M.}}, \betal:
+\batitle{A framework for variation discovery and genotyping using
+  next-generation dna sequencing data}.
+\bjtitle{Nature genetics}
+\bvolume{43}(\bissue{5}),
+\bfpage{491}--\blpage{498}
+(\byear{2011})
+\end{barticle}
+\endbibitem
+
+%%% 2
+\bibitem{Li2009}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{H.}},
+\bauthor{\bsnm{Handsaker}, \binits{B.}},
+\bauthor{\bsnm{Wysoker}, \binits{A.}},
+\bauthor{\bsnm{Fennell}, \binits{T.}},
+\bauthor{\bsnm{Ruan}, \binits{J.}},
+\bauthor{\bsnm{Homer}, \binits{N.}},
+\bauthor{\bsnm{Marth}, \binits{G.}},
+\bauthor{\bsnm{Abecasis}, \binits{G.}},
+\bauthor{\bsnm{Durbin}, \binits{R.}}:
+\batitle{{The Sequence Alignment/Map format and SAMtools.}}
+\bjtitle{Bioinformatics (Oxford, England)}
+\bvolume{25}(\bissue{16}),
+\bfpage{2078}--\blpage{9}
+(\byear{2009}).
+doi:\doiurl{10.1093/bioinformatics/btp352}
+\end{barticle}
+\endbibitem
+
+%%% 3
+\bibitem{Weisenfeld2014}
+\begin{barticle}
+\bauthor{\bsnm{Weisenfeld}, \binits{N.I.}},
+\bauthor{\bsnm{Yin}, \binits{S.}},
+\bauthor{\bsnm{Sharpe}, \binits{T.}},
+\bauthor{\bsnm{Lau}, \binits{B.}},
+\bauthor{\bsnm{Hegarty}, \binits{R.}},
+\bauthor{\bsnm{Holmes}, \binits{L.}},
+\bauthor{\bsnm{Sogoloff}, \binits{B.}},
+\bauthor{\bsnm{Tabbaa}, \binits{D.}},
+\bauthor{\bsnm{Williams}, \binits{L.}},
+\bauthor{\bsnm{Russ}, \binits{C.}},
+\bauthor{\bsnm{Nusbaum}, \binits{C.}},
+\bauthor{\bsnm{Lander}, \binits{E.S.}},
+\bauthor{\bsnm{MacCallum}, \binits{I.}},
+\bauthor{\bsnm{Jaffe}, \binits{D.B.}}:
+\batitle{{Comprehensive variation discovery in single human genomes}}.
+\bjtitle{Nat Genet}
+\bvolume{46}(\bissue{12}),
+\bfpage{1350}--\blpage{1355}
+(\byear{2014})
+\end{barticle}
+\endbibitem
+
+%%% 4
+\bibitem{Li2012}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{H.}}:
+\batitle{{Exploring single-sample snp and indel calling with whole-genome de
+  novo assembly}}.
+\bjtitle{Bioinformatics}
+\bvolume{28},
+\bfpage{1838}--\blpage{1844}
+(\byear{2012}).
+doi:\doiurl{10.1093/bioinformatics/bts280}.
+\arxivurl{1203.6364}
+\end{barticle}
+\endbibitem
+
+%%% 5
+\bibitem{assemblathon2}
+\begin{barticle}
+\bauthor{\bsnm{Bradnam}, \binits{K.}},
+\bauthor{\bsnm{Fass}, \binits{J.}},
+\bauthor{\bsnm{Alexandrov}, \binits{A.}},
+\bauthor{\bsnm{Baranay}, \binits{P.}},
+\bauthor{\bsnm{Bechner}, \binits{M.}},
+\bauthor{\bsnm{Birol}, \binits{I.}},
+\bauthor{\bsnm{Boisvert}, \binits{S.}},
+\bauthor{\bsnm{Chapman}, \binits{J.}},
+\bauthor{\bsnm{Chapuis}, \binits{G.}},
+\bauthor{\bsnm{Chikhi}, \binits{R.}},
+\bauthor{\bsnm{Chitsaz}, \binits{H.}},
+\bauthor{\bsnm{Chou}, \binits{W.-C.}},
+\bauthor{\bsnm{Corbeil}, \binits{J.}},
+\bauthor{\bsnm{Del~Fabbro}, \binits{C.}},
+\bauthor{\bsnm{Docking}, \binits{T.}},
+\bauthor{\bsnm{Durbin}, \binits{R.}},
+\bauthor{\bsnm{Earl}, \binits{D.}},
+\bauthor{\bsnm{Emrich}, \binits{S.}},
+\bauthor{\bsnm{Fedotov}, \binits{P.}},
+\bauthor{\bsnm{Fonseca}, \binits{N.}},
+\bauthor{\bsnm{Ganapathy}, \binits{G.}},
+\bauthor{\bsnm{Gibbs}, \binits{R.}},
+\bauthor{\bsnm{Gnerre}, \binits{S.}},
+\bauthor{\bsnm{Godzaridis}, \binits{E.}},
+\bauthor{\bsnm{Goldstein}, \binits{S.}},
+\bauthor{\bsnm{Haimel}, \binits{M.}},
+\bauthor{\bsnm{Hall}, \binits{G.}},
+\bauthor{\bsnm{Haussler}, \binits{D.}},
+\bauthor{\bsnm{Hiatt}, \binits{J.}},
+\bauthor{\bsnm{Ho}, \binits{I.}}:
+\batitle{Assemblathon 2: evaluating de novo methods of genome assembly in three
+  vertebrate species}.
+\bjtitle{GigaScience}
+\bvolume{2}(\bissue{1}),
+\bfpage{10}
+(\byear{2013}).
+doi:\doiurl{10.1186/2047-217X-2-10}
+\end{barticle}
+\endbibitem
+
+%%% 6
+\bibitem{Willing2011}
+\begin{botherref}
+\oauthor{\bsnm{Willing}, \binits{E.-M.}},
+\oauthor{\bsnm{Hoffmann}, \binits{M.}},
+\oauthor{\bsnm{Klein}, \binits{J.D.}},
+\oauthor{\bsnm{Weigel}, \binits{D.}},
+\oauthor{\bsnm{Dreyer}, \binits{C.}}:
+{Paired-end RAD-seq for de-novo assembly and marker design without available
+  reference.}
+Bioinformatics (Oxford, England),
+1--8
+(2011).
+doi:\doiurl{10.1093/bioinformatics/btr346}
+\end{botherref}
+\endbibitem
+
+%%% 7
+\bibitem{Peterlongo2010}
+\begin{bchapter}
+\bauthor{\bsnm{Peterlongo}, \binits{P.}},
+\bauthor{\bsnm{Schnel}, \binits{N.}},
+\bauthor{\bsnm{Pisanti}, \binits{N.}},
+\bauthor{\bsnm{Sagot}, \binits{M.-F.}},
+\bauthor{\bsnm{Lacroix}, \binits{V.}}:
+\bctitle{Identifying snps without a reference genome by comparing raw reads}.
+In: \beditor{\bsnm{Chavez}, \binits{E.}},
+\beditor{\bsnm{Lonardi}, \binits{S.}} (eds.)
+\bbtitle{String Processing and Information Retrieval}.
+\bsertitle{Lecture Notes in Computer Science},
+vol. \bseriesno{6393},
+pp. \bfpage{147}--\blpage{158}.
+\bpublisher{Springer}, \blocation{???}
+(\byear{2010})
+\end{bchapter}
+\endbibitem
+
+%%% 8
+\bibitem{iqbal2012novo}
+\begin{barticle}
+\bauthor{\bsnm{Iqbal}, \binits{Z.}},
+\bauthor{\bsnm{Caccamo}, \binits{M.}},
+\bauthor{\bsnm{Turner}, \binits{I.}},
+\bauthor{\bsnm{Flicek}, \binits{P.}},
+\bauthor{\bsnm{McVean}, \binits{G.}}:
+\batitle{De novo assembly and genotyping of variants using colored de bruijn
+  graphs}.
+\bjtitle{Nature genetics}
+\bvolume{44}(\bissue{2}),
+\bfpage{226}--\blpage{232}
+(\byear{2012})
+\end{barticle}
+\endbibitem
+
+%%% 9
+\bibitem{Leggett2013}
+\begin{barticle}
+\bauthor{\bsnm{Leggett}, \binits{R.M.}},
+\bauthor{\bsnm{Ramirez-Gonzalez}, \binits{R.H.}},
+\bauthor{\bsnm{Verweij}, \binits{W.}},
+\bauthor{\bsnm{Kawashima}, \binits{C.G.}},
+\bauthor{\bsnm{Iqbal}, \binits{Z.}},
+\bauthor{\bsnm{Jones}, \binits{J.D.G.}},
+\bauthor{\bsnm{Caccamo}, \binits{M.}},
+\bauthor{\bsnm{MacLean}, \binits{D.}}:
+\batitle{{Identifying and Classifying Trait Linked Polymorphisms in
+  Non-Reference Species by Walking Coloured de Bruijn Graphs}}.
+\bjtitle{PLoS ONE}
+\bvolume{8}(\bissue{3}),
+\bfpage{60058}
+(\byear{2013}).
+doi:\doiurl{10.1371/journal.pone.0060058}
+\end{barticle}
+\endbibitem
+
+%%% 10
+\bibitem{Nordstrom2013}
+\begin{barticle}
+\bauthor{\bsnm{Nordstr\"{o}m}, \binits{K.J.V.}},
+\bauthor{\bsnm{Albani}, \binits{M.C.}},
+\bauthor{\bsnm{James}, \binits{G.V.}},
+\bauthor{\bsnm{Gutjahr}, \binits{C.}},
+\bauthor{\bsnm{Hartwig}, \binits{B.}},
+\bauthor{\bsnm{Turck}, \binits{F.}},
+\bauthor{\bsnm{Paszkowski}, \binits{U.}},
+\bauthor{\bsnm{Coupland}, \binits{G.}},
+\bauthor{\bsnm{Schneeberger}, \binits{K.}}:
+\batitle{{Mutation identification by direct comparison of whole-genome
+  sequencing data from mutant and wild-type individuals using k-mers}}.
+\bjtitle{Nature Biotechnology}
+\bvolume{31}(\bissue{4}),
+\bfpage{325}--\blpage{330}
+(\byear{2013}).
+doi:\doiurl{10.1038/nbt.2515}
+\end{barticle}
+\endbibitem
+
+%%% 11
+\bibitem{Kissplice}
+\begin{barticle}
+\bauthor{\bsnm{Sacomoto}, \binits{G.A.}},
+\bauthor{\bsnm{Kielbassa}, \binits{J.}},
+\bauthor{\bsnm{Chikhi}, \binits{R.}},
+\bauthor{\bsnm{Uricaru}, \binits{R.}},
+\bauthor{\bsnm{Antoniou}, \binits{P.}},
+\bauthor{\bsnm{Sagot}, \binits{M.-F.}},
+\bauthor{\bsnm{Peterlongo}, \binits{P.}},
+\bauthor{\bsnm{Lacroix}, \binits{V.}}:
+\batitle{Kissplice: de-novo calling alternative splicing events from rna-seq
+  data}.
+\bjtitle{BMC bioinformatics}
+\bvolume{13}(\bissue{Suppl 6}),
+\bfpage{5}
+(\byear{2012})
+\end{barticle}
+\endbibitem
+
+%%% 12
+\bibitem{Uricaru2014a}
+\begin{barticle}
+\bauthor{\bsnm{Uricaru}, \binits{R.}},
+\bauthor{\bsnm{Rizk}, \binits{G.}},
+\bauthor{\bsnm{Lacroix}, \binits{V.}},
+\bauthor{\bsnm{Quillery}, \binits{E.}},
+\bauthor{\bsnm{Plantard}, \binits{O.}},
+\bauthor{\bsnm{Chikhi}, \binits{R.}},
+\bauthor{\bsnm{Lemaitre}, \binits{C.}},
+\bauthor{\bsnm{Peterlongo}, \binits{P.}}:
+\batitle{{Reference-free detection of isolated SNPs.}}
+\bjtitle{Nucleic acids research}
+\bvolume{33}(\bissue{0}),
+\bfpage{1}--\blpage{11}
+(\byear{2014}).
+doi:\doiurl{10.1093/nar/gku1187}
+\end{barticle}
+\endbibitem
+
+%%% 13
+\bibitem{Drezen2014}
+\begin{botherref}
+\oauthor{\bsnm{Drezen}, \binits{E.}},
+\oauthor{\bsnm{Rizk}, \binits{G.}},
+\oauthor{\bsnm{Chikhi}, \binits{R.}},
+\oauthor{\bsnm{Deltel}, \binits{C.}},
+\oauthor{\bsnm{Lemaitre}, \binits{C.}},
+\oauthor{\bsnm{Peterlongo}, \binits{P.}},
+\oauthor{\bsnm{Lavenier}, \binits{D.}}:
+{GATB: Genome Assembly \& Analysis Tool Box.}
+Bioinformatics (Oxford, England),
+1--3
+(2014).
+doi:\doiurl{10.1093/bioinformatics/btu406}
+\end{botherref}
+\endbibitem
+
+%%% 14
+\bibitem{luo2012soapdenovo2}
+\begin{barticle}
+\bauthor{\bsnm{Luo}, \binits{R.}},
+\bauthor{\bsnm{Liu}, \binits{B.}},
+\bauthor{\bsnm{Xie}, \binits{Y.}},
+\bauthor{\bsnm{Li}, \binits{Z.}},
+\bauthor{\bsnm{Huang}, \binits{W.}},
+\bauthor{\bsnm{Yuan}, \binits{J.}},
+\bauthor{\bsnm{He}, \binits{G.}},
+\bauthor{\bsnm{Chen}, \binits{Y.}},
+\bauthor{\bsnm{Pan}, \binits{Q.}},
+\bauthor{\bsnm{Liu}, \binits{Y.}}, \betal:
+\batitle{Soapdenovo2: an empirically improved memory-efficient short-read de
+  novo assembler}.
+\bjtitle{GigaScience}
+\bvolume{1}(\bissue{1}),
+\bfpage{18}
+(\byear{2012})
+\end{barticle}
+\endbibitem
+
+%%% 15
+\bibitem{langmead2012fast}
+\begin{barticle}
+\bauthor{\bsnm{Langmead}, \binits{B.}},
+\bauthor{\bsnm{Salzberg}, \binits{S.L.}}:
+\batitle{Fast gapped-read alignment with bowtie 2}.
+\bjtitle{Nature methods}
+\bvolume{9}(\bissue{4}),
+\bfpage{357}--\blpage{359}
+(\byear{2012})
+\end{barticle}
+\endbibitem
+
+%%% 16
+\bibitem{Kvitek2013}
+\begin{barticle}
+\bauthor{\bsnm{Kvitek}, \binits{D.J.}},
+\bauthor{\bsnm{Sherlock}, \binits{G.}}:
+\batitle{{Whole genome, whole population sequencing reveals that loss of
+  signaling networks is the major adaptive strategy in a constant
+  environment.}}
+\bjtitle{PLoS genetics}
+\bvolume{9}(\bissue{11}),
+\bfpage{1003972}
+(\byear{2013}).
+doi:\doiurl{10.1371/journal.pgen.1003972}
+\end{barticle}
+\endbibitem
+
+\end{thebibliography}
+
+\newcommand{\BMCxmlcomment}[1]{}
+
+\BMCxmlcomment{
+
+<refgrp>
+
+<bibl id="B1">
+  <title><p>A framework for variation discovery and genotyping using
+  next-generation DNA sequencing data</p></title>
+  <aug>
+    <au><snm>DePristo</snm><fnm>MA</fnm></au>
+    <au><snm>Banks</snm><fnm>E</fnm></au>
+    <au><snm>Poplin</snm><fnm>R</fnm></au>
+    <au><snm>Garimella</snm><fnm>KV</fnm></au>
+    <au><snm>Maguire</snm><fnm>JR</fnm></au>
+    <au><snm>Hartl</snm><fnm>C</fnm></au>
+    <au><snm>Philippakis</snm><fnm>AA</fnm></au>
+    <au><snm>Angel</snm><fnm>G</fnm></au>
+    <au><snm>Rivas</snm><fnm>MA</fnm></au>
+    <au><snm>Hanna</snm><fnm>M</fnm></au>
+    <au><cnm>others</cnm></au>
+  </aug>
+  <source>Nature genetics</source>
+  <publisher>Nature Publishing Group</publisher>
+  <pubdate>2011</pubdate>
+  <volume>43</volume>
+  <issue>5</issue>
+  <fpage>491</fpage>
+  <lpage>-498</lpage>
+</bibl>
+
+<bibl id="B2">
+  <title><p>{The Sequence Alignment/Map format and SAMtools.}</p></title>
+  <aug>
+    <au><snm>Li</snm><fnm>H</fnm></au>
+    <au><snm>Handsaker</snm><fnm>B</fnm></au>
+    <au><snm>Wysoker</snm><fnm>A</fnm></au>
+    <au><snm>Fennell</snm><fnm>T</fnm></au>
+    <au><snm>Ruan</snm><fnm>J</fnm></au>
+    <au><snm>Homer</snm><fnm>N</fnm></au>
+    <au><snm>Marth</snm><fnm>G</fnm></au>
+    <au><snm>Abecasis</snm><fnm>G</fnm></au>
+    <au><snm>Durbin</snm><fnm>R</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2009</pubdate>
+  <volume>25</volume>
+  <issue>16</issue>
+  <fpage>2078</fpage>
+  <lpage>-9</lpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2723002\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+<bibl id="B3">
+  <title><p>{Comprehensive variation discovery in single human
+  genomes}</p></title>
+  <aug>
+    <au><snm>Weisenfeld</snm><fnm>NI</fnm></au>
+    <au><snm>Yin</snm><fnm>S</fnm></au>
+    <au><snm>Sharpe</snm><fnm>T</fnm></au>
+    <au><snm>Lau</snm><fnm>B</fnm></au>
+    <au><snm>Hegarty</snm><fnm>R</fnm></au>
+    <au><snm>Holmes</snm><fnm>L</fnm></au>
+    <au><snm>Sogoloff</snm><fnm>B</fnm></au>
+    <au><snm>Tabbaa</snm><fnm>D</fnm></au>
+    <au><snm>Williams</snm><fnm>L</fnm></au>
+    <au><snm>Russ</snm><fnm>C</fnm></au>
+    <au><snm>Nusbaum</snm><fnm>C</fnm></au>
+    <au><snm>Lander</snm><fnm>ES</fnm></au>
+    <au><snm>MacCallum</snm><fnm>I</fnm></au>
+    <au><snm>Jaffe</snm><fnm>DB</fnm></au>
+  </aug>
+  <source>Nat Genet</source>
+  <publisher>Nature Publishing Group, a division of Macmillan Publishers
+  Limited. All Rights Reserved.</publisher>
+  <pubdate>2014</pubdate>
+  <volume>46</volume>
+  <issue>12</issue>
+  <fpage>1350</fpage>
+  <lpage>-1355</lpage>
+  <url>http://dx.doi.org/10.1038/ng.3121 10.1038/ng.3121
+  http://www.nature.com/ng/journal/v46/n12/abs/ng.3121.html\#supplementary-information</url>
+</bibl>
+
+<bibl id="B4">
+  <title><p>{Exploring single-sample snp and indel calling with whole-genome de
+  novo assembly}</p></title>
+  <aug>
+    <au><snm>Li</snm><fnm>H</fnm></au>
+  </aug>
+  <source>Bioinformatics</source>
+  <pubdate>2012</pubdate>
+  <volume>28</volume>
+  <fpage>1838</fpage>
+  <lpage>-1844</lpage>
+</bibl>
+
+<bibl id="B5">
+  <title><p>Assemblathon 2: evaluating de novo methods of genome assembly in
+  three vertebrate species</p></title>
+  <aug>
+    <au><snm>Bradnam</snm><fnm>K</fnm></au>
+    <au><snm>Fass</snm><fnm>J</fnm></au>
+    <au><snm>Alexandrov</snm><fnm>A</fnm></au>
+    <au><snm>Baranay</snm><fnm>P</fnm></au>
+    <au><snm>Bechner</snm><fnm>M</fnm></au>
+    <au><snm>Birol</snm><fnm>I</fnm></au>
+    <au><snm>Boisvert</snm><fnm>S</fnm></au>
+    <au><snm>Chapman</snm><fnm>J</fnm></au>
+    <au><snm>Chapuis</snm><fnm>G</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Chitsaz</snm><fnm>H</fnm></au>
+    <au><snm>Chou</snm><fnm>WC</fnm></au>
+    <au><snm>Corbeil</snm><fnm>J</fnm></au>
+    <au><snm>Del Fabbro</snm><fnm>C</fnm></au>
+    <au><snm>Docking</snm><fnm>T</fnm></au>
+    <au><snm>Durbin</snm><fnm>R</fnm></au>
+    <au><snm>Earl</snm><fnm>D</fnm></au>
+    <au><snm>Emrich</snm><fnm>S</fnm></au>
+    <au><snm>Fedotov</snm><fnm>P</fnm></au>
+    <au><snm>Fonseca</snm><fnm>N</fnm></au>
+    <au><snm>Ganapathy</snm><fnm>G</fnm></au>
+    <au><snm>Gibbs</snm><fnm>R</fnm></au>
+    <au><snm>Gnerre</snm><fnm>S</fnm></au>
+    <au><snm>Godzaridis</snm><fnm>E</fnm></au>
+    <au><snm>Goldstein</snm><fnm>S</fnm></au>
+    <au><snm>Haimel</snm><fnm>M</fnm></au>
+    <au><snm>Hall</snm><fnm>G</fnm></au>
+    <au><snm>Haussler</snm><fnm>D</fnm></au>
+    <au><snm>Hiatt</snm><fnm>J</fnm></au>
+    <au><snm>Ho</snm><fnm>I</fnm></au>
+  </aug>
+  <source>GigaScience</source>
+  <pubdate>2013</pubdate>
+  <volume>2</volume>
+  <issue>1</issue>
+  <fpage>10</fpage>
+  <url>http://www.gigasciencejournal.com/content/2/1/10</url>
+</bibl>
+
+<bibl id="B6">
+  <title><p>{Paired-end RAD-seq for de-novo assembly and marker design without
+  available reference.}</p></title>
+  <aug>
+    <au><snm>Willing</snm><fnm>EM</fnm></au>
+    <au><snm>Hoffmann</snm><fnm>M</fnm></au>
+    <au><snm>Klein</snm><fnm>JD</fnm></au>
+    <au><snm>Weigel</snm><fnm>D</fnm></au>
+    <au><snm>Dreyer</snm><fnm>C</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2011</pubdate>
+  <fpage>1</fpage>
+  <lpage>-8</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/21712251</url>
+</bibl>
+
+<bibl id="B7">
+  <title><p>Identifying SNPs without a Reference Genome by Comparing Raw
+  Reads</p></title>
+  <aug>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+    <au><snm>Schnel</snm><fnm>N</fnm></au>
+    <au><snm>Pisanti</snm><fnm>N</fnm></au>
+    <au><snm>Sagot</snm><fnm>MF</fnm></au>
+    <au><snm>Lacroix</snm><fnm>V</fnm></au>
+  </aug>
+  <source>String Processing and Information Retrieval</source>
+  <publisher>Springer Berlin Heidelberg</publisher>
+  <editor>Chavez, Edgar and Lonardi, Stefano</editor>
+  <series><title><p>Lecture Notes in Computer Science</p></title></series>
+  <pubdate>2010</pubdate>
+  <volume>6393</volume>
+  <fpage>147</fpage>
+  <lpage>158</lpage>
+</bibl>
+
+<bibl id="B8">
+  <title><p>De novo assembly and genotyping of variants using colored de Bruijn
+  graphs</p></title>
+  <aug>
+    <au><snm>Iqbal</snm><fnm>Z</fnm></au>
+    <au><snm>Caccamo</snm><fnm>M</fnm></au>
+    <au><snm>Turner</snm><fnm>I</fnm></au>
+    <au><snm>Flicek</snm><fnm>P</fnm></au>
+    <au><snm>McVean</snm><fnm>G</fnm></au>
+  </aug>
+  <source>Nature genetics</source>
+  <publisher>Nature Publishing Group</publisher>
+  <pubdate>2012</pubdate>
+  <volume>44</volume>
+  <issue>2</issue>
+  <fpage>226</fpage>
+  <lpage>-232</lpage>
+</bibl>
+
+<bibl id="B9">
+  <title><p>{Identifying and Classifying Trait Linked Polymorphisms in
+  Non-Reference Species by Walking Coloured de Bruijn Graphs}</p></title>
+  <aug>
+    <au><snm>Leggett</snm><fnm>RM</fnm></au>
+    <au><snm>Ramirez Gonzalez</snm><fnm>RH</fnm></au>
+    <au><snm>Verweij</snm><fnm>W</fnm></au>
+    <au><snm>Kawashima</snm><fnm>CG</fnm></au>
+    <au><snm>Iqbal</snm><fnm>Z</fnm></au>
+    <au><snm>Jones</snm><fnm>JDG</fnm></au>
+    <au><snm>Caccamo</snm><fnm>M</fnm></au>
+    <au><snm>MacLean</snm><fnm>D</fnm></au>
+  </aug>
+  <source>PLoS ONE</source>
+  <editor>Hsu, Yi-Hsiang</editor>
+  <pubdate>2013</pubdate>
+  <volume>8</volume>
+  <issue>3</issue>
+  <fpage>e60058</fpage>
+  <url>http://dx.plos.org/10.1371/journal.pone.0060058</url>
+</bibl>
+
+<bibl id="B10">
+  <title><p>{Mutation identification by direct comparison of whole-genome
+  sequencing data from mutant and wild-type individuals using
+  k-mers}</p></title>
+  <aug>
+    <au><snm>Nordstr\"{o}m</snm><fnm>KJV</fnm></au>
+    <au><snm>Albani</snm><fnm>MC</fnm></au>
+    <au><snm>James</snm><fnm>GV</fnm></au>
+    <au><snm>Gutjahr</snm><fnm>C</fnm></au>
+    <au><snm>Hartwig</snm><fnm>B</fnm></au>
+    <au><snm>Turck</snm><fnm>F</fnm></au>
+    <au><snm>Paszkowski</snm><fnm>U</fnm></au>
+    <au><snm>Coupland</snm><fnm>G</fnm></au>
+    <au><snm>Schneeberger</snm><fnm>K</fnm></au>
+  </aug>
+  <source>Nature Biotechnology</source>
+  <publisher>Nature Publishing Group</publisher>
+  <pubdate>2013</pubdate>
+  <volume>31</volume>
+  <issue>4</issue>
+  <fpage>325</fpage>
+  <lpage>-330</lpage>
+  <url>http://dx.doi.org/10.1038/nbt.2515</url>
+</bibl>
+
+<bibl id="B11">
+  <title><p>KISSPLICE: de-novo calling alternative splicing events from RNA-seq
+  data</p></title>
+  <aug>
+    <au><snm>Sacomoto</snm><fnm>GA</fnm></au>
+    <au><snm>Kielbassa</snm><fnm>J</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Uricaru</snm><fnm>R</fnm></au>
+    <au><snm>Antoniou</snm><fnm>P</fnm></au>
+    <au><snm>Sagot</snm><fnm>MF</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+    <au><snm>Lacroix</snm><fnm>V</fnm></au>
+  </aug>
+  <source>BMC bioinformatics</source>
+  <publisher>BioMed Central Ltd</publisher>
+  <pubdate>2012</pubdate>
+  <volume>13</volume>
+  <issue>Suppl 6</issue>
+  <fpage>S5</fpage>
+</bibl>
+
+<bibl id="B12">
+  <title><p>{Reference-free detection of isolated SNPs.}</p></title>
+  <aug>
+    <au><snm>Uricaru</snm><fnm>R</fnm></au>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+    <au><snm>Lacroix</snm><fnm>V</fnm></au>
+    <au><snm>Quillery</snm><fnm>E</fnm></au>
+    <au><snm>Plantard</snm><fnm>O</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Lemaitre</snm><fnm>C</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+  </aug>
+  <source>Nucleic acids research</source>
+  <pubdate>2014</pubdate>
+  <volume>33</volume>
+  <issue>0</issue>
+  <fpage>1</fpage>
+  <lpage>-11</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/25404127</url>
+</bibl>
+
+<bibl id="B13">
+  <title><p>{GATB: Genome Assembly &amp Analysis Tool Box.}</p></title>
+  <aug>
+    <au><snm>Drezen</snm><fnm>E</fnm></au>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Deltel</snm><fnm>C</fnm></au>
+    <au><snm>Lemaitre</snm><fnm>C</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+    <au><snm>Lavenier</snm><fnm>D</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2014</pubdate>
+  <fpage>1</fpage>
+  <lpage>-3</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/24990603</url>
+</bibl>
+
+<bibl id="B14">
+  <title><p>SOAPdenovo2: an empirically improved memory-efficient short-read de
+  novo assembler</p></title>
+  <aug>
+    <au><snm>Luo</snm><fnm>R</fnm></au>
+    <au><snm>Liu</snm><fnm>B</fnm></au>
+    <au><snm>Xie</snm><fnm>Y</fnm></au>
+    <au><snm>Li</snm><fnm>Z</fnm></au>
+    <au><snm>Huang</snm><fnm>W</fnm></au>
+    <au><snm>Yuan</snm><fnm>J</fnm></au>
+    <au><snm>He</snm><fnm>G</fnm></au>
+    <au><snm>Chen</snm><fnm>Y</fnm></au>
+    <au><snm>Pan</snm><fnm>Q</fnm></au>
+    <au><snm>Liu</snm><fnm>Y</fnm></au>
+    <au><cnm>others</cnm></au>
+  </aug>
+  <source>GigaScience</source>
+  <publisher>BioMed Central Ltd</publisher>
+  <pubdate>2012</pubdate>
+  <volume>1</volume>
+  <issue>1</issue>
+  <fpage>18</fpage>
+</bibl>
+
+<bibl id="B15">
+  <title><p>Fast gapped-read alignment with Bowtie 2</p></title>
+  <aug>
+    <au><snm>Langmead</snm><fnm>B</fnm></au>
+    <au><snm>Salzberg</snm><fnm>SL</fnm></au>
+  </aug>
+  <source>Nature methods</source>
+  <publisher>Nature Publishing Group</publisher>
+  <pubdate>2012</pubdate>
+  <volume>9</volume>
+  <issue>4</issue>
+  <fpage>357</fpage>
+  <lpage>-359</lpage>
+</bibl>
+
+<bibl id="B16">
+  <title><p>{Whole genome, whole population sequencing reveals that loss of
+  signaling networks is the major adaptive strategy in a constant
+  environment.}</p></title>
+  <aug>
+    <au><snm>Kvitek</snm><fnm>DJ</fnm></au>
+    <au><snm>Sherlock</snm><fnm>G</fnm></au>
+  </aug>
+  <source>PLoS genetics</source>
+  <pubdate>2013</pubdate>
+  <volume>9</volume>
+  <issue>11</issue>
+  <fpage>e1003972</fpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3836717\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+</refgrp>
+} % end of \BMCxmlcomment

@@ -11,7 +11,7 @@ def findNbMachedPolymorphism(list_reference_polymorphism, start, stop, predicted
             # we check that the genomic position matches the polymorphism found.
             # In case of SNP, this is a precise position (checked with 0 and 1 index)
             # In case of INDEL: we don't know preciselly where the breakpoint is. Thus, the simulated indel position matched are systematically considered as TP. 
-            if pos-start in predicted_positions:
+            if pos-start in predicted_positions or pos-start-1 in predicted_positions or pos-start+1 in predicted_positions:
                 list_reference_polymorphism[pos]=True
                 nbMapped+=1
                 # In case of indels: we stop the matching as soon as one indel was found (else we detect too much TP)
@@ -39,7 +39,55 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
         if line.startswith(">"+typePolymorphism):
             pol_id=int(line.split("|")[0].split("_")[-1])
             if "rank" in line :
-                print line
+                rank=float(line.split("|")[-1].split("_")[-1])                      
+            else:
+                rank=1
+             
+            upper_path=filin.readline() # read sequence upper, we don't care
+            filin.readline() # read comment lower, we don't care
+            lower_path=filin.readline() # read sequence lower, we don't care
+            
+        
+            if rank>=threshold:
+                if typePolymorphism=="INDEL":
+                    nb_pol+=1
+                    
+                if typePolymorphism=="SNP":# We store the SNP positions for this bubble
+                    list_predicted_polymorphism_positions[pol_id] = []
+                    for i in range(len(upper_path)):
+                        if upper_path[i] != lower_path[i]:
+                            list_predicted_polymorphism_positions[pol_id].append(i)
+                            nb_pol+=1
+                
+                list_predicted_polymorphism[pol_id] = 0 # This polymorphism has not been confirmed yet
+            
+            
+            
+            
+    return list_predicted_polymorphism,nb_pol,list_predicted_polymorphism_positions
+    
+####################################################################
+#                         IOs
+####################################################################
+
+def printRoc (discoResultsFile, list_reference, list_predicted_polymorphism, threshold, typePolymorphism):
+    nb_simulated=0
+    for chro in list_reference:
+        nb_simulated+=len(list_reference[chro])
+        
+    nbTP=0
+    nb_predicted=0
+                
+   
+    filin = open(discoResultsFile, 'r') 
+    
+    while 1: 
+        line=filin.readline() #>SNP_higher_path_95|high|nb_pol_1|C1_0|C2_40|rank_1.00000 OR >INDEL_9_higher_path_891|high|nb_pol_1|C1_0|C2_30|rank_1.00000
+        if not line: break
+        if line.startswith(">"+typePolymorphism):
+            nb_pol=0
+            pol_id=int(line.split("|")[0].split("_")[-1])
+            if "rank" in line :
                 rank=float(line.split("|")[-1].split("_")[-1])                      
             else:
                 rank=1
@@ -54,22 +102,25 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
                     nb_pol+=1
                     
                 if typePolymorphism=="SNP":# We store the SNP positions for this bubble
-                    list_predicted_polymorphism_positions[pol_id] = []
                     for i in range(len(upper_path)):
                         if upper_path[i] != lower_path[i]:
-                            list_predicted_polymorphism_positions[pol_id].append(i)
                             nb_pol+=1
                 
-                list_predicted_polymorphism[pol_id] = False # This polymorphism has not been confirmed yet
+                nbTP+=list_predicted_polymorphism[pol_id]
+                nb_predicted+=nb_pol
+                
+                
+                
+                
+                if nb_predicted>0 : print "%.2f "%  float(nbTP/float(nb_simulated)*100)+"%.2f "% float(nbTP/float(nb_predicted)*100) +"%.2f "% rank
             
+                # if list_predicted_polymorphism[pol_id] != nb_pol:
+               #      print "FP: ",pol_id
+               #  else:
+               #      print
             
-            
-            
-    return list_predicted_polymorphism,nb_pol,list_predicted_polymorphism_positions
     
-####################################################################
-#                         IOs
-####################################################################
+
 def print_results(nb_predicted, list_reference, polymorphism, threshold):
    nbTP=0
    # if polymorphism=="INDEL": print list_reference
@@ -93,6 +144,21 @@ def print_results(nb_predicted, list_reference, polymorphism, threshold):
    if nb_predicted>0: print polymorphism,"precision\t %.2f"% float(nbTP/float(nb_predicted)*100)
    if len(list_reference)>0: print polymorphism,"recall\t %.2f"% float(nbTP/float(nb_simulated)*100)
    print "-------------------------------"
+
+# def print_few_results(nb_predicted, list_reference):
+#     nbTP=0
+#     # if polymorphism=="INDEL": print list_reference
+#     for chro in list_reference:
+#         for i in list_reference[chro]:
+#             if list_reference[chro][i]==True:
+#                 nbTP+=1
+#
+#     nb_simulated=0
+#     for chro in list_reference:
+#         nb_simulated+=len(list_reference[chro])
+#
+#     if nb_predicted>0 and len(list_reference)>0: print "%.2f "%  float(nbTP/float(nb_simulated)*100)+"%.2f "% float(nbTP/float(nb_predicted)*100)
+
 
 def FN(list_reference, polymorphism):
    print "-----------------------------------------------"

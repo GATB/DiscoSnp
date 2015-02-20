@@ -133,7 +133,7 @@ lines(final$nb[final$seuil==seuils[id_seuil]],final$disco_precision_INDEL[final$
 lines(final$nb[final$seuil==seuils[id_seuil]],final$disco_recall_INDEL[final$seuil==seuils[id_seuil]],col=my_col[3],pch=17,type="b",lwd=2,cex=1)
 # legends
 legend(15,60,legend=c("Precision","Recall"),col=c("grey","grey"),lty=c(0,0),lwd=2,pch=c(0,15),bg="white",bty='n',pt.cex=1.5)
-legend(20,40,legend=c("Cortex", "Soap+Gatk", "DiscoSnp++"),bg=my_col[1],col=c(my_col[1],my_col[2],my_col[3]),lty=1,lwd=1,pch=c(18,16,17),bty='n', pt.cex=c(2,1.5,1.5))
+legend(20,40,legend=c("Cortex", "hybrid", "DiscoSnp++"),bg=my_col[1],col=c(my_col[1],my_col[2],my_col[3]),lty=1,lwd=1,pch=c(18,16,17),bty='n', pt.cex=c(2,1.5,1.5))
 
 
 
@@ -154,6 +154,6 @@ lines(final$nb[final$seuil==seuils[id_seuil]],final$disco_precision_SNP[final$se
 lines(final$nb[final$seuil==seuils[id_seuil]],final$disco_recall_SNP[final$seuil==seuils[id_seuil]],col=my_col[3],pch=17,type="b",lwd=2,cex=1)
 # legends
 legend(15,60,legend=c("Precision","Recall"),col=c("grey","grey"),lty=c(0,0),lwd=2,pch=c(0,15),bg="white",bty='n',pt.cex=1.5)
-legend(20,40,legend=c("Cortex", "Soap+Gatk", "DiscoSnp++"),bg=my_col[1],col=c(my_col[1],my_col[2],my_col[3]),lty=1,lwd=1,pch=c(18,16,17),bty='n', pt.cex=c(2,1.5,1.5))
+legend(20,40,legend=c("Cortex", "hybrid", "DiscoSnp++"),bg=my_col[1],col=c(my_col[1],my_col[2],my_col[3]),lty=1,lwd=1,pch=c(18,16,17),bty='n', pt.cex=c(2,1.5,1.5))
 
 

@@ -1,0 +1,154 @@
+/* fuse8 print css v1.0 11-01-2009
+---------------------------------------- */
+
+body {
+	background:none !important;
+	}
+ul, ol {
+	list-style-type:none !important;
+	}
+fieldset, .scrollable, .navi, .tertiary-content,
+.branding-inner .module, .sup-panel-outer,
+p.tools, p.pager, .hide-on-print, .google-ad, 
+.outline-wrapper, .three-cols .primary-content, .primary-nav, ul.sub-nav,  ul.nav, div.inline-button, p.options, div.pager, .h23, #article-navigation-bar, #footer, .block, #subscriptions-left-navigation, ul.secondary-nav, form#jumpBrowse {
+	display:none !important;	 
+	}
+	
+.primary-content ,
+.secondary-content ,
+#content  {
+	overflow:visible;
+	}
+	
+body.theme #branding, .sup-panel-outer {
+	background: none !important;
+}
+
+div.rounded.article {
+	float: none !important;
+	width: 100% !important;
+	}
+	#browse {
+		width: 100% !important;
+	}
+
+.figs {
+margin:0;
+}
+
+.full-text h4 {
+clear:left;
+margin:0 !important;}
+
+.full-text p{
+padding:auto!important;
+clear:left;}
+
+#apcfaq #top{
+margin:0}
+
+.ifora, .three-cols .secondary-content-flexible .rounded, 
+.rounded .m, .rounded .m .r, 
+.print-fix .padded-inner, 
+.print-fix .module, 
+.print-fix .custom{
+overflow:visible;
+}
+
+body.three-cols .secondary-content, .secondary-content-flexible, 
+.rounded.custom.white.article.full-text, 
+.rounded.custom.white.article.abstract{
+width:100%!important;
+}
+
+#content{
+width:100%!important;
+}
+
+#references{
+margin:0!important;
+float:left!important;
+width:100%!important;
+}
+
+.wrap-inner.content{
+margin:-1em 0!important;}
+
+span.articletype{
+margin:0}
+
+h1.logo, .sup-panel-outer, .branding-inner {
+margin:0 !important;
+}
+
+/* Article browse results */
+#browse.secondary-content.print-fix, 
+#browse.secondary-content.print-fix .module.inner{
+overflow:visible;
+float:none!important; 
+}
+/* --------------------------------*/
+
+/* Advance search results */
+.two-col .secondary-content, .search-buttons{
+width:100%!important; 
+}
+
+.secondary-content, .module, .module-inner, .rounded{
+overflow:visible!important;
+float:none!important;
+}
+/* --------------------------------*/
+
+/* Home page */
+body.home .secondary-content{
+overflow:hidden!important;
+float:left!important;
+}
+/* --------------------------------*/
+
+.print-fix dt{
+overflow:visible;
+clear:both;
+float:left
+}
+
+.container{
+float:none
+}
+ 
+.article.abstract p.options{
+visibility:hidden;
+}
+
+.print-fix .module.gray .module-inner, 
+#advanced-search .module.gray .module-inner{
+border:none!important;
+}
+
+/*prepay/postpay */
+.sup-panel-inner ul#membership-reports-tabs li.current a span {
+	display:block!important;
+}
+.sup-panel-inner ul#membership-reports-tabs li a span {
+	display:none!important;
+}
+
+div.sup-panel-outer div.sup-panel-inner ul#membership-reports-tabs li.current a span strong {
+}
+
+div.membership-reports-buttons {
+	display:none;
+}
+/*----------------*/
+
+/* Tables */
+
+table.styled tbody { border-bottom: 1px solid #d7d7d7; }
+
+#article-references ol{
+list-style: decimal outside none !important;
+}
+
+#article-references{
+padding-left:3%}

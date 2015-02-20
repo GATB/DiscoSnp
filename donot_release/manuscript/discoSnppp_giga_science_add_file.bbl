@@ -1,0 +1,614 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{5}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\textsf{#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem{Rizk2010}
+\begin{barticle}
+\bauthor{\bsnm{Rizk}, \binits{G.}},
+\bauthor{\bsnm{Lavenier}, \binits{D.}}:
+\batitle{{GASSST: global alignment short sequence search tool.}}
+\bjtitle{Bioinformatics (Oxford, England)}
+\bvolume{26}(\bissue{20}),
+\bfpage{2534}--\blpage{40}
+(\byear{2010}).
+doi:\doiurl{10.1093/bioinformatics/btq485}
+\end{barticle}
+\endbibitem
+
+%%% 2
+\bibitem{Altshuler2012}
+\begin{barticle}
+\bauthor{\bsnm{Altshuler}, \binits{D.M.}},
+\bauthor{\bsnm{Durbin}, \binits{R.M.}},
+\bauthor{\bsnm{Abecasis}, \binits{G.R.}},
+\bauthor{\bsnm{Bentley}, \binits{D.R.}},
+\bauthor{\bsnm{Chakravarti}, \binits{A.}},
+\bauthor{\bsnm{Clark}, \binits{A.G.}},
+\bauthor{\bsnm{Donnelly}, \binits{P.}},
+\bauthor{\bsnm{Eichler}, \binits{E.E.}},
+\bauthor{\bsnm{Flicek}, \binits{P.}},
+\bauthor{\bsnm{Gabriel}, \binits{S.B.}},
+\bauthor{\bsnm{Gibbs}, \binits{R.A.}},
+\bauthor{\bsnm{Green}, \binits{E.D.}},
+\bauthor{\bsnm{Hurles}, \binits{M.E.}},
+\bauthor{\bsnm{Knoppers}, \binits{B.M.}},
+\bauthor{\bsnm{Korbel}, \binits{J.O.}},
+\bauthor{\bsnm{Lander}, \binits{E.S.}},
+\bauthor{\bsnm{Lee}, \binits{C.}},
+\bauthor{\bsnm{Lehrach}, \binits{H.}},
+\bauthor{\bsnm{Mardis}, \binits{E.R.}},
+\bauthor{\bsnm{Marth}, \binits{G.T.}},
+\bauthor{\bsnm{Mcvean}, \binits{G.A.}},
+\bauthor{\bsnm{Nickerson}, \binits{D.A.}},
+\bauthor{\bsnm{Schmidt}, \binits{J.P.}},
+\bauthor{\bsnm{Sherry}, \binits{S.T.}},
+\bauthor{\bsnm{Wang}, \binits{J.}},
+\bauthor{\bsnm{Wilson}, \binits{R.K.}},
+\bauthor{\bsnm{Dinh}, \binits{H.}},
+\bauthor{\bsnm{Kovar}, \binits{C.}},
+\bauthor{\bsnm{Lee}, \binits{S.}},
+\bauthor{\bsnm{Lewis}, \binits{L.}},
+\bauthor{\bsnm{Muzny}, \binits{D.}},
+\bauthor{\bsnm{Reid}, \binits{J.}},
+\bauthor{\bsnm{Wang}, \binits{M.}},
+\bauthor{\bsnm{Fang}, \binits{X.D.}},
+\bauthor{\bsnm{Guo}, \binits{X.S.}},
+\bauthor{\bsnm{Jian}, \binits{M.}},
+\bauthor{\bsnm{Jiang}, \binits{H.}},
+\bauthor{\bsnm{Jin}, \binits{X.}},
+\bauthor{\bsnm{Li}, \binits{G.Q.}},
+\bauthor{\bsnm{Li}, \binits{J.X.}},
+\bauthor{\bsnm{Li}, \binits{Y.R.}},
+\bauthor{\bsnm{Li}, \binits{Z.}},
+\bauthor{\bsnm{Liu}, \binits{X.}},
+\bauthor{\bsnm{Lu}, \binits{Y.}},
+\bauthor{\bsnm{Ma}, \binits{X.D.}},
+\bauthor{\bsnm{Su}, \binits{Z.}},
+\bauthor{\bsnm{Tai}, \binits{S.S.}},
+\bauthor{\bsnm{Tang}, \binits{M.F.}},
+\bauthor{\bsnm{Wang}, \binits{B.}},
+\bauthor{\bsnm{Wang}, \binits{G.B.}},
+\bauthor{\bsnm{Wu}, \binits{H.L.}},
+\bauthor{\bsnm{Wu}, \binits{R.H.}},
+\bauthor{\bsnm{Yin}, \binits{Y.}},
+\bauthor{\bsnm{Zhang}, \binits{W.W.}},
+\bauthor{\bsnm{Zhao}, \binits{J.}},
+\bauthor{\bsnm{Zhao}, \binits{M.R.}},
+\bauthor{\bsnm{Zheng}, \binits{X.L.}},
+\bauthor{\bsnm{Zhou}, \binits{Y.}},
+\bauthor{\bsnm{Gupta}, \binits{N.}},
+\bauthor{\bsnm{Clarke}, \binits{L.}},
+\bauthor{\bsnm{Leinonen}, \binits{R.}},
+\bauthor{\bsnm{Smith}, \binits{R.E.}},
+\bauthor{\bsnm{Zheng-Bradley}, \binits{X.}},
+\bauthor{\bsnm{Grocock}, \binits{R.}},
+\bauthor{\bsnm{Humphray}, \binits{S.}},
+\bauthor{\bsnm{James}, \binits{T.}},
+\bauthor{\bsnm{Kingsbury}, \binits{Z.}},
+\bauthor{\bsnm{Sudbrak}, \binits{R.}},
+\bauthor{\bsnm{Albrecht}, \binits{M.W.}},
+\bauthor{\bsnm{Amstislavskiy}, \binits{V.S.}},
+\bauthor{\bsnm{Borodina}, \binits{T.A.}},
+\bauthor{\bsnm{Lienhard}, \binits{M.}},
+\bauthor{\bsnm{Mertes}, \binits{F.}},
+\bauthor{\bsnm{Sultan}, \binits{M.}},
+\bauthor{\bsnm{Timmermann}, \binits{B.}},
+\bauthor{\bsnm{Yaspo}, \binits{M.L.}},
+\bauthor{\bsnm{Fulton}, \binits{L.}},
+\bauthor{\bsnm{Fulton}, \binits{R.}},
+\bauthor{\bsnm{Weinstock}, \binits{G.M.}},
+\bauthor{\bsnm{Balasubramaniam}, \binits{S.}},
+\bauthor{\bsnm{Burton}, \binits{J.}},
+\bauthor{\bsnm{Danecek}, \binits{P.}},
+\bauthor{\bsnm{Keane}, \binits{T.M.}},
+\bauthor{\bsnm{Kolb-Kokocinski}, \binits{A.}},
+\bauthor{\bsnm{McCarthy}, \binits{S.}},
+\bauthor{\bsnm{Stalker}, \binits{J.}},
+\bauthor{\bsnm{Quail}, \binits{M.}},
+\bauthor{\bsnm{Davies}, \binits{C.J.}},
+\bauthor{\bsnm{Gollub}, \binits{J.}},
+\bauthor{\bsnm{Webster}, \binits{T.}},
+\bauthor{\bsnm{Wong}, \binits{B.}},
+\bauthor{\bsnm{Zhan}, \binits{Y.P.}},
+\bauthor{\bsnm{Auton}, \binits{A.}},
+\bauthor{\bsnm{Yu}, \binits{F.}},
+\bauthor{\bsnm{Bainbridge}, \binits{M.}},
+\bauthor{\bsnm{Challis}, \binits{D.}},
+\bauthor{\bsnm{Evani}, \binits{U.S.}},
+\bauthor{\bsnm{Lu}, \binits{J.}},
+\bauthor{\bsnm{Nagaswamy}, \binits{U.}},
+\bauthor{\bsnm{Sabo}, \binits{A.}},
+\bauthor{\bsnm{Wang}, \binits{Y.}},
+\bauthor{\bsnm{Yu}, \binits{J.}},
+\bauthor{\bsnm{Coin}, \binits{L.J.M.}},
+\bauthor{\bsnm{Fang}, \binits{L.}},
+\bauthor{\bsnm{Li}, \binits{Q.B.}},
+\bauthor{\bsnm{Li}, \binits{Z.Y.}},
+\bauthor{\bsnm{Lin}, \binits{H.X.}},
+\bauthor{\bsnm{Liu}, \binits{B.H.}},
+\bauthor{\bsnm{Luo}, \binits{R.B.}},
+\bauthor{\bsnm{Qin}, \binits{N.}},
+\bauthor{\bsnm{Shao}, \binits{H.J.}},
+\bauthor{\bsnm{Wang}, \binits{B.Q.}},
+\bauthor{\bsnm{Xie}, \binits{Y.L.}},
+\bauthor{\bsnm{Ye}, \binits{C.}},
+\bauthor{\bsnm{Yu}, \binits{C.}},
+\bauthor{\bsnm{Zhang}, \binits{F.}},
+\bauthor{\bsnm{Zheng}, \binits{H.C.}},
+\bauthor{\bsnm{Zhu}, \binits{H.M.}},
+\bauthor{\bsnm{Garrison}, \binits{E.P.}},
+\bauthor{\bsnm{Kural}, \binits{D.}},
+\bauthor{\bsnm{Lee}, \binits{W.P.}},
+\bauthor{\bsnm{Leong}, \binits{W.F.}},
+\bauthor{\bsnm{Ward}, \binits{A.N.}},
+\bauthor{\bsnm{Wu}, \binits{J.T.}},
+\bauthor{\bsnm{Zhang}, \binits{M.Y.}},
+\bauthor{\bsnm{Griffin}, \binits{L.}},
+\bauthor{\bsnm{Hsieh}, \binits{C.H.}},
+\bauthor{\bsnm{Mills}, \binits{R.E.}},
+\bauthor{\bsnm{Shi}, \binits{X.H.}},
+\bauthor{\bparticle{von} \bsnm{Grotthuss}, \binits{M.}},
+\bauthor{\bsnm{Zhang}, \binits{C.S.}},
+\bauthor{\bsnm{Daly}, \binits{M.J.}},
+\bauthor{\bsnm{DePristo}, \binits{M.A.}},
+\bauthor{\bsnm{Banks}, \binits{E.}},
+\bauthor{\bsnm{Bhatia}, \binits{G.}},
+\bauthor{\bsnm{Carneiro}, \binits{M.O.}},
+\bauthor{\bparticle{del} \bsnm{Angel}, \binits{G.}},
+\bauthor{\bsnm{Genovese}, \binits{G.}},
+\bauthor{\bsnm{Handsaker}, \binits{R.E.}},
+\bauthor{\bsnm{Hartl}, \binits{C.}},
+\bauthor{\bsnm{McCarroll}, \binits{S.A.}},
+\bauthor{\bsnm{Nemesh}, \binits{J.C.}},
+\bauthor{\bsnm{Poplin}, \binits{R.E.}},
+\bauthor{\bsnm{Schaffner}, \binits{S.F.}},
+\bauthor{\bsnm{Shakir}, \binits{K.}},
+\bauthor{\bsnm{Yoon}, \binits{S.C.}},
+\bauthor{\bsnm{Lihm}, \binits{J.}},
+\bauthor{\bsnm{Makarov}, \binits{V.}},
+\bauthor{\bsnm{Jin}, \binits{H.J.}},
+\bauthor{\bsnm{Kim}, \binits{W.}},
+\bauthor{\bsnm{Kim}, \binits{K.C.}},
+\bauthor{\bsnm{Rausch}, \binits{T.}},
+\bauthor{\bsnm{Beal}, \binits{K.}},
+\bauthor{\bsnm{Cunningham}, \binits{F.}},
+\bauthor{\bsnm{Herrero}, \binits{J.}},
+\bauthor{\bsnm{McLaren}, \binits{W.M.}},
+\bauthor{\bsnm{Ritchie}, \binits{G.R.S.}},
+\bauthor{\bsnm{Gottipati}, \binits{S.}},
+\bauthor{\bsnm{Keinan}, \binits{A.}},
+\bauthor{\bsnm{Rodriguez-Flores}, \binits{J.L.}},
+\bauthor{\bsnm{Sabeti}, \binits{P.C.}},
+\bauthor{\bsnm{Grossman}, \binits{S.R.}},
+\bauthor{\bsnm{Tabrizi}, \binits{S.}},
+\bauthor{\bsnm{Tariyal}, \binits{R.}},
+\bauthor{\bsnm{Cooper}, \binits{D.N.}},
+\bauthor{\bsnm{Ball}, \binits{E.V.}},
+\bauthor{\bsnm{Stenson}, \binits{P.D.}},
+\bauthor{\bsnm{Barnes}, \binits{B.}},
+\bauthor{\bsnm{Bauer}, \binits{M.}},
+\bauthor{\bsnm{Cheetham}, \binits{R.K.}},
+\bauthor{\bsnm{Cox}, \binits{T.}},
+\bauthor{\bsnm{Eberle}, \binits{M.}},
+\bauthor{\bsnm{Kahn}, \binits{S.}},
+\bauthor{\bsnm{Murray}, \binits{L.}},
+\bauthor{\bsnm{Peden}, \binits{J.}},
+\bauthor{\bsnm{Shaw}, \binits{R.}},
+\bauthor{\bsnm{Ye}, \binits{K.}},
+\bauthor{\bsnm{Batzer}, \binits{M.A.}},
+\bauthor{\bsnm{Konkel}, \binits{M.K.}},
+\bauthor{\bsnm{Walker}, \binits{J.A.}},
+\bauthor{\bsnm{MacArthur}, \binits{D.G.}},
+\bauthor{\bsnm{Lek}, \binits{M.}},
+\bauthor{\bsnm{Herwig}, \binits{R.}},
+\bauthor{\bsnm{Shriver}, \binits{M.D.}},
+\bauthor{\bsnm{Bustamante}, \binits{C.D.}},
+\bauthor{\bsnm{Byrnes}, \binits{J.K.}},
+\bauthor{\bsnm{{De la Vega}}, \binits{F.M.}},
+\bauthor{\bsnm{Gravel}, \binits{S.}},
+\bauthor{\bsnm{Kenny}, \binits{E.E.}},
+\bauthor{\bsnm{Kidd}, \binits{J.M.}},
+\bauthor{\bsnm{Lacroute}, \binits{P.}},
+\bauthor{\bsnm{Maples}, \binits{B.K.}},
+\bauthor{\bsnm{Moreno-Estrada}, \binits{A.}},
+\bauthor{\bsnm{Zakharia}, \binits{F.}},
+\bauthor{\bsnm{Halperin}, \binits{E.}},
+\bauthor{\bsnm{Baran}, \binits{Y.}},
+\bauthor{\bsnm{Craig}, \binits{D.W.}},
+\bauthor{\bsnm{Christoforides}, \binits{A.}},
+\bauthor{\bsnm{Homer}, \binits{N.}},
+\bauthor{\bsnm{Izatt}, \binits{T.}},
+\bauthor{\bsnm{Kurdoglu}, \binits{A.A.}},
+\bauthor{\bsnm{Sinari}, \binits{S.A.}},
+\bauthor{\bsnm{Squire}, \binits{K.}},
+\bauthor{\bsnm{Xiao}, \binits{C.L.}},
+\bauthor{\bsnm{Sebat}, \binits{J.}},
+\bauthor{\bsnm{Bafna}, \binits{V.}},
+\bauthor{\bsnm{Burchard}, \binits{E.G.}},
+\bauthor{\bsnm{Hernandez}, \binits{R.D.}},
+\bauthor{\bsnm{Gignoux}, \binits{C.R.}},
+\bauthor{\bsnm{Haussler}, \binits{D.}},
+\bauthor{\bsnm{Katzman}, \binits{S.J.}},
+\bauthor{\bsnm{Kent}, \binits{W.J.}},
+\bauthor{\bsnm{Howie}, \binits{B.}},
+\bauthor{\bsnm{Ruiz-Linares}, \binits{A.}},
+\bauthor{\bsnm{Dermitzakis}, \binits{E.T.}}:
+\batitle{{An integrated map of genetic variation from 1,092 human genomes}}.
+\bjtitle{Nature}
+\bvolume{491},
+\bfpage{56}--\blpage{65}
+(\byear{2012}).
+doi:\doiurl{10.1038/nature11632}
+\end{barticle}
+\endbibitem
+
+%%% 3
+\bibitem{vcf}
+\begin{botherref}
+1000 genome phase 1 vcf file.
+\url{ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.chr1.phase1_release_v3.20101123.snps_indels_svs.genotypes.vcf.gz}
+\end{botherref}
+\endbibitem
+
+%%% 4
+\bibitem{Kvitek2013}
+\begin{barticle}
+\bauthor{\bsnm{Kvitek}, \binits{D.J.}},
+\bauthor{\bsnm{Sherlock}, \binits{G.}}:
+\batitle{{Whole genome, whole population sequencing reveals that loss of
+  signaling networks is the major adaptive strategy in a constant
+  environment.}}
+\bjtitle{PLoS genetics}
+\bvolume{9}(\bissue{11}),
+\bfpage{1003972}
+(\byear{2013}).
+doi:\doiurl{10.1371/journal.pgen.1003972}
+\end{barticle}
+\endbibitem
+
+%%% 5
+\bibitem{bwa}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{H.}},
+\bauthor{\bsnm{Durbin}, \binits{R.}}:
+\batitle{{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}}.
+\bjtitle{Bioinformatics}
+\bvolume{25}(\bissue{14}),
+\bfpage{1754}--\blpage{1760}
+(\byear{2009}).
+doi:\doiurl{10.1093/bioinformatics/btp324}
+\end{barticle}
+\endbibitem
+
+\end{thebibliography}
+
+\newcommand{\BMCxmlcomment}[1]{}
+
+\BMCxmlcomment{
+
+<refgrp>
+
+<bibl id="B1">
+  <title><p>{GASSST: global alignment short sequence search tool.}</p></title>
+  <aug>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+    <au><snm>Lavenier</snm><fnm>D</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2010</pubdate>
+  <volume>26</volume>
+  <issue>20</issue>
+  <fpage>2534</fpage>
+  <lpage>-40</lpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2951093\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+<bibl id="B2">
+  <title><p>{An integrated map of genetic variation from 1,092 human
+  genomes}</p></title>
+  <aug>
+    <au><snm>Altshuler</snm><fnm>D M</fnm></au>
+    <au><snm>Durbin</snm><fnm>R M</fnm></au>
+    <au><snm>Abecasis</snm><fnm>G R</fnm></au>
+    <au><snm>Bentley</snm><fnm>D R</fnm></au>
+    <au><snm>Chakravarti</snm><fnm>A</fnm></au>
+    <au><snm>Clark</snm><fnm>A G</fnm></au>
+    <au><snm>Donnelly</snm><fnm>P</fnm></au>
+    <au><snm>Eichler</snm><fnm>E E</fnm></au>
+    <au><snm>Flicek</snm><fnm>P</fnm></au>
+    <au><snm>Gabriel</snm><fnm>S B</fnm></au>
+    <au><snm>Gibbs</snm><fnm>R A</fnm></au>
+    <au><snm>Green</snm><fnm>E D</fnm></au>
+    <au><snm>Hurles</snm><fnm>M E</fnm></au>
+    <au><snm>Knoppers</snm><fnm>B M</fnm></au>
+    <au><snm>Korbel</snm><fnm>J O</fnm></au>
+    <au><snm>Lander</snm><fnm>E S</fnm></au>
+    <au><snm>Lee</snm><fnm>C</fnm></au>
+    <au><snm>Lehrach</snm><fnm>H</fnm></au>
+    <au><snm>Mardis</snm><fnm>E R</fnm></au>
+    <au><snm>Marth</snm><fnm>G T</fnm></au>
+    <au><snm>Mcvean</snm><fnm>G A</fnm></au>
+    <au><snm>Nickerson</snm><fnm>D A</fnm></au>
+    <au><snm>Schmidt</snm><fnm>J P</fnm></au>
+    <au><snm>Sherry</snm><fnm>S T</fnm></au>
+    <au><snm>Wang</snm><fnm>J</fnm></au>
+    <au><snm>Wilson</snm><fnm>R K</fnm></au>
+    <au><snm>Dinh</snm><fnm>H</fnm></au>
+    <au><snm>Kovar</snm><fnm>C</fnm></au>
+    <au><snm>Lee</snm><fnm>S</fnm></au>
+    <au><snm>Lewis</snm><fnm>L</fnm></au>
+    <au><snm>Muzny</snm><fnm>D</fnm></au>
+    <au><snm>Reid</snm><fnm>J</fnm></au>
+    <au><snm>Wang</snm><fnm>M</fnm></au>
+    <au><snm>Fang</snm><fnm>X D</fnm></au>
+    <au><snm>Guo</snm><fnm>X S</fnm></au>
+    <au><snm>Jian</snm><fnm>M</fnm></au>
+    <au><snm>Jiang</snm><fnm>H</fnm></au>
+    <au><snm>Jin</snm><fnm>X</fnm></au>
+    <au><snm>Li</snm><fnm>G Q</fnm></au>
+    <au><snm>Li</snm><fnm>J X</fnm></au>
+    <au><snm>Li</snm><fnm>Y R</fnm></au>
+    <au><snm>Li</snm><fnm>Z</fnm></au>
+    <au><snm>Liu</snm><fnm>X</fnm></au>
+    <au><snm>Lu</snm><fnm>Y</fnm></au>
+    <au><snm>Ma</snm><fnm>X D</fnm></au>
+    <au><snm>Su</snm><fnm>Z</fnm></au>
+    <au><snm>Tai</snm><fnm>S S</fnm></au>
+    <au><snm>Tang</snm><fnm>M F</fnm></au>
+    <au><snm>Wang</snm><fnm>B</fnm></au>
+    <au><snm>Wang</snm><fnm>G B</fnm></au>
+    <au><snm>Wu</snm><fnm>H L</fnm></au>
+    <au><snm>Wu</snm><fnm>R H</fnm></au>
+    <au><snm>Yin</snm><fnm>Y</fnm></au>
+    <au><snm>Zhang</snm><fnm>W W</fnm></au>
+    <au><snm>Zhao</snm><fnm>J</fnm></au>
+    <au><snm>Zhao</snm><fnm>M R</fnm></au>
+    <au><snm>Zheng</snm><fnm>X L</fnm></au>
+    <au><snm>Zhou</snm><fnm>Y</fnm></au>
+    <au><snm>Gupta</snm><fnm>N</fnm></au>
+    <au><snm>Clarke</snm><fnm>L</fnm></au>
+    <au><snm>Leinonen</snm><fnm>R</fnm></au>
+    <au><snm>Smith</snm><fnm>R E</fnm></au>
+    <au><snm>Zheng Bradley</snm><fnm>X</fnm></au>
+    <au><snm>Grocock</snm><fnm>R</fnm></au>
+    <au><snm>Humphray</snm><fnm>S</fnm></au>
+    <au><snm>James</snm><fnm>T</fnm></au>
+    <au><snm>Kingsbury</snm><fnm>Z</fnm></au>
+    <au><snm>Sudbrak</snm><fnm>R</fnm></au>
+    <au><snm>Albrecht</snm><fnm>M W</fnm></au>
+    <au><snm>Amstislavskiy</snm><fnm>V S</fnm></au>
+    <au><snm>Borodina</snm><fnm>T A</fnm></au>
+    <au><snm>Lienhard</snm><fnm>M</fnm></au>
+    <au><snm>Mertes</snm><fnm>F</fnm></au>
+    <au><snm>Sultan</snm><fnm>M</fnm></au>
+    <au><snm>Timmermann</snm><fnm>B</fnm></au>
+    <au><snm>Yaspo</snm><fnm>M L</fnm></au>
+    <au><snm>Fulton</snm><fnm>L</fnm></au>
+    <au><snm>Fulton</snm><fnm>R</fnm></au>
+    <au><snm>Weinstock</snm><fnm>G M</fnm></au>
+    <au><snm>Balasubramaniam</snm><fnm>S</fnm></au>
+    <au><snm>Burton</snm><fnm>J</fnm></au>
+    <au><snm>Danecek</snm><fnm>P</fnm></au>
+    <au><snm>Keane</snm><fnm>T M</fnm></au>
+    <au><snm>Kolb Kokocinski</snm><fnm>A</fnm></au>
+    <au><snm>McCarthy</snm><fnm>S</fnm></au>
+    <au><snm>Stalker</snm><fnm>J</fnm></au>
+    <au><snm>Quail</snm><fnm>M</fnm></au>
+    <au><snm>Davies</snm><fnm>C J</fnm></au>
+    <au><snm>Gollub</snm><fnm>J</fnm></au>
+    <au><snm>Webster</snm><fnm>T</fnm></au>
+    <au><snm>Wong</snm><fnm>B</fnm></au>
+    <au><snm>Zhan</snm><fnm>Y P</fnm></au>
+    <au><snm>Auton</snm><fnm>A</fnm></au>
+    <au><snm>Yu</snm><fnm>F</fnm></au>
+    <au><snm>Bainbridge</snm><fnm>M</fnm></au>
+    <au><snm>Challis</snm><fnm>D</fnm></au>
+    <au><snm>Evani</snm><fnm>U S</fnm></au>
+    <au><snm>Lu</snm><fnm>J</fnm></au>
+    <au><snm>Nagaswamy</snm><fnm>U</fnm></au>
+    <au><snm>Sabo</snm><fnm>A</fnm></au>
+    <au><snm>Wang</snm><fnm>Y</fnm></au>
+    <au><snm>Yu</snm><fnm>J</fnm></au>
+    <au><snm>Coin</snm><fnm>L J M</fnm></au>
+    <au><snm>Fang</snm><fnm>L</fnm></au>
+    <au><snm>Li</snm><fnm>Q B</fnm></au>
+    <au><snm>Li</snm><fnm>Z Y</fnm></au>
+    <au><snm>Lin</snm><fnm>H X</fnm></au>
+    <au><snm>Liu</snm><fnm>B H</fnm></au>
+    <au><snm>Luo</snm><fnm>R B</fnm></au>
+    <au><snm>Qin</snm><fnm>N</fnm></au>
+    <au><snm>Shao</snm><fnm>H J</fnm></au>
+    <au><snm>Wang</snm><fnm>B Q</fnm></au>
+    <au><snm>Xie</snm><fnm>Y L</fnm></au>
+    <au><snm>Ye</snm><fnm>C</fnm></au>
+    <au><snm>Yu</snm><fnm>C</fnm></au>
+    <au><snm>Zhang</snm><fnm>F</fnm></au>
+    <au><snm>Zheng</snm><fnm>H C</fnm></au>
+    <au><snm>Zhu</snm><fnm>H M</fnm></au>
+    <au><snm>Garrison</snm><fnm>E P</fnm></au>
+    <au><snm>Kural</snm><fnm>D</fnm></au>
+    <au><snm>Lee</snm><fnm>W P</fnm></au>
+    <au><snm>Leong</snm><fnm>W F</fnm></au>
+    <au><snm>Ward</snm><fnm>A N</fnm></au>
+    <au><snm>Wu</snm><fnm>J T</fnm></au>
+    <au><snm>Zhang</snm><fnm>M Y</fnm></au>
+    <au><snm>Griffin</snm><fnm>L</fnm></au>
+    <au><snm>Hsieh</snm><fnm>C H</fnm></au>
+    <au><snm>Mills</snm><fnm>R E</fnm></au>
+    <au><snm>Shi</snm><fnm>X H</fnm></au>
+    <au><snm>Grotthuss</snm><fnm>M</fnm></au>
+    <au><snm>Zhang</snm><fnm>C S</fnm></au>
+    <au><snm>Daly</snm><fnm>M J</fnm></au>
+    <au><snm>DePristo</snm><fnm>M A</fnm></au>
+    <au><snm>Banks</snm><fnm>E</fnm></au>
+    <au><snm>Bhatia</snm><fnm>G</fnm></au>
+    <au><snm>Carneiro</snm><fnm>M O</fnm></au>
+    <au><snm>Angel</snm><fnm>G</fnm></au>
+    <au><snm>Genovese</snm><fnm>G</fnm></au>
+    <au><snm>Handsaker</snm><fnm>R E</fnm></au>
+    <au><snm>Hartl</snm><fnm>C</fnm></au>
+    <au><snm>McCarroll</snm><fnm>S A</fnm></au>
+    <au><snm>Nemesh</snm><fnm>J C</fnm></au>
+    <au><snm>Poplin</snm><fnm>R E</fnm></au>
+    <au><snm>Schaffner</snm><fnm>S F</fnm></au>
+    <au><snm>Shakir</snm><fnm>K</fnm></au>
+    <au><snm>Yoon</snm><fnm>S C</fnm></au>
+    <au><snm>Lihm</snm><fnm>J</fnm></au>
+    <au><snm>Makarov</snm><fnm>V</fnm></au>
+    <au><snm>Jin</snm><fnm>H J</fnm></au>
+    <au><snm>Kim</snm><fnm>W</fnm></au>
+    <au><snm>Kim</snm><fnm>K C</fnm></au>
+    <au><snm>Rausch</snm><fnm>T</fnm></au>
+    <au><snm>Beal</snm><fnm>K</fnm></au>
+    <au><snm>Cunningham</snm><fnm>F</fnm></au>
+    <au><snm>Herrero</snm><fnm>J</fnm></au>
+    <au><snm>McLaren</snm><fnm>W M</fnm></au>
+    <au><snm>Ritchie</snm><fnm>G R S</fnm></au>
+    <au><snm>Gottipati</snm><fnm>S</fnm></au>
+    <au><snm>Keinan</snm><fnm>A</fnm></au>
+    <au><snm>Rodriguez Flores</snm><fnm>J L</fnm></au>
+    <au><snm>Sabeti</snm><fnm>P C</fnm></au>
+    <au><snm>Grossman</snm><fnm>S R</fnm></au>
+    <au><snm>Tabrizi</snm><fnm>S</fnm></au>
+    <au><snm>Tariyal</snm><fnm>R</fnm></au>
+    <au><snm>Cooper</snm><fnm>D N</fnm></au>
+    <au><snm>Ball</snm><fnm>E V</fnm></au>
+    <au><snm>Stenson</snm><fnm>P D</fnm></au>
+    <au><snm>Barnes</snm><fnm>B</fnm></au>
+    <au><snm>Bauer</snm><fnm>M</fnm></au>
+    <au><snm>Cheetham</snm><fnm>R K</fnm></au>
+    <au><snm>Cox</snm><fnm>T</fnm></au>
+    <au><snm>Eberle</snm><fnm>M</fnm></au>
+    <au><snm>Kahn</snm><fnm>S</fnm></au>
+    <au><snm>Murray</snm><fnm>L</fnm></au>
+    <au><snm>Peden</snm><fnm>J</fnm></au>
+    <au><snm>Shaw</snm><fnm>R</fnm></au>
+    <au><snm>Ye</snm><fnm>K</fnm></au>
+    <au><snm>Batzer</snm><fnm>M A</fnm></au>
+    <au><snm>Konkel</snm><fnm>M K</fnm></au>
+    <au><snm>Walker</snm><fnm>J A</fnm></au>
+    <au><snm>MacArthur</snm><fnm>D G</fnm></au>
+    <au><snm>Lek</snm><fnm>M</fnm></au>
+    <au><snm>Herwig</snm><fnm>R</fnm></au>
+    <au><snm>Shriver</snm><fnm>M D</fnm></au>
+    <au><snm>Bustamante</snm><fnm>C D</fnm></au>
+    <au><snm>Byrnes</snm><fnm>J K</fnm></au>
+    <au><snm>{De la Vega}</snm><fnm>F M</fnm></au>
+    <au><snm>Gravel</snm><fnm>S</fnm></au>
+    <au><snm>Kenny</snm><fnm>E E</fnm></au>
+    <au><snm>Kidd</snm><fnm>J M</fnm></au>
+    <au><snm>Lacroute</snm><fnm>P</fnm></au>
+    <au><snm>Maples</snm><fnm>B K</fnm></au>
+    <au><snm>Moreno Estrada</snm><fnm>A</fnm></au>
+    <au><snm>Zakharia</snm><fnm>F</fnm></au>
+    <au><snm>Halperin</snm><fnm>E</fnm></au>
+    <au><snm>Baran</snm><fnm>Y</fnm></au>
+    <au><snm>Craig</snm><fnm>D W</fnm></au>
+    <au><snm>Christoforides</snm><fnm>A</fnm></au>
+    <au><snm>Homer</snm><fnm>N</fnm></au>
+    <au><snm>Izatt</snm><fnm>T</fnm></au>
+    <au><snm>Kurdoglu</snm><fnm>A A</fnm></au>
+    <au><snm>Sinari</snm><fnm>S A</fnm></au>
+    <au><snm>Squire</snm><fnm>K</fnm></au>
+    <au><snm>Xiao</snm><fnm>C L</fnm></au>
+    <au><snm>Sebat</snm><fnm>J</fnm></au>
+    <au><snm>Bafna</snm><fnm>V</fnm></au>
+    <au><snm>Burchard</snm><fnm>E G</fnm></au>
+    <au><snm>Hernandez</snm><fnm>R D</fnm></au>
+    <au><snm>Gignoux</snm><fnm>C R</fnm></au>
+    <au><snm>Haussler</snm><fnm>D</fnm></au>
+    <au><snm>Katzman</snm><fnm>S J</fnm></au>
+    <au><snm>Kent</snm><fnm>W J</fnm></au>
+    <au><snm>Howie</snm><fnm>B</fnm></au>
+    <au><snm>Ruiz Linares</snm><fnm>A</fnm></au>
+    <au><snm>Dermitzakis</snm><fnm>E T</fnm></au>
+  </aug>
+  <source>Nature</source>
+  <pubdate>2012</pubdate>
+  <volume>491</volume>
+  <fpage>56</fpage>
+  <lpage>-65</lpage>
+  <url>ISI:000310434500030</url>
+</bibl>
+
+<bibl id="B3">
+  <title><p>1000 genome phase 1 vcf file</p></title>
+  <source>\url{ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20110521/ALL.chr1.phase1_release_v3.20101123.snps_indels_svs.genotypes.vcf.gz}</source>
+</bibl>
+
+<bibl id="B4">
+  <title><p>{Whole genome, whole population sequencing reveals that loss of
+  signaling networks is the major adaptive strategy in a constant
+  environment.}</p></title>
+  <aug>
+    <au><snm>Kvitek</snm><fnm>DJ</fnm></au>
+    <au><snm>Sherlock</snm><fnm>G</fnm></au>
+  </aug>
+  <source>PLoS genetics</source>
+  <pubdate>2013</pubdate>
+  <volume>9</volume>
+  <issue>11</issue>
+  <fpage>e1003972</fpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3836717\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+<bibl id="B5">
+  <title><p>{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}</p></title>
+  <aug>
+    <au><snm>Li</snm><fnm>H</fnm></au>
+    <au><snm>Durbin</snm><fnm>R</fnm></au>
+  </aug>
+  <source>Bioinformatics</source>
+  <pubdate>2009</pubdate>
+  <volume>25</volume>
+  <issue>14</issue>
+  <fpage>1754</fpage>
+  <lpage>-1760</lpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2705234\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+</refgrp>
+} % end of \BMCxmlcomment

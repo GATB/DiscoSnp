@@ -1,0 +1,1521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html id="js" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-GB" lang="en-GB"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+
+   
+  
+      
+  
+                  
+  
+                  
+  
+            
+  
+            
+            
+
+<title>GigaScience | Instructions for Authors | Technical Notes</title>
+<link rel="shortcut icon" type="image/x-icon" href="http://www.gigasciencejournal.com/images/icon/10282/favicon.ico">
+
+
+        
+    
+                    
+    
+
+<script src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/ga.js" async="" type="text/javascript"></script><script type="text/javascript">
+// must run before css
+document.documentElement.id = "js";
+</script>
+
+<script src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/jquery.js"></script>
+
+						
+   
+  
+      
+  
+                  
+  
+                  
+  
+            
+  
+            
+            
+
+
+
+						
+
+
+	                <link rel="stylesheet" type="text/css" href="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/main-0.css" media="screen, print">
+    
+                <link rel="stylesheet" type="text/css" href="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/plugins-0.css" media="screen, print">
+    
+
+
+
+    
+
+	
+
+    
+
+    <link rel="stylesheet" type="text/css" href="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/10282.css" media="screen, print">
+
+
+                <link rel="stylesheet" type="text/css" href="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/print-0.css" media="print">
+    
+
+
+
+<!--[if IE]>
+                    <link rel="stylesheet" type="text/css" href="/css/hacks/ie-0.css"/>
+    <![endif]-->
+
+<!--[if IE 7]>
+                    <link rel="stylesheet" type="text/css" href="/css/hacks/ie7-0.css"/>
+    <![endif]-->
+			
+<script type="text/javascript">
+    //configuration
+    OAS_url = '//oas.biomedcentral.com/RealMedia/ads/';
+
+	// control of advert's position on page [AMC]
+    
+    	
+	
+    OAS_sitepage = "gigasciencejournal.com/about";
+    	
+		OAS_listpos = 'Top,Right1';
+	
+			
+		OAS_query = '';
+		
+	
+
+    OAS_target = '_top';
+    //end of configuration
+    OAS_version = 10;
+    OAS_rn = '001234567890'; OAS_rns = '1234567890';
+    OAS_rn = new String (Math.random()); OAS_rns = OAS_rn.substring (2, 11);
+    function OAS_NORMAL(pos) {
+		document.write('<a href="' + OAS_url + 'click_nx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + '!' + pos + '?' + OAS_query + '" target="' + OAS_target + '">');
+		document.write('<img src="' + OAS_url + 'adstream_nx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + '!' + pos + '?' + OAS_query + '" border="0"/></a>');
+    }
+    
+	function refererTerms(referer) {
+
+	if(referer.match("q=") != null) {
+		referer = referer.split("q=");
+		referer = referer[1].split("&");
+		referer = referer[0];
+	} else {
+		referer = referer;
+	}
+
+		if(referer.match("%20") != null && referer.match("%20").length >= 1) {
+			referer =  referer.replace(/%20/gi,"+");
+			return referer;
+		} else { 
+			return referer; 
+		}
+	}
+ </script>
+
+
+ <script type="text/javascript">
+	// Set the version of JavaScript to 10 for a Browser 'Mozilla/3' on webTV 
+    OAS_version = 11;
+    if ((navigator.userAgent.indexOf('Mozilla/3') != -1) || (navigator.userAgent.indexOf('Mozilla/4.0 WebTV') != -1)) {
+     OAS_version = 10; }
+    if (OAS_version >= 11) {
+    document.write('<scr' + 'ipt type="text/javascript" src="' + OAS_url + 'adstream_mjx.ads/' + OAS_sitepage + '/1' + OAS_rns + '@' + OAS_listpos + '?' + OAS_query + '"><\/script>'); }
+</script><script type="text/javascript" src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/1815966519TopRight1.js"></script>
+	
+<script type="text/javascript">
+    document.write('');
+	
+    function OAS_AD(pos) {
+        if (OAS_version >= 11)
+         OAS_RICH(pos);
+        else
+         OAS_NORMAL(pos);
+    }
+ </script>
+	
+
+
+
+
+
+<script type="text/javascript">
+    jsonLoaders = function(){
+        var _loaders = [];
+        return {
+            register: function(config){
+                config.prefix = config.prefix || '/webapi/1.0/blogs/';
+                config.feedLength = config.feedLength || 3;
+
+                _loaders.push(config);
+            },
+            list: function(){return _loaders}
+        };
+    }();
+
+    function totext() {
+	    document.write('<a href="javascript:returnToText();">Return to text</a>');
+    }
+
+    function retrieve_doi(){
+        var metas = document.getElementsByTagName('meta');
+        var i;
+        for (i = 0; i < metas.length; i++)
+            if (metas[i].getAttribute('name') == "citation_doi")
+                break;
+        var citation_doi = metas[i].getAttribute('content');
+        return citation_doi;
+    }
+
+</script>
+
+
+
+
+
+        <link title="Latest articles" rel="alternate" href="http://www.gigasciencejournal.com/latest/rss" type="application/rss+xml" exposetoheader="true">
+    <link title="Most viewed" rel="alternate" href="http://www.gigasciencejournal.com/mostviewed/rss/" type="application/rss+xml" exposetoheader="true">
+    <link title="Latest comments" rel="alternate" href="http://www.gigasciencejournal.com/latestcomments/rss" type="application/rss+xml" exposetoheader="true">
+    
+
+
+	<script type="text/javascript">
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-9618938-10']);
+	_gaq.push(['_gat._anonymizeIp']);
+	_gaq.push(['_setLocalRemoteServerMode']);
+	
+	/*for cross domain tracking*/
+	//_gaq.push(['_setAllowLinker', true]);
+    //_gaq.push(['_setDomainName', 'gigasciencejournal.com']); //this journal's domain
+	/**/
+	
+		_gaq.push(['_trackPageview']); 
+
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+
+		//var iframe = document.getElementById('casesdb-search-widget');
+		//if(iframe !== null) {
+		//	var pageTracker = _gat._getTrackerByName();
+		//	iframe.src = pageTracker._getLinkerUrl('http://www.casesdatabase.com/');
+		//}
+	})();
+	</script>
+
+	
+        </head>
+<body class="theme three-cols mirrored  ">
+
+
+
+
+
+   
+  
+      
+  
+                  
+  
+                  
+  
+            
+  
+            
+            
+
+
+
+<div id="oas-campaign" style="display:none">gigasciencejournal.com/about</div>
+<div id="oas-positions" style="display:none">Bottom,Top,Right1</div>
+
+<div id="branding" role="banner">
+                			
+		<dl class="google-ad wide  advert-text">
+	<dt style="display: block;" class="hide">
+					<a class="banner-ad" href="http://www.biomedcentral.com/advertisers/digital_advertising"></a>
+				
+			</dt>
+		<dd>
+
+		<!-- OAS AD 'Top' begin -->
+		<script type="text/javascript">
+		OAS_AD('Top');
+
+		</script>
+		<!-- OAS AD 'Top' end -->
+		</dd>
+
+		</dl>
+
+		<noscript>
+			<dl class="google-ad wide noscript">  
+    <dt class="hide"></dt>
+    
+    <dd>
+        <a href="//oas.biomedcentral.com/RealMedia/ads/click_nx.ads/gigasciencejournal.com/about/17296417194@Top?">
+            <img src="//oas.biomedcentral.com/RealMedia/ads/adstream_nx.ads/gigasciencejournal.com/about/19501808860@Top?" alt="advert"/>
+        </a>
+    </dd>
+			</dl>
+		</noscript>
+			            <div class="sup-panel-outer">
+        <div class="sup-panel-inner">
+
+            <style>
+  #nojs li.greeting, #nojs li#loginLink {display:none;}
+</style>
+
+
+<ul id="login" class="login">
+
+    <noscript><li><a href="/log"><img class="greeting" src="/images/log.gif"/></a></li></noscript>
+    
+    <li id="welcome"><span id="username"></span></li>
+
+    <li id="loginLink"><a href="http://www.gigasciencejournal.com/logon">Log on</a></li>
+    
+    
+</ul>
+
+<script>
+
+function login() {
+
+/* cookie getter/setter */
+var allCookies = {
+  getItem: function (sKey) {
+    if (!sKey || !this.hasItem(sKey)) { return null; }
+    return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
+  },
+  setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+    if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return; }
+    var sExpires = "";
+    if (vEnd) {
+      switch (vEnd.constructor) {
+        case Number:
+          sExpires = vEnd === Infinity ? "; expires=Tue, 19 Jan 2038 03:14:07 GMT" : "; max-age=" + vEnd;
+          break;
+        case String:
+          sExpires = "; expires=" + vEnd;
+          break;
+        case Date:
+          sExpires = "; expires=" + vEnd.toGMTString();
+          break;
+      }
+    }
+    document.cookie = escape(sKey) + "=" + escape(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+  },
+  removeItem: function (sKey, sPath) {
+    if (!sKey || !this.hasItem(sKey)) { return; }
+    document.cookie = escape(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sPath ? "; path=" + sPath : "");
+  },
+  hasItem: function (sKey) {
+    return (new RegExp("(?:^|;\\s*)" + escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+  },
+  keys: /* optional method: you can safely remove it! */ function () {
+    var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+    for (var nIdx = 0; nIdx < aKeys.length; nIdx++) { aKeys[nIdx] = unescape(aKeys[nIdx]); }
+    return aKeys;
+  }
+};
+
+// converts cookie into js object
+function parseCookie(cookie) {
+
+    cookie = cookie.split("&");
+    var obj = {};
+
+    for(var i = 0; i < cookie.length; i++) {
+
+        var c = cookie[i].split("=");
+
+        c[0] = c[0].replace('"','');
+        
+        obj[c[0]] = c[1];
+
+    }
+    return obj;
+}
+
+    var cookie = allCookies.getItem("bmccookie");
+
+    var obj = (cookie != null) ? parseCookie(cookie) : {};
+    
+
+        var welcome = "";
+
+        if(obj.hasOwnProperty("fname")) {
+
+            // insert user welcome
+            welcome = obj.fname.replace(/\+/g, " ") + " " + obj['lname'].replace(/\+/g," ");
+
+            if(jQuery("#welcome").length > 0) {
+              jQuery("#welcome").prepend("<strong>Welcome</strong> ");
+              jQuery("#username").prepend('<strong>' + welcome + '</strong><span class="divider"></span>');
+            } 
+
+            // update link url
+            jQuery("#loginLink a").text("Log off");
+            jQuery("#loginLink a").attr("href", window.location.protocol + "//" + window.location.host + "/logoff");
+
+            window.bmcloggedon = true;
+
+
+        } else if(obj.hasOwnProperty("institution_name")) {
+
+            // insert institution name
+            welcome = obj["institution_name"].replace(/\+/g," ");
+            
+            if(jQuery("#welcome").length > 0) { 
+                jQuery("#welcome").prepend("<strong>Welcome</strong> ");
+                jQuery("#username").prepend('<strong>' + welcome + '</strong><span class="divider"></span>');
+            } 
+
+            // update link url
+            jQuery("#loginLink a").text("Log on");
+            jQuery("#loginLink a").attr("href", window.location.protocol + "//" + window.location.host + "/logon");
+
+            window.bmcloggedon = false;
+
+
+        } else {
+            jQuery("#welcome").innerHTML = "";
+            jQuery("#loginLink a").text("Log on");
+            jQuery("#loginLink a").attr("href", window.location.protocol + "//" + window.location.host + "/logon");
+
+            window.bmcloggedon = false;
+
+        }
+
+
+        // if athens login cookie doesn't exist and the athens login link is visible then remove it.
+        if(allCookies.hasItem("athens") != true && document.getElementById("loginAthensLink") != null) {
+          jQuery("#loginAthensLink").hide();
+        }
+
+}
+
+login();
+
+
+</script>
+
+            <ul class="nav-sup">
+
+    
+        <li id="BMC" class="current">
+            <a href="http://www.biomedcentral.com/"><span class="img-title">&nbsp;</span>
+            <span class="text-title">BioMed Central</span></a>
+        </li>
+		
+        		<li><a href="http://www.biomedcentral.com/journals"><span>Journals</span></a></li>
+		
+								<li>
+				<a href="http://www.biomedcentral.com/gateways"><span>Gateways</span></a>
+			</li>
+					    	
+</ul>
+        </div>
+    </div>
+    <div class="branding-inner">
+
+        
+
+    
+<style>
+.survey {
+	margin: 10px 0;
+}
+.survey, .survey .survey-sentence {
+	font-size: 13px;
+}
+.survey-button a, .survey-button a:active, .survey-button a:visited, .survey-button a:hover  {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+.survey-button {
+	background-color: #FFA500;
+    border-radius: 5px;
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 5px 13px;
+    background: #ef8142; /* Old browsers */
+	background: -moz-linear-gradient(top,  #ef8142 0%, #ef8142 50%, #a64510 100%, #a64510 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ef8142), color-stop(50%,#ef8142), color-stop(100%,#a64510), color-stop(100%,#a64510)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ef8142 0%,#ef8142 50%,#a64510 100%,#a64510 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ef8142 0%,#ef8142 50%,#a64510 100%,#a64510 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ef8142 0%,#ef8142 50%,#a64510 100%,#a64510 100%); /* IE10+ */
+	background: linear-gradient(to bottom,  #ef8142 0%,#ef8142 50%,#a64510 100%,#a64510 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ef8142', endColorstr='#a64510',GradientType=0 ); /* IE6-9 */
+
+}
+</style>
+
+
+
+
+          <div class="logo">
+        <a href="http://www.gigasciencejournal.com/"><img alt="GigaScience" title="GigaScience Logo" src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/logo.gif"></a>     
+      </div>    
+        
+                    
+
+                    
+                            
+
+<div class="module search gray small  " role="search">
+    <div class="module-inner padded">
+        <form method="get" class="searchForm" action=" /quickSearchRedirectURL " onsubmit="window.location.href=this['url'].value + '?terms=' + encodeURIComponent(this['terms'].value); return false;">
+            <fieldset class="search">
+			                <span>
+                    Search <select name="url">
+                                <option value="http://www.gigasciencejournal.com/search/results" selected="selected">GigaScience</option>
+                                <option value="http://www.biomedcentral.com/search/results">BioMed Central</option>
+                           </select> for
+                </span>
+                            <input style="width: 143px;" id="searchTerms" name="terms" alt="Search terms" class="text " type="text">
+                 <button class="w37" value="Go" type="submit">Go</button>
+            </fieldset>
+        </form>
+    </div>
+	<a class="advanced-search" href="http://www.gigasciencejournal.com/search">Advanced search</a>
+</div> 
+
+                        <div id="mobile-nav-list">
+
+	<ul class="primary-nav" role="navigation">
+		<li><a href="http://www.gigasciencejournal.com/"><span id="home-tab">Home</span></a></li>
+														<li><a href="http://www.gigasciencejournal.com/content"><span id="articles-tab">Articles</span></a></li>
+										
+	
+
+	
+            <li class="current"><a href="http://www.gigasciencejournal.com/authors/instructions"><span id="authors-tab">Authors</span></a></li>
+        <li><a href="http://www.gigasciencejournal.com/about/reviewers"><span id="reviewers-tab">Reviewers</span></a></li>
+    		<li><a href="http://www.gigasciencejournal.com/about"><span id="about-tab">About this journal</span></a></li>
+	<li><a href="http://www.gigasciencejournal.com/my"><span id="my-tab">My GigaScience</span></a></li>
+		
+    		</ul>
+</div>
+            </div>
+</div>
+<hr class="hide">
+<div class="container">
+	<div id="content">
+			
+<div class="primary-content">
+        <!--TONY-->
+        
+
+        
+        
+        
+
+                
+
+
+
+
+                
+        
+                        
+                        <div class="block block-buttons hide_nav submit-register-panel">
+<a href="http://www.gigasciencejournal.com/manuscript" onclick="_gaq.push('_trackEvent', 'Submit', 'Submit a Manuscript button', 'GigaScience - SidePanel');" class="button"><span id="submit-manuscript-button">Submit a manuscript</span></a>
+
+
+<script>
+            // add 'Register' button if user is logged off
+            if (window.bmcloggedon == false){
+                $('.submit-register-panel').append('<a class="button" href="/register"><span class="submit-manuscript-button" id="register-button">Register</span></a>');
+            };
+        </script><a class="button" href="http://www.gigasciencejournal.com/register"><span class="submit-manuscript-button" id="register-button">Register</span></a>
+
+<a href="http://www.gigasciencejournal.com/my/preferences" onclick="_gaq.push('_trackEvent', 'Signup', 'Sign up for article alerts button', 'GigaScience - SidePanel');" class="button"><span id="sign-up-for-article-alerts-button">Sign up for article alerts</span></a>
+
+
+
+<a class="button" href="http://www.gigasciencejournal.com/about/contact"><span id="contact-us-button">Contact us</span></a>
+
+            
+        
+        
+        
+                                        <a class="button" href="http://twitter.com/GigaScience">
+
+<span class="follow"><span class="twitter"></span><span class="socialBtnText">Follow us on Twitter </span></span>
+
+</a>                
+                        
+
+                <a class="button" href="http://www.facebook.com/GigaScience">
+<span id="follow"><span class="facebook"></span><span class="socialBtnText">Find us on Facebook</span></span>
+</a>
+                        
+                                
+
+<a class="button" href="http://www.gigasciencejournal.com/support"><span>Support</span></a>
+
+</div>
+
+                
+         
+         
+        
+                        			
+		<dl class="google-ad  ">
+	<dt class="hide">
+				
+					<a class="skyscraper-ad" href="http://www.biomedcentral.com/advertisers/digital_advertising">Advertisement</a>
+			</dt>
+		<dd>
+
+		<!-- OAS AD 'Right1' begin -->
+		<script type="text/javascript">
+		OAS_AD('Right1');
+
+		</script>
+		<!-- OAS AD 'Right1' end -->
+		</dd>
+
+		</dl>
+
+		<noscript>
+			<dl class="google-ad  noscript">  
+    <dt class="hide"><a href="http://www.biomedcentral.com/advertisers/digital_advertising">Advertisement</dt>
+    
+    <dd>
+        <a href="//oas.biomedcentral.com/RealMedia/ads/click_nx.ads/gigasciencejournal.com/about/17209705303@Right1?">
+            <img src="//oas.biomedcentral.com/RealMedia/ads/adstream_nx.ads/gigasciencejournal.com/about/12841930695@Right1?" alt="advert"/>
+        </a>
+    </dd>
+			</dl>
+		</noscript>
+			</div>
+<div class="secondary-content-flexible">
+                        
+
+
+
+
+<div class="primary-content hide_nav">
+    <ul class="secondary-nav">
+        <li class="current"><a href="http://www.gigasciencejournal.com/authors/instructions"><span>Instructions for authors</span></a>
+			<ul class="sub">
+                                <li>            <a class="active" href="http://www.gigasciencejournal.com/authors/instructions/research">Research Articles</a>
+    </li>
+                                <li>            <a class="active" href="http://www.gigasciencejournal.com/authors/instructions/commentary">Commentaries</a>
+    </li>
+                                <li>            <a class="active" href="http://www.gigasciencejournal.com/authors/instructions/datanote">Data Notes</a>
+    </li>
+                                                        <li>            <a class="active" href="http://www.gigasciencejournal.com/authors/instructions/review">Reviews</a>
+    </li>
+                                            <li>            Technical Notes
+    </li>
+            
+            			</ul>
+		</li>
+
+		<li><a href="http://www.gigasciencejournal.com/manuscript"><span>Submit a manuscript</span></a></li>
+		<li><a href="http://www.gigasciencejournal.com/my/manuscripts"><span>My manuscripts</span></a></li>
+                    <li><a href="http://www.biomedcentral.com/authors/authoracademy"><span>BioMed Central author academy</span></a></li>
+            </ul>
+</div>
+<div class="secondary-content">
+<div class="rounded white about ifora" id="technicalnote">
+<div class="wrap-inner content">
+        <h1>Instructions for  authors</h1><div class="ifora">
+<h1 class="subheading">Technical Notes</h1>
+
+				
+	<p>See <a href="http://www.gigasciencejournal.com/about">'About this journal'</a> for descriptions of  different article types and  information about policies and the refereeing process.</p>
+
+
+
+<h2>Criteria</h2>
+	<p>Technical Notes should present an open-source software tool or an 
+experimental or computational method, test or procedure for the analysis
+ or handling of large-scale data. Tools optimized to run in a cloud 
+environment are particularly of interest to the journal and will be 
+highlighted in a cloud section. The tool or method described may be new 
+or may be an update or adaptation of an existing one. For software, this
+ includes new functionality, improvements in performance or interfaces, 
+or a release on a new platform. The tool or method needs to have been 
+tested, and while not necessarily outperforming existing approaches 
+should show innovation in the approach or implementation. Authors must 
+clearly acknowledge work upon which they are building, both published 
+and unpublished.</p>    <h2>Availability of software to reviewers and other researchers</h2>
+                <p>A distinctive characteristic of <em>GigaScience</em> 
+is its focus on the availability of all supporting materials, high 
+quality documentation and testing, the availability of test input and 
+output data, and reproducibility. It is expected that reviewers, 
+editors, and readers of the journal will be in a position to anonymously
+ download and/or deploy tools and examine the source code, test the 
+application on defined datasets, and reproduce all examples given in the
+ text of the paper. Submissions that do not meet these requirements will
+ be rejected without review.</p>
+            <p>In broad terms the requirements for submission are that 
+all supporting information, source code and test data of a clearly 
+defined version are available either by us and preferable in a 
+recognised and appropriate repository (e.g. Sourceforge, GitHub, 
+GoogleCode, Galaxy, myExperiment, Bioinformatics.org). Users must have 
+the right to examine, compile, run and modify the code for any purpose. 
+All software must therefore be provided under a license that is approved
+ by the Open Source Initiative where practicable compiled running 
+software is made available. Examples of test data and expected outputs 
+must be provided that enable readers to reproduce examples given in the 
+paper. Documentation is expected to be consistent with best practice for
+ the language and/or discipline.</p>
+        <p>If you wish to make a presubmission enquiry about the suitability of your manuscript, please email the <a href="mailto:editorial@gigasciencejournal.com">editors</a> who will respond to your enquiry as soon as possible.</p>
+    
+
+
+
+
+
+
+
+<h2 id="submission-process">Submission process</h2>
+<p> Manuscripts must be submitted by one of the authors of the 
+manuscript, and should not be submitted by anyone on their behalf. The 
+submitting author takes responsibility for the article during submission
+ and peer review.
+
+    
+    </p>
+
+
+             			<p>                                                     
+                                                       				Please note 
+that 
+				                <em>GigaScience</em> levies an article-processing charge on all accepted Technical Notes; 
+				if the submitting author's institution is a
+                         <a href="http://www.biomedcentral.com/libraries/membership"> BioMed Central member</a> the cost of the article-processing charge may be covered by the membership (see <a href="http://www.gigasciencejournal.com/about/#apc">About</a>
+ page for detail). Please note that the membership is only automatically
+ recognised on submission if the submitting author is based at the 
+member institution.                                                     
+                                                                    				
+		</p>
+		                                                
+        <p>To facilitate rapid publication and to minimize administrative costs, <em>GigaScience</em>  prefers <a href="http://www.gigasciencejournal.com/manuscript"> online submission</a>. </p>
+
+    
+        <p>Files can be submitted as a batch, or one by one. The 
+submission process can be interrupted at any time; when users return to 
+the site, they can carry on where they left off.</p>
+
+        <p> See below for examples of <a href="#file_formats">word processor</a> and <a href="#figs_file_formats">graphics file formats</a> that can be accepted for the main manuscript document by the online submission system.  Additional files of any type, such as <a href="#additional-files-format">movies</a>, animations, or <a href="#additional-files-format">original data files</a>, can also be submitted as part of the manuscript. </p>
+
+        
+                    <p>During submission you will be asked to provide a 
+cover letter. Use this to explain why your manuscript should be 
+published in the journal, to elaborate on any issues relating to our 
+editorial policies in the <a href="http://www.gigasciencejournal.com/about#trials">'About <em>GigaScience</em>'</a>
+ page, and to declare any potential competing interests.
+						
+			
+                                                        
+                 You will be also asked to provide the contact details 
+(including email addresses) of  potential peer reviewers for your 
+manuscript. These should be experts in their field, who will be able to 
+provide an objective assessment of the manuscript. Any suggested peer 
+reviewers should not have published with any of the authors of the  
+manuscript within the past five years, should not be current 
+collaborators, and should not be members of the same research 
+institution.  Suggested reviewers will be considered alongside potential
+ reviewers recommended by the editorial team and/or by Editorial Board 
+members or other advisers.
+                          </p>
+
+    
+    <p>Assistance with the process of  manuscript preparation and submission is available from <a href="mailto:info@biomedcentral.com"> BioMed Central customer support team.</a></p>
+    
+<p>We also provide a collection of links to useful tools and resources for scientific authors on our <a href="http://www.biomedcentral.com/authors/authortools">Useful Tools</a> page.</p>
+
+<h3 id="file_formats">File formats</h3>
+<p>The following word processor file formats are acceptable for the  main manuscript document: </p>
+<ul>
+        <li>Microsoft word (DOC, DOCX)</li>
+                <li>Rich text format (RTF)</li>
+            <li>Portable document format (PDF)</li>
+            <li>TeX/LaTeX (use <a href="http://www.biomedcentral.com/authors/tex">BioMed Central's TeX template</a>)</li>
+            <li>DeVice Independent format (DVI)</li>
+        </ul>
+
+	<p>TeX/LaTeX users: Please use <a href="http://www.biomedcentral.com/authors/tex">BioMed Central's TeX template</a>
+ and BibTeX stylefile if you use TeX format. During the TeX submission 
+process, please submit your TeX file as the main manuscript file and 
+your bib/bbl file as a dependent file. Please also convert your TeX file
+ into a PDF and submit this PDF as an additional file with the name 
+'Reference PDF'. This PDF will be used by internal staff as a reference 
+point to check the layout of the article as the author intended. Please 
+also note that all figures must be coded at the end of the TeX file and 
+not inline.</p>
+
+	<p>If you have used another template for your manuscript, or if you do 
+not wish to use BibTeX, then please submit your manuscript as a DVI 
+file. We do not recommend converting to RTF.</p>
+
+	<p>For all TeX submissions, all relevant editable source must be 
+submitted during the submission process. Failing to submit these source 
+files will cause unnecessary delays in the publication procedures.</p>
+
+
+
+
+<h2 id="preparing-main-manuscript">Preparing  main manuscript text</h2>
+
+
+<p>General guidelines of the journal's style and language are given <a href="#style-and-language">below</a>.</p>
+
+<h3>Overview of manuscript sections for Technical Notes</h3>
+
+<p>Manuscripts for Technical Notes submitted to <em>GigaScience</em> should be divided into the following sections (in this order):</p>
+
+<ul id="menu-listing">
+	<li><a href="#formatting-title">Title page</a></li>  
+	<li><a href="#formatting-abstract">Abstract</a></li>
+	<li><a href="#formatting-keywords">Keywords</a></li>
+		<li><a href="#formatting-findings">Findings</a></li>
+		<li><a href="#formatting-availability-requirements">Availability and requirements</a></li>
+			<li><a href="#formatting-db">Submission of supporting data to the <em>GigaScience</em> database, <em>Giga</em>DB</a></li><a href="#formatting-db">	
+			</a><li><a href="#formatting-db"></a><a href="#formatting-supporting-data">Availability of supporting data</a></li>
+		<li><a href="#formatting-abbreviations">List of abbreviations used </a>(if any)</li>
+	<li><a href="#formatting-competing">Competing interests</a></li> 
+	<li><a href="#formatting-contributions">Authors' contributions</a></li>
+		<li><a href="#formatting-information">Authors' information</a></li>
+	<li><a href="#formatting-acknowledgements">Acknowledgements</a></li>
+	<li><a href="#formatting-endnotes">Endnotes</a></li>	
+	<li><a href="#formatting-references">References</a></li>
+	<li><a href="#preparing-figures">Illustrations and figures</a> (if any)</li>
+	<li><a href="#preparing-tables">Tables and captions</a></li> 
+	<li><a href="#preparing-additional-files">Preparing additional files</a></li> 
+</ul>
+<h3 data-listing="menu" id="formatting-title">Title page</h3>
+<p>This should list: the title of the article, which should include an 
+accurate, clear and concise description of the reported work, avoiding 
+abbreviations; and the full names, institutional addresses, and e-mail 
+addresses for all authors. The corresponding author should also be 
+indicated.</p>
+
+
+<p>The Abstract of the manuscript should not exceed 350 words and must 
+be structured into separate sections: Background; Findings, the 
+technical details of the method, how the method was performed and 
+statistical tests used; Conclusions, brief summary and potential 
+implications. Please minimize the use of abbreviations and do not cite 
+references in the abstract. Please see also our guide for writing an 
+easily accessible <a href="http://www.biomedcentral.com//authors/abstracts">abstract</a>.</p>
+
+<h3 data-listing="menu" id="formatting-keywords">Keywords</h3>
+<p>Three to ten keywords representing the main content of the article.</p>
+
+<h3 id="formatting-findings">Findings</h3>
+<p>The background and purpose of the database or data collection should 
+be presented for readers without specialist knowledge in that area. A 
+brief description of the protocol for data collection, data curation and
+ quality control, and what is being reported in the article should be 
+included.</p>
+
+<p>For data sets, a discussion of the intended uses of the data, and the
+ benefits that are envisioned, should be included. An example of the use
+ of the data may be presented, but this is not required.</p>
+
+<p>For databases, the user interface should be described and a 
+discussion of the intended uses of the database, and the benefits that 
+are envisioned, should be included, together with data on how its 
+performance and functionality compare with functionally similar existing
+ databases. A case study of the use of the database may be presented. 
+The planned future development of new features, if any, should be 
+mentioned.</p>
+
+<p>The findings section can be broken into subsections with short 
+informative headings. There is no maximum length for this section but we
+ encourage authors to be concise.</p>
+
+<h3 data-listing="menu" id="formatting-availability-requirements">Availability and requirements</h3>
+<p>Lists the following:</p>
+<ul>
+	<li><strong>Project name:</strong> e.g. My bioinformatics project</li>
+	<li><strong>Project home page:</strong> e.g. http://sourceforge.net/projects/mged</li>
+	<li><strong>Operating system(s):</strong> e.g. Platform independent</li>
+	<li><strong>Programming language:</strong> e.g. Java</li>
+	<li><strong>Other requirements:</strong> e.g. Java 1.3.1 or higher, Tomcat 4.0 or higher</li>
+	<li><strong>License:</strong> e.g. GNU GPL, FreeBSD etc.</li>
+	<li><strong>Any restrictions to use by non-academics:</strong> e.g. licence needed</li>
+</ul>
+
+	<h3 data-listing="menu" id="formatting-db">Submission of supporting data to the <em>GigaScience</em> database, <em>Giga</em>DB</h3>
+	<p><em>GigaScience</em> is able host very large-scale datasets and provides a direct link from published manuscripts to an affiliated database, <em>Giga</em>DB.
+ On acceptance to publication, the linked data are given a Digital 
+Object Identifier (DOI) that allows easy and more permanent access to 
+the data, and the ability to directly cite the data in future articles 
+that use these data. </p>
+	<p>For data submission: at the time of manuscript submission, please 
+provide the following information on the data that accompanies your 
+manuscript:</p>
+
+<ol>
+	<li>Title</li>
+	<li>Abstract</li>
+	<li>Author list for the dataset (if different to the manuscript submission)</li>
+	<li>Data types (e.g. sequence assembly, transcriptome, imaging, etc.)</li>
+	<li>Organism or tissue for each data type  </li>
+	<li>Dataset size</li>
+	<li>Readme file</li>
+	<li>Link to data if public, or any related accession numbers in other repositories</li>
+</ol>
+
+	<p>After an initial assessment of your manuscript for scope and scale, if suitable for review a member of the <em>GigaScience</em> database team will contact you to help you make the data available to the reviewers. </p>	
+
+
+	<h3 data-listing="menu" id="formatting-supporting-data">Availability of supporting data</h3>
+			<p><em>GigaScience</em> requires authors to deposit the data set(s) 
+supporting the results reported in submitted manuscripts in a 
+publicly-accessible data repository such as <a href="http://gigadb.org/"><em>Giga</em>DB</a> (see our <a href="http://www.gigasciencejournal.com/about#editorialpolicies">editorial policies</a> and <em>Giga</em>DB database <a href="http://gigadb.org/terms-of-use/">terms of use</a>
+ for complete details). This section should only be included when 
+supporting data are available and must include the name of the 
+repository and the permanent identifier or accession number and 
+persistent hyperlink(s) for the data set(s). The following format is 
+required:</p>
+	
+		
+		<p>"The data set(s) supporting the results of this article is(are) 
+available in the [repository name] repository, [unique persistent 
+identifier and hyperlink to dataset(s) in http:// format]."</p>
+		
+	<p>"The data set(s) supporting the results of this article is(are) 
+available in the [repository name] repository, [unique persistent 
+identifier/link for dataset(s)]."</p>
+
+<p>Where all supporting data are included in the article or additional files the following format is required:</p>
+
+<p>"The data set(s) supporting the results of this article is(are) included within the article (and its additional file(s))"</p>
+
+
+</div>
+
+
+
+<h3 id="formatting-abbreviations">List of abbreviations</h3> 
+<p>If abbreviations are used in the text they should be defined in the 
+text at first use, and a list of abbreviations can be provided, which 
+should precede the competing interests and authors' contributions.</p>
+	<h3 id="formatting-competing">Competing interests</h3>
+			<p>A competing interest exists when your interpretation of data or 
+presentation of information may be influenced by your personal or 
+financial relationship with other people or organizations. Authors must 
+disclose any financial competing interests; they should also reveal any 
+non-financial competing interests that may cause them embarrassment were
+ they to become public after the publication of the manuscript.</p>
+		<p>Authors are required to complete a declaration of competing 
+interests. All competing interests that are declared will be listed at 
+the end of published articles. Where an author gives no competing 
+interests, the listing will read 'The author(s) declare that they have 
+no competing interests'.</p>
+		<p>When completing your declaration, please consider the following questions:</p>
+		<p><em>Financial competing interests</em></p>
+		<ul>
+			<li>In the past three years have you received reimbursements, fees, 
+funding, or salary from an organization that may in any way gain or lose
+ financially from the publication of this manuscript, either now or in 
+the future? Is such an organization financing this manuscript (including
+ the article-processing charge)? If so, please specify.</li>
+			<li>Do you hold any stocks or shares in an organization that may in 
+any way gain or lose financially from the publication of this 
+manuscript, either now or in the future? If so, please specify.</li>
+			<li>Do you hold or are you currently applying for any patents 
+relating to the content of the manuscript? Have you received 
+reimbursements, fees, funding, or salary from an organization that holds
+ or has applied for patents relating to the content of the manuscript? 
+If so, please specify.</li>
+			<li>Do you have any other financial competing interests? If so, please specify.</li>
+		</ul>
+		<p><em>Non-financial competing interests </em></p>
+		<p>Are there any non-financial competing interests (political, 
+personal, religious, ideological, academic, intellectual, commercial or 
+any other) to declare in relation to this manuscript? If so, please 
+specify.</p>
+		<p>If you are unsure as to whether you, or one your co-authors, has a 
+competing interest please discuss it with the editorial office.</p>
+								<h3 id="formatting-contributions">Authors' contributions</h3>
+			<p>In order to give appropriate credit to each author of a paper, the
+ individual contributions of authors to the manuscript should be 
+specified in this section.</p>
+			<p>According to <a href="http://www.icmje.org/recommendations/browse/roles-and-responsibilities/defining-the-role-of-authors-and-contributors.html">ICMJE guidelines</a>,
+ An 'author' is generally considered to be someone who has made 
+substantive intellectual contributions to a published study. To qualify 
+as an author one should 1) have made substantial contributions to  
+conception and design, or acquisition of data, or analysis and 
+interpretation of data; 2) have been involved in drafting the manuscript
+ or revising it critically for important intellectual content; 3) have 
+given final approval of the version to be published; and 4) agree to be 
+accountable for all aspects of the work in ensuring that questions 
+related to the accuracy or integrity of any part of the work are 
+appropriately investigated and resolved. Each author should have 
+participated sufficiently in the work to take public responsibility for 
+appropriate portions of the content. Acquisition of funding, collection 
+of data, or general supervision of the research group, alone, does not 
+justify authorship. </p>
+			<p>We suggest the following kind of format (please use initials to 
+refer to each author's contribution):
+							AB carried out the  molecular genetic studies, participated in 
+the sequence alignment and drafted the manuscript. JY carried out the 
+immunoassays. MT participated in the sequence alignment. ES participated
+ in the design of the study and performed the statistical analysis.  FG 
+conceived of the study, and participated in its design and coordination 
+and helped to draft the manuscript. All authors read and approved the 
+final manuscript.
+						</p>
+			<p>All contributors who do not meet the criteria for authorship 
+should be listed in an acknowledgements section. Examples of those who 
+might be acknowledged include a person who provided purely technical 
+help, writing assistance, or a department chair who provided only 
+general support.</p>
+					
+				<h3 id="formatting-information">Authors' information</h3>
+		<p>You may choose to use this section to include any relevant 
+information about the author(s) that may aid the reader's interpretation
+ of the  article, and understand the standpoint of the author(s). This 
+may include details about the authors' qualifications, current positions
+ they hold at institutions or societies, or any other relevant 
+background information. Please refer to authors using their initials. 
+Note this section should not be used to describe any competing 
+interests.</p>
+	
+		<h3 id="formatting-acknowledgements">Acknowledgements</h3>
+	<p>Please acknowledge anyone who contributed towards the  article by 
+making substantial contributions to  conception, design, acquisition of 
+data, or analysis and interpretation of data, or who was involved in 
+drafting the manuscript or revising it critically for important 
+intellectual content, but who does not meet the criteria for authorship.
+ Please also include the source(s) of funding for each author, and for 
+the  manuscript preparation. Authors must describe the role of the 
+funding body, if any,  in design, in the collection, analysis, and 
+interpretation of data; in the writing of the manuscript; and in the 
+decision to submit the manuscript for publication. Please also 
+acknowledge anyone who contributed materials essential for the study. If
+ a language editor has made significant revision of the manuscript, we 
+recommend that you acknowledge the editor by name, where possible. </p>
+
+	
+	<p>Authors should obtain permission to acknowledge from all those mentioned in the Acknowledgements section.</p>
+
+	
+	<h3 id="formatting-endnotes">Endnotes</h3>
+	<p>Endnotes should be designated within the text using a superscript  
+lowercase letter and all notes (along with their corresponding  letter)
+	should be included in the Endnotes section. Please format this section 
+in a paragraph rather than a list.</p>
+	<h3 id="formatting-references">References</h3>
+			
+					<p> All references, including URLs, must be numbered consecutively,
+ in square brackets, in the order in which they are cited in the text, 
+followed by any in tables or legends. Each reference must have an 
+individual reference number.  Please avoid excessive referencing.   If 
+automatic numbering systems are used, the reference numbers must be 
+finalized and the bibliography must be fully formatted before 
+submission.</p>
+						<p><em>GigaScience</em> endorses the Joint Declaration of Data 
+Citation Principles, and believes data should be accorded the same 
+importance in the scholarly record as citations of other research 
+objects, such as publications (see: <a href="https://www.force11.org/datacitation/">https://www.force11.org/datacitation/</a>). Please cite the dataset supporting this article (<em>Giga</em>DB DOI or other similar resource) when discussed in the text and in the Availability of Supporting Data and Materials section.</p>
+	
+	<p>Only articles and abstracts that have been published or are in 
+press, or are available through public e-print/preprint servers, may be 
+cited;
+	unpublished abstracts, unpublished data and personal communications 
+should not be included in the reference list, but may be included in the
+	text and referred to as "unpublished observations" or "personal 
+communications" giving the names of the involved researchers. Obtaining
+	permission to quote personal communications and unpublished data from 
+the cited colleagues is the responsibility of the author. 	Footnotes are
+ not allowed, but endnotes are permitted. Journal abbreviations follow 
+Index Medicus/MEDLINE. Citations in the reference list should include 
+all named authors, up to the first  30 before adding '<em>et al.</em>'..</p>
+
+	<p>Any <em>in press</em> articles cited within the references and 
+necessary for the reviewers' assessment of the manuscript should be made
+ available if requested by the editorial office.</p>
+
+	
+		
+	
+		
+		
+		<p>An Endnote style file is <a href="http://www.gigasciencejournal.com/download/endnote/SpringerVancouverNumber.ens">available</a>.</p>
+		
+	<p>Examples of the <em>GigaScience</em> reference style are shown <a href="#reference-style">below</a>.
+ Please ensure that the reference style is followed precisely; if the 
+references are not in the correct style they may have to be retyped and 
+carefully proofread. </p>
+
+			<p>All web links and URLs, including links to the authors' own 
+websites, should be given a reference number and included in the 
+reference list rather than within the text of the manuscript. They 
+should be provided in full, including both the title of the site and the
+ URL, in the following format: 		<strong>The Mouse Tumor Biology Database</strong>
+ [http://tumor.informatics.jax.org/mtbwi/index.do]. If an author or 
+group of authors can clearly be associated with a web link, such as for 
+weblogs, then they should be included in the reference.</p>
+		
+	<h4 id="reference-style">Examples of the <em><em>GigaScience</em></em> reference style</h4>
+	<br>
+				<p><em>Article within a journal</em><br>
+			Smith JJ. The world of science. Am J Sci. 1999;36:234-5.</p>
+
+			<p><em>Article by DOI (with page numbers)</em><br>
+			O'Mahony S, Rose SL, Chilvers AJ, Ballinger JR, Solanki CK, Barber 
+RW. Finding an optimal method for imaging lymphatic vessels of the upper
+ limb. Eur J Nucl Med Mol Imaging. 2004;31:555-63. 
+doi:10.1007/s00259-003-1399-3.</p>
+
+			<p><em>Article by DOI (before issue publication and without page numbers)</em><br>
+			O'Mahony S, Rose SL, Chilvers AJ, Ballinger JR, Solanki CK, Barber 
+RW. Finding an optimal method for imaging lymphatic vessels of the upper
+ limb. Eur J Nucl Med Mol Imaging. 2004. doi:10.1007/s00259-003-1399-3.</p>
+
+			<p><em>Article in electronic journal by DOI (no paginated version)</em><br>
+			Slifka MK, Whitton JL. Clinical implications of dysregulated cytokine
+ production. Dig J Mol Med. 2000. doi:10.1007/s801090000086.</p>
+
+			<p><em>Article within a journal supplement</em><br>
+			Frumin AM, Nussbaum J, Esposito M. Functional asplenia: demonstration
+ of splenic activity by bone marrow scan. Blood 1979;59 Suppl 1:26-32.</p>
+
+			<p><em>Book chapter, or an article within a book</em><br>
+			Wyllie AH, Kerr JFR, Currie AR. Cell death: the significance of 
+apoptosis. In: Bourne GH, Danielli JF, Jeon KW, editors. International 
+review of cytology. London: Academic; 1980. p. 251-306.</p>
+
+			<p><em>OnlineFirst chapter in a series (without a volume designation but with a DOI)</em><br>
+			Saito Y, Hyuga H. Rate equation approaches to amplification of 
+enantiomeric excess and chiral symmetry breaking. Top Curr Chem. 2007. 
+doi:10.1007/128_2006_108.</p>
+
+			<p><em>Complete book, authored</em><br>
+			Blenkinsopp A, Paxton P. Symptoms in the pharmacy: a guide to the 
+management of common illness. 3rd ed. Oxford: Blackwell Science; 1998.</p>
+
+			<p><em>Online document</em><br>
+			Doe J. Title of subordinate document. In: The dictionary of 
+substances and their effects. Royal Society of Chemistry. 1999. 
+http://www.rsc.org/dose/title of subordinate document. Accessed 15 Jan 
+1999.</p>
+
+			<p><em>Online database</em><br>
+			Healthwise Knowledgebase. US Pharmacopeia, Rockville. 1998. http://www.healthwise.org. Accessed 21 Sept 1998.</p>
+
+			<p><em>Supplementary material/private homepage</em><br>
+			Doe J. Title of supplementary material. 2000. http://www.privatehomepage.com. Accessed 22 Feb 2000.</p>
+
+			<p><em>University site</em><br>
+			Doe, J: Title of preprint. http://www.uni-heidelberg.de/mydata.html (1999). Accessed 25 Dec 1999.</p>
+			 
+			<p><em>FTP site</em><br>
+			Doe, J: Trivial HTTP, RFC2169. ftp://ftp.isi.edu/in-notes/rfc2169.txt (1999). Accessed 12 Nov 1999.</p>
+
+			<p><em>Organization site</em><br>
+			ISSN International Centre: The ISSN register. http://www.issn.org (2006). Accessed 20 Feb 2007.</p>
+			
+			
+			<h2 id="preparing-figures">Preparing illustrations and figures</h2>
+			
+	<p>Illustrations should be provided as separate files, not embedded in 
+the text file. Each figure should include a single illustration and 
+should fit on a single page in portrait format. If a figure consists of 
+separate parts, it is important that a single composite illustration 
+file be submitted which contains all parts of the figure. There is no 
+charge for the use of color figures.</p>
+	<p>Please read our <a href="http://www.biomedcentral.com/authors/figures">figure preparation guidelines</a> for detailed instructions on maximising the quality of your <a href="http://www.biomedcentral.com/authors/figuretypes">figures</a>.</p>
+	
+
+	<h3><a id="figs_file_formats"></a>Formats</h3>
+	<p>The following file formats can be accepted:</p>
+	<ul>
+		<li>PDF (preferred format for diagrams)</li>
+			<li>DOCX/DOC (single page only)</li>
+			<li>PPTX/PPT (single slide only)</li>
+			<li>EPS</li>
+			<li>PNG (preferred format for photos or images)</li>
+			<li>TIFF</li>
+			<li>JPEG</li>
+			<li>BMP</li>
+			</ul>
+
+	
+	<h3><a id="figure-legends"></a>Figure legends</h3>
+	<p>The legends should be included in the main manuscript text file at 
+the end of the document, rather than being a part of the figure file. 
+For each figure, the following information should be provided: Figure 
+number (in sequence, using Arabic numerals - i.e. Figure 1, 2, 3 etc); 
+short title of figure (maximum 15 words); detailed legend, up to 300 
+words.</p>
+		<p><strong>Please note that it is the responsibility of the author(s) 
+to obtain permission from the copyright holder to reproduce figures or 
+tables that have previously been published elsewhere.</strong></p>
+
+	
+		<h3>Preparing a personal cover page</h3>
+	<p>If you wish to do so, you may submit an image which, in the event of
+ publication, will be used to create a cover page for the PDF version of
+ your article. The cover page will also display the journal logo, 
+article title and citation details. The image may either be a figure 
+from your manuscript or another relevant image. You must have permission
+ from the copyright  to reproduce the image. Images that do not meet our
+ requirements will not be used.</p>
+	<p>Images must be 300dpi and 155mm square (1831 x 1831 pixels for a raster image).</p>
+	<p>Allowable formats - EPS, PDF (for line drawings), PNG, TIFF (for 
+photographs and screen dumps), JPEG, BMP, DOC, PPT, CDX, TGF 
+(ISIS/Draw).</p>
+	
+	<h2 id="preparing-tables">Preparing tables</h2>
+	<p>Each table should be numbered and cited in sequence using Arabic 
+numerals (i.e. Table 1, 2, 3 etc.). Tables should also have a title 
+(above the table) that summarizes the whole table; it should be no 
+longer than 15 words. Detailed legends may then follow, but they should 
+be concise. Tables should always be cited in text in consecutive 
+numerical order.</p>
+	<p>Smaller tables considered to be integral to the manuscript can be 
+pasted into the end of the document text file, in A4 portrait or 
+landscape format. These will be typeset and displayed in the final 
+published form of the article. Such tables should be formatted using the
+ 'Table object' in a word processing program to ensure that columns of 
+data are kept aligned when the file is sent electronically for review; 
+this will not always be the case if columns are generated by simply 
+using tabs to separate text. Columns and rows of data should be made 
+visibly distinct by ensuring that the borders of each cell display as 
+black lines. Commas should not be used to indicate numerical values. 
+Color and shading may not be used; parts of the table can be highlighted
+ using symbols or bold text, the meaning of which should be explained in
+ a table legend. Tables should not be embedded as figures or spreadsheet
+ files.</p>
+	<p>Larger datasets or tables too wide for a  landscape page can be 
+uploaded separately as additional files. Additional files will not be 
+displayed in the final, laid-out PDF of the article, but a link will be 
+provided to the files as supplied by the author.</p>
+	<p>Tabular data provided as additional files can be uploaded as an 
+Excel spreadsheet (.xls ) or comma separated values (.csv). As with all 
+files, please use the standard file extensions.</p>
+
+	<h2 id="preparing-additional-files">Preparing additional files</h2>
+		<p>Although <em>GigaScience</em> does not restrict the length of our research articles or size of data in our <em>Giga</em>DB
+ database, there may still be occasions where an author wishes to 
+provide data sets, tables, movie files, or other information as 
+additional files included with the article. </p>
+		<p>Please note: All Additional files <strong>will be published</strong>
+ along with the article. Do not include files such as patient consent 
+forms, certificates of language editing,  or revised versions of the 
+main manuscript document with tracked changes. Such files should be sent
+ by email to <a href="mailto:editorial@gigasciencejournal.com">editorial@gigasciencejournal.com</a>, quoting the Manuscript ID number.</p>
+
+	<p>Results that would otherwise be indicated as "data not shown" can 
+and should be included as additional files. Since many weblinks and URLs
+ rapidly become broken, <em>GigaScience</em> requires that supporting data are included as additional files, or deposited in a recognized repositorysuch as <em>Giga</em>DB.
+ Please do not link to data on a personal/departmental  website. The 
+maximum file size for additional files is 20 MB each, and files will be 
+virus-scanned on submission. For the submission of files larger than 20 
+MB please see the section on <a href="#formatting-db">Submission of supporting data to the GigaScience database, <em>Giga</em>DB</a>.</p>
+
+	<p>Additional files can be in any format, and will be downloadable from
+ the final published article as supplied by the author. We encourage 
+authors to use formats which facilitate interoperability (e.g. ISA-TAB) 
+and  We recommend CSV rather than PDF for tabular data.</p>
+	
+	<p>Certain supported files formats are recognized  and can be displayed
+ to the user in the browser. These include most movie formats (for users
+ with the Quicktime plugin), mini-websites prepared according to our 
+guidelines, chemical structure files (MOL, PDB), geographic data files 
+(KML). </p> 
+	
+	<p>If additional material is provided, please list the following information in a separate section of the manuscript text:</p>	
+	
+	<ul>
+		<li>File name (e.g. Additional file 1)</li>
+		<li>File format including the correct file extension for example .pdf,
+ .xls, .txt, .pptx (including name and a URL of an appropriate viewer if
+ format is unusual)</li>
+		<li>Title of data</li>
+		<li>Description of data</li>
+	</ul>
+	<p>Additional files should be named "Additional file 1" and so on and 
+should be referenced explicitly by file name within the body of the  
+article, e.g. 'An additional movie file shows this in more detail [see 
+Additional file 1]'.</p>
+
+	<h3><a id="additional-files-format"></a>Additional file formats</h3>
+	<p>Ideally, file formats for additional files should not be 
+platform-specific, and should be viewable using free or widely available
+ tools. The following are examples of suitable formats.</p>
+	<ul>
+		<li>
+			Additional documentation
+			<ul>
+				<li>PDF (Adode Acrobat)</li>
+			</ul>
+		</li>
+		<li>
+			Animations
+			<ul>
+				<li>SWF (Shockwave Flash)</li>
+			</ul>
+		</li>
+		<li>
+			Movies
+			<ul>
+				<li>MP4 (MPEG 4)</li>
+				<li>MOV (Quicktime)</li>
+			</ul>
+		</li>
+		<li>
+			Tabular data
+			<ul>
+				<li>XLS, XLSX (Excel Spreadsheet)</li>
+				<li>CSV (Comma separated values)</li>
+			</ul>
+		</li>
+	</ul>
+	<p>As with figure files, files should be given the standard file extensions.</p>
+
+	<h3>Mini-websites</h3>
+	<p>Small self-contained websites can be submitted as additional files, 
+in such a way that they will be browsable from within the full text HTML
+ version of the article. In order to do this, please follow these 
+instructions:</p>
+	<ol>
+		<li>Create a folder containing a starting file called index.html (or index.htm) in the root.</li>
+		<li>Put all files necessary for viewing the mini-website within the folder, or sub-folders.</li>
+		<li>Ensure that all links are relative (ie "images/picture.jpg" rather
+ than "/images/picture.jpg" or 
+"http://yourdomain.net/images/picture.jpg" or "C:\Documents and 
+Settings\username\My Documents\mini-website\images\picture.jpg") and no 
+link is longer than 255 characters.</li>
+		<li>Access the index.html file and browse around the mini-website, to 
+ensure that the most commonly used browsers (Internet Explorer and 
+Firefox) are able to view all parts of the mini-website without 
+problems, it is ideal to check this on a different machine.</li>
+		<li>Compress the folder into a ZIP, check the file size is under 20 
+MB, ensure that index.html is in the root of the ZIP, and that the file 
+has .zip extension, then submit as an additional file with your article.</li>
+	</ol>
+
+
+
+
+	<h2 id="style-and-language">Style and language</h2>
+	
+	<h3>General</h3>
+			<p>Currently, <em>GigaScience</em> can only accept  manuscripts written in English. Spelling should be  US English or British English, but not a mixture.</p>	
+		
+			<p>
+							
+							There is no explicit limit on the length of articles submitted, but authors are encouraged to be concise.							
+				</p>
+	
+	
+	
+	<h3>Help and advice on scientific writing</h3>
+	<p>The abstract is one of the most important parts of a manuscript. For guidance, please visit our page on <a href="http://www.biomedcentral.com/authors/abstracts">Writing titles and abstracts for scientific articles</a>.	</p>
+
+	
+			<p>Tim Albert has produced for BioMed Central a <a href="http://www.biomedcentral.com/authors/report">list of tips</a> for writing a scientific manuscript. <a href="http://www.americanscientist.org/issues/pub/the-science-of-scientific-writing">American Scientist</a>
+ also provides a list of resources for science writing. For more 
+detailed guidance on preparing a manuscript and writing in English, 
+please visit the <a href="http://www.biomedcentral.com/authors/authoracademy">BioMed Central author academy</a>.</p>
+	
+	<h3>Abbreviations</h3>
+	<p>Abbreviations should be used as sparingly as possible. They should 
+be defined when first used and a list of abbreviations can be provided 
+following the main manuscript text.</p>
+
+	<h3>Typography</h3>
+	<ul>
+		<li> Please use double line spacing.</li>
+		<li>Type the text unjustified, without hyphenating words at line breaks.</li>
+		<li>Use hard returns only to end headings and paragraphs, not to rearrange lines.</li>
+		<li>Capitalize only the first word, and proper nouns, in the title.</li>
+					<li>All pages should be numbered.</li>
+				<li>Use the <em>GigaScience</em> <a class="underline" href="#formatting-references">reference format</a>.</li>
+		<li>Footnotes are not allowed, but endnotes are permitted.</li>
+		<li>Please do not format the text in multiple columns.</li>
+		<li>Greek and other special characters may be included. If you are 
+unable to reproduce a particular special character, please type out the 
+name of the symbol in full. <strong>Please ensure that all special characters used are embedded in the text, otherwise they will be lost during conversion to PDF.</strong></li>
+					<li>Genes, mutations, genotypes, and alleles should be indicated in
+ italics, and authors are required to use approved gene symbols, names, 
+and formatting. Protein products should be in plain type.</li>
+					</ul>
+
+	<h3>Units</h3>
+			<p>SI units should be used throughout (liter and molar are permitted, however).</p>
+		
+	
+
+			</div>
+		</div>
+	</div>
+					
+	<div class="b png_bg">
+		<div class="r png_bg"></div>
+	</div>
+</div>
+</div>
+    </div>
+
+		
+
+
+<hr class="hide">
+
+
+						
+   
+  
+      
+  
+                  
+  
+                  
+  
+            
+  
+            
+            
+
+
+<div id="footer">
+
+				
+	<div class="content">
+    <div class="rounded ">
+<div class="wrap-inner ">
+        	
+    <ul class="desktop">
+                                                    
+				        <li class="noborder"><a href="http://www.biomedcentral.com/about/tandc">Terms and Conditions</a></li>
+<li><a href="http://www.biomedcentral.com/about/privacy">Privacy statement</a></li>
+<li><a href="http://www.biomedcentral.com/presscenter">Press</a></li>
+	<li><a href="http://www.biomedcentral.com/advertisers">Information for advertisers</a></li>
+<li><a href="http://www.biomedcentral.com/about/bmcjobs">Jobs at BMC</a></li>
+<li><a href="http://www.gigasciencejournal.com/support">Support</a></li>
+<li><a href="http://www.gigasciencejournal.com/about/contact">Contact us</a></li>
+
+
+    
+    	    </ul>
+    <p id="copyright">© 2015 
+	BioMed Central Ltd unless otherwise stated. Part of Springer Science+Business&nbsp;Media.</p>
+        </div>
+</div>
+
+	</div>
+
+</div>
+<div class="springer">
+    <a href="http://www.springer.com/" target="blank"><img style="float:right; margin:0;" src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/Springer_Branding_footer_logo.png"></a>
+</div>
+
+
+<script>window.bmcIsMobile = "classic";</script>
+
+<script>
+// getElementsByClassName Polyfill
+var getElementsByClassName=function(e,t,n){if(document.getElementsByClassName){getElementsByClassName=function(e,t,n){n=n||document;var r=n.getElementsByClassName(e),i=t?new RegExp("\\b"+t+"\\b","i"):null,s=[],o;for(var u=0,a=r.length;u<a;u+=1){o=r[u];if(!i||i.test(o.nodeName)){s.push(o)}}return s}}else if(document.evaluate){getElementsByClassName=function(e,t,n){t=t||"*";n=n||document;var r=e.split(" "),i="",s="http://www.w3.org/1999/xhtml",o=document.documentElement.namespaceURI===s?s:null,u=[],a,f;for(var l=0,c=r.length;l<c;l+=1){i+="[contains(concat(' ', @class, ' '), ' "+r[l]+" ')]"}try{a=document.evaluate(".//"+t+i,n,o,0,null)}catch(h){a=document.evaluate(".//"+t+i,n,null,0,null)}while(f=a.iterateNext()){u.push(f)}return u}}else{getElementsByClassName=function(e,t,n){t=t||"*";n=n||document;var r=e.split(" "),i=[],s=t==="*"&&n.all?n.all:n.getElementsByTagName(t),o,u=[],a;for(var f=0,l=r.length;f<l;f+=1){i.push(new RegExp("(^|\\s)"+r[f]+"(\\s|$)"))}for(var c=0,h=s.length;c<h;c+=1){o=s[c];a=false;for(var p=0,d=i.length;p<d;p+=1){a=i[p].test(o.className);if(!a){break}}if(a){u.push(o)}}return u}}return getElementsByClassName(e,t,n)}
+</script>
+
+						
+
+
+
+<script type="text/javascript">
+if (typeof jQuery == 'undefined') { document.write(decodeURIComponent("%3Cscript src='/javascript/plugins/jquery.min.js' type='text/javascript'%3E%3C/script%3E")); }
+
+
+document.documentElement.id = "js";
+
+var site = {
+			abbreviation: "",
+	        type: "BMC_NICHE",
+        portalId: "9001",
+                section: "authors",
+                page: "",
+    		
+									homePortal: "biomedcentral.com",
+		
+			siteShowAds: "true",
+				showAds: "true",
+				url: "gigasciencejournal.com",
+			portal: false,
+	        adpage_url: "gigasciencejournal.com/about",
+        id: "10282",
+	name: "GigaScience",
+	plugins: {
+		scrollable: (getElementsByClassName("scrollable").length > 0),
+				flowplayer: ((document.getElementById("flowplayer") != null) || (getElementsByClassName("myPlayer").length > 0) || (document.getElementById("videoarticle") != null) || (getElementsByClassName("flowplayer").length > 0) || (document.getElementById("audio") != null) || (document.getElementById("elifeplayer") != null)),
+		lightbox: ((document.getElementById("image-highlight") != null) || (getElementsByClassName("lightbox").length > 0)),
+		thickbox: (getElementsByClassName("thickbox").length > 0),
+		altmetric: ((document.getElementById("altmetric") != null) || (getElementsByClassName("altmetric").length > 0))
+	}
+	
+};
+
+
+
+if(typeof quoteSearchUri == "undefined") { quoteSearchUri=null; }
+</script>
+
+
+
+        <script type="text/javascript" src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/behaviours-0.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <script type="text/javascript" src="GigaScience%20%7C%20Instructions%20for%20Authors%20%7C%20Technical%20Notes_fichiers/jquery_002.js"></script>
+
+
+
+
+<!--[if lte IE 6]>
+            <script type="text/javascript" src="/javascript/plugins/DD_belatedPNG_0.0.8a-0.js"></script>
+    <script type="text/javascript">
+        DD_belatedPNG.fix('.png_bg, ul.primary-nav li a, ul.primary-nav li a span, ul.secondary-nav li a, ul.secondary-nav li a span, ul li i, .plus-button, .facebook, .twitter, .fancy-bg, #fancybox-close');
+    </script>
+	                <link rel="stylesheet" type="text/css" href="http://www.bmcimg.com/css/hacks/ie6-0.css"/>
+    <![endif]-->
+
+
+</body></html>

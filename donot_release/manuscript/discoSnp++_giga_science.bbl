@@ -1,0 +1,165 @@
+%% BioMed_Central_Bib_Style_v1.01
+
+\begin{thebibliography}{3}
+% BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
+\ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
+\ifx \binits  \undefined \def \binits#1{#1}\fi
+\ifx \bauthor  \undefined \def \bauthor#1{#1}\fi
+\ifx \batitle  \undefined \def \batitle#1{#1}\fi
+\ifx \bjtitle  \undefined \def \bjtitle#1{#1}\fi
+\ifx \bvolume  \undefined \def \bvolume#1{\textbf{#1}}\fi
+\ifx \byear  \undefined \def \byear#1{#1}\fi
+\ifx \bissue  \undefined \def \bissue#1{#1}\fi
+\ifx \bfpage  \undefined \def \bfpage#1{#1}\fi
+\ifx \blpage  \undefined \def \blpage #1{#1}\fi
+\ifx \burl  \undefined \def \burl#1{\textsf{#1}}\fi
+\ifx \doiurl  \undefined \def \doiurl#1{\textsf{#1}}\fi
+\ifx \betal  \undefined \def \betal{\textit{et al.}}\fi
+\ifx \binstitute  \undefined \def \binstitute#1{#1}\fi
+\ifx \binstitutionaled  \undefined \def \binstitutionaled#1{#1}\fi
+\ifx \bctitle  \undefined \def \bctitle#1{#1}\fi
+\ifx \beditor  \undefined \def \beditor#1{#1}\fi
+\ifx \bpublisher  \undefined \def \bpublisher#1{#1}\fi
+\ifx \bbtitle  \undefined \def \bbtitle#1{#1}\fi
+\ifx \bedition  \undefined \def \bedition#1{#1}\fi
+\ifx \bseriesno  \undefined \def \bseriesno#1{#1}\fi
+\ifx \blocation  \undefined \def \blocation#1{#1}\fi
+\ifx \bsertitle  \undefined \def \bsertitle#1{#1}\fi
+\ifx \bsnm \undefined \def \bsnm#1{#1}\fi
+\ifx \bsuffix \undefined \def \bsuffix#1{#1}\fi
+\ifx \bparticle \undefined \def \bparticle#1{#1}\fi
+\ifx \barticle \undefined \def \barticle#1{#1}\fi
+\ifx \bconfdate \undefined \def \bconfdate #1{#1}\fi
+\ifx \botherref \undefined \def \botherref #1{#1}\fi
+\ifx \url \undefined \def \url#1{\textsf{#1}}\fi
+\ifx \bchapter \undefined \def \bchapter#1{#1}\fi
+\ifx \bbook \undefined \def \bbook#1{#1}\fi
+\ifx \bcomment \undefined \def \bcomment#1{#1}\fi
+\ifx \oauthor \undefined \def \oauthor#1{#1}\fi
+\ifx \citeauthoryear \undefined \def \citeauthoryear#1{#1}\fi
+\ifx \endbibitem  \undefined \def \endbibitem {}\fi
+\ifx \bconflocation  \undefined \def \bconflocation#1{#1}\fi
+\ifx \arxivurl  \undefined \def \arxivurl#1{\textsf{#1}}\fi
+\csname PreBibitemsHook\endcsname
+
+%%% 1
+\bibitem{Willing2011}
+\begin{botherref}
+\oauthor{\bsnm{Willing}, \binits{E.-M.}},
+\oauthor{\bsnm{Hoffmann}, \binits{M.}},
+\oauthor{\bsnm{Klein}, \binits{J.D.}},
+\oauthor{\bsnm{Weigel}, \binits{D.}},
+\oauthor{\bsnm{Dreyer}, \binits{C.}}:
+{Paired-end RAD-seq for de-novo assembly and marker design without available
+  reference.}
+Bioinformatics (Oxford, England),
+1--8
+(2011).
+doi:\doiurl{10.1093/bioinformatics/btr346}
+\end{botherref}
+\endbibitem
+
+%%% 2
+\bibitem{Uricaru2014a}
+\begin{barticle}
+\bauthor{\bsnm{Uricaru}, \binits{R.}},
+\bauthor{\bsnm{Rizk}, \binits{G.}},
+\bauthor{\bsnm{Lacroix}, \binits{V.}},
+\bauthor{\bsnm{Quillery}, \binits{E.}},
+\bauthor{\bsnm{Plantard}, \binits{O.}},
+\bauthor{\bsnm{Chikhi}, \binits{R.}},
+\bauthor{\bsnm{Lemaitre}, \binits{C.}},
+\bauthor{\bsnm{Peterlongo}, \binits{P.}}:
+\batitle{{Reference-free detection of isolated SNPs.}}
+\bjtitle{Nucleic acids research}
+\bvolume{33}(\bissue{0}),
+\bfpage{1}--\blpage{11}
+(\byear{2014}).
+doi:\doiurl{10.1093/nar/gku1187}
+\end{barticle}
+\endbibitem
+
+%%% 3
+\bibitem{Drezen2014}
+\begin{botherref}
+\oauthor{\bsnm{Drezen}, \binits{E.}},
+\oauthor{\bsnm{Rizk}, \binits{G.}},
+\oauthor{\bsnm{Chikhi}, \binits{R.}},
+\oauthor{\bsnm{Deltel}, \binits{C.}},
+\oauthor{\bsnm{Lemaitre}, \binits{C.}},
+\oauthor{\bsnm{Peterlongo}, \binits{P.}},
+\oauthor{\bsnm{Lavenier}, \binits{D.}}:
+{GATB: Genome Assembly \& Analysis Tool Box.}
+Bioinformatics (Oxford, England),
+1--3
+(2014).
+doi:\doiurl{10.1093/bioinformatics/btu406}
+\end{botherref}
+\endbibitem
+
+\end{thebibliography}
+
+\newcommand{\BMCxmlcomment}[1]{}
+
+\BMCxmlcomment{
+
+<refgrp>
+
+<bibl id="B1">
+  <title><p>{Paired-end RAD-seq for de-novo assembly and marker design without
+  available reference.}</p></title>
+  <aug>
+    <au><snm>Willing</snm><fnm>EM</fnm></au>
+    <au><snm>Hoffmann</snm><fnm>M</fnm></au>
+    <au><snm>Klein</snm><fnm>JD</fnm></au>
+    <au><snm>Weigel</snm><fnm>D</fnm></au>
+    <au><snm>Dreyer</snm><fnm>C</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2011</pubdate>
+  <fpage>1</fpage>
+  <lpage>-8</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/21712251</url>
+</bibl>
+
+<bibl id="B2">
+  <title><p>{Reference-free detection of isolated SNPs.}</p></title>
+  <aug>
+    <au><snm>Uricaru</snm><fnm>R</fnm></au>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+    <au><snm>Lacroix</snm><fnm>V</fnm></au>
+    <au><snm>Quillery</snm><fnm>E</fnm></au>
+    <au><snm>Plantard</snm><fnm>O</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Lemaitre</snm><fnm>C</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+  </aug>
+  <source>Nucleic acids research</source>
+  <pubdate>2014</pubdate>
+  <volume>33</volume>
+  <issue>0</issue>
+  <fpage>1</fpage>
+  <lpage>-11</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/25404127</url>
+</bibl>
+
+<bibl id="B3">
+  <title><p>{GATB: Genome Assembly &amp Analysis Tool Box.}</p></title>
+  <aug>
+    <au><snm>Drezen</snm><fnm>E</fnm></au>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Deltel</snm><fnm>C</fnm></au>
+    <au><snm>Lemaitre</snm><fnm>C</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+    <au><snm>Lavenier</snm><fnm>D</fnm></au>
+  </aug>
+  <source>Bioinformatics (Oxford, England)</source>
+  <pubdate>2014</pubdate>
+  <fpage>1</fpage>
+  <lpage>-3</lpage>
+  <url>http://www.ncbi.nlm.nih.gov/pubmed/24990603</url>
+</bibl>
+
+</refgrp>
+} % end of \BMCxmlcomment
