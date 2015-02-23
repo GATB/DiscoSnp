@@ -306,6 +306,43 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         
 	}while (1);
     
+    
+    
+    
+    ///third loop over fragments : for SNPs, store the SNP positions
+    fragment_id=0;
+	do{
+        
+		if ( fragment_id+1 > nb_events_per_set*nb_fragment_per_event ) break; // we read the starters we needed to read
+        if ( all_starters[fragment_id]->isASNP!=1 ) {fragment_id+=2; continue;} // applies only for SNPs
+        
+        char * seq1 = all_starters[fragment_id]->w;
+        char * seq2 = all_starters[fragment_id+1]->w;
+        int size_seq = strlen(seq1);
+        assert(size_seq == strlen(seq2));
+        
+        // compute the number of SNPs:
+        int number_of_SNPs=0;
+        for (i=0; i<size_seq; i++) {
+            if (seq1[i]!=seq2[i]) {
+                number_of_SNPs++;
+            }
+        }
+        
+        all_starters[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)*(number_of_SNPs+1)); // add a dummy SNP
+        test_alloc(all_starters[fragment_id]->SNP_positions);
+        // we do not fill the all_starters[fragment_id+1] with the same information
+        number_of_SNPs=0;
+        for (i=0; i<size_seq; i++) {
+            if (seq1[i]!=seq2[i]) {
+                all_starters[fragment_id]->SNP_positions[number_of_SNPs++]=i;
+            }
+        }
+        all_starters[fragment_id]->SNP_positions[number_of_SNPs] = size_seq+1;
+		fragment_id+=2;
+	}while (1);
+    
+    
 	free(temp_fragment);
     
     free(line);

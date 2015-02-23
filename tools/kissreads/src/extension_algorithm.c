@@ -410,7 +410,8 @@ float read_coherence (gzFile reads_file,
      
                         read_coherence=0;
                         if(all_starters[value->a]->isASNP)
-                            read_coherence = read_coherent_SNP(pwi, starter, read, subst_allowed);
+                            read_coherence = read_coherent_SNP(pwi, starter, read, subst_allowed, all_starters[value->a-value->a%2]->SNP_positions);
+                            //value->a-value->a%2: the smallest id of the the fragments of this bubble (3-->2, 4-->4)
                         else
                             read_coherence = read_coherent_generic(pwi, starter, read, subst_allowed);
                         

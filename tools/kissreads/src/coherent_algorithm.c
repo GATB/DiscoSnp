@@ -101,7 +101,7 @@ char read_coherent_generic(const int pwi, const char * fragment, const char * re
  * Thus in this function, we return 0 if any substitution occurs on this central position, whatever the number of substitution_seen
  *  returns 1 if true between read and fragment, 0 else
  */
-char read_coherent_SNP(const int pwi, const char * fragment, const char * read, const int subst_allowed){
+char read_coherent_SNP(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions){
 	int substitution_seen=0; // number of seen substitutions for now
     
 	int pos_on_read, pos_on_fragment; // where to start
@@ -130,14 +130,21 @@ char read_coherent_SNP(const int pwi, const char * fragment, const char * read, 
 		pos_on_read=0;
 	}
     
-    const int snp_pos = strlen(fragment)/2;
+    //const int snp_pos = strlen(fragment)/2;
+    char snp_pos = SNP_positions[0];
+    int id_array_SNP_position=0;
 	// walk the read and the fragment together, detecting substitutions.
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
-		if(fragment[pos_on_fragment]!=read[pos_on_read] &&
-           fragment[pos_on_fragment]!='*' &&
-           fragment[pos_on_fragment]!='?' &&
-           fragment[pos_on_fragment]!='N'){ // one subsitution
+        if (pos_on_fragment>snp_pos)
+        {
+            id_array_SNP_position++;
+            snp_pos = SNP_positions[id_array_SNP_position];
+        }
+		if (fragment[pos_on_fragment]!=read[pos_on_read] &&
+            fragment[pos_on_fragment]!='*' &&
+            fragment[pos_on_fragment]!='?' &&
+            fragment[pos_on_fragment]!='N'){ // one subsitution
 			substitution_seen++;
 			if(substitution_seen>subst_allowed) return 0; // too much subsitutions
             if(pos_on_fragment==snp_pos) return 0; // substition should not be on the snp

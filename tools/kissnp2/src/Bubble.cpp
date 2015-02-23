@@ -211,7 +211,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             }
             if (end_insertion  == graph.toString(current)[sizeKmer-1] ){
                 DEBUG((cout<<"start an INDEL detection  "<<endl));
-                bubble.polymorphism_type="INDEL_"+std::to_string(insert_size);
+                bubble.polymorphism_type="INDEL";//+std::to_string(insert_size);
                 
                 /** try to close the bubble from the two initial (with one extended) node */
                 if(extended_path_id==0?
@@ -429,13 +429,10 @@ bool BubbleFinder::expand (
     /** We loop over the successors of the two nodes. */
     for (size_t i=0; i<successors.size(); i++)
     {
-//        /** Shortcuts. */
-//        Node& nextNode1 = successors[i].first;
-//        Node& nextNode2 = successors[i].second;
         
         /** extend the bubble with the couple of nodes */
         finished_bubble |= expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
-    } /* end of for (size_t i=0; i<successors.size(); i++) */
+    }
     
     DEBUG((cout<<"stop try"<<endl));
     if(finished_bubble) {
@@ -528,8 +525,6 @@ void BubbleFinder::finish (Bubble& bubble)
     
     /** We build two Sequence objects from the information of the bubble. */
     
-    stringstream polymorphism_type;
-    
     /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
      * accesses since we may be called here from different threads. */
 //    if (bubble.type==0) bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles_snp), 1);
@@ -538,13 +533,37 @@ void BubbleFinder::finish (Bubble& bubble)
     if (bubble.type==0) __sync_add_and_fetch (&(stats.nb_bubbles_snp), 1);
     if (bubble.type==1) __sync_add_and_fetch (&(stats.nb_bubbles_del), 1);
     bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles), 1);
-    if (bubble.extended_string[0].length()<bubble.extended_string[1].length()){
-        buildSequence (bubble, 0, "higher", bubble.seq1);
-        buildSequence (bubble, 1, "lower",  bubble.seq2);
+
+    /** compute the bubble paths */
+    string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
+    string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
+    string comment="";
+    if ( bubble.polymorphism_type=="SNP" ){
+        int polymorphism_id=1;
+        for (int i=0;i<path_0.length();i++){
+            if (path_0[i]!=path_1[i]) {
+                if (polymorphism_id>1) {
+                    comment.append(",");
+                }
+                comment.append("P_"+std::to_string(polymorphism_id)+":"+std::to_string(i)+"_"+path_0[i]+"/"+path_1[i]);
+                polymorphism_id++;
+            }
+        }
+    }
+    if ( bubble.polymorphism_type=="INDEL" ){
+        const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
+        const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
+        comment.append("P_1:"+std::to_string(sizeKmer-1)+"_"+std::to_string(insert_size)+"_"+std::to_string(size_repeat));
+    }
+    
+    
+    if (bubble.extended_string[0].length()<=bubble.extended_string[1].length()){
+        buildSequence (bubble, 0, "higher", bubble.seq1, comment);
+        buildSequence (bubble, 1, "lower",  bubble.seq2, comment);
     }
     else{ // put the smaller overlap as the first sequence.
-        buildSequence (bubble, 1, "higher", bubble.seq1);
-        buildSequence (bubble, 0, "lower",  bubble.seq2);
+        buildSequence (bubble, 1, "higher", bubble.seq1, comment);
+        buildSequence (bubble, 0, "lower",  bubble.seq2, comment);
     }
     
     /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
@@ -610,12 +629,14 @@ bool BubbleFinder::two_possible_extensions (Node node1, Node node2) const
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq)
+void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, string polymorphism_comments)
 {
     stringstream commentStream;
     
     /** We build the comment for the sequence. */
-    commentStream << bubble.polymorphism_type << "_" << type << "_path_" << bubble.index << "|" << (bubble.high_complexity ? "high" : "low")<< "|nb_pol_" <<bubble.final_nb_polymorphism;
+    commentStream << bubble.polymorphism_type << "_" << type << "_path_" << bubble.index << "|" << polymorphism_comments << "|" << (bubble.high_complexity ? "high" : "low")<< "|nb_pol_" <<bubble.final_nb_polymorphism;
+    
+    
     
     /** We may have extra information for the comment. */
     if (traversalKind == TRAVERSAL_UNITIG)
@@ -664,7 +685,6 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
     
     /** We add the bubble path. */
     string begin = graph.toString (bubble.begin[pathIdx]);
-    string end   = graph.toString (bubble.end[pathIdx]);
     
     /** note that if path overlap > 0 central string is empty **/
     for (size_t i=0; i<sizeKmer; i++)  {  *(output++) = begin[i];  }

@@ -30,6 +30,6 @@
 
 
 char read_coherent_generic (const int pwi, const char * fragment, const char * read, const int subst_allowed);
-char read_coherent_SNP(const int pwi, const char * fragment, const char * read, const int subst_allowed);
+char read_coherent_SNP(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_position);
 
 #endif /* COHERENCE_ALGORITHM_H_ */
