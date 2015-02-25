@@ -277,13 +277,16 @@ const char * genotype_simple_model(const int c1, const int c2, const float err, 
     const float lik0 = pow(1-err,c1)*pow(err,c2); // homozygous higher (0/0)
     const float lik1 = pow(1-err,c2)*pow(err,c1); // homozygous higher (1/1)
     const float lik2 = pow(0.5,c1+c2);            // heterozygous (0/1)
+
+//    printf("%d %d LIKE %f %f %f \n", c1, c2, lik0, lik1, lik2);
     
     const float prob0 = lik0*(1-prior_het)/2;
     const float prob1 = lik1*(1-prior_het)/2;
     const float prob2=lik2*prior_het;
+//    printf("PROB %f %f %f \n", prob0, prob1, prob2);
     
-    if ( prob0>prob1 &&  prob0>prob2) return "0/0";
-    if ( prob1>prob0 &&  prob1>prob2) return "1/1";
+    if ( prob0>=prob1 &&  prob0>=prob2) return "0/0";
+    if ( prob1>=prob0 &&  prob1>=prob2) return "1/1";
     return "0/1";
 }
 
@@ -305,32 +308,6 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
 	int read_set_id;
     
 	if( qual ){
-        // we are providing results for generic dataset
-        //        if(!map_snps){ // TODO: UNTESTED CODE.
-        //            for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        //                avg_up[read_set_id] = 0;
-        //                for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id]->w)-kmer_size;j++){
-        //                    if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j])
-        //#ifdef CHARQUAL  // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
-        //                        avg_up[read_set_id] = avg_up[read_set_id] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j];
-        //#else
-        //                    avg_up[read_set_id] = avg_up[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]);
-        //#endif
-        //                }
-        //            }
-        //            for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        //                avg_lo[read_set_id] = 0;
-        //                for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id+1]->w)-kmer_size;j++){
-        //                    if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j])
-        //#ifdef CHARQUAL  // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
-        //                        avg_lo[read_set_id] = avg_lo[read_set_id] + results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j];
-        //#else
-        //                    avg_lo[read_set_id] = avg_lo[read_set_id] + (results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]);
-        //#endif
-        //                }
-        //            }
-        //        } // END TODO.
-        //        else{ // we are providing results for a SNP or a splicing..., we give outputs only for the central position
         
         //compute average quality for the variant (position quality if SNP)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
@@ -363,34 +340,22 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 		/// UPPER
 		sum_up[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
-        //		compute_min_max_sum_starting_reads(results_against_set[read_set_id][cycle_id], &min_up[read_set_id], &max_up[read_set_id], &sum_up[read_set_id]);
 		/// LOWER
 		sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
-		//compute_min_max_sum_starting_reads(results_against_set[read_set_id][cycle_id+1], &min_lo[read_set_id], &max_lo[read_set_id], &sum_lo[read_set_id]);
 	}
     const float err = 0.01;
-    const float prior_het = 0.333;
+    const float prior_het = 0.001;
     
     float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
-    char header_comment[8192]; header_comment[0]='\0';
+    char genotypes[8192]; genotypes[0]='\0';
     char append[2048];
     
     // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
+    
     for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        sprintf(append, "G%d_%s|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_up[read_set_id], err, prior_het));
-        strcat(header_comment,append);
+        sprintf(append, "G%d_%s|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het));
+        strcat(genotypes,append);
     }
-    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        sprintf(append, "C%d_%d|",read_set_id+1,sum_up[read_set_id]);
-        strcat(header_comment,append);
-    }
-    if (qual)
-        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-            sprintf(append, "Q%d_%d|",read_set_id+1,avg_up[read_set_id]);
-            strcat(header_comment,append);
-        }
-    sprintf(append, "rank_%.5f",rank);
-    strcat(header_comment,append);
     
     // DEAL WITH STANDARD FASTA OR ONE LINE PER COUPLE (STARTING WITH THE RANK)
     char sep;
@@ -405,14 +370,34 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
     
     
     // UPPER PATH
-    fprintf(out, ">%s%s|%s",comment,results_against_set[cycle_id]->comment, header_comment);
+    fprintf(out, ">%s%s|",comment,results_against_set[cycle_id]->comment);
+    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+        fprintf(out, "C%d_%d|",read_set_id+1,sum_up[read_set_id]);
+    }
+    fprintf(out, "%s",genotypes);
+    if (qual)
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            fprintf(out, "Q%d_%d|",read_set_id+1,avg_up[read_set_id]);
+        }
+    fprintf(out, "rank_%.5f",rank);
+    
+    
     if(map_snps)
         fprintf(out, "%c%s%s%s%c", sep, results_against_set[cycle_id]->left_extension, results_against_set[cycle_id]->w, results_against_set[cycle_id]->right_extension, sep);
     else
         fprintf(out, "%c%s%c", sep, results_against_set[cycle_id]->w, sep);
     
     // LOWER PATH
-    fprintf(out, ">%s%s|%s", comment, results_against_set[cycle_id+1]->comment, header_comment);
+    fprintf(out, ">%s%s|",comment,results_against_set[cycle_id]->comment);
+    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+        fprintf(out, "C%d_%d|",read_set_id+1,sum_lo[read_set_id]);
+    }
+    fprintf(out, "%s",genotypes);
+    if (qual)
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            fprintf(out, "Q%d_%d|",read_set_id+1,avg_lo[read_set_id]);
+        }
+    fprintf(out, "rank_%.5f",rank);
     if(map_snps)
         fprintf(out, "%c%s%s%s\n", sep,results_against_set[cycle_id+1]->left_extension, results_against_set[cycle_id+1]->w, results_against_set[cycle_id+1]->right_extension);
     else

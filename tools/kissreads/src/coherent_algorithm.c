@@ -133,6 +133,7 @@ char read_coherent_SNP(const int pwi, const char * fragment, const char * read, 
     //const int snp_pos = strlen(fragment)/2;
     char snp_pos = SNP_positions[0];
     int id_array_SNP_position=0;
+    
 	// walk the read and the fragment together, detecting substitutions.
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
@@ -147,7 +148,9 @@ char read_coherent_SNP(const int pwi, const char * fragment, const char * read, 
             fragment[pos_on_fragment]!='N'){ // one subsitution
 			substitution_seen++;
 			if(substitution_seen>subst_allowed) return 0; // too much subsitutions
-            if(pos_on_fragment==snp_pos) return 0; // substition should not be on the snp
+            if(pos_on_fragment==snp_pos) {
+                return 0; // substition should not be on the snp
+            }
 		}
 		pos_on_fragment++;
 		pos_on_read++;
