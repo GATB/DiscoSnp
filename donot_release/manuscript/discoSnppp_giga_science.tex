@@ -323,7 +323,7 @@ We propose results both on synthetic and on real datasets. Synthetic datasets of
 \subsection*{Results on synthetic datasets}
 We first propose a bench of results based on synthetic datasets. As presented in the Additional File 1, these datasets are derived from real genomes, either from Escherichia Coli or or from the human chromosome 1. 
 
-In these experiments, we generated the set of SNPs and indels. Thus we dispose from the exact and exhaustive list of variant to be found, and we are able to compute the precision and the recall of the predictions (see Additional File 1 for precision and recall computation details). We tested \discopp and \co and an hybrid method composed of SOAPdenovo2~\cite{luo2012soapdenovo2} for generating the assembly, Bowtie~\cite{langmead2012fast} for mapping the reads on the assembly, and GATK~\cite{gatk} for calling variants from this mapping. 
+In these experiments, we generated the set of SNPs and indels. Thus we dispose from the exact and exhaustive list of variant to be found, and we are able to compute the precision and the recall of the predictions (see Additional File 1 for precision and recall computation details). We tested \discopp and \co and an hybrid method composed of SOAPdenovo2~\cite{luo2012soapdenovo2} for generating the assembly, Bowtie~\cite{langmead2012fast} for mapping the reads on the assembly, and GATK~\cite{gatk} for calling variants from this mapping. Presented results were obtained using the GATK \emph{UnifiedGenotyper} option. As presented in the Additional File 1, while following the GATK guidelines (including read realignment and using the \emph{HaplotypeCaller} option), the result quality is similar while the execution time is 3 times longer (from approximately 19h to 54h for the human chromosome 1 experiment). 
 
 \subsubsection*{Two and more bacterial read sets}
 We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an Escherichia Coli individual. As presented in the Additional File 1, we simulated SNPs and indels such that the distribution inside a subset of individuals is realistic. 
@@ -347,7 +347,7 @@ For testing \discopp on a diploid genome, we propose an experiment based on the 
 Results while considering all predictions are presented Table~\ref{tab:humanresults}. 
 The main conclusion is that, except for the hybrid approach that predicts few indels (40.97\%) with a high precision (96.15\%), other results do not show  notable difference, even if one may notice that precision is globally higher for indels, while the recall is higher for SNPs. 
 
-Results presented Figure~\ref{fig:roc_human} provide additional pieces of information for the hybrid and the \discopp approaches. They show precision/recall values with respect to the ranking of the predictions (\co results are not ranked in this framework). Results show that the hybrid approach predictions are badly ranked: it appears that predictions showing the best scores are mainly false positives. Additionally, results show that the \discopp ranking is extremely efficient for separating false positives from true positives. Most of the predictions ranked with a score $>0.2$ are true positives (98.58\%  of the SNPs and 98.58\% of the indels). 
+Results presented Figure~\ref{fig:roc_human} provide additional pieces of information for the hybrid and the \discopp approaches. They show precision/recall values with respect to the ranking of the predictions (\co results are not ranked in this framework). Results show that the hybrid approach predictions are badly ranked: it appears that predictions showing the best scores are mainly false positives. Additionally, results show that the \discopp ranking is extremely efficient for separating false positives from true positives. Most of the predictions ranked with a score $>0.2$ are true positives (97.78\%  of the SNPs and 98.97\% of the indels). 
 
 From these experiment on a complex eukaryotic species, one may conclude that \discopp overall results quality are more or less similar to results from other methods. However, it is the only tool with a reliable ranking of the results, enabling to select more than 50\% of the predictions with a nearly perfect precision.
 
@@ -561,14 +561,14 @@ In this framework \co does not rank its predictions, its results are thus repres
 	
 
 \begin{table}[h!]
-	\caption{Human chromosome 1 results.\label{tab:humanresults}}
+	\caption{Human chromosome 1 results.  \label{tab:humanresults} }
 	\begin{tabular}{r|cc|cc}
 		 & \multicolumn{2}{c|}{SNP} & \multicolumn{2}{c}{indels}\\
 		 & Precision (\%) & Recall (\%) & Precision (\%) & Recall (\%) \\\hline
-		 Hybrid& 71.60 & 78.59 & \textbf{96.15} & 40.97\\
-		 \co& \textbf{73.19} & 67.34 & 86.65 & 63.25 \\
-		 \discopp& 68.51 & \textbf{79.04} & 75.86 & \textbf{71.15} \\\hline
-		 \discopp (rank $>$ 2)& 98.58 & 64.03 & 98.92 & 57.72 
+		 Hybrid & 71.60 & 78.59 & \textbf{96.15} & 40.97\\
+		 \co& {73.19} & 67.34 & 86.65 & 63.25 \\
+		 \discopp& 71.71 & \textbf{78.88} & 75.86 & \textbf{71.15} \\\hline
+		 \discopp (rank $>$ 2)& 97.78 & 64.39 & 98.97 & 57.78 
 	\end{tabular}
 	\end{table}
 % \begin{table}[h!]

@@ -1,7 +1,7 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v1.0.0
-User's guide – January 2015
+v2.0.4
+User's guide – Febuary 2015
 
 contact: pierre.peterlongo@inria.fr
 Table of contents
@@ -9,12 +9,12 @@ GNU AFFERO GENERAL PUBLIC LICENSE 	1
 Publication	1
 discoSnp++ features at a glance	1
 Quick starting	1
-Components	2
 Download and install	2
 Running discoSnp++	2
 Output	3
-Extensions: differences between unitig and contigs (from version 2.1.1.3)	4
-Output Analyze	4
+Extensions: differences between unitig and contigs 	5
+Output Analyze	5
+Close SNPs and indels	5
 
 GNU AFFERO GENERAL PUBLIC LICENSE 
 Copyright INRIA
@@ -74,17 +74,29 @@ You can test discoSnp++ on a toy example containing 3 SNPs. In the discoSnp++ di
 
 (use -T in order to obtain the left and right contigs of each found polymorphism)
 Output
+(Results with close SNPs and indels are given at the end of this document)
 Final results are in discoRes_k_31_c_4_D_0_P_1_b_0_coherent.fa file. This is a simple fasta file composed of a succession of pairs of sequences. Each pair corresponds to a SNP. Let's look at an example :
->SNP_higher_path_3|high|left_unitig_length_86|right_unitig_length_261|left_contig_length_169|right_contig_length_764|C1_0|C2_134|rank_1.00000
+>>SNP_higher_path_3|P_1:30_C/G|high|nb_pol_1|left_unitig_length_86|right_unitig_length_261|left_contig_length_168|right_contig_length_764|C1_124|C2_0|rank_1.00000
 cgtcggaattgctatagcccttgaacgctacatgcacgataccaagttatgtatggaccgggtcatcaataggttatagccttgtagttaacatgtagcccggccctattagtacagtagtgccttcatcggcattctgtttattaagttttttctacagcaaaacgatCAAGTGCACTTCCACAGAGCGCGGTAGAGAGTCATCCACCCGGCAGCTCTGTAATAGGGACtaaaaaagtgatgataatcatgagtgccgcgttatggtggtgtcggatcagagcggtcttacgaccagtcgtatgccttctcgagttccgtccggttaagcgtgacagtcccagtgaacccacaaaccgtgatggctgtccttggagtcatacgcaagaaggatggtctccagacaccggcgcaccagttttcacgccgaaagcataaacgacgagcacatatgagagtgttagaactggacgtgcggtttctctgcgaagaacacctcgagctgttgcgttgttgcgctgcctagatgcagtgtcgcacatatcacttttgcttcaacgactgccgctttcgctgtatccctagacagtcaacagtaagcgctttttgtaggcaggggctccccctgtgactaactgcgccaaaacatcttcggatccccttgtccaatctaactcaccgaattcttacattttagaccctaatatcacatcattagagattaattgccactgccaaaattctgtccacaagcgttttagttcgccccagtaaagttgtctataacgactaccaaatccgcatgttacgggacttcttattaattcttttttcgtgaggagcagcggatcttaatggatggccgcaggtggtatggaagctaatagcgcgggtgagagggtaatcagccgtgtccaccaacacaacgctatcgggcgattctataagattccgcattgcgtctacttataagatgtctcaacggtatccgcaa
->SNP_lower_path_3|high|left_unitig_length_86|right_unitig_length_261|left_contig_length_169|right_contig_length_764|C1_124|C2_0|rank_1.00000
+>SNP_lower_path_3|P_1:30_C/G|high|nb_pol_1|left_unitig_length_86|right_unitig_length_261|left_contig_length_168|right_contig_length_764|C1_0|C2_134|rank_1.00000
 cgtcggaattgctatagcccttgaacgctacatgcacgataccaagttatgtatggaccgggtcatcaataggttatagccttgtagttaacatgtagcccggccctattagtacagtagtgccttcatcggcattctgtttattaagttttttctacagcaaaacgatCAAGTGCACTTCCACAGAGCGCGGTAGAGACTCATCCACCCGGCAGCTCTGTAATAGGGACtaaaaaagtgatgataatcatgagtgccgcgttatggtggtgtcggatcagagcggtcttacgaccagtcgtatgccttctcgagttccgtccggttaagcgtgacagtcccagtgaacccacaaaccgtgatggctgtccttggagtcatacgcaagaaggatggtctccagacaccggcgcaccagttttcacgccgaaagcataaacgacgagcacatatgagagtgttagaactggacgtgcggtttctctgcgaagaacacctcgagctgttgcgttgttgcgctgcctagatgcagtgtcgcacatatcacttttgcttcaacgactgccgctttcgctgtatccctagacagtcaacagtaagcgctttttgtaggcaggggctccccctgtgactaactgcgccaaaacatcttcggatccccttgtccaatctaactcaccgaattcttacattttagaccctaatatcacatcattagagattaattgccactgccaaaattctgtccacaagcgttttagttcgccccagtaaagttgtctataacgactaccaaatccgcatgttacgggacttcttattaattcttttttcgtgaggagcagcggatcttaatggatggccgcaggtggtatggaagctaatagcgcgggtgagagggtaatcagccgtgtccaccaacacaacgctatcgggcgattctataagattccgcattgcgtctacttataagatgtctcaacggtatccgcaa
-In this example a SNP G/C is found (underlined here). The central sequence of length 2k-1 (here 2*31-1=61) is seen in upper case, while the two (left and right) extensions are seen in lower case. 
+In this example a SNP G/C is found (underlined here and indicated in the comment). The central sequence of length 2k-1 (here 2*31-1=61) is seen in upper case, while the two (left and right) extensions are seen in lower case. 
 The comments are formatted as follow :
-	>SNP_higher/lower_path_id|high/low|left_unitig_length_int|right_unitigtig_length_int|left_contig_length_int|right_contig_length_int|C1_int|C2_int|[Q1_int|Q2_int|]rank_float
+	>SNP_higher/lower_path_id|P_i:pos_Alt1/Alt2|high/low|left_unitig_length_int|right_unitigtig_length_int|left_contig_length_int|right_contig_length_int|C1_int|C2_int|[Q1_int|Q2_int|]rank_float
+
 higher/lower: one of the two alleles 
 id: id of the SNP: each SNP (couple of sequences) has a unique id, here 3.
+[FOR SNPs] P_i:pos_Alt1/Alt2: Information about a ith SNP (If more than a unique SNP is found, the following format is used: P_1:pos_Alt1/Alt2,P_2:pos_Alt1/Alt2,...
+pos: position of the SNP with respect to the starting position of the bubble, i.e. the starting of the upper case sequence.
+Alt1: One of the two alleles
+Alt2: the other
+
+[FOR INDELS] P_1:pos_size_repeatSize
+pos: predicted position of the indel with respect to the starting position of the bubble, i.e. the starting of the upper case sequence.
+size: predicted size of the indel
+repeatSize: Size of the longest sequence both prefix of the indel and prefix of the sequence located just after the insertion. Remark. This information is useful as the real indel may be located  in [pos, pos+repeatSize].
 high/low: sequence complexity. If the sequece if of low complexity (e.g. ATATATATATATATAT) this variable would be low
+nb_pol: number of polymorphism. 
 left_unitig_length: size of the full left extension. Here 86
 right_unitig_length: size of the right extension. Here 261
 left_contig_length: size of the full left extension. Here 169
@@ -98,25 +110,32 @@ Q2 [if reads were given in fastq]: average phred quality of the central nucleoti
 Q3 [if the data were at least 3 fastq read sets]: average phred quality of the central nucleotide (here A or T) from the mapped reads from the third read set.
 Q4, Q5, …
 rank: ranks the predictions according to their read coverage in each condition favoring SNPs that are discriminant between conditions (Phi coefficient) (see publication)
-Extensions: differences between unitig and contigs (from version 2.1.1.3)
+Extensions: differences between unitig and contigs 
 By default in the pipeline, the found SNPs (of length 2k-1) are extended using a contiger. The output contains such contigs and their lengths are shown in the header (left_contig_length and right_contig_length). Moreover, a contig may hide some small polymorphism such as substitutions and/or indels. The output also proposes the length of the longuest extension not containing any such polymorphism. These extensions are called unitigs (defined as « A uniquely assembleable subset of overlapping fragments »).
 Output Analyze
 From a fasta format to a csv format: If you wish to analyze the results in a tabulated format: 
 # python output_analyses/discoSnp++_to_csv.py discoSnp++_output.fa 
 will output a .csv tabulated file containing on each line the content of 4 lines of the .fa, replacing the '|' character by comma ',' and removing the CX_
-example with previously used SNP example:
-	      python output_analyses/discoSnp++_to_csv.py discoRes_..._coherent.fa
->SNP_higher_path_3,high,left_unitig_length_86,right_unitig_length_261,0,134,rank_1.00000,[fasta_sequence1],>SNP_lower_path_3,high,left_unitig_length_86,right_unitig_length_261,124,0,rank_1.00000,[fasta_sequence2]
 Genotyping the results: If you wish to genotype your results:
 #python output_analyses/discoSnp++_to_genotypes.py discoRes_..._coherent.fa threshold_value
 will output a file containing on each line the “genotypes” of a SNP.  For each input data set it indicates if the SNP is:
-heterozygous ALT1 path (coverage ALT1 >= threshold and ALT2 < threshold): 1
-heterozygous ALT2 path (coverage ALT1 < threshold and ALT2 >= threshold): -1
-homozygous (coverage ALT1 >= threshold and ALT2 >= threshold): 2
-absent (coverage ALT1 < threshold and ALT2 < threshold): 0
-then it outputs the central sequence of length 2k-1 replacing the central position by ALT1/ALT2
+heterozygous ALT1 path (coverage ALT1 >= threshold and ALT2 < threshold): 1/0
+heterozygous ALT2 path (coverage ALT1 < threshold and ALT2 >= threshold): 0/1
+homozygous (coverage ALT1 >= threshold and ALT2 >= threshold): 1/1
+absent (coverage ALT1 < threshold and ALT2 < threshold): 0/0
 example with previously used SNP example and threshold 20:
 python .output_analyses/discoSnp++_to_genotypes.py discoRes_..._coherent.fa 20
-GENOTYPES_SNP_3_THRESHOLD_20 -1 1 CAAGTGCACTTCCACAGAGCGCGGTAGAGAG/CTCATCCACCCGGCAGCTCTGTAATAGGGAC
-GENOTYPES_SNP_2_THRESHOLD_20 -1 1 ACTAATAGGGCCGGGCTACATGTTAACTACT/AAGGCTATAACCTATTGATGACCCGGTCCAT
-GENOTYPES_SNP_1_THRESHOLD_20 1 -1 GCAGCGCAACAACGCAACAGCTCGAGGTGTT/ACTTCGCAGAGAAACCGCACGTCCAGTTCTA
+GENOTYPES_SNP_3_THRESHOLD_20 1/0 0/1
+GENOTYPES_SNP_2_THRESHOLD_20 1/0 0/1
+GENOTYPES_SNP_1_THRESHOLD_20 0/1 1/0
+Close SNPs and indels
+Exemple of a multiple SNP :
+>SNP_higher_path_98|P_1:30_C/T,P_2:56_T/C|high|nb_pol_2|C1_0|C2_42|C3_28|rank_1.00000
+AGAAAAATTTATTCAAGGTTATTATGATGGCTATACAAAAGGCATTATTGATGAGATGGATAATTTTATACCCTTGATAAGCTTGCT
+>SNP_lower_path_98|P_1:30_C/T,P_2:56_T/C|high|nb_pol_2|C1_42|C2_0|C3_0|rank_1.00000
+AGAAAAATTTATTCAAGGTTATTATGATGGTTATACAAAAGGCATTATTGATGAGACGGATAATTTTATACCCTTGATAAGCTTGCT
+Exemple of an indel:
+>INDEL_higher_path_3740|P_1:30_8_3|high|nb_pol_1|C1_28|C2_0|C3_0|rank_1.00000
+AGGCGACCGAGAAAATGGAGAACGTGCGCATCGCTGTTTATTAATGCCCGTTCGGCG
+>INDEL_lower_path_3740|P_1:30_8_3|high|nb_pol_1|C1_0|C2_42|C3_44|rank_1.00000
+AGGCGACCGAGAAAATGGAGAACGTGCGCAAGCGGGCATCGCTGTTTATTAATGCCCGTTCGGCG

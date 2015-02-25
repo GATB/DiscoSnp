@@ -67,12 +67,13 @@ while 1:
     while com1_tab[i][0:1]=="C":
         up=int(com1_tab[i].split("_")[1])
         lo=int(com2_tab[i].split("_")[1])
-        if up>=t and lo<t: print 1,
-        if up<t and lo>=t: print -1,
-        if up<t and lo<t: print 0,
-        if up>=t and lo>=t: print 2,
+        if up>=t and lo<t: print "1/0",
+        if up<t and lo>=t: print "0/1",
+        if up<t and lo<t: print "0/0",
+        if up>=t and lo>=t: print "1/1",
         i+=1
-    print sequence
+    print
+    # print sequence
     
 
 
