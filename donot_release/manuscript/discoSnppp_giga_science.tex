@@ -303,7 +303,7 @@ In \discopp, we extended the initial model detection in order to detect close SN
 As presented Figure~\ref{fig:basical_bubble}.c, indels in data also generate bubbles in the dBG. The two paths of such bubbles are of distinct lengths. The smaller one is of size at most $k-1$ nodes. \discopp detects isolated indels in the dBG. The user limits the maximal size of the insertion. 
 
 \subsection*{Predicting genotypes}
-For each prediction, a genotype is provided (see Additional File 1 for details about the genotyping process). Users may deactivate genotyping, for instance when results are not predicted from diploid species.
+For each prediction, a genotype is provided (based on~\cite{Nielsen2011}, see Additional File 1 for details about the genotyping process). Users may deactivate genotyping, for instance when results are not predicted from diploid species. XXX TODO
 
 \subsection*{Providing a VCF file}
 The original \disco output is a fasta file. It contains a couple of sequences for each predicted variant. Headers of these sequences contain the read coverage and average read quality per variant and per input read set. The read coverage enables to provides a trustful ranking (see for instance the results presented Figure~\ref{fig:roc_human}).
@@ -342,20 +342,22 @@ As shown Figure~\ref{fig:ncoliperf}, \discopp runs much faster that other method
 
 \subsubsection*{Two human datasets}
 \label{ssec:twohumans}
-For testing \discopp on a diploid genome, we propose an experiment based on the human chromosome 1, assembly GRCh37. Using SNPs predicted from the 1000 genome project, we simulated two individuals, generating 25,928 indels and 288,069 SNPs. The data simulation protocol is presented in the Additional File 1. 
+For testing \discopp on a diploid genome, we propose an experiment based on the human chromosome 1, assembly GRCh37. Using variants from the 1000 genomes project, we simulated two individuals, generating 25,928 indels and 288,069 SNPs. The data simulation protocol is presented in the Additional File 1. 
 
 Results while considering all predictions are presented Table~\ref{tab:humanresults}. 
 The main conclusion is that, except for the hybrid approach that predicts few indels (40.97\%) with a high precision (96.15\%), other results do not show  notable difference, even if one may notice that precision is globally higher for indels, while the recall is higher for SNPs. 
 
 Results presented Figure~\ref{fig:roc_human} provide additional pieces of information for the hybrid and the \discopp approaches. They show precision/recall values with respect to the ranking of the predictions (\co results are not ranked in this framework). Results show that the hybrid approach predictions are badly ranked: it appears that predictions showing the best scores are mainly false positives. Additionally, results show that the \discopp ranking is extremely efficient for separating false positives from true positives. Most of the predictions ranked with a score $>0.2$ are true positives (97.78\%  of the SNPs and 98.97\% of the indels). 
 
-From these experiment on a complex eukaryotic species, one may conclude that \discopp overall results quality are more or less similar to results from other methods. However, it is the only tool with a reliable ranking of the results, enabling to select more than 50\% of the predictions with a nearly perfect precision.
+From these experiment on a complex eukaryotic species, one may conclude that \discopp overall results quality are similar to results from other methods. However, it is the only tool with a reliable ranking of the results, enabling to select more than 50\% of the predictions with a nearly perfect precision.
+
+
+As previously mentioned, \discopp provides an estimated genotype. On this dataset, over the 245,690 true positive variants, 240,935 predicted genotypes (98.06\%) were correct.
 
 As shown Figure~\ref{fig:perf_human}, \discopp runs much faster that other methods (respectively 3.6x and 17.5x times faster than \co and the hybrid approach) and uses much less RAM memory (respectively 36.2x and 22.9x times less memory than \co and the hybrid approach). 
 
 
 
-TODO: genotyping resutls
 
 \subsection*{Results on real datasets}
 We used a set of biologically validated SNPs predicted from an artificial evolution study on Saccharomyces cerevisiae~\cite{Kvitek2013}. 

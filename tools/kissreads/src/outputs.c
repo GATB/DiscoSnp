@@ -344,7 +344,7 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
 		sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
 	}
     const float err = 0.01;
-    const float prior_het = 0.001;
+    const float prior_het = 0.33;
     
     float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
     char genotypes[8192]; genotypes[0]='\0';
@@ -388,7 +388,7 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
         fprintf(out, "%c%s%c", sep, results_against_set[cycle_id]->w, sep);
     
     // LOWER PATH
-    fprintf(out, ">%s%s|",comment,results_against_set[cycle_id]->comment);
+    fprintf(out, ">%s%s|",comment,results_against_set[cycle_id+1]->comment);
     for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
         fprintf(out, "C%d_%d|",read_set_id+1,sum_lo[read_set_id]);
     }
