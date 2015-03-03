@@ -51,7 +51,7 @@ void print_usage_and_exit(char * name){
 #ifdef INPUT_FROM_KISSPLICE
 	fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-l value] [-o name] [-u name] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
 #else
-    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
+    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
 #endif// INPUT_FROM_KISSPLICE
 	fprintf (stderr, "\nDESCRIPTION\n");
 	fprintf (stderr, "Checks for each sequence contained into the toCheck.fasta if\n");
@@ -78,6 +78,7 @@ void print_usage_and_exit(char * name){
 	fprintf (stderr, "\t -u file_name: write unread-coherent outputs. Not compatible with -p option. Default: standard output \n");
 #ifndef INPUT_FROM_KISSPLICE
 	fprintf (stderr, "\t -n the input file (toCheck.fasta) is a kissnp output (incompatible with -I option) \n");
+    fprintf (stderr, "\t -g compute the predictions genotypes (compatible only with -n option) \n");
     fprintf (stderr, "\t\t in this case: 1/ only the upper characters are considered (no mapping done on the extensions) and 2/ the central position (where the SNP occurs) is strictly mapped, no subsitution is authorized on this position.\n");
 	fprintf (stderr, "\t -I the input file (toCheck.fasta) is an Intl output (incompatible with -n option) \n");
 #endif // not INPUT_FROM_KISSPLICE
@@ -131,6 +132,7 @@ int main(int argc, char **argv) {
 	int nb_events_per_set;
     int max_substitutions=1;
     int max_threads = 1;
+    char compute_genotypes=0;
 #ifdef OMP
      max_threads =  omp_get_num_procs();
 #endif
@@ -170,7 +172,7 @@ int main(int argc, char **argv) {
 #ifdef INPUT_FROM_KISSPLICE
         int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fps-:j:l:t:");
 #else
-        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsnI-:t:");
+        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsngI-:t:");
 #endif //INPUT_FROM_KISSPLICE
 		if (temoin == -1){
 			break;
@@ -224,6 +226,11 @@ int main(int argc, char **argv) {
                 map_snps=1;
                 input_only_upper=1;
                 number_paths_per_event=2;
+                
+                break;
+                
+            case 'g':
+                compute_genotypes=1;
                 
                 break;
             case 'I':
@@ -288,6 +295,11 @@ int main(int argc, char **argv) {
         fprintf(stderr, "cannot use both options -n and -I\n");
         exit(1);
     }
+    if (!map_snps && compute_genotypes) {
+        fprintf(stderr, "-g can be used only in application of the -n option\n");
+        exit(1);
+    }
+        
 #endif
     
     
@@ -348,6 +360,7 @@ int main(int argc, char **argv) {
             printf("\t *(-o) Read-coherent results file: %s\n", coherent_file_name);
             printf("\t *(-u) Read-uncoherent results file: %s\n", uncoherent_file_name);
         }
+        printf("\t *(-g) Compute genotypes: %s\n", compute_genotypes?"yes":"no");
         printf("\t *(-f) Standard fasta output mode: %s\n",standard_fasta?"yes":"no");
         if(sam_out) printf("\t *(-m) Reads mapped results file: %s\n", samout_file_name);
         
@@ -434,7 +447,7 @@ int main(int argc, char **argv) {
     if (silented) silent=0;
     
     if(number_paths_per_event==2)
-        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
+        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes);
     else if(map_invs)
         print_results_invs(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
     else   print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality); // TODO

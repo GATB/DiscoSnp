@@ -26,7 +26,7 @@ max_C=$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="1.0.0"
+version="2.0.6"
 read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -38,6 +38,7 @@ D=0 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble
 l=""
 extend=""
+genotyping="-g"
 remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
@@ -57,7 +58,7 @@ echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/r
 echo -e "\tOPT:"
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
-echo -e "\t\t\t 0: forbid SNPs for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
+echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
 echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=0"
@@ -70,6 +71,7 @@ echo -e "\t\t -T: extend found polymorphisms with contigs"
 echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+echo -e "\t\t -n: do not compute the genotypes"
 echo -e "\t\t -h: Prints this message and exist"
 echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
 }
@@ -78,7 +80,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlg" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlgn" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -90,6 +92,10 @@ case $opt in
 
 	g)
 	remove=0
+	;;
+	
+	n)
+	genotyping=""
 	;;
 	
 	l)
@@ -283,13 +289,13 @@ i=4 #avoid modidy this (or increase this if memory needed by kissread is too hig
 smallk=$(($k-$i-1)) # DON'T modify this.
 
 
-echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
+echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
 
 
-$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $kissprefix\_coherent -u $kissprefix\_uncoherent
+$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n  -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
+echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
 exit
 fi
 

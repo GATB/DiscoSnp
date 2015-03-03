@@ -294,7 +294,7 @@ const char * genotype_simple_model(const int c1, const int c2, const float err, 
 /**
  * prints a couple using the reads starting position instead of coverage per position
  */
-void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual, const char map_snps){
+void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual, const char map_snps, const char compute_genotype){
 	
     // on upper path
 	int sum_up[number_of_read_sets];
@@ -350,11 +350,12 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
     char genotypes[8192]; genotypes[0]='\0';
     char append[2048];
     
-    // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
-    
-    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        sprintf(append, "G%d_%s|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het));
-        strcat(genotypes,append);
+    if(compute_genotype){
+        // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            sprintf(append, "G%d_%s|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het));
+            strcat(genotypes,append);
+        }
     }
     
     // DEAL WITH STANDARD FASTA OR ONE LINE PER COUPLE (STARTING WITH THE RANK)
@@ -561,7 +562,7 @@ inline int one_coherent(const p_fragment_info * results_against_set, int cycle_i
 }
 
 
-void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual){
+void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual, const char compute_genotype){
     int i;
 	int nb_read_coherent=0;
 	int nb_unread_coherent=0;
@@ -581,11 +582,11 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 		if(one_coherent(results_against_set,i,number_of_read_sets) && one_coherent(results_against_set,i+1,number_of_read_sets))
 		{
 			nb_read_coherent++;
-			print_couple_i("",coherent_out, results_against_set, i, number_of_read_sets, qual, 1);
+			print_couple_i("",coherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype);
 		}
 		else{
 			nb_unread_coherent++;
-			print_couple_i("", uncoherent_out, results_against_set, i, number_of_read_sets, qual, 1);
+			print_couple_i("", uncoherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype);
 		}
 	}
     

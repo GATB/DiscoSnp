@@ -1,0 +1,460 @@
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1851351438/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1851351438.dir/build.make CMakeFiles/cmTryCompileExec1851351438.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1851351438.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTryCompileExec1851351438.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: warning: argument unused during compilation: '-fopenmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1851351438.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec1851351438/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1381659808/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1381659808.dir/build.make CMakeFiles/cmTryCompileExec1381659808.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1381659808.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTryCompileExec1381659808.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '/openmp'
+make[1]: *** [CMakeFiles/cmTryCompileExec1381659808.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec1381659808/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3691926912/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec3691926912.dir/build.make CMakeFiles/cmTryCompileExec3691926912.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3691926912.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTryCompileExec3691926912.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: warning: argument unused during compilation: '-Qopenmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec3691926912.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec3691926912/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec4200794442/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec4200794442.dir/build.make CMakeFiles/cmTryCompileExec4200794442.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4200794442.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTryCompileExec4200794442.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec4200794442.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec4200794442/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1165263668/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1165263668.dir/build.make CMakeFiles/cmTryCompileExec1165263668.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1165263668.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTryCompileExec1165263668.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1165263668.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec1165263668/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2618551348/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec2618551348.dir/build.make CMakeFiles/cmTryCompileExec2618551348.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2618551348.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTryCompileExec2618551348.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c: 'linker' input unused
+make[1]: *** [CMakeFiles/cmTryCompileExec2618551348.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec2618551348/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec4145384724/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec4145384724.dir/build.make CMakeFiles/cmTryCompileExec4145384724.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec4145384724.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTryCompileExec4145384724.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: error: no such file or directory: '+Oopenmp'
+make[1]: *** [CMakeFiles/cmTryCompileExec4145384724.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec4145384724/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1803474863/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1803474863.dir/build.make CMakeFiles/cmTryCompileExec1803474863.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1803474863.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTryCompileExec1803474863.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: warning: argument unused during compilation: '-qsmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1803474863.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec1803474863/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec749643630/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec749643630.dir/build.make CMakeFiles/cmTryCompileExec749643630.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec749643630.dir/src.c.o
+/usr/bin/cc   -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTryCompileExec749643630.dir/src.c.o   -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c
+clang: warning: argument unused during compilation: '-mp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.c:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec749643630.dir/src.c.o] Error 1
+make: *** [cmTryCompileExec749643630/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2093206458/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec2093206458.dir/build.make CMakeFiles/cmTryCompileExec2093206458.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec2093206458.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -fopenmp   -o CMakeFiles/cmTryCompileExec2093206458.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: warning: argument unused during compilation: '-fopenmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec2093206458.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec2093206458/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec538434812/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec538434812.dir/build.make CMakeFiles/cmTryCompileExec538434812.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec538434812.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED /openmp   -o CMakeFiles/cmTryCompileExec538434812.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '/openmp'
+make[1]: *** [CMakeFiles/cmTryCompileExec538434812.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec538434812/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1337163018/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1337163018.dir/build.make CMakeFiles/cmTryCompileExec1337163018.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1337163018.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -Qopenmp   -o CMakeFiles/cmTryCompileExec1337163018.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: warning: argument unused during compilation: '-Qopenmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1337163018.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec1337163018/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec701133309/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec701133309.dir/build.make CMakeFiles/cmTryCompileExec701133309.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec701133309.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -openmp   -o CMakeFiles/cmTryCompileExec701133309.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec701133309.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec701133309/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1976561495/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1976561495.dir/build.make CMakeFiles/cmTryCompileExec1976561495.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1976561495.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED   -o CMakeFiles/cmTryCompileExec1976561495.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1976561495.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec1976561495/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3974685250/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec3974685250.dir/build.make CMakeFiles/cmTryCompileExec3974685250.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3974685250.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -xopenmp   -o CMakeFiles/cmTryCompileExec3974685250.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: language not recognized: 'openmp'
+clang: warning: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx: 'linker' input unused
+make[1]: *** [CMakeFiles/cmTryCompileExec3974685250.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec3974685250/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3243835742/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec3243835742.dir/build.make CMakeFiles/cmTryCompileExec3243835742.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3243835742.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED +Oopenmp   -o CMakeFiles/cmTryCompileExec3243835742.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: error: no such file or directory: '+Oopenmp'
+make[1]: *** [CMakeFiles/cmTryCompileExec3243835742.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec3243835742/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1287428435/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec1287428435.dir/build.make CMakeFiles/cmTryCompileExec1287428435.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec1287428435.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -qsmp   -o CMakeFiles/cmTryCompileExec1287428435.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: warning: argument unused during compilation: '-qsmp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1287428435.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec1287428435/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
+Performing C++ SOURCE FILE Test OpenMP_FLAG_DETECTED failed with the following output:
+Change Dir: /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2881681453/fast"
+/Applications/Xcode.app/Contents/Developer/usr/bin/make -f CMakeFiles/cmTryCompileExec2881681453.dir/build.make CMakeFiles/cmTryCompileExec2881681453.dir/build
+/opt/local/bin/cmake -E cmake_progress_report /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec2881681453.dir/src.cxx.o
+/usr/bin/cc    -DOpenMP_FLAG_DETECTED -mp   -o CMakeFiles/cmTryCompileExec2881681453.dir/src.cxx.o -c /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx
+clang: warning: argument unused during compilation: '-mp'
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/tools/kissreads/build/CMakeFiles/CMakeTmp/src.cxx:2:10: fatal error: 'omp.h' file not found
+#include <omp.h>
+         ^
+1 error generated.
+make[1]: *** [CMakeFiles/cmTryCompileExec2881681453.dir/src.cxx.o] Error 1
+make: *** [cmTryCompileExec2881681453/fast] Error 2
+
+Source file was:
+
+#include <omp.h>
+int main() {
+#ifdef _OPENMP
+  return 0;
+#else
+  breaks_on_purpose
+#endif
+}
+
