@@ -39,6 +39,7 @@ P=1 # number of polymorphsim per bubble
 l=""
 extend=""
 genotyping="-g"
+paired=""
 remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
@@ -55,7 +56,9 @@ echo "Usage: ./run_discoSnp++.sh OPT"
 echo -e "\tMANDATORY:"
 echo -e "\t\t -r list of reads separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
 echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
+
 echo -e "\tOPT:"
+echo -e "\t\t -m: indicates that read are paired. Each couple of read sets are considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) "
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
@@ -80,7 +83,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlgn" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlmgn" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -92,6 +95,10 @@ case $opt in
 
 	g)
 	remove=0
+	;;
+	
+	m)
+	paired="-P"
 	;;
 	
 	n)
@@ -289,13 +296,13 @@ i=4 #avoid modidy this (or increase this if memory needed by kissread is too hig
 smallk=$(($k-$i-1)) # DON'T modify this.
 
 
-echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
+echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
 
 
-$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent
+$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent"
+echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
 exit
 fi
 

@@ -15,7 +15,7 @@ plot(c(0,80),c(30,100),type="n",xlab="Recall (%)",ylab="Precision (%)",main="",b
 axis(side = 1, at=c(0,50,70,80,90), labels=c(0,50,70,80,90), lwd = 2,tcl=0.5,tck=0.02)
 axis(side = 2, at=c(50,70,80,90,100), labels=c(50,70,80,90,100), lwd = 2,tcl=0.5,tck=0.02)
 
-legend(9.6,40,legend=c("discoSnp++","Hybrid"),col="black",lty=c(1,4),lwd=3, bty='n',yjust=0,text.width=10)
+legend(9.6,40,legend=c(expression(discoSnp++ rank >= 0.2),expression(discoSnp++ rank < 0.2),"Hybrid"),col="black",lty=c(1,3,4),lwd=3, bty='n',yjust=0,text.width=10)
 legend(12.3,33,legend=c("Cortex" ),col="black",lty=0,lwd=3,bty='n',pch="*",yjust=0,pt.cex=2.5)
 
 

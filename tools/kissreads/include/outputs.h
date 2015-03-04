@@ -27,7 +27,7 @@
 
 #ifndef OUTPUTS_H_
 #define OUTPUTS_H_
-void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,   const p_fragment_info * results_against_set, int number_of_read_sets, int nb_events_per_set, int qual, const char compute_genotype);
+void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,   const p_fragment_info * results_against_set, int number_of_read_sets, int nb_events_per_set, int qual, const char compute_genotype, const char paired);
 void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,   const p_fragment_info * results_against_set, int number_of_read_sets, int nb_events_per_set, int qual);
 void print_generic_results(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual);
 #endif /* OUTPUTS_H_ */

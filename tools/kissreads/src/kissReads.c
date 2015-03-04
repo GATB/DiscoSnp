@@ -49,9 +49,9 @@ char * getVersion(){
 void print_usage_and_exit(char * name){
 	fprintf (stderr, "NAME\nkissReads, version %s\n", getVersion());
 #ifdef INPUT_FROM_KISSPLICE
-	fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-l value] [-o name] [-u name] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
+	fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-l value] [-o name] [-u name] [-P] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
 #else
-    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
+    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-P] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
 #endif// INPUT_FROM_KISSPLICE
 	fprintf (stderr, "\nDESCRIPTION\n");
 	fprintf (stderr, "Checks for each sequence contained into the toCheck.fasta if\n");
@@ -78,10 +78,13 @@ void print_usage_and_exit(char * name){
 	fprintf (stderr, "\t -u file_name: write unread-coherent outputs. Not compatible with -p option. Default: standard output \n");
 #ifndef INPUT_FROM_KISSPLICE
 	fprintf (stderr, "\t -n the input file (toCheck.fasta) is a kissnp output (incompatible with -I option) \n");
-    fprintf (stderr, "\t -g compute the predictions genotypes (compatible only with -n option) \n");
     fprintf (stderr, "\t\t in this case: 1/ only the upper characters are considered (no mapping done on the extensions) and 2/ the central position (where the SNP occurs) is strictly mapped, no subsitution is authorized on this position.\n");
+    fprintf (stderr, "\t -g compute the predictions genotypes (compatible only with -n option) \n");
 	fprintf (stderr, "\t -I the input file (toCheck.fasta) is an Intl output (incompatible with -n option) \n");
 #endif // not INPUT_FROM_KISSPLICE
+    fprintf (stderr, "\t -P consider reads sets as paired. In this case: \n");
+    fprintf (stderr, "\t \t -Number of read sets must be even\n");
+    fprintf (stderr, "\t \t -Each pair of read sets is considered as a unique read set.\n");
     fprintf (stderr, "\t -i index_stride (int value). This is a heuristic for limiting the memory footprint. Instead of indexing each kmer of the sequences contained into the toCheck.fasta, kissreads indexes kmers occurring each \"index_stride\" position. Default = 1 (no heuristic)\n");
     fprintf (stderr, "\t -t max number of threads (also limited by number of input files)\n");
 	fprintf (stderr, "\t -m align_file, write a file of reads mapped to sequences in file align_file\n");
@@ -133,6 +136,7 @@ int main(int argc, char **argv) {
     int max_substitutions=1;
     int max_threads = 1;
     char compute_genotypes=0;
+    char paired=0; // by default data are not paired
 #ifdef OMP
      max_threads =  omp_get_num_procs();
 #endif
@@ -170,15 +174,22 @@ int main(int argc, char **argv) {
 	while (1)
 	{
 #ifdef INPUT_FROM_KISSPLICE
-        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fps-:j:l:t:");
+        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fPps-:j:l:t:");
 #else
-        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsngI-:t:");
+        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsngPI-:t:");
 #endif //INPUT_FROM_KISSPLICE
 		if (temoin == -1){
 			break;
 		}
 		switch (temoin)
 		{
+            case 'P':
+                paired=1;
+                if(number_of_read_sets%2==1){
+                    fprintf (stderr, "Cannot use option -P (paired read sets) with a odd (%d) number of read sets\n", number_of_read_sets);
+                    exit(1);
+                }
+                break;
             case 'c':
                 min_coverage=atoi(optarg);
                 if(min_coverage<1) min_coverage=1;
@@ -290,13 +301,27 @@ int main(int argc, char **argv) {
 		print_usage_and_exit(argv[0]);
 	}
     
+    
+#ifdef INPUT_FROM_KISSPLICE
+    if(paired){
+        fprintf(stderr,"Paired read sets implemented only for discoSnp++ output. Sorry you must remove the -P option\n");
+        exit(1);
+    }
+#endif
 #ifndef INPUT_FROM_KISSPLICE
+    if(paired && !map_snps){
+        fprintf(stderr, "Paired read sets implemented only for discoSnp++ output. Sorry you must remove the -P option\n");
+        exit(1);
+    }
+
     if(map_snps && map_invs){
         fprintf(stderr, "cannot use both options -n and -I\n");
+        print_usage_and_exit(argv[0]);
         exit(1);
     }
     if (!map_snps && compute_genotypes) {
         fprintf(stderr, "-g can be used only in application of the -n option\n");
+        print_usage_and_exit(argv[0]);
         exit(1);
     }
         
@@ -342,6 +367,7 @@ int main(int argc, char **argv) {
         printf("\t *(-O) minimal_read_overlap %d (a read is mapped on a fragment if the overlap is at least %d positions)\n", minimal_read_overlap,minimal_read_overlap);
         printf("\t \t Note that minimal_read_overlap is at least equal to size_seeds\n");
         printf("\t *(-c) Minimal coverage %d\n", min_coverage);
+        printf("\t *(-P) Paired read sets: %s\n", paired?"yes":"no");
 #ifdef KMER_SPANNING
         printf("\t \t KMER_SPANNING: Each kmer(=%d) as defined by \"minimal_read_overlap\" spanning each position should be covered by at least %d reads.\n", minimal_read_overlap, min_coverage);
 #else
@@ -370,7 +396,6 @@ int main(int argc, char **argv) {
     
 	init_static_variables(size_seeds);
 	
-	gzFile * reads_files = (gzFile*) malloc(sizeof(gzFile)*number_of_read_sets);
 	p_fragment_info * results_against_set;
     
 	char found;
@@ -432,22 +457,24 @@ int main(int argc, char **argv) {
 #pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 #endif
     for (i=0;i<number_of_read_sets;i++){
-        reads_files[i]=gzopen(reads_file_names[i],"r");
-        if(reads_files[i] == NULL){		fprintf(stderr,"cannot open reads file %s, exit\n",reads_file_names[i]);		exit(1);	}
+        
         
         if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
         
         
         
-        read_coherence(reads_files[i], reads_file_names[i], size_seeds,  min_coverage, results_against_set,  number_of_starters, i, quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, minimal_read_overlap);
+        read_coherence(reads_file_names, i, paired, size_seeds,  min_coverage, results_against_set,  quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, minimal_read_overlap);
+       
+        if (paired) {
+            i++; // the read coherent delt with two read sets (i and i+1)
+        }
         
-        
-        gzclose(reads_files[i]);
+      
     }
     if (silented) silent=0;
     
     if(number_paths_per_event==2)
-        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes);
+        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes, paired);
     else if(map_invs)
         print_results_invs(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
     else   print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality); // TODO

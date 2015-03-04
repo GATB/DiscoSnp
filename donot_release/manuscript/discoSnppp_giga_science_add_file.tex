@@ -299,8 +299,9 @@ Experiments were made on subsets of two Coli individuals (the two first read set
 \emph\textbf{{\discopp}}
 	\scriptsize\begin{verbatim}
 	for ((i=2;i<=31;i++)); do
-	 list=""
-	 for((j=0;j<i;j++)); do list=$list" "coli_muted_n_30_genome_$j\_reads.fasta; done
+	#Prepare input parameters
+	 list=""; for((j=0;j<i;j++)); do list=$list" "coli_muted_n_30_genome_$j\_reads.fasta; done
+	#Run discoSnp++
 	 run_discoSnp++.sh -r  "$list" -p dsc_$i\_genomes -P 4 -D 10
 	done
 	\end{verbatim}	\normalsize
@@ -309,19 +310,26 @@ Experiments were made on subsets of two Coli individuals (the two first read set
 \scriptsize\begin{verbatim}
 #(needs a compilation per number of input read sets):
 for ((i=1;i<31;i++)); do make MAXK=31 NUM_COLS=$i cortex_var; done 
+
+#Prepare input parameters
 for ((i=0;i<30;i++)); do echo coli_muted_n_30_genome_$i\_reads.fasta > ind$i; done
 for ((i=2;i<31;i++)); do 
  for ((j=0;j<i;j++)); do echo -e "IND$j\tind$j\t.\t." >> INDEX$i; done; 
 done
+
+#Prepare data
 for ((i=0;i<30;i++)); do
  cortex_var_31_c2 --se_list ind$i --kmer_size 31 --mem_height 20 --mem_width 75 \ 
   --dump_binary genome_$i\_reads.ctx  --sample_id sample$i --remove_low_coverage_supernodes 3
 done
+
 for ((i=0;i<30;i++)); do
+#Prepare input parameters
  echo  "genome_$i\_reads.ctx" > ind$i\_ctx
  for ((i=0;i<$nb;i++));
   do echo ind$i\_ctx >> my_cortex_list_ctx_$nb
  done
+#Detect variants
  cortex_var_31_c$nb --colour_list my_cortex_list_ctx_$nb --kmer_size 31 --mem_height 22 --mem_width 75 \
   --detect_bubbles1 0/1 --output_bubbles1 my_res_cortex_$nb --remove_low_coverage_supernodes 3 
 done
@@ -329,13 +337,16 @@ done
 ~\hrule~\\
 \emph\textbf{Hybrid approach}
 \scriptsize\begin{verbatim}
+#Assembly
 SOAPdenovo-63mer pregraph -s soap.config  -o soapNAR30A -K $k -d 5 
 SOAPdenovo-63mer contig -g soapNAR30A
+
 #remove contigs whose size is < 100:
 python ./filter_fasta_by_length.py soapNAR30A.contig NAR30A_ref.contigs.fa 100 
 mv  soapNAR30A.contig  NAR30A_ref.contigs.fa
 bowtie2-build -f NAR30A_ref.contigs.fa NAR30A_ref.contigs_index  ;
 
+#Map reads
 basen=coli_muted_n_30_genome_
 suffixn=_reads.fasta
 for i in $(seq 0 30); do
@@ -348,13 +359,14 @@ for i in $(seq 0 30); do
  samtools flagstat NAR30A_${i}_bw2.bam > NAR30A_${i}_bw2.flagstat
 done
 
+#Variant calling
 samtools faidx coli_muted_ref.contigs.fa
 java -Xmx4g -jar ./CreateSequenceDictionary.jar  R=coli_muted_ref.contigs.fa  O=coli_muted_ref.contigs.dict
 gpar="-I coli_muted_0_bw2.bam"
 for i in $(seq 1 30); do
-gpar="$gpar -I coli_muted_${i}_bw2.bam"
-java -Xmx8g -jar /softs/local/GATK/2.8.1/GenomeAnalysisTK.jar -R coli_muted_ref.contigs.fa -T UnifiedGenotyper \
--glm BOTH ${gpar} -o coli_muted_both_${i}.vcf
+ gpar="$gpar -I coli_muted_${i}_bw2.bam"
+ java -Xmx8g -jar /softs/local/GATK/2.8.1/GenomeAnalysisTK.jar -R coli_muted_ref.contigs.fa -T UnifiedGenotyper \
+ -glm BOTH ${gpar} -o coli_muted_both_${i}.vcf
 done
 
 	\end{verbatim}	\normalsize
@@ -382,14 +394,19 @@ Experiments were performed using \discopp, \co and the hybrid approach using the
 ~\hrule~\\
 \emph\textbf{{\co}}
 \scriptsize\begin{verbatim}
+#Prepare data
 for i in 096 100; do
  cortex_var_31_c2 --se_list data$i.txt --kmer_size 31 --mem_height 25 --mem_width 100 \
   --dump_binary genome_$i\_reads.ctx  --sample_id sample$i --remove_low_coverage_supernodes 3
 done
+
+#Prepare parameters
 for i in 096 100; do
  echo  "genome_$i\_reads.ctx" > ind$i\_ctx
  echo ind$i\_ctx >> my_cortex_list_ctx
 done
+
+#Detect variants
 cortex_var_31_c2 --colour_list my_cortex_list_ctx --kmer_size 31 --mem_height 25 --mem_width 100 \
  --detect_bubbles1 0,1/0,1 --output_bubbles1 my_res_cortex --remove_low_coverage_supernodes 3 
  
@@ -397,11 +414,15 @@ cortex_var_31_c2 --colour_list my_cortex_list_ctx --kmer_size 31 --mem_height 25
 ~\hrule~\\
 \emph\textbf{Hybrid approach}
 \scriptsize\begin{verbatim}
+#Assembly
 SOAPdenovo-63mer pregraph -s soap.config  -o soaphum -K $k -d 5 
 SOAPdenovo-63mer contig -g soaphum
-#remove contigs whose size is < 100:
+
+#Remove contigs whose size is < 100:
 ./filter_fasta_by_length.py soaphum.contig hum_ref.contigs.fa 100
 mv  soaphum.contig  hum_ref.contigs.fa
+
+#Align reads
 ${path_bw2}bowtie2-build -f hum_ref.contigs.fa hum_ref.contigs_index 
 for i in 096 100; do
  bowtie2 -f --non-deterministic --threads 8  --rg-id "read$i" --rg "SM:read$i" --rg "PL:Illumina" \ 
@@ -412,14 +433,15 @@ for i in 096 100; do
  samtools index hum_${i}_bw2.bam
  samtools flagstat hum_${i}_bw2.bam > hum_${i}_bw2.flagstat
 done
+
+#Variant calling
 samtools faidx hum_ref.contigs.fa
 java -Xmx4g -jar ./CreateSequenceDictionary.jar  R=${ref}  O=hum_ref.contigs.dict
-gpar="-I hum_0_bw2.bam"
-for i in 096 100; do
- gpar="$gpar -I hum_${i}_bw2.bam"
- java -Xmx62g -jar GenomeAnalysisTK.jar -R hum_ref.contigs.fa -T UnifiedGenotyper \
-  -glm BOTH ${gpar} -o hum_both_${i}.vcf
-done
+time ~grizk/bin/memusage java -Xmx62g -jar /softs/local/GATK/2.8.1/GenomeAnalysisTK.jar \
+-R ${ref} \
+-T HaplotypeCaller \
+-I ${prefix}_096_bw2.bam -I ${prefix}_100_bw2.bam \
+-o ${prefix}_both_HaplotypeCaller.vcf
 	\end{verbatim}	\normalsize
 	\caption{Commands used for calling SNPs and indels from two human chromosome 1 read sets (humch1\_00096\_reads.fasta humch1\_00100\_reads.fasta) with \discopp, \co or the hybrid approach. \label{tab:humancommands}}
 \end{table*}

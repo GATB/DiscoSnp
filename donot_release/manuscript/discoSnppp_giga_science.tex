@@ -303,19 +303,15 @@ In \discopp, we extended the initial model detection in order to detect close SN
 As presented Figure~\ref{fig:basical_bubble}.c, indels in data also generate bubbles in the dBG. The two paths of such bubbles are of distinct lengths. The smaller one is of size at most $k-1$ nodes. \discopp detects isolated indels in the dBG. The user limits the maximal size of the insertion. 
 
 \subsection*{Predicting genotypes}
-For each prediction, a genotype is provided (based on~\cite{Nielsen2011}, see Additional File 1 for details about the genotyping process). Users may deactivate genotyping, for instance when results are not predicted from diploid species. XXX TODO
+For each prediction, a genotype is provided (based on the Nielsen 2011 review~\cite{Nielsen2011}, see Additional File 1 for details about the genotyping process). Users may deactivate genotyping, for instance when results are not predicted from diploid species. XXX TODO
 
 \subsection*{Providing a VCF file}
-The original \disco output is a fasta file. It contains a couple of sequences for each predicted variant. Headers of these sequences contain the read coverage and average read quality per variant and per input read set. The read coverage enables to provides a trustful ranking (see for instance the results presented Figure~\ref{fig:roc_human}).
+The original \disco output is a fasta file. It contains a couple of sequences for each predicted variant. Headers of these sequences contain the read coverage, the average read quality, and the predicted genotypes per variant and per input read set. The read coverage enables to provides additionally a trustful ranking of the predictions (see for instance the results presented Figure~\ref{fig:roc_human}).
 
-In \discopp, in addition to the original fasta format, a VCF file is output. This file provides all pieces of information contained in the original fasta headers plus the genotyping values.
+In \discopp, in addition to the original fasta format, a VCF file is output. This file provides all pieces of information contained in the original fasta headers.
 
-
-For creating the VCF file, a reference genome may be provided. In this case, for the variants successfully mapped on the reference, the VCF contains their genomic positions, the reference and the alternative allele unless none of the mapped sequences correspond to the reference genome, and additional mapping information (see Additional File 1 for details about the mapping process and details about the VCF content). 
+If a reference genome may be provided, the \discopp output are mapped on it. In this case, for the variants successfully mapped on the reference, the VCF contains their genomic positions, the reference and the alternative allele unless none of the mapped sequences correspond to the reference genome, and additional mapping information (see Additional File 1 for details about the mapping process and details about the VCF content). 
 If no reference is provided, this fields are replaced by dummy value '.'.
-
-
-
 
 \section*{Results}
 We propose results both on synthetic and on real datasets. Synthetic datasets offer a way to exactly compute the precision and the recall of \discopp and the state-of-the-art methods. Real datasets enable to assess the 
@@ -369,8 +365,8 @@ This dataset enables to evaluate \discopp SNP recall on real read datasets. Amon
 Note that in the~\cite{Kvitek2013} study, no SNP with a MAF $<10\%$ were validated and no indel were validated, so we could not assess the precision of the \discopp predictions on this dataset.
 
 
-\section*{Conclusion}
-TODO
+% \section*{Conclusion}
+% TODO
 \section*{Availability and requirements}
 \begin{itemize}
 	\item \textbf{Project name:} \discopp
@@ -551,11 +547,11 @@ In this framework \co does not rank its predictions, its results are thus repres
 %%
 \section*{Tables}
 \begin{table}[h!]
-	\caption{XXX TODO RECOMPUTE THIS. Command line complexity in term of required number of command (including file formatting when necessary) while calling variants from 2 and 30 haploid genomes. See Additional File 1 for details.\label{tab:2colicmpxt}}
+	\caption{Command line complexity in term of required number of command (including file formatting when necessary) while calling variants from 2 and 30 haploid genomes. See Additional File 1 for details.\label{tab:2colicmpxt}}
 	\begin{tabular}{r|c|c}
 		 & \begin{tabular}{c}Number of commands\\for two genomes\end{tabular} & \begin{tabular}{c}Number of commands\\for 30 genomes\end{tabular}\\\hline
-		 Hybrid & 15  & 39\\
-		 \co & 7 (+2 compilations) & 36 (+30 compilations) \\
+		 Hybrid & 19  & 187\\
+		 \co & 8 (+2 compilations) & 35 (+30 compilations) \\
 		 \discopp & 2 & 2
 	\end{tabular}
 	\end{table}

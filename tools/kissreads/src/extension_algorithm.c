@@ -72,7 +72,7 @@ void print_mapping(const int pos_on_fragment, const char * fragment, const char 
 
 
 
-void feed_coherent_positions(p_fragment_info the_starter, const int start, const int length_read, const int qual, char *quality, int start_on_read, int read_file){
+void feed_coherent_positions(p_fragment_info the_starter, const int start, const int length_read, const int qual, char *quality, int start_on_read, int read_file_id){
     int i, start_on_starter, stop_on_starter;
 	if(start<0) start_on_starter=0; else start_on_starter=start;
 	if(start+length_read<strlen(the_starter->w)) stop_on_starter=start+length_read; else stop_on_starter=strlen(the_starter->w);
@@ -89,7 +89,7 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
 	// TOO HEAVY,
 	//the_starter->reads_starting[start+size_before_reads_starting]++;
 	// REPLACED BY:
-	the_starter->number_mapped_reads[read_file]++;
+	the_starter->number_mapped_reads[read_file_id]++;
     
     
 #ifdef INPUT_FROM_KISSPLICE
@@ -106,14 +106,14 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
         if(start_on_starter<=size_seeds-min_overlap && stop_on_starter>=size_seeds+min_overlap) overlap_AS=1;
         const int pos_SB = strlen(the_starter->w)-(size_seeds);
         if(start_on_starter<=pos_SB-min_overlap && stop_on_starter>=pos_SB+min_overlap) overlap_SB=1;
-        if(overlap_AS) the_starter->nb_reads_overlapping_AS[read_file]++;
-        if(overlap_SB) the_starter->nb_reads_overlapping_SB[read_file]++;
-        if(overlap_AS && overlap_SB) the_starter->nb_reads_overlapping_both_AS_and_SB[read_file]++;
-        if(start_on_starter>size_seeds-min_overlap && stop_on_starter<pos_SB+min_overlap) the_starter->nb_reads_fully_in_S[read_file]++;
+        if(overlap_AS) the_starter->nb_reads_overlapping_AS[read_file_id]++;
+        if(overlap_SB) the_starter->nb_reads_overlapping_SB[read_file_id]++;
+        if(overlap_AS && overlap_SB) the_starter->nb_reads_overlapping_both_AS_and_SB[read_file_id]++;
+        if(start_on_starter>size_seeds-min_overlap && stop_on_starter<pos_SB+min_overlap) the_starter->nb_reads_fully_in_S[read_file_id]++;
     }
     else{// lower path
       if(stop_on_starter-start_on_starter>size_seeds+min_overlap)
-            the_starter->nb_reads_overlapping_both_AS_and_SB[read_file]++;
+            the_starter->nb_reads_overlapping_both_AS_and_SB[read_file_id]++;
 
     }
     
@@ -129,24 +129,24 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
         float new_val;
         for(i=start_on_starter;i<stop_on_starter;i++)
         {
-            nbreads=the_starter->read_coherent_positions[read_file][i];
+            nbreads=the_starter->read_coherent_positions[read_file_id][i];
 			if (nbreads == 0) //first read mapped
-				the_starter->sum_quality_per_position[read_file][i] = quality[start_on_read + i - start_on_starter];
+				the_starter->sum_quality_per_position[read_file_id][i] = quality[start_on_read + i - start_on_starter];
 			else //at least 1 read mapped already
             {
-                new_val =  ((float)the_starter->sum_quality_per_position[read_file][i]) *(nbreads-1) +quality[start_on_read + i - start_on_starter] ;
+                new_val =  ((float)the_starter->sum_quality_per_position[read_file_id][i]) *(nbreads-1) +quality[start_on_read + i - start_on_starter] ;
                 new_val = new_val / nbreads;
-                the_starter->sum_quality_per_position[read_file][i] = (unsigned char) new_val ;
+                the_starter->sum_quality_per_position[read_file_id][i] = (unsigned char) new_val ;
             }
         }
     }
 #else
     if ( qual )
         for(i=start_on_starter;i<stop_on_starter;i++)
-            if (the_starter->read_coherent_positions[read_file][i] == 0) //first read mapped
-                the_starter->sum_quality_per_position[read_file][i] = quality[start_on_read + i - start_on_starter];
+            if (the_starter->read_coherent_positions[read_file_id][i] == 0) //first read mapped
+                the_starter->sum_quality_per_position[read_file_id][i] = quality[start_on_read + i - start_on_starter];
             else //at least 1 read mapped already
-                the_starter->sum_quality_per_position[read_file][i] += (int) quality[start_on_read + i - start_on_starter];
+                the_starter->sum_quality_per_position[read_file_id][i] += (int) quality[start_on_read + i - start_on_starter];
 #endif
     
     
@@ -157,11 +157,11 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
     //  -------------------------------------------------------------- starter
     //            ************************
     //                       <-----k----->
-    //  00000000001111111111110000000000000000000000000000000000000000 the_starter->read_coherent_positions[read_file]
+    //  00000000001111111111110000000000000000000000000000000000000000 the_starter->read_coherent_positions[read_file_id]
 	if(start+length_read-minimal_read_overlap<strlen(the_starter->w)) stop_on_starter=start+length_read-minimal_read_overlap; else stop_on_starter=strlen(the_starter->w);
 #endif
     
-	for(i=start_on_starter;i<stop_on_starter;i++) Sinc8(the_starter->read_coherent_positions[read_file][i]);
+	for(i=start_on_starter;i<stop_on_starter;i++) Sinc8(the_starter->read_coherent_positions[read_file_id][i]);
 	
 
 
@@ -185,17 +185,17 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
 //                            ...
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
-int minimal_kmer_coverage(p_fragment_info the_starter, int read_file){
+int minimal_kmer_coverage(p_fragment_info the_starter, int read_file_id){
     
     int i, val_min=INT_MAX;
     const  int stopi=strlen(the_starter->w);
     for(i=0;i<stopi;i++){ // for each position on the read
-        val_min=min(val_min, the_starter->read_coherent_positions[read_file][i]);
+        val_min=min(val_min, the_starter->read_coherent_positions[read_file_id][i]);
     }
     return val_min;
 }
 
-void set_read_coherent(p_fragment_info the_starter, const int min_coverage, int read_file){
+void set_read_coherent(p_fragment_info the_starter, const int min_coverage, int read_file_id){
     int i;
     // V1: the whole fragment has to be k_read coherent or V2 where the last k positions have no influence on the coherency of the fragment.
     // V2 is appropriate for the cases where the fragment is the end of a sequence (transcript, chromosome) and thus, no read are "longer" than the sequence:
@@ -207,15 +207,47 @@ void set_read_coherent(p_fragment_info the_starter, const int min_coverage, int 
 #ifdef KMER_SPANNING
     const int stop=strlen(the_starter->w)-minimal_read_overlap;
     if(stop<=0){
-        if(the_starter->read_coherent_positions[read_file][0]<min_coverage) {the_starter->read_coherent[read_file]=0; return;}
-        the_starter->read_coherent[read_file]=1; return;
+        if(the_starter->read_coherent_positions[read_file_id][0]<min_coverage) {the_starter->read_coherent[read_file_id]=0; return;}
+        the_starter->read_coherent[read_file_id]=1; return;
     }
 #else
     const int stop=strlen(the_starter->w);
 #endif
 //    printf("%d %d %d \n", strlen(the_starter->w), minimal_read_overlap, stop); //DEB
-    for(i=0;i<stop;i++) if(the_starter->read_coherent_positions[read_file][i]<min_coverage) {the_starter->read_coherent[read_file]=0; return;}
-    the_starter->read_coherent[read_file]=1;
+    for(i=0;i<stop;i++) if(the_starter->read_coherent_positions[read_file_id][i]<min_coverage) {the_starter->read_coherent[read_file_id]=0; return;}
+    the_starter->read_coherent[read_file_id]=1;
+}
+
+void set_read_coherent_paired(p_fragment_info the_starter, const int min_coverage, int read_file_id){
+    int i;
+    // V1: the whole fragment has to be k_read coherent or V2 where the last k positions have no influence on the coherency of the fragment.
+    // V2 is appropriate for the cases where the fragment is the end of a sequence (transcript, chromosome) and thus, no read are "longer" than the sequence:
+    //    ----------------- fragment
+    //    °°°°°°°°°°°°        read
+    //    °°°°°°°°°°°°     read
+    //         °°°°°°°°°°°° read
+    //         °°°°°°°°°°°° read
+#ifdef KMER_SPANNING
+    const int stop=strlen(the_starter->w)-minimal_read_overlap;
+    if(stop<=0){
+        if(the_starter->read_coherent_positions[read_file_id][0]+the_starter->read_coherent_positions[read_file_id+1][0]<min_coverage) {
+            the_starter->read_coherent[read_file_id]=0;
+            the_starter->read_coherent[read_file_id+1]=0;
+            return;}
+        the_starter->read_coherent[read_file_id]=1;
+        the_starter->read_coherent[read_file_id+1]=1;
+        return;
+    }
+#else
+    const int stop=strlen(the_starter->w);
+#endif
+    //    printf("%d %d %d \n", strlen(the_starter->w), minimal_read_overlap, stop); //DEB
+    for(i=0;i<stop;i++)
+        if(the_starter->read_coherent_positions[read_file_id][i]+the_starter->read_coherent_positions[read_file_id+1][i]<min_coverage) {
+            the_starter->read_coherent[read_file_id]=0;
+            the_starter->read_coherent[read_file_id+1]=0;
+            return;}
+    the_starter->read_coherent[read_file_id]=1;
 }
 
 
@@ -262,35 +294,17 @@ void set_read_coherent(p_fragment_info the_starter, const int min_coverage, int 
 //}
 
 
-
-/**
- * Performs the first extension of the algorithm:
- * For each starter:
- *  - verify which reads maps on it with at most subst_allowed substitutions
- *  - for fragments that are fully covered by reads (each position is covered at least once):
- *    1) add their id in a list (that is returned by the function)
- *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
- *    3) store this extending reads in the structure of the fragments (fragment_info)
- 
- * returns the average read length
- */
-
-float read_coherence (gzFile reads_file,
-                      char * reads_file_name,
-                      const int k,
-                      const int min_coverage,
-                      p_fragment_info * all_starters,
-                      const int number_starters,
-                      int read_file,
-                      int qual,
-                      int nb_events_per_set,
-                      int nb_fragment_per_event,
-                      FILE * sam_out,
-                      int subst_allowed,
-                      const int minimal_read_overlap
-                      ){
+void map_all_reads_from_a_file(gzFile read_file,
+                               char * read_file_name,
+                               const int k,
+                               p_fragment_info * all_starters,
+                               int read_file_id,
+                               int qual,
+                               FILE * sam_out,
+                               int subst_allowed,
+                               const int minimal_read_overlap){
     
-	//////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
 	/////////////// read all reads - storing those coherent with reads ///////
 	//////////////////////////////////////////////////////////////////////////
 	char * starter;
@@ -298,31 +312,36 @@ float read_coherence (gzFile reads_file,
     uint64_t nb_seeds;
     
 	// working variables
-	int read_len, i, ii, starter_id,  pwi, stop, read_coherence;
+	int read_len, i, ii,  pwi, stop, read_coherence;
     long int  read_number=0;
     
 	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
-//    char * boolean_vector = new_boleanVector(number_starters);
-    
-    
 	// book space for the read that going to be read.
+    
+	
+
     char * line =  (char *)malloc(sizeof(char)*1048576); // 1048576
 	char * read = (char *)malloc(sizeof(char)*16384); //
 	char * quality = (char *)malloc(sizeof(char)*16384);//
+
+    test_alloc(line);
 	test_alloc(read);
 	test_alloc(quality);
     
     listint * tested_starters = listint_create(); // given a read, stores all starter ids on which a seed was seen. Enables to free quickly list of tested pwis of each tested starters.
 	
     char is_fastq=0;
-    if ( qual || strstr(reads_file_name,"fastq") || strstr(reads_file_name,"fq") || strstr(reads_file_name,"txt") ) is_fastq=1;
+    
+    if ( qual || strstr(read_file_name,"fastq") || strstr(read_file_name,"fq") || strstr(read_file_name,"txt") ) is_fastq=1;
+    
+    
 	// read all the reads
 	do{
 		if(!silent) if((++read_number)%(100000) == 0) printf("\r %ld reads treated", read_number);  // print progress
 		if ( is_fastq )
-			read_len = get_next_sequence_for_fastq(reads_file, read, quality,line);
+			read_len = get_next_sequence_for_fastq(read_file, read, quality,line);
 		else
-			read_len = get_next_fasta_sequence(reads_file, read,line);
+			read_len = get_next_fasta_sequence(read_file, read,line);
 		if(read_len<0) break; // we have read all the file.
         
         const int minimal_pwi = minimal_read_overlap - read_len;
@@ -341,13 +360,13 @@ float read_coherence (gzFile reads_file,
         
 		stop = read_len-k+1;
 #ifdef DEBUG_MAPPING
-        		printf("new read = X%sX Y%sY\n", line, read);
-        #endif
+        printf("new read = X%sX Y%sY\n", line, read);
+#endif
 		// read all seeds present on the read:
         int direction;
         kmer_type coded_seed;
         char toinit=1;
-//        char validSeed;
+        //        char validSeed;
         for(direction=0;direction<2;direction++){ // try the two possible directions of the read
             toinit=1; // we have to init a new seed
             for (i=0;i<stop;i++){ // for all possible seed on the read
@@ -359,29 +378,29 @@ float read_coherence (gzFile reads_file,
                     coded_seed=updateCodeSeed(read+i,&coded_seed); // utpdate the previous seed with a
                 }
                 if(get_seed_info(seeds_count,&coded_seed,&offset_seed,&nb_seeds)){
-                
-                
+                    
+                    
                     // for each occurrence of this seed on the starter:
                     for (ii=offset_seed; ii<offset_seed+nb_seeds; ii++) {
                         couple * value = &(seed_table[ii]);
-//                        printf("value->a = %d\n", value->a); //DEB
+                        //                        printf("value->a = %d\n", value->a); //DEB
                         starter = all_starters[value->a]->w;
-                        if(all_starters[value->a]->mapped_with_current_read[read_file]==1) {
-//                            printf("already mapped %d with this read\n", value->a); //DEB
+                        if(all_starters[value->a]->mapped_with_current_read[read_file_id]==1) {
+                            //                            printf("already mapped %d with this read\n", value->a); //DEB
                             continue; // a mach was already found with this starter, we consider only one match per couple (starter/read)
                         }
                         //                        sprintf(starter_key, "%d", value->a);
                         pwi = value->b-i; // starting position of the read on the starter.
-//                        printf("a=%d pwi = %d\n", value->a,pwi); // DEB
-                        if (listint_contains(all_starters[value->a]->tested_pwis_with_current_read[read_file],pwi)) {
-//                            printf("already tested %d position %d with this read\n", value->a, pwi); //DEB
+                        //                        printf("a=%d pwi = %d\n", value->a,pwi); // DEB
+                        if (listint_contains(all_starters[value->a]->tested_pwis_with_current_read[read_file_id],pwi)) {
+                            //                            printf("already tested %d position %d with this read\n", value->a, pwi); //DEB
                             continue; // this reads was already (unsuccessfuly) tested with this starter at this position. No need to try it again.
                         }
-                        if (numberInListint (all_starters[value->a]->tested_pwis_with_current_read[read_file])==0){ // this is the first time we meet this starter with this read, we add it in the list of met starters (in order to free the pwis lists of each encounted starters for this read)
+                        if (numberInListint (all_starters[value->a]->tested_pwis_with_current_read[read_file_id])==0){ // this is the first time we meet this starter with this read, we add it in the list of met starters (in order to free the pwis lists of each encounted starters for this read)
                             listint_add(tested_starters,value->a);
-//                            printf("adding %d in the list of tested starters with this read \n", *p_valuea); //DEB
+                            //                            printf("adding %d in the list of tested starters with this read \n", *p_valuea); //DEB
                         }
-                        listint_add(all_starters[value->a]->tested_pwis_with_current_read[read_file],pwi); // We store the fact that this read was already tested at this position on this starter.
+                        listint_add(all_starters[value->a]->tested_pwis_with_current_read[read_file_id],pwi); // We store the fact that this read was already tested at this position on this starter.
                         
                         
                         
@@ -407,26 +426,26 @@ float read_coherence (gzFile reads_file,
                         //        <---> pwi (5)
                         // |starter| <= pwi+minimal_read_overlap
                         
-     
+                        
                         read_coherence=0;
                         if(all_starters[value->a]->isASNP)
                             read_coherence = read_coherent_SNP(pwi, starter, read, subst_allowed, all_starters[value->a-value->a%2]->SNP_positions);
-                            //value->a-value->a%2: the smallest id of the the fragments of this bubble (3-->2, 4-->4)
+                        //value->a-value->a%2: the smallest id of the the fragments of this bubble (3-->2, 4-->4)
                         else
                             read_coherence = read_coherent_generic(pwi, starter, read, subst_allowed);
                         
                         
                         if(read_coherence == 1){ // tuple read starter position is read coherent
                             
-                            all_starters[value->a]->mapped_with_current_read[read_file]=1;
+                            all_starters[value->a]->mapped_with_current_read[read_file_id]=1;
                             
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             print_mapping(pwi,all_starters[value->a]->w ,read); //DEB
 #endif
-                            feed_coherent_positions(all_starters[value->a], pwi, (int)strlen(read), qual, quality, i, read_file);
-                            if( sam_out ) fprintf(sam_out,"%d %d %s\t%s\tC%d\t%d\n", value->a, value->b, all_starters[value->a]->comment, read, read_file+1, pwi);
+                            feed_coherent_positions(all_starters[value->a], pwi, (int)strlen(read), qual, quality, i, read_file_id);
+                            if( sam_out ) fprintf(sam_out,"%d %d %s\t%s\tC%d\t%d\n", value->a, value->b, all_starters[value->a]->comment, read, read_file_id+1, pwi);
                             
 #ifdef DEBUG_QUALITY
                             
@@ -444,7 +463,6 @@ float read_coherence (gzFile reads_file,
 #endif
                         } // end tuple read starter position is read coherent
                         //                            hash_add_int_to_list(already_tested_direct, starter_key, pwi);
-                        
                         //c=c->prox;
                     }
                 } // end all infos for the current seed
@@ -456,9 +474,9 @@ float read_coherence (gzFile reads_file,
             cellint * tested_starter=tested_starters->first;
             while (tested_starter != NULL)
             {
-                listint_empty(all_starters[tested_starter->val]->tested_pwis_with_current_read[read_file]);
-                all_starters[tested_starter->val]->mapped_with_current_read[read_file] = 0;
-//                printf("freeing starter %d\n", *(int *)tested_starter->val); //DEB
+                listint_empty(all_starters[tested_starter->val]->tested_pwis_with_current_read[read_file_id]);
+                all_starters[tested_starter->val]->mapped_with_current_read[read_file_id] = 0;
+                //                printf("freeing starter %d\n", *(int *)tested_starter->val); //DEB
                 tested_starter=tested_starter->prox;
             }
             listint_empty(tested_starters);
@@ -468,22 +486,75 @@ float read_coherence (gzFile reads_file,
         
         
 	}while(1); // end all reads of the file
+    
     if(!silent) printf("\r %ld reads treated\n", read_number);  // print progress
+    
+    free(read);
+    free(quality);
+    free(line);
+    listint_free(tested_starters);
+    
+}
+
+/**
+ * Performs the first extension of the algorithm:
+ * For each starter:
+ *  - verify which reads maps on it with at most subst_allowed substitutions
+ *  - for fragments that are fully covered by reads (each position is covered at least once):
+ *    1) add their id in a list (that is returned by the function)
+ *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
+ *    3) store this extending reads in the structure of the fragments (fragment_info)
+ 
+ * returns the average read length
+ */
+
+float read_coherence (
+                      char ** read_file_names,
+                      int read_set_id,
+                      const char paired,
+                      const int k,
+                      const int min_coverage,
+                      p_fragment_info * all_starters,
+                      int qual,
+                      int nb_events_per_set,
+                      int nb_fragment_per_event,
+                      FILE * sam_out,
+                      int subst_allowed,
+                      const int minimal_read_overlap
+                      ){
+    
+	int p;
+    for (p=0;p<1+paired;p++){ // if paired: map both read set id and read set id+1
+        gzFile read_file=gzopen(read_file_names[read_set_id+p],"r");
+        if(read_file == NULL){		fprintf(stderr,"cannot open reads file %s, exit\n",read_file_names[read_set_id+p]);		exit(1);	}
+        map_all_reads_from_a_file(read_file, read_file_names[read_set_id+p],
+                                  k,
+                                  all_starters,
+                                  read_set_id+p,
+                                  qual,
+                                  sam_out,
+                                  subst_allowed,
+                                  minimal_read_overlap);
+        gzclose(read_file);
+    }
+    
+	
     
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////// for each starter: check those fully coherent and store left and right reads covering them ///////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    
+    int starter_id;
 	for (starter_id=0;starter_id < nb_events_per_set*nb_fragment_per_event;starter_id++){
         if(!silent && (starter_id%(1+(nb_events_per_set/50)) == 0)) printf(".");  // print progress
-        set_read_coherent(all_starters[starter_id], min_coverage, read_file);
+        if (!paired)
+            set_read_coherent(all_starters[starter_id], min_coverage, read_set_id);
+        else
+            set_read_coherent_paired(all_starters[starter_id], min_coverage, read_set_id);
 	} // end all fragments
     
-	free(read);
-    free(quality);
-    free(line);
-    listint_free(tested_starters);
+	
+	
     
 	return 0;
 }

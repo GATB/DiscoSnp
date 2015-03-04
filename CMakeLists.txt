@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.6)
 #ENDFOREACH(path)
 
 ################################################################################
-# Define cmake modules directory (TAKEABREAK)
+# Define cmake modules directory
 ################################################################################
 FOREACH (path "cmake" "../../cmake")
     IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${path}")

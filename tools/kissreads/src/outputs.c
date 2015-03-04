@@ -291,11 +291,24 @@ const char * genotype_simple_model(const int c1, const int c2, const float err, 
 }
 
 
+int get_average_quality(unsigned char * quality_string){
+    int i,n=strlen((const char *)quality_string);
+    int res=0;
+    for (i=0;i<n;i++){
+        res+=quality_string[i];
+    }
+    return res/n;
+}
+
 /**
  * prints a couple using the reads starting position instead of coverage per position
  */
-void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual, const char map_snps, const char compute_genotype){
+void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual, const char map_snps, const char compute_genotype, const char paired){
 	
+    
+    if (paired) {
+        number_of_read_sets/=2;
+    }
     // on upper path
 	int sum_up[number_of_read_sets];
 	int avg_up[number_of_read_sets];
@@ -307,41 +320,89 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
     
 	int read_set_id;
     
+    //(MARCH 2015) COMPUTE THE AVERAGE QUALITY ON ALL THE FRAGMENT (AND FOR THE TWO READ SETS WHEN PAIRED)
+  #ifdef CHARQUAL
+    
 	if( qual ){
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            if(!paired){ // NOT PAIRED CHARQUAL
+                
+                avg_up[read_set_id] = avg_up[read_set_id] + get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[read_set_id]);
+                avg_lo[read_set_id] = avg_lo[read_set_id] + get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id]);
+                
+            }
+            else{ // PAIRED CHARQUAL
+                avg_up[read_set_id] = avg_up[read_set_id] + get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[read_set_id*2]);
+                avg_lo[read_set_id] = avg_lo[read_set_id] + get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id*2]);
+                avg_up[read_set_id] = avg_up[read_set_id] + get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[1+read_set_id*2]);
+                avg_lo[read_set_id] = avg_lo[read_set_id] + get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[1+read_set_id*2]);
+            }
+        }
+    }
+
+    #else // NOT CHARQUAL
+    
+	if( qual ){
+        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+            if(!paired){ // NOT PAIRED NOT CHARQUAL
+                avg_up[read_set_id] = avg_up[read_set_id] + (get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[read_set_id]) / get_average_quality(results_against_set[cycle_id]->read_coherent_positions[read_set_id]));
+                avg_lo[read_set_id] = avg_lo[read_set_id] + (get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id]) / get_average_quality(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id]));
+                
+            }
+            else{ // PAIRED NOT CHARQUAL
+                avg_up[read_set_id] = avg_up[read_set_id] + (get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[read_set_id*2]) / get_average_quality(results_against_set[cycle_id]->read_coherent_positions[read_set_id*2]));
+                avg_up[read_set_id] = avg_up[read_set_id] + (get_average_quality(results_against_set[cycle_id]->sum_quality_per_position[1+read_set_id*2]) / get_average_quality(results_against_set[cycle_id]->read_coherent_positions[1+read_set_id*2]));
+                
+                avg_lo[read_set_id] = avg_lo[read_set_id] + (get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id*2]) / get_average_quality(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id*2]));
+                avg_lo[read_set_id] = avg_lo[read_set_id] + (get_average_quality(results_against_set[cycle_id+1]->sum_quality_per_position[1+read_set_id*2]) / get_average_quality(results_against_set[cycle_id+1]->read_coherent_positions[1+read_set_id*2]));
+            }
+        }
+    }
+     #endif // NOT CHARQUAL
         
-        //compute average quality for the variant (position quality if SNP)
-        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-            avg_up[read_set_id] = 0;
-            const int snp_pos = strlen(results_against_set[cycle_id]->w)/2;
-            if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][snp_pos])
-#ifdef CHARQUAL  // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
-                avg_up[read_set_id] = avg_up[read_set_id] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id][snp_pos];
-#else
-            avg_up[read_set_id] = avg_up[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][snp_pos] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][snp_pos]);
-#endif
-            //              avg_up[read_set_id] = avg_up[read_set_id] / (strlen(results_against_set[cycle_id]->w) - 2*kmer_size + 2);
-        }
-        //compute average quality for the variant (position quality if SNP)
-        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-            avg_lo[read_set_id] = 0;
-            const int snp_pos = strlen(results_against_set[cycle_id+1]->w)/2;
-            if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][snp_pos])
-#ifdef CHARQUAL  // FIXME: IT SHOULD BE THE OPOSIT NO ? (PIERRE APRL 2013)
-                avg_lo[read_set_id] = avg_lo[read_set_id] + results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][snp_pos];
-#else
-            avg_lo[read_set_id] = avg_lo[read_set_id] + (results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][snp_pos] / results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][snp_pos]);
-#endif
-            //              avg_lo[read_set_id] = avg_lo[read_set_id] / (strlen(results_against_set[cycle_id+1]->w) - 2*kmer_size + 2);
-        }
-        //        }
-	}
+//        //compute average quality for the variant (position quality if SNP)
+//        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+//            avg_up[read_set_id] = 0;
+//            const int snp_pos = strlen(results_against_set[cycle_id]->w)/2;
+//            if(results_against_set[cycle_id]->read_coherent_positions[read_set_id*2][snp_pos])
+//#ifdef CHARQUAL  // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
+//                avg_up[read_set_id*2] = avg_up[read_set_id*2] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id*2][snp_pos];
+//#else
+//            avg_up[read_set_id*2] = avg_up[read_set_id*2] + (
+//                                                             results_against_set[cycle_id]->sum_quality_per_position[read_set_id*2][snp_pos] /
+//                                                             results_against_set[cycle_id]->read_coherent_positions[read_set_id*2][snp_pos]);
+//#endif
+//            //              avg_up[read_set_id*2] = avg_up[read_set_id*2] / (strlen(results_against_set[cycle_id]->w) - 2*kmer_size + 2);
+//        }
+//        //compute average quality for the variant (position quality if SNP)
+//        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+//            avg_lo[read_set_id*2] = 0;
+//            const int snp_pos = strlen(results_against_set[cycle_id+1]->w)/2;
+//            if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id*2][snp_pos])
+//#ifdef CHARQUAL  // FIXME: IT SHOULD BE THE OPOSIT NO ? (PIERRE APRL 2013)
+//                avg_lo[read_set_id*2] = avg_lo[read_set_id*2] + results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id*2][snp_pos];
+//#else
+//            avg_lo[read_set_id*2] = avg_lo[read_set_id*2] + (results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id*2][snp_pos] / results_against_set[cycle_id+1]->read_coherent_positions[read_set_id*2][snp_pos]);
+//#endif
+//            //              avg_lo[read_set_id] = avg_lo[read_set_id] / (strlen(results_against_set[cycle_id+1]->w) - 2*kmer_size + 2);
+//        }
+//        //        }
+//	}
+    
 	
 	//	float sum=0;
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-		/// UPPER
-		sum_up[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
-		/// LOWER
-		sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
+        if (paired){
+            sum_up[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id*2];
+            sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id*2];
+            sum_up[read_set_id]+=results_against_set[cycle_id]->number_mapped_reads[read_set_id*2+1];
+            sum_lo[read_set_id]+=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id*2+1];
+        }
+        else
+        {
+            sum_up[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
+            sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
+        }
 	}
     const float err = 0.01;
     const float prior_het = 0.33;
@@ -562,7 +623,7 @@ inline int one_coherent(const p_fragment_info * results_against_set, int cycle_i
 }
 
 
-void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual, const char compute_genotype){
+void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual, const char compute_genotype, const char paired){
     int i;
 	int nb_read_coherent=0;
 	int nb_unread_coherent=0;
@@ -582,11 +643,11 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 		if(one_coherent(results_against_set,i,number_of_read_sets) && one_coherent(results_against_set,i+1,number_of_read_sets))
 		{
 			nb_read_coherent++;
-			print_couple_i("",coherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype);
+			print_couple_i("",coherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
 		}
 		else{
 			nb_unread_coherent++;
-			print_couple_i("", uncoherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype);
+			print_couple_i("", uncoherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
 		}
 	}
     

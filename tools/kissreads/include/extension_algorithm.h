@@ -34,18 +34,18 @@
 
 
 
-float read_coherence (gzFile reads_file,
-                      char * reads_file_name,
+float read_coherence (char ** read_file_names,
+                      int read_set_id,
+                      const char paired,
                       const int k,
                       const int min_coverage,
                       p_fragment_info * all_starters,
-                      const int number_starters,
-                      int read_file,
                       int qual,
                       int nb_events_per_set,
                       int nb_fragment_per_event,
                       FILE * sam_out,
                       int subst_allowed,
-                      const int minimal_read_overlap);
+                      const int minimal_read_overlap
+                      );
 
 #endif /* EXTENSION_ALGORITHM_H_ */
