@@ -180,6 +180,8 @@ if [ -z "$read_sets" ]; then
 help
 exit
 fi
+
+
 	
 
 if [ -d "$DISCO_BUILD_PATH" ] ; then
@@ -189,6 +191,18 @@ ls "$DISCO_BUILD_PATH"
 echo "error; for some reason, the discoSnp++ build path ($DISCO_BUILD_PATH) is not accessible"
 echo "Please indicate (option -B) the location of the discoSnp++ build directory"
 exit 1  # fail
+fi
+
+######### CHECK THE number of readsets parity if the -P option is requiered ###########
+if [[ $paired == "-P" ]]
+then
+	nb_read_sets=`echo $read_sets | wc -w`
+	rest=$(( $nb_read_sets % 2 ))
+	if [ $rest -eq 1 ]
+	then
+	echo "[ERROR] You cannot ask for paired read sets with an odd number of read files ($nb_read_sets)"
+	exit
+	fi
 fi
 
 ######### CHECK THE k PARITY ##########
@@ -232,9 +246,14 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
+if [[ $paired == "-P" ]]
+then
+	echo -e "\t\t Reads are paired"
+fi
 echo -e -n "\t starting date="
 date
 echo
+
 #######################################################################
 #################### END OPTIONS SUMMARY        #######################
 #######################################################################
