@@ -143,6 +143,7 @@ if ".sam" in fichier:
 					ok=None
 					dmax=0
 					indel=0
+					phase=0
 					champFilter='.'
 					posUp,posLow,snpLow,snpUp,boolMapUp,boolMapLow,boolXAUp,boolXALow = GetCouple(snpUp,snpLow)
 					seqUp=snpUp[9]
@@ -211,7 +212,7 @@ if ".sam" in fichier:
 							lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,bug,erreur,reverseUp,reverseLow,lettreRefUp,lettreRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 							#Création VCF
 							table,boolRefUp,boolRefLow=RemplissageLigneVCF(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,line,bug,erreur,dmax)
-							table=GetGenotype(genoUp,boolRefUp,boolRefLow,table,line,nbGeno)
+							table=GetGenotype(genoUp,boolRefUp,boolRefLow,table,line,nbGeno,phase)
 							#Remplissage du champ info en fonction de la référence
 							if boolRefUp==1:
 								info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
@@ -269,7 +270,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPUp
 							table[line][3]=lettreUp
 							table[line][4]=lettreLow
-							table=GetGenotype(genoUp,1,0,table,line,nbGeno)
+							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase)
 							if snpUp[10]=="*":
 								table[line][5]="."
 							else:
@@ -287,7 +288,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPLow
 							table[line][3]=lettreLow
 							table[line][4]=lettreUp
-							table=GetGenotype(genoUp,0,1,table,line,nbGeno)
+							table=GetGenotype(genoUp,0,1,table,line,nbGeno,phase)
 							if snpLow[10]=="*":
 								table[line][5]="."
 							else:
@@ -303,7 +304,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPUp
 							table[line][3]=lettreUp
 							table[line][4]=lettreLow
-							table=GetGenotype(genoUp,1,0,table,line,nbGeno)
+							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase)
 							table[line][5]=snpUp[10]
 						table[line][7]=info
 					line+=1
