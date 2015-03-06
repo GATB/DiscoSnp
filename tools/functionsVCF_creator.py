@@ -895,10 +895,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 		lettreLow1=dicoLow[listePolymorphismePosLow[0]][3]
 		positionSnpUp1=dicoUp[listePolymorphismePosUp[0]][5]
 		positionSnpLow1=dicoLow[listePolymorphismePosLow[0]][5]	
-		print lettreUp1
-		print lettreLow1
-		print boolRefUp
-		print boolRefLow
 		reverseLow=dicoLow[listePolymorphismePosLow[0]][4]
 		reverseUp=dicoUp[listePolymorphismePosUp[0]][4]
 		for comptPol in range(len(listePolymorphismePos)):
@@ -940,7 +936,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 
 			elif boolRefUp==0 and boolRefLow==0:
 				if lettreUp1<lettreLow1:
-					print "lettreUp1<lettreLow1"
 					table[line][0]=snpUp[2]
 					table[line][1]=positionSnpUp
 					table[line][2]=numSNPUp
@@ -955,7 +950,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					else:
 						table[line][4]=lettreLow
 				elif  lettreUp1>lettreLow1:
-					print "lettreUp1>lettreLow1"
 					table[line][0]=snpLow[2]	
 					table[line][1]=positionSnpLow
 					table[line][2]=numSNPLow
@@ -970,7 +964,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					else:
 						table[line][4]=lettreUp
 				elif positionSnpUp1<positionSnpLow1:
-					print "positionSnpUp1<positionSnpLow1" 
 					table[line][0]=snpUp[2]
 					table[line][1]=positionSnpUp
 					table[line][2]=numSNPUp
@@ -985,7 +978,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					else:
 						table[line][4]=lettreLow
 				elif positionSnpUp1>positionSnpLow1:
-					print "positionSnpUp1>positionSnpLow1"
 					table[line][0]=snpLow[2]	
 					table[line][1]=positionSnpLow
 					table[line][2]=numSNPLow
@@ -1008,7 +1000,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			else:
 				table[line][7]=info
 			table[line][6]=champFilter
-			print table[line]
 			line+=1
 	#SNPs proches : chemins unmapped
 	elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
@@ -1032,7 +1023,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			info="Type:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)
 			table[line][6]=champFilter
 			table[line][7]=info
-			print table[line]
 			line+=1
 	
 	elif int(snpUp[3])>0 and int(snpLow[3])<=0:
@@ -1059,7 +1049,6 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
 			table[line][7]=info
 			table[line][6]=champFilter
-			print table[line]
 			line+=1
 	elif int(snpUp[3])<=0 and int(snpLow[3])>0:
 		reverseLow=dicoLow[listePolymorphismePosLow[0]][4]
@@ -1085,28 +1074,22 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(lettreRefLow)+";"+"Sd:"+str(reverseLow)
 			table[line][7]=info
 			table[line][6]=champFilter
-			print table[line]
 			line+=1
 	return(table,line,boolRefUp,boolRefLow)
 
 ##############################################################
 ##############################################################
 def GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno):
-	print "in GetGenotype....................."
-	print geno
 	if boolRefLow==1:
-		print 'plop'
 		for i in range(len(geno)):
 			if "1/1" in geno[i]:
 				geno[i]=geno[i].replace("1/1","0/0")
 			elif "0/0" in geno[i]:
 				geno[i]= geno[i].replace("0/0","1/1")
-	print geno
 	j=0
 	for i in geno:
 		gen=i.split("_")
 		if j<=nbGeno-1:
-			print gen[1]
 			table[line][9+int(j)]=gen[1]
 			j+=1
 	table[line][8]="GT"

@@ -130,10 +130,6 @@ if ".sam" in fichier:
 						snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listeCouvertureUp,listeCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpAvant,0)
 					else:
 						snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listeCouvertureLow,listeCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpAvant,0)
-					print "************"
-					print snpUp
-					print snpLow
-					
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------				
 					#Information on coverage by dataset
@@ -310,7 +306,6 @@ if ".sam" in fichier:
 							table=GetGenotype(genoUp,1,0,table,line,nbGeno)
 							table[line][5]=snpUp[10]
 						table[line][7]=info
-					print table[line]
 					line+=1
 			snpAvant=snp	
 #---------------------------------------------------------------------------------------------------------------------------
