@@ -77,9 +77,12 @@ VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="Lenght of the unitig
 VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="Lenght of the unitig right">\n')
 VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="Lenght of the contig left">\n')
 VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="Lenght of the contig right">\n')
-VCF.write('##INFO=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (average)">\n')
+VCF.write('##INFO=<ID=C,Number=1,Type=Integer,Description="Depth of each allele by samples">\n')
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (1) or Forward (0) Alignement">\n')
+VCF.write('##FORMAT=<ID=GT,Number=1,Type=Integer,Description="Genotype">')
+VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">')
+VCF.write('##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">')
 nbGeno=0
 nbSnp,nbGeno = Comptage(fichier)
 nbCol=9+int(nbGeno)
@@ -133,7 +136,7 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------				
 					#Information on coverage by dataset
-					couvUp,couvLow=GetCoverage(listeCUp,listeCLow,listeCouvertureUp,listeCouvertureLow)
+					couvUp,couvLow,listeCouvGeno=GetCoverage(listeCUp,listeCLow,listeCouvertureUp,listeCouvertureLow)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------				
 					#Variables
@@ -212,7 +215,7 @@ if ".sam" in fichier:
 							lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,bug,erreur,reverseUp,reverseLow,lettreRefUp,lettreRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 							#Création VCF
 							table,boolRefUp,boolRefLow=RemplissageLigneVCF(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,line,bug,erreur,dmax)
-							table=GetGenotype(genoUp,boolRefUp,boolRefLow,table,line,nbGeno,phase)
+							table=GetGenotype(genoUp,boolRefUp,boolRefLow,table,line,nbGeno,phase,listeCouvGeno)
 							#Remplissage du champ info en fonction de la référence
 							if boolRefUp==1:
 								info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
@@ -232,7 +235,7 @@ if ".sam" in fichier:
 							dicoLow={}
 							posModif=None
 							dicoUp,dicoLow,listePolymorphismePosUp,listePolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
-							table,line,boolRefUp,boolRefLow=RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,listePolymorphismePosUp,listePolymorphismePosLow,listePolymorphismePos,line,multi,ok,couvUp,couvLow,listeLettreUp,listeLettreLow,genoUp,nbGeno)
+							table,line,boolRefUp,boolRefLow=RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,listePolymorphismePosUp,listePolymorphismePosLow,listePolymorphismePos,line,multi,ok,couvUp,couvLow,listeLettreUp,listeLettreLow,genoUp,nbGeno,listeCouvGeno)
 							snpAvant=snp
 							continue
 #---------------------------------------------------------------------------------------------------------------------------
@@ -270,7 +273,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPUp
 							table[line][3]=lettreUp
 							table[line][4]=lettreLow
-							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase)
+							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase,listeCouvGeno)
 							if snpUp[10]=="*":
 								table[line][5]="."
 							else:
@@ -288,7 +291,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPLow
 							table[line][3]=lettreLow
 							table[line][4]=lettreUp
-							table=GetGenotype(genoUp,0,1,table,line,nbGeno,phase)
+							table=GetGenotype(genoUp,0,1,table,line,nbGeno,phase,listeCouvGeno)
 							if snpLow[10]=="*":
 								table[line][5]="."
 							else:
@@ -304,7 +307,7 @@ if ".sam" in fichier:
 							table[line][2]=numSNPUp
 							table[line][3]=lettreUp
 							table[line][4]=lettreLow
-							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase)
+							table=GetGenotype(genoUp,1,0,table,line,nbGeno,phase,listeCouvGeno)
 							table[line][5]=snpUp[10]
 						table[line][7]=info
 					line+=1

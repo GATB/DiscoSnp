@@ -71,6 +71,7 @@ def ParsingDiscoSNP(snp,boolNum):
 	ntUp=''
 	ntLow=''
 	dicoHeader={}
+	dicoGeno={}
 	SNP=0
 	INDEL=0
 	for i in snp:
@@ -201,10 +202,16 @@ def ParsingDiscoSNP(snp,boolNum):
 				if matchInt:
 					nb_pol=j
 		elif "G" in i:
-			i.replace("_",":")
-			geno.append(i)
+			i=i.replace("_",":")
+			listegeno=i.split(":")
+			if len(listegeno)>2:
+				listelikelihood=listegeno[2].split(",")
+			else:
+				listelikelihood=0
+			dicoGeno[listegeno[0]]=[listegeno[1],listelikelihood]
+			
 	if boolNum==0:				
-		return(snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listeCouverture,listeC,nb_pol,ln,posD,ntUp,ntLow,geno,dicoHeader)
+		return(snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listeCouverture,listeC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
 	else:
 		return(numSNP)
 ##############################################################
@@ -285,8 +292,10 @@ def GetCouple(snp1,snp2):
 def GetCoverage(listeCUp,listeCLow,listeCouvertureUp,listeCouvertureLow):
 	i=0
 	couvUp=''
+	listeCouvGeno=[]
 	if len(listeCouvertureUp)>1 and len(listeCouvertureLow)>1:
 		while i<len(listeCouvertureUp):
+			listeCouvGeno.append(int(listeCouvertureUp[i])+int(listeCouvertureUp[i]))
 			if couvUp!='':
 				couvUp=str(couvUp)+';'+str(listeCUp[i])+':'+str(listeCouvertureUp[i])+"|"+str(listeCouvertureLow[i])
 			else:
@@ -303,7 +312,7 @@ def GetCoverage(listeCUp,listeCLow,listeCouvertureUp,listeCouvertureLow):
 	else:
 		couvUp=str(listeCUp[0])+':'+str(listeCouvertureUp[0])
 		couvLow=str(listeCLow[0])+':'+str(listeCouvertureLow[0])
-	return(couvUp,couvLow)
+	return(couvUp,couvLow,listeCouvGeno)
 ##############################################################
 ##############################################################
 def addPosition(position,ensemble,delta):
@@ -876,7 +885,7 @@ def RemplissageLigneVCF(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionS
 	return(table,boolRefUp,boolRefLow)
 ##############################################################
 ##############################################################
-def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,listePolymorphismePosUp,listePolymorphismePosLow,listePolymorphismePos,line,multi,ok,couvUp,couvLow,listeLettreUp,listeLettreLow,geno,nbGeno):
+def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,listePolymorphismePosUp,listePolymorphismePosLow,listePolymorphismePos,line,multi,ok,couvUp,couvLow,listeLettreUp,listeLettreLow,geno,nbGeno,listeCouvGeno):
 	info=''
 	champAlt=0
 	comptPol=0
@@ -907,7 +916,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			lettreRefLow=dicoLow[listePolymorphismePosLow[comptPol]][1]
 			#Remplissage VCF
 			if boolRefLow==1 and boolRefUp==0:
-				table=GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase)
+				table=GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase,listeCouvGeno)
 				table[line][0]=snpLow[2]	
 				table[line][1]=positionSnpLow
 				table[line][2]=numSNPLow
@@ -921,7 +930,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 				else:
 					table[line][4]=lettreUp
 			elif boolRefUp==1 and boolRefLow==0:
-				table=GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase)
+				table=GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase,listeCouvGeno)
 				table[line][0]=snpUp[2]
 				table[line][1]=positionSnpUp
 				table[line][2]=numSNPUp
@@ -941,7 +950,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					table[line][1]=positionSnpUp
 					table[line][2]=numSNPUp
 					table[line][3]=lettreUp
-					table=GetGenotype(geno,1,0,table,line,nbGeno,phase)
+					table=GetGenotype(geno,1,0,table,line,nbGeno,phase,listeCouvGeno)
 					if snpUp[10]=="*":
 						table[line][5]="."
 					else:
@@ -955,7 +964,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					table[line][1]=positionSnpLow
 					table[line][2]=numSNPLow
 					table[line][3]=lettreLow
-					table=GetGenotype(geno,0,1,table,line,nbGeno,phase)
+					table=GetGenotype(geno,0,1,table,line,nbGeno,phase,listeCouvGeno)
 					if snpLow[10]=="*":
 						table[line][5]="."
 					else:
@@ -969,7 +978,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					table[line][1]=positionSnpUp
 					table[line][2]=numSNPUp
 					table[line][3]=lettreUp
-					table=GetGenotype(geno,1,0,table,line,nbGeno,phase)
+					table=GetGenotype(geno,1,0,table,line,nbGeno,phase,listeCouvGeno)
 					if snpUp[10]=="*":
 						table[line][5]="."
 					else:
@@ -983,7 +992,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 					table[line][1]=positionSnpLow
 					table[line][2]=numSNPLow
 					table[line][3]=lettreLow
-					table=GetGenotype(geno,0,1,table,line,nbGeno,phase)
+					table=GetGenotype(geno,0,1,table,line,nbGeno,phase,listeCouvGeno)
 					if snpLow[10]=="*":
 						table[line][5]="."
 					else:
@@ -1016,7 +1025,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			table[line][1]=positionSnpUp
 			table[line][2]=numSNPUp
 			table[line][3]=lettreUp
-			table=GetGenotype(geno,1,0,table,line,nbGeno,phase)
+			table=GetGenotype(geno,1,0,table,line,nbGeno,phase,listeCouvGeno)
 			if snpUp[10]=="*":
 				table[line][5]="."
 			else:
@@ -1036,7 +1045,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			table[line][1]=positionSnpUp
 			table[line][2]=numSNPUp
 			table[line][3]=lettreUp
-			table=GetGenotype(geno,1,0,table,line,nbGeno,phase)
+			table=GetGenotype(geno,1,0,table,line,nbGeno,phase,listeCouvGeno)
 			if snpUp[10]=="*":
 				table[line][5]="."
 			else:
@@ -1061,7 +1070,7 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 			table[line][1]=positionSnpLow
 			table[line][2]=numSNPLow
 			table[line][3]=lettreLow
-			table=GetGenotype(geno,0,1,table,line,nbGeno,phase)
+			table=GetGenotype(geno,0,1,table,line,nbGeno,phase,listeCouvGeno)
 			if snpLow[10]=="*":
 				table[line][5]="."
 			else:
@@ -1080,22 +1089,27 @@ def RemplissageVCFSNPproches(dicoUp,dicoLow,table,champFilter,dmax,snpUp,snpLow,
 
 ##############################################################
 ##############################################################
-def GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase):
-	if boolRefLow==1:
-		for i in range(len(geno)):
-			if "1/1" in geno[i]:
-				geno[i]=geno[i].replace("1/1","0/0")
-			elif "0/0" in geno[i]:
-				geno[i]= geno[i].replace("0/0","1/1")
+def GetGenotype(geno,boolRefUp,boolRefLow,table,line,nbGeno,phase,listeCouvGeno):
 	j=0
-	for i in geno:
-		gen=i.split("_")
+	for i in range(0,nbGeno):
+		gen="G"+str(i+1)
+		if boolRefLow==1:
+			if "1/1" in geno[gen][0]:
+				geno[gen][0]=geno[gen][0].replace("1/1","0/0")
+			elif "0/0" in geno[gen][0]:
+				geno[gen][0]=geno[gen][0].replace("0/0","1/1")
 		if j<=nbGeno-1:
 			if phase==1:
-				gen[1]=gen[1].replace("/","|")
-			table[line][9+int(j)]=gen[1]
+				genotype=geno[gen][0].replace("/","|")
+			else:
+				genotype=geno[gen][0]
+			if isinstance(geno[gen][1],list):
+				likelihood=str(','.join(geno[gen][1]))
+			else:
+				likelihood=str(geno[gen][1])
+			table[line][9+int(j)]=str(genotype)+":"+str(listeCouvGeno[i])+":"+str(likelihood)
 			j+=1
-	table[line][8]="GT"
+	table[line][8]="GT:DP:PL"
 	return(table)
 ##############################################################
 ##############################################################
