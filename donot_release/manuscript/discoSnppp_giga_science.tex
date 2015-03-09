@@ -273,7 +273,7 @@ A few methods~\cite{Peterlongo2010,iqbal2012novo,Leggett2013,Nordstrom2013,Kissp
 We recently proposed \disco, a \emph{reference-free} method for detecting isolated SNPs~\cite{Uricaru2014a}. The \disco approach outperforms other \emph{reference-free} methods both in term of computational needs and in term of results quality. Its main features are \textbf{1}/ its extremely low memory usage (several billion reads may be analyzed with no more than 6 GB RAM memory), \textbf{2}/ its high execution speed, \textbf{3}/ its high precision and recall, \textbf{4}/ the precision of the score assigned to each predicted SNP, \textbf{5}/ the fact that is can be applied on one to $n$ read sets, and \textbf{6}/ the kind of SNPs it detects, called \emph{isolated}. Isolated SNPs are SNPs that are distant to the left and to the right by at least $k$ nucleotides from any other polymorphism, with $k$ one of the main parameters of a SNP detection tool. Isolated SNPs have the advantage to be easily amplified by PCR. However isolated SNPs do jot represent all SNPs. In particular in case of highly polymorphic genomes and in case of numerous distinct genomes, only a fraction of SNPs are isolated and so detected by \disco.
 
 
-In this paper, we present \discopp that is an extension of the \disco tool. The tool was re-implemented from scratch using the GATB library~\cite{Drezen2014}. Except the running time that has been even improved, the detection of isolated SNPs remains exactly the same with \disco and \discopp. Additionally, \discopp detects new kind of variants and it may proposes a VCF of the predicted variants.  
+In this paper, we present \discopp that is an extension of the \disco tool. The tool was re-implemented from scratch using the GATB library~\cite{Drezen2014}. Except the running time that has been improved, the detection of isolated SNPs remains exactly the same with \disco and \discopp. Additionally, \discopp detects new kind of variants and it may proposes a VCF of the predicted variants.  
 
 
 The \disco tool is based on the analysis of the de Bruijn Graph (dBG) for predicting \emph{isolated SNPs}. An \emph{isolated SNP} is a SNPs that is at least $k$ nucleotides apart from any other polymorphism, with $k$ the size of the $k$-mers used in the dBG. 
@@ -312,6 +312,9 @@ In \discopp, in addition to the original fasta format, a VCF file is output. Thi
 
 If a reference genome may be provided, the \discopp output are mapped on it. In this case, for the variants successfully mapped on the reference, the VCF contains their genomic positions, the reference and the alternative allele unless none of the mapped sequences correspond to the reference genome, and additional mapping information (see Additional File 1 for details about the mapping process and details about the VCF content). 
 If no reference is provided, this fields are replaced by dummy value '.'.
+
+\subsection*{Other improvements}
+The code was re-implemented from scratch using the GATB library~\cite{Drezen2014}. This provides a much easier way to handle the graph file, it improves the progress messages and this improves the running time. In addition, \discopp handles pair of reads during the counting phase. Simply, each pair of read files is considered as a unique read set while computing coverages, qualities, rank and genotypes. 
 
 \section*{Results}
 We propose results both on synthetic and on real datasets. Synthetic datasets offer a way to exactly compute the precision and the recall of \discopp and the state-of-the-art methods. Real datasets enable to assess the 

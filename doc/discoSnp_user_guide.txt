@@ -1,6 +1,6 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.0.6
+v2.0.7
 User's guide – March 2015
 
 contact: pierre.peterlongo@inria.fr
@@ -47,22 +47,24 @@ Compile all three tools (graph creation, kissnp2, kissreads)
 
 Running discoSnp++
 The main script run_discoSnp++.sh automatically runs the two modules (SNP detection and read coverage and quality computations). You will provide the following information:
--r (read_sets) “readref.fasta   readsnp.fastq.gz”: localization of the read files. Note that these files may be in fastq, or fasta, gzipped or not. If there are more than one read file, then they must be surrounded by the " character and they are separated by space. 
+-r (read_sets) “read1.fasta   reads.fastq.gz ...”: localization of the read files. Note that these files may be in fastq, or fasta, gzipped or not. If there are more than one read file, then they must be surrounded by the " character and they are separated by space. 
 This is the only mandatory parameter.
+-m: indicates that read sets are paired. Each couple of read sets is considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) 
+In this case, during the coverage and quality computations, two consecutive input read files are consider as a unique read set. For instance in the above description, set1_1.fa and set1_2.fa will be considered as a unique file. 
 -g: reuse a previously created graph (.h5 file) with same prefix and same k, c and C parameters. Using this option enables to reuse a graph created during a previous experiment with same prefix name same k, c and C values. Else, by default, if such a graph exists, it is overwritten. WARNING: use this option only if you are sure the read set(s) used are the same than those previously used for creating the graph.
 -b branching_strategy:  branching filtering approach. This parameters influences the precision recall. 
 0: variants for which any of the two paths is branching are discarded (high precision, lowers the recall in complex genomes). Default value
 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position 
 2: No limitation on branching (lowers the precision, high recall)"
-[beta] -D value. If specified, discoSnp++ will search for deletions of size from 1 to D included. Default=0
-[beta] -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1. 
+-D value. If specified, discoSnp++ will search for deletions of size from 1 to D included. Default=0
+-P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1. 
 -p prefix_name: All out files will start with this prefix. Default="discoRes"
--l: accept low complexity bubbles
+-l: remove low complexity bubbles
 -k kmer_size:  size of kmers (default: 31)
 -t: extends each polymorphism with left and right unitigs
 -T: extends each polymorphism with left and right contigs
 -c value. Minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4
-[beta] -C value. Maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1
+-C value. Maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1
 -d error_threshold: max number of errors per read (used by kissreads only). 
 Default 1
 -n: do not compute the genotypes

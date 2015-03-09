@@ -26,7 +26,7 @@ max_C=$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.0.6"
+version="2.0.7"
 read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -36,7 +36,7 @@ C=$max_C # maximal coverage
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble
-l=""
+l="-l"
 extend=""
 genotyping="-g"
 paired=""
@@ -58,7 +58,7 @@ echo -e "\t\t -r list of reads separated by space, surrounded by the '\"' charac
 echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
 
 echo -e "\tOPT:"
-echo -e "\t\t -m: indicates that read are paired. Each couple of read sets are considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) "
+echo -e "\t\t -m: indicates that read sets are paired. Each couple of read sets is considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) "
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
@@ -67,7 +67,7 @@ echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall
 echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=0"
 echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
-echo -e "\t\t -l: accept low complexity bubbles"
+echo -e "\t\t -l: remove low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
 echo -e "\t\t -t: extend found polymorphisms with unitigs"
 echo -e "\t\t -T: extend found polymorphisms with contigs"
@@ -106,7 +106,7 @@ case $opt in
 	;;
 	
 	l)
-	l="-l"
+	l=""
 	;;
 h)
 help

@@ -179,20 +179,23 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         
         //#endif
         all_starters[fragment_id]->mapped_with_current_read = (char *)malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->mapped_with_current_read);
+        test_alloc(all_starters[fragment_id]->mapped_with_current_read);
         all_starters[fragment_id]->tested_pwis_with_current_read = (listint **)malloc(sizeof(listint *)*number_of_read_sets); test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read);
+        test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read)
 		all_starters[fragment_id]->read_coherent = (char*) malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent);
+        test_alloc(all_starters[fragment_id]->read_coherent);
 		all_starters[fragment_id]->number_mapped_reads = (int*) malloc(sizeof(int)*number_of_read_sets);test_alloc(all_starters[fragment_id]->number_mapped_reads);
+        test_alloc(all_starters[fragment_id]->number_mapped_reads);
 		all_starters[fragment_id]->read_coherent_positions = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent_positions);
-#ifdef CHARQUAL
-		all_starters[fragment_id]->sum_quality_per_position = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->sum_quality_per_position);
-#else
-        all_starters[fragment_id]->sum_quality_per_position = (int **) malloc(sizeof(int*)*number_of_read_sets); test_alloc(all_starters[fragment_id]->sum_quality_per_position);
-        
-#endif
+        test_alloc(all_starters[fragment_id]->read_coherent_positions);
+		all_starters[fragment_id]->sum_qualities = (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);
+        test_alloc(all_starters[fragment_id]->sum_qualities);
+        all_starters[fragment_id]->nb_mapped_qualities = (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);
+        test_alloc(all_starters[fragment_id]->nb_mapped_qualities);
 		all_starters[fragment_id]->comment = format_comment(temp_fragment2);
-        all_starters[fragment_id]->isASNP = 0;
+        all_starters[fragment_id]->nbOfSnps = 0;
         if (prefix("SNP",all_starters[fragment_id]->comment)) {
-            all_starters[fragment_id]->isASNP=1;
+            all_starters[fragment_id]->nbOfSnps=1; // We don't know yep how many, at least one.
         }
         
 		for (i=0; i<number_of_read_sets; i++)
@@ -200,43 +203,18 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
             all_starters[fragment_id]->mapped_with_current_read[i] = 0;
             all_starters[fragment_id]->tested_pwis_with_current_read[i] = listint_create();
 			all_starters[fragment_id]->read_coherent_positions[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char)); test_alloc(all_starters[fragment_id]->read_coherent_positions[i]);
-#ifdef CHARQUAL
-			all_starters[fragment_id]->sum_quality_per_position[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char)); test_alloc(all_starters[fragment_id]->sum_quality_per_position[i]);
-#else
-            all_starters[fragment_id]->sum_quality_per_position[i] = (int *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(int)); test_alloc(all_starters[fragment_id]->sum_quality_per_position[i]);
-            
-#endif
+            test_alloc(all_starters[fragment_id]->read_coherent_positions[i])
+
 			for(z=0;z<strlen(all_starters[fragment_id]->w); z++) all_starters[fragment_id]->read_coherent_positions[i][z]=0;
 			for(z=0;z<strlen(all_starters[fragment_id]->w); z++) all_starters[fragment_id]->read_coherent_positions[i][z]=0;
-			for(z=0;z<strlen(all_starters[fragment_id]->w); z++) all_starters[fragment_id]->sum_quality_per_position[i][z]=0;
             
             
+            all_starters[fragment_id]->nb_mapped_qualities[i]=0;
+            all_starters[fragment_id]->sum_qualities[i]=0;
 			all_starters[fragment_id]->number_mapped_reads[i]=0;
+            
 		}
-        
-#ifdef INPUT_FROM_KISSPLICE
-        if(strstr(all_starters[fragment_id]->comment,"upper")) all_starters[fragment_id]->upperpath=1; // even numbers are upper.
-        else all_starters[fragment_id]->upperpath=0;
-        
-        if(all_starters[fragment_id]->upperpath){
-            all_starters[fragment_id]->nb_reads_fully_in_S = (int *) malloc(sizeof(int)*number_of_read_sets); test_alloc(all_starters[fragment_id]->nb_reads_fully_in_S);
-            all_starters[fragment_id]->nb_reads_overlapping_AS = (int *) malloc(sizeof(int)*number_of_read_sets); test_alloc(all_starters[fragment_id]->nb_reads_overlapping_AS);
-            all_starters[fragment_id]->nb_reads_overlapping_SB = (int *) malloc(sizeof(int)*number_of_read_sets); test_alloc(all_starters[fragment_id]->nb_reads_overlapping_SB);
-        }
-        all_starters[fragment_id]->nb_reads_overlapping_both_AS_and_SB = (int *) malloc(sizeof(int)*number_of_read_sets); test_alloc(all_starters[fragment_id]->nb_reads_overlapping_both_AS_and_SB);
-        
-        
-        for (i=0; i<number_of_read_sets; i++)
-		{
-            if(all_starters[fragment_id]->upperpath){
-                all_starters[fragment_id]->nb_reads_fully_in_S[i] = 0;
-                all_starters[fragment_id]->nb_reads_overlapping_AS[i] = 0;
-                all_starters[fragment_id]->nb_reads_overlapping_SB[i] = 0;
-            }
-            all_starters[fragment_id]->nb_reads_overlapping_both_AS_and_SB[i] = 0;
-        }
-#endif
-		
+    		
 #ifdef DEBUG_INDEXING
 		printf("counting in %s\n", all_starters[fragment_id]->w);
 #endif
@@ -309,12 +287,12 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
     
     
     
-    ///third loop over fragments : for SNPs, store the SNP positions
+    ///third loop over fragments : for SNPs, store the SNP positions and the SNP qualities
     fragment_id=0;
 	do{
         
 		if ( fragment_id+1 > nb_events_per_set*nb_fragment_per_event ) break; // we read the starters we needed to read
-        if ( all_starters[fragment_id]->isASNP!=1 ) {fragment_id+=2; continue;} // applies only for SNPs
+        if ( all_starters[fragment_id]->nbOfSnps==0 ) {fragment_id+=2; continue;} // applies only for SNPs
         
         char * seq1 = all_starters[fragment_id]->w;
         char * seq2 = all_starters[fragment_id+1]->w;
@@ -322,23 +300,24 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         assert(size_seq == strlen(seq2));
         
         // compute the number of SNPs:
-        int number_of_SNPs=0;
+        int local_number_of_SNPs=0;
         for (i=0; i<size_seq; i++) {
             if (seq1[i]!=seq2[i]) {
-                number_of_SNPs++;
+                local_number_of_SNPs++;
             }
         }
-        
-        all_starters[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)*(number_of_SNPs+1)); // add a dummy SNP
+        all_starters[fragment_id]->nbOfSnps=local_number_of_SNPs;
+        all_starters[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)*(local_number_of_SNPs+1)); // add a dummy SNP
         test_alloc(all_starters[fragment_id]->SNP_positions);
+        
         // we do not fill the all_starters[fragment_id+1] with the same information
-        number_of_SNPs=0;
+        local_number_of_SNPs=0;
         for (i=0; i<size_seq; i++) {
             if (seq1[i]!=seq2[i]) {
-                all_starters[fragment_id]->SNP_positions[number_of_SNPs++]=i;
+                all_starters[fragment_id]->SNP_positions[local_number_of_SNPs++]=i;
             }
         }
-        all_starters[fragment_id]->SNP_positions[number_of_SNPs] = size_seq+1;
+        all_starters[fragment_id]->SNP_positions[local_number_of_SNPs] = size_seq+1; // DUMMY SNP
 		fragment_id+=2;
 	}while (1);
     

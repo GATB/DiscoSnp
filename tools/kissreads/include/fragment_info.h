@@ -33,9 +33,9 @@
 #include "list.h"
 
 //with CHARQUAL, use an unsigned char to store qual values. To avoid overflow, compute average value 'on the fly'
-#ifndef INTQUAL  // if compilation was NOT done with CFLAGS=-DINTQUAL, use the CHARQUAL option 
+//#ifndef INTQUAL  // if compilation was NOT done with CFLAGS=-DINTQUAL, use the CHARQUAL option 
 #define CHARQUAL 
-#endif
+//#endif
 
 #ifndef CLASSICAL_SPANNING
 #define KMER_SPANNING // ask more than only all position covered by at least min_coverage reads. Each kmer spanning each position should be covered by at least min_coverage reads.
@@ -51,22 +51,14 @@ typedef struct {
     char * mapped_with_current_read; // For every read set (because of parrallelization): in run time, set to 1 if a match was seen with a current read. Avoid multiple matches of the same read on this starter.
     listint ** tested_pwis_with_current_read; // For every read set (because of parrallelization): in run time, all tested positions of the current read on this starter are stored. Avoids the computation redundances.
 	char * comment;                // first line of the comment (fasta format)
-    char isASNP;                      // if true (1), the sequence is a unique SNP. In this case we do not authorize any subsitution at this position.
+    int nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
 	char * read_coherent;          // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
 	unsigned char ** read_coherent_positions;           //  number of reads covering this position can be a char, min coverage required is low
-#ifdef INPUT_FROM_KISSPLICE
-    char upperpath; // are we dealing with ASB path (==upper path) (else it's an AB path)
+
+
+    unsigned int * sum_qualities; // sum of the mapped qualities for each read set
+    unsigned int * nb_mapped_qualities; // number of quality mapped for each read set. If there is a unique read, this is the number of mapped reads. In case of close SNPs, as a unique read may cover several SNPs, this can be bigger.
     
-    int * nb_reads_fully_in_S;
-    int * nb_reads_overlapping_AS;
-    int * nb_reads_overlapping_SB;
-    int * nb_reads_overlapping_both_AS_and_SB; // also used as junction AB for lower paths.
-#endif
-#ifdef CHARQUAL
-	unsigned char ** sum_quality_per_position;	//for every set of reads, " " sum of the qualitites of reads mapping at that position if read coherent
-#else
-    int ** sum_quality_per_position;	
-#endif
 	int * number_mapped_reads;      //for every set of reads, number of reads starting (REPLACE reads_starting)
 } fragment_info, *p_fragment_info;
 

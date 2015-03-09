@@ -728,8 +728,7 @@ bool BubbleFinder::checkPath (Bubble& bubble) const
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
     DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
-//    if(graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]))) cout<<"true"<<endl; //DEB
-//    else cout<<"false"<<endl; //DEB
+
     
     return graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0]));
 }

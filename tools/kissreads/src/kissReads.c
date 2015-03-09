@@ -48,11 +48,9 @@ char * getVersion(){
 
 void print_usage_and_exit(char * name){
 	fprintf (stderr, "NAME\nkissReads, version %s\n", getVersion());
-#ifdef INPUT_FROM_KISSPLICE
-	fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-l value] [-o name] [-u name] [-P] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
-#else
+
     fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-P] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
-#endif// INPUT_FROM_KISSPLICE
+
 	fprintf (stderr, "\nDESCRIPTION\n");
 	fprintf (stderr, "Checks for each sequence contained into the toCheck.fasta if\n");
 	fprintf (stderr, "it is read coherent (each position is covered by at least \"min_coverage\" read(s)) with reads from readsA.fasta or readsB.fasta\n");
@@ -69,19 +67,11 @@ void print_usage_and_exit(char * name){
     fprintf (stderr, "\t -O minimal_read_overlap: a read can be mapped if its overlap is a least \"minimal_read_overlap\". Default: k\n");
 	fprintf (stderr, "\t -c min_coverage: a sequence is covered by at least min_coverage coherent reads. Default: 2\n");
     fprintf (stderr, "\t -d max_substitutions: Maximal number of substitutions authorized between a read and a fragment. Note that no substitution is allowed on the central position while anaylizing the kissnp output. Default: 1.\n");
-#ifdef INPUT_FROM_KISSPLICE
-    fprintf (stderr, "\t -l min_kissplice_overlap: Kissplice min_voerlap. Default: 3\n");
-    fprintf (stderr, "\t -j counting option. 0: counts are summed and represent the whole path, 1: counts are only in the junctions, 2: all the counts are shown separately   . Default: 0\n");
-#endif
+
     fprintf (stderr, "\t -p: only print coverage, do not separate between coherent and uncoherent sequences. Not compatible with -u option.\n");
 	fprintf (stderr, "\t -o file_name: write read-coherent outputs. Default: standard output \n");
 	fprintf (stderr, "\t -u file_name: write unread-coherent outputs. Not compatible with -p option. Default: standard output \n");
-#ifndef INPUT_FROM_KISSPLICE
-	fprintf (stderr, "\t -n the input file (toCheck.fasta) is a kissnp output (incompatible with -I option) \n");
-    fprintf (stderr, "\t\t in this case: 1/ only the upper characters are considered (no mapping done on the extensions) and 2/ the central position (where the SNP occurs) is strictly mapped, no subsitution is authorized on this position.\n");
-    fprintf (stderr, "\t -g compute the predictions genotypes (compatible only with -n option) \n");
-	fprintf (stderr, "\t -I the input file (toCheck.fasta) is an Intl output (incompatible with -n option) \n");
-#endif // not INPUT_FROM_KISSPLICE
+
     fprintf (stderr, "\t -P consider reads sets as paired. In this case: \n");
     fprintf (stderr, "\t \t -Number of read sets must be even\n");
     fprintf (stderr, "\t \t -Each pair of read sets is considered as a unique read set.\n");
@@ -106,9 +96,6 @@ int main(int argc, char **argv) {
 #ifdef CLASSICAL_SPANNING
     printf("Compiled with CLASSICAL_SPANNING: a position is considered as covered as soon as a read maps this position (else a position is considered as covered if the kmer starting at this position is fully covered by a read)\n");
 #endif
-#ifdef INPUT_FROM_KISSPLICE
-    printf("Compiled with INPUT_FROM_KISSPLICE: dealing with kissplice output and to count separately junctions and central portions\n");
-#endif
     
     
     minimal_read_overlap=0;
@@ -118,12 +105,6 @@ int main(int argc, char **argv) {
     
     char input_only_upper=0; // By default: all characters (upper or lower) are read
     int number_paths_per_event=1; // By default (generic usage) each event is composed by a unique sequence.
-#ifdef INPUT_FROM_KISSPLICE
-    min_overlap=3; // default value.
-    countingOption = 0 ; // default value
-    input_only_upper=1; // don't considere the lower script characters.
-    number_paths_per_event=2; // each splicing event is composed by two sequences in the fasta file.
-#endif
     
     int index_stride =1;
 	setvbuf(stdout,(char*)NULL,_IONBF,0); // disable buffering for printf()
@@ -173,11 +154,9 @@ int main(int argc, char **argv) {
 	}
 	while (1)
 	{
-#ifdef INPUT_FROM_KISSPLICE
-        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fPps-:j:l:t:");
-#else
+
         int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsngPI-:t:");
-#endif //INPUT_FROM_KISSPLICE
+
 		if (temoin == -1){
 			break;
 		}
@@ -197,14 +176,7 @@ int main(int argc, char **argv) {
             case 'p':
                 only_print=1;
                 break;
-#ifdef INPUT_FROM_KISSPLICE
-            case 'l':
-                min_overlap=atoi(optarg);
-                break;
-            case 'j':
-              countingOption  = atoi(optarg);
-              break;
-#endif //INPUT_FROM_KISSPLICE
+
             case 'o':
                 coherent_file_name = strdup(optarg);
                 coherent_out = fopen(optarg, "w");
@@ -232,7 +204,6 @@ int main(int argc, char **argv) {
                 if(index_stride<0) index_stride=1;
                 break;
                 
-#ifndef INPUT_FROM_KISSPLICE
             case 'n':
                 map_snps=1;
                 input_only_upper=1;
@@ -250,7 +221,7 @@ int main(int argc, char **argv) {
                 number_paths_per_event=4;
                 
                 break;
-#endif
+
                 
             case 'O':
                 minimal_read_overlap=atoi(optarg);
@@ -302,13 +273,6 @@ int main(int argc, char **argv) {
 	}
     
     
-#ifdef INPUT_FROM_KISSPLICE
-    if(paired){
-        fprintf(stderr,"Paired read sets implemented only for discoSnp++ output. Sorry you must remove the -P option\n");
-        exit(1);
-    }
-#endif
-#ifndef INPUT_FROM_KISSPLICE
     if(paired && !map_snps){
         fprintf(stderr, "Paired read sets implemented only for discoSnp++ output. Sorry you must remove the -P option\n");
         exit(1);
@@ -324,8 +288,7 @@ int main(int argc, char **argv) {
         print_usage_and_exit(argv[0]);
         exit(1);
     }
-        
-#endif
+
     
     
     if(size_seeds>32){
@@ -349,16 +312,11 @@ int main(int argc, char **argv) {
         printf("\t Queries file%s:",number_of_read_sets>1?"s":"");
         for (i=0;i<number_of_read_sets;i++)printf(" %s", reads_file_names[i]);
         printf(".\n");
-#ifndef INPUT_FROM_KISSPLICE
         if(map_invs || map_snps){
             if(map_snps) printf("\t *(-n) Input file is considered as a kissnp output\n");
             if(map_invs) printf("\t *(-I) Input file is considered as a TakeABreak output\n");
         }
         else printf("\t *Generic input file\n");
-#endif
-#ifdef INPUT_FROM_KISSPLICE
-        printf("\t *INPUT_FROM_KISSPLICE: Input file is considered as a Kissplice output\n");
-#endif
         
         
         printf("\tMAPPING PARAMETERS\n");
@@ -374,10 +332,7 @@ int main(int argc, char **argv) {
         printf("\t \t CLASSICAL_SPANNING: Each position should be covered by at least %d reads.\n", min_coverage);
 #endif
         printf("\t *(-d) Authorize at most %d substitutions during the mapping\n", max_substitutions);
-#ifdef INPUT_FROM_KISSPLICE
-        printf("\t *(-l) Kissplice count uses min_overlap %d\n", min_overlap);
-        printf("\t *(-j) Kissplice countingOption %d\n", countingOption);
-#endif
+
         
         
         printf("\tOUT\n");
@@ -407,10 +362,11 @@ int main(int argc, char **argv) {
 	if(quality) quality=1;
     
     
+    
 	for (i=0;i<number_of_read_sets;i++){
         if (quality){
             found = strstr(reads_file_names[i],"fastq") || strstr(reads_file_names[i],"fq") || strstr(reads_file_names[i],"txt");
-            if (!found ){		fprintf(stderr,"\nwith q option, fastq reads files are needed, wrong %s, exit\n",reads_file_names[i]);		exit(1);	}
+            if (!found) quality=0;
         }
         else
 	    {
@@ -452,24 +408,17 @@ int main(int argc, char **argv) {
 #endif
     
 
-    
+    const int increment=paired?2:1;
 #ifdef OMP
 #pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 #endif
-    for (i=0;i<number_of_read_sets;i++){
-        
+    for (i=0;i<number_of_read_sets;i+=increment){
         
         if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
         
         
-        
         read_coherence(reads_file_names, i, paired, size_seeds,  min_coverage, results_against_set,  quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, minimal_read_overlap);
        
-        if (paired) {
-            i++; // the read coherent delt with two read sets (i and i+1)
-        }
-        
-      
     }
     if (silented) silent=0;
     
@@ -489,10 +438,10 @@ int main(int argc, char **argv) {
         for (read_set_id=0;read_set_id<number_of_read_sets;read_set_id++)
         {
             free(results_against_set[i]->read_coherent_positions[read_set_id]);
-            free(results_against_set[i]->sum_quality_per_position[read_set_id]);
         }
         free(results_against_set[i]->read_coherent_positions);
-        free(results_against_set[i]->sum_quality_per_position);
+        free(results_against_set[i]->sum_qualities);
+        free(results_against_set[i]->nb_mapped_qualities);
         free(results_against_set[i]);
     }
     free(results_against_set);

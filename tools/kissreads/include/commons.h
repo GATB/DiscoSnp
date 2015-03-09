@@ -45,10 +45,6 @@ int size_seeds;
 int minimal_read_overlap;
 kmer_type mask_code_seed;
 
-#ifdef INPUT_FROM_KISSPLICE
-int min_overlap;
-int countingOption;
-#endif
 int valid_character(const char c);
 int average_size_reads;
 int nb_event_sets;

@@ -72,82 +72,48 @@ void print_mapping(const int pos_on_fragment, const char * fragment, const char 
 
 
 
-void feed_coherent_positions(p_fragment_info the_starter, const int start, const int length_read, const int qual, char *quality, int start_on_read, int read_file_id){
+void feed_coherent_positions(p_fragment_info * starters, const int starter_id, const int start, const int length_read, const int qual, char *quality, int start_on_read, int read_file_id){
+    
+    
     int i, start_on_starter, stop_on_starter;
-	if(start<0) start_on_starter=0; else start_on_starter=start;
-	if(start+length_read<strlen(the_starter->w)) stop_on_starter=start+length_read; else stop_on_starter=strlen(the_starter->w);
+	if(start<0) start_on_starter=0;
+    else start_on_starter=start;
+    
+    p_fragment_info the_starter=starters[starter_id];
+    p_fragment_info the_reference_starter = starters[2*(starter_id/2)]; // In case of snps, only the upper path starter contains informations such as the positions of the SNPs. This is the reference?
 	
+    if(start+length_read<strlen(the_starter->w)) stop_on_starter=start+length_read;
+    else stop_on_starter=strlen(the_starter->w);
+   
     
-    
-    
-	// FEED THE STARTING POSITIONS:
-	//  ---------------[]------------**************************
-	//    before fragment            |  starter
-	//    size_before_reads_starting |    strlen(starter)
-	//
-	// starter[i] corresponds to the_starter->reads_starting[i+size_before_reads_starting]
-	// TOO HEAVY,
-	//the_starter->reads_starting[start+size_before_reads_starting]++;
-	// REPLACED BY:
 	the_starter->number_mapped_reads[read_file_id]++;
     
-    
-#ifdef INPUT_FROM_KISSPLICE
-    if (the_starter->upperpath){
-        // *************************
-      // alice 2/10/13 : new kissplice output, 1 nt of context added
-        // <-k--><----?----><-k->
-        //    A        S        B
-      // overlap  on junctions : need one more
-
-        char overlap_AS=0;
-        char overlap_SB=0;
-        
-        if(start_on_starter<=size_seeds-min_overlap && stop_on_starter>=size_seeds+min_overlap) overlap_AS=1;
-        const int pos_SB = strlen(the_starter->w)-(size_seeds);
-        if(start_on_starter<=pos_SB-min_overlap && stop_on_starter>=pos_SB+min_overlap) overlap_SB=1;
-        if(overlap_AS) the_starter->nb_reads_overlapping_AS[read_file_id]++;
-        if(overlap_SB) the_starter->nb_reads_overlapping_SB[read_file_id]++;
-        if(overlap_AS && overlap_SB) the_starter->nb_reads_overlapping_both_AS_and_SB[read_file_id]++;
-        if(start_on_starter>size_seeds-min_overlap && stop_on_starter<pos_SB+min_overlap) the_starter->nb_reads_fully_in_S[read_file_id]++;
-    }
-    else{// lower path
-      if(stop_on_starter-start_on_starter>size_seeds+min_overlap)
-            the_starter->nb_reads_overlapping_both_AS_and_SB[read_file_id]++;
-
-    }
-    
-#endif
-    
-#ifdef CHARQUAL
-    
-    if ( qual )
-    {
-        //GR 06/11/2012 : cumulative moving average, allow quals to be stored in uchar
-        //but average is computed only over 255 first read mappeds, because read_coherent_positions also changed to uchar
-        unsigned char  nbreads;
-        float new_val;
-        for(i=start_on_starter;i<stop_on_starter;i++)
-        {
-            nbreads=the_starter->read_coherent_positions[read_file_id][i];
-			if (nbreads == 0) //first read mapped
-				the_starter->sum_quality_per_position[read_file_id][i] = quality[start_on_read + i - start_on_starter];
-			else //at least 1 read mapped already
-            {
-                new_val =  ((float)the_starter->sum_quality_per_position[read_file_id][i]) *(nbreads-1) +quality[start_on_read + i - start_on_starter] ;
-                new_val = new_val / nbreads;
-                the_starter->sum_quality_per_position[read_file_id][i] = (unsigned char) new_val ;
+    if ( qual ){
+        if (the_reference_starter->nbOfSnps>0) {
+//            printf("there are %d SNPs\n", the_reference_starter->nbOfSnps);
+            int snp_id;
+            for(snp_id=0;snp_id<the_reference_starter->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
+//                printf("the_reference_starter->SNP_positions[%d]=%d \n", snp_id, the_reference_starter->SNP_positions[snp_id]); //DEB
+                i=the_reference_starter->SNP_positions[snp_id];
+//                printf(" %d \n", start_on_read + i - start_on_starter); //DEB
+                the_starter->sum_qualities[read_file_id] += (unsigned int) quality[start_on_read + i - start_on_starter];
+                the_starter->nb_mapped_qualities[read_file_id] += 1;
+            }
+        }
+        else{ // we sum all qualities and divide by the number of positions
+            int sum_temp=0;
+            int denom=0;
+            for(i=start_on_starter;i<stop_on_starter;i++) { // to avoid to increase too much the the_starter->sum_qualities array, we add the average quality of the whole read.
+                denom+=1;
+                sum_temp+=(unsigned int) quality[start_on_read + i - start_on_starter];
+            }
+            if(denom>0){
+                the_starter->sum_qualities[read_file_id] += (unsigned int)sum_temp/denom;
+                the_starter->nb_mapped_qualities[read_file_id] += 1;
             }
         }
     }
-#else
-    if ( qual )
-        for(i=start_on_starter;i<stop_on_starter;i++)
-            if (the_starter->read_coherent_positions[read_file_id][i] == 0) //first read mapped
-                the_starter->sum_quality_per_position[read_file_id][i] = quality[start_on_read + i - start_on_starter];
-            else //at least 1 read mapped already
-                the_starter->sum_quality_per_position[read_file_id][i] += (int) quality[start_on_read + i - start_on_starter];
-#endif
+    
     
     
 #ifdef KMER_SPANNING
@@ -158,7 +124,8 @@ void feed_coherent_positions(p_fragment_info the_starter, const int start, const
     //            ************************
     //                       <-----k----->
     //  00000000001111111111110000000000000000000000000000000000000000 the_starter->read_coherent_positions[read_file_id]
-	if(start+length_read-minimal_read_overlap<strlen(the_starter->w)) stop_on_starter=start+length_read-minimal_read_overlap; else stop_on_starter=strlen(the_starter->w);
+	if(start+length_read-minimal_read_overlap<strlen(the_starter->w)) stop_on_starter=start+length_read-minimal_read_overlap;
+    else stop_on_starter=strlen(the_starter->w);
 #endif
     
 	for(i=start_on_starter;i<stop_on_starter;i++) Sinc8(the_starter->read_coherent_positions[read_file_id][i]);
@@ -428,7 +395,7 @@ void map_all_reads_from_a_file(gzFile read_file,
                         
                         
                         read_coherence=0;
-                        if(all_starters[value->a]->isASNP)
+                        if(all_starters[value->a]->nbOfSnps>0)
                             read_coherence = read_coherent_SNP(pwi, starter, read, subst_allowed, all_starters[value->a-value->a%2]->SNP_positions);
                         //value->a-value->a%2: the smallest id of the the fragments of this bubble (3-->2, 4-->4)
                         else
@@ -444,7 +411,7 @@ void map_all_reads_from_a_file(gzFile read_file,
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             print_mapping(pwi,all_starters[value->a]->w ,read); //DEB
 #endif
-                            feed_coherent_positions(all_starters[value->a], pwi, (int)strlen(read), qual, quality, i, read_file_id);
+                            feed_coherent_positions(all_starters, value->a , pwi, (int)strlen(read), qual, quality, i, read_file_id);
                             if( sam_out ) fprintf(sam_out,"%d %d %s\t%s\tC%d\t%d\n", value->a, value->b, all_starters[value->a]->comment, read, read_file_id+1, pwi);
                             
 #ifdef DEBUG_QUALITY
@@ -523,7 +490,8 @@ float read_coherence (
                       const int minimal_read_overlap
                       ){
     
-	int p;
+    
+	int p=0;
     for (p=0;p<1+paired;p++){ // if paired: map both read set id and read set id+1
         gzFile read_file=gzopen(read_file_names[read_set_id+p],"r");
         if(read_file == NULL){		fprintf(stderr,"cannot open reads file %s, exit\n",read_file_names[read_set_id+p]);		exit(1);	}
@@ -543,7 +511,7 @@ float read_coherence (
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////// for each starter: check those fully coherent and store left and right reads covering them ///////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    // TODO: PUT THIS AFETR THE AMMPING? THIS WILL AUTHORISE THE PARALELISATION OF THE MAPPING WHILE PAIRED MAPPING.
     int starter_id;
 	for (starter_id=0;starter_id < nb_events_per_set*nb_fragment_per_event;starter_id++){
         if(!silent && (starter_id%(1+(nb_events_per_set/50)) == 0)) printf(".");  // print progress
