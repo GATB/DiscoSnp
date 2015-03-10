@@ -257,7 +257,6 @@ int get_average_quality(unsigned char * quality_string){
  */
 void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_against_set, int cycle_id, int number_of_read_sets, int qual, const char map_snps, const char compute_genotype, const char paired){
 	
-    printf("print %d \n", cycle_id); //DEB
     
     if (paired) {
         number_of_read_sets/=2;
@@ -322,7 +321,7 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
     if(compute_genotype){
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-            sprintf(append, "G%d_%s|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het));
+            sprintf(append, "G%d_%s:0,0,0|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het)); // TODO Likelihood !!!
             strcat(genotypes,append);
         }
     }
@@ -543,7 +542,6 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
     //
     
 	
-    printf("coucou print results \n"); //DEB
     
 	for(i=0;i<nb_events_per_set*2;i+=2){
 		if(one_coherent(results_against_set,i,number_of_read_sets) && one_coherent(results_against_set,i+1,number_of_read_sets))

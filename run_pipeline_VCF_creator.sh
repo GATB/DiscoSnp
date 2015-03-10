@@ -127,13 +127,18 @@ fi
 if [ -z "$samfile" ];then
 	if [ -z "$PATH_BWA" ] ;then
 		IS_BWA=$(command -v bwa)
+	
+	
+	
+		if [ -z "$IS_BWA" ];then
+			echo -e "... BWA not found... add bwa to \$PATH or give directly the path (-b)"
+			exit 1
+		else 
+			PATH_BWA=$(dirname $IS_BWA)
+		fi
 	fi
-	if [ -z "$IS_BWA" ];then
-		echo -e "... BWA not found... add bwa to \$PATH or give directly the path (-b)"
-		exit 1
-	else 
-		PATH_BWA=$(dirname $IS_BWA)
-	fi
+	
+	
 	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
 		echo -e "...You must provide an output <file>.vcf : option -o (for help -h)..."
 		echo -e "...Usage : ./run_pipeline_VCF_creator.sh OPT..."

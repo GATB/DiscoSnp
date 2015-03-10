@@ -408,18 +408,27 @@ int main(int argc, char **argv) {
 #endif
     
 
+    
+#ifdef OMP
+#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
+#endif
+    for (i=0;i<number_of_read_sets;i++){
+        
+        if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
+        
+        
+        read_mapping(reads_file_names, i, size_seeds,  min_coverage, results_against_set,  quality, sam_out, max_substitutions, minimal_read_overlap);
+       
+    }
+    
     const int increment=paired?2:1;
 #ifdef OMP
 #pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 #endif
     for (i=0;i<number_of_read_sets;i+=increment){
-        
-        if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
-        
-        
-        read_coherence(reads_file_names, i, paired, size_seeds,  min_coverage, results_against_set,  quality, nb_events_per_set,  number_paths_per_event, sam_out, max_substitutions, minimal_read_overlap);
-       
+        set_read_coherency(results_against_set, nb_events_per_set, number_paths_per_event, paired, min_coverage, i);
     }
+    
     if (silented) silent=0;
     
     if(number_paths_per_event==2)

@@ -84,18 +84,18 @@ void feed_coherent_positions(p_fragment_info * starters, const int starter_id, c
 	
     if(start+length_read<strlen(the_starter->w)) stop_on_starter=start+length_read;
     else stop_on_starter=strlen(the_starter->w);
-   
+    
     
 	the_starter->number_mapped_reads[read_file_id]++;
     
     if ( qual ){
         if (the_reference_starter->nbOfSnps>0) {
-//            printf("there are %d SNPs\n", the_reference_starter->nbOfSnps);
+            //            printf("there are %d SNPs\n", the_reference_starter->nbOfSnps);
             int snp_id;
             for(snp_id=0;snp_id<the_reference_starter->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
-//                printf("the_reference_starter->SNP_positions[%d]=%d \n", snp_id, the_reference_starter->SNP_positions[snp_id]); //DEB
+                //                printf("the_reference_starter->SNP_positions[%d]=%d \n", snp_id, the_reference_starter->SNP_positions[snp_id]); //DEB
                 i=the_reference_starter->SNP_positions[snp_id];
-//                printf(" %d \n", start_on_read + i - start_on_starter); //DEB
+                //                printf(" %d \n", start_on_read + i - start_on_starter); //DEB
                 the_starter->sum_qualities[read_file_id] += (unsigned int) quality[start_on_read + i - start_on_starter];
                 the_starter->nb_mapped_qualities[read_file_id] += 1;
             }
@@ -130,8 +130,8 @@ void feed_coherent_positions(p_fragment_info * starters, const int starter_id, c
     
 	for(i=start_on_starter;i<stop_on_starter;i++) Sinc8(the_starter->read_coherent_positions[read_file_id][i]);
 	
-
-
+    
+    
 }
 
 
@@ -180,7 +180,7 @@ void set_read_coherent(p_fragment_info the_starter, const int min_coverage, int 
 #else
     const int stop=strlen(the_starter->w);
 #endif
-//    printf("%d %d %d \n", strlen(the_starter->w), minimal_read_overlap, stop); //DEB
+    //    printf("%d %d %d \n", strlen(the_starter->w), minimal_read_overlap, stop); //DEB
     for(i=0;i<stop;i++) if(the_starter->read_coherent_positions[read_file_id][i]<min_coverage) {the_starter->read_coherent[read_file_id]=0; return;}
     the_starter->read_coherent[read_file_id]=1;
 }
@@ -286,11 +286,11 @@ void map_all_reads_from_a_file(gzFile read_file,
 	// book space for the read that going to be read.
     
 	
-
+    
     char * line =  (char *)malloc(sizeof(char)*1048576); // 1048576
 	char * read = (char *)malloc(sizeof(char)*16384); //
 	char * quality = (char *)malloc(sizeof(char)*16384);//
-
+    
     test_alloc(line);
 	test_alloc(read);
 	test_alloc(quality);
@@ -474,47 +474,44 @@ void map_all_reads_from_a_file(gzFile read_file,
  
  * returns the average read length
  */
-
-float read_coherence (
-                      char ** read_file_names,
-                      int read_set_id,
-                      const char paired,
-                      const int k,
-                      const int min_coverage,
-                      p_fragment_info * all_starters,
-                      int qual,
-                      int nb_events_per_set,
-                      int nb_fragment_per_event,
-                      FILE * sam_out,
-                      int subst_allowed,
-                      const int minimal_read_overlap
-                      ){
+float read_mapping (char ** read_file_names,
+                    int read_set_id,
+                    const int k,
+                    const int min_coverage,
+                    p_fragment_info * all_starters,
+                    int qual,
+                    FILE * sam_out,
+                    int subst_allowed,
+                    const int minimal_read_overlap
+                    ){
     
     
 	int p=0;
-    for (p=0;p<1+paired;p++){ // if paired: map both read set id and read set id+1
-        gzFile read_file=gzopen(read_file_names[read_set_id+p],"r");
-        if(read_file == NULL){		fprintf(stderr,"cannot open reads file %s, exit\n",read_file_names[read_set_id+p]);		exit(1);	}
-        map_all_reads_from_a_file(read_file, read_file_names[read_set_id+p],
-                                  k,
-                                  all_starters,
-                                  read_set_id+p,
-                                  qual,
-                                  sam_out,
-                                  subst_allowed,
-                                  minimal_read_overlap);
-        gzclose(read_file);
-    }
+    gzFile read_file=gzopen(read_file_names[read_set_id+p],"r");
+    if(read_file == NULL){		fprintf(stderr,"cannot open reads file %s, exit\n",read_file_names[read_set_id+p]);		exit(1);	}
+    map_all_reads_from_a_file(read_file, read_file_names[read_set_id+p],
+                              k,
+                              all_starters,
+                              read_set_id,
+                              qual,
+                              sam_out,
+                              subst_allowed,
+                              minimal_read_overlap);
+    gzclose(read_file);
     
 	
     
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    return 0;
+}
+
+
+void set_read_coherency(p_fragment_info * all_starters, const int nb_events_per_set, const int nb_fragment_per_event, const char paired, const int min_coverage, const int read_set_id){
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////// for each starter: check those fully coherent and store left and right reads covering them ///////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // TODO: PUT THIS AFETR THE AMMPING? THIS WILL AUTHORISE THE PARALELISATION OF THE MAPPING WHILE PAIRED MAPPING.
+    
     int starter_id;
 	for (starter_id=0;starter_id < nb_events_per_set*nb_fragment_per_event;starter_id++){
-        if(!silent && (starter_id%(1+(nb_events_per_set/50)) == 0)) printf(".");  // print progress
         if (!paired)
             set_read_coherent(all_starters[starter_id], min_coverage, read_set_id);
         else
@@ -524,8 +521,9 @@ float read_coherence (
 	
 	
     
-	return 0;
+    
 }
+
 
 
 

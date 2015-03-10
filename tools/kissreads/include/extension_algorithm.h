@@ -34,18 +34,17 @@
 
 
 
-float read_coherence (char ** read_file_names,
+float read_mapping (char ** read_file_names,
                       int read_set_id,
-                      const char paired,
                       const int k,
                       const int min_coverage,
                       p_fragment_info * all_starters,
                       int qual,
-                      int nb_events_per_set,
-                      int nb_fragment_per_event,
                       FILE * sam_out,
                       int subst_allowed,
                       const int minimal_read_overlap
                       );
 
+
+void set_read_coherency(p_fragment_info * all_starters, const int nb_events_per_set, const int nb_fragment_per_event, const char paired, const int min_coverage, const int read_set_id);
 #endif /* EXTENSION_ALGORITHM_H_ */
