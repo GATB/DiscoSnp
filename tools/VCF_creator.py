@@ -185,7 +185,7 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
         if "SNP" in snpUp[0] :
 #---------------------------------------------------------------------------------------------------------------------------
-            indel=0
+            indel=False
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
@@ -199,18 +199,7 @@ if ".sam" in fichier:
                 posModif=len(snpUp[9])/2
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
-                table,boolRefUp,boolRefLow=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax)
-                table=GetGenotype(genoUp,boolRefLow,table,nbGeno,phased,listCouvGeno)
-                #Fills the info field with the values of the reference
-                if boolRefUp==True:
-                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
-                else:
-                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
-                if dmax==True:
-                    table[7]=info+";"+"DMax:"+str(dmax)
-                else:
-                    table[7]=info
-                
+                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterField,multi,ok,tp,phased,listCouvGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,couvUp,couvLow)
                 printOneline(table,VCF)
                 continue
     
@@ -218,7 +207,7 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                 ##Close SNPs
-                indel=0
+                indel=False
                 dicoUp={}
                 dicoLow={}
                 posModif=None
@@ -230,7 +219,7 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
         ##Case of INDEL                   
         if "INDEL" in snpUp[0] :
-            indel=1
+            indel=True
             table[6]=filterField
             seqInsert=0
             seqUp=snpUp[9]
@@ -329,7 +318,7 @@ else:
         ##one SNP
         if "SNP" in line1:
             tp="SNP"
-            indel=0
+            indel=False
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
@@ -356,7 +345,7 @@ else:
 #---------------------------------------------------------------------------------------------------------------------------
         ##Case of INDEL
         elif "INDEL" in line1:
-            indel=1
+            indel=True
             phased=False
             if len(seq1)<len(seq2):
                 seq=seq1

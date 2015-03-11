@@ -419,7 +419,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     pos=0
     i=0
     matchInt=None
-    lettreRef=None
+    nucleoRef=None
     if '^' in posMut:
         pos=shift
         motifDel=re.compile("[0-9]*\^[A-Za-z]*")
@@ -450,7 +450,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
         if pos==posCentraleRef:
             if isinstance(parsingPosMut[i],str):
                 boolEgalRef=0
-                lettreRef=parsingPosMut[i]
+                nucleoRef=parsingPosMut[i]
             else:
                 boolEgalRef=1
             break
@@ -458,7 +458,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
             boolEgalRef=1
             break
         i+=1
-    return(boolEgalRef,lettreRef)
+    return(boolEgalRef,nucleoRef)
 ##############################################################
 ##############################################################
 def GetSequence(snpUp,snpLow):
@@ -777,120 +777,59 @@ def GetPolymorphisme(dicoHeader,seq,indel):
         return(listePos,listePosR,insert,ntStart,ambiguityPos)
 ##############################################################
 ##############################################################
-def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax):
+def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterfield,multi,ok,tp,phased,listCouvGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,couvUp,couvLow):
     """ Fills the different fields of vcf based on boolean ( on whether the SNP is identical or not the reference) , if neither is identical to the reference = > we take the SNP comes first in the lexicographical order"""
+    ##Gets the variable of the header of disco snps
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listeCouvertureUp,listeCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listeCouvertureLow,listeClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-	
-    seqUp=list(snpUp[9])
-    seqLow=list(snpLow[9])
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
-        table[0]=snpLow[2]
+        ##The path identical to the reference is the lower path 
         if boolRefLow==True and boolRefUp==False:
-            table[1]=positionSnpLow
-            table[2]=numSNPLow
-            table[3]=nucleoLow
-            table[4]=nucleoUp
-            if snpLow[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpLow[10]
+            table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+         ##The path identical to the reference is the upper path 
         elif boolRefUp==True and boolRefLow==False:
-            table[1]=positionSnpUp
-            table[2]=numSNPUp
-            table[3]=nucleoUp
-            table[4]=nucleoLow
-            if snpUp[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpUp[10]
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+        ##No path is identical to the reference => lexicographique choice
         elif boolRefUp==False and boolRefLow==False:
             if nucleoUp<nucleoLow:
-                table[1]=positionSnpUp
-                table[2]=numSNPUp
-                table[3]=nucleoUp
-                table[4]=nucleoLow
-                boolRefUp=True
-                boolRefLow=False
-                if snpUp[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpLow[10]
+                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
             else:
-                table[1]=positionSnpLow
-                table[2]=numSNPLow
-                table[3]=nucleoLow
-                table[4]=nucleoUp
-                boolRefUp=False
-                boolRefLow=True
-                if snpLow[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpLow[10]
-        else :
-            #SNP
-            table[1]=erreur
-            table[2]='.'
-            table[3]='.'
-            table[4]='.'
-            table[5]='.'
-    
+              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)  
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Lower path mapped and upper path unmapped      
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
-        table[0]=snpLow[2]
-        table[1]=positionSnpLow
-        table[2]=numSNPLow
-        table[3]=nucleoLow
-        boolRefUp=False
-        boolRefLow=True
+        table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+        ##If the number of mismatch is the max : that means the second path will be mapped at number of mismatch +1
         if dmax:
-            table[4]=seqUp[(len(seqUp)/2)]
+                table[4]=nucleoUp
         else:
-            table[4]='.'
+                table[4]='.'
         if snpLow[10]=="*":
-            table[5]="."
+                table[5]="."
         else:
-            table[5]=snpLow[10]
+                table[5]=snpLow[10]  
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Upper path mapped and lower path unmapped        
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
-        table[0]=snpUp[2]
-        table[1]=positionSnpUp
-        table[2]=numSNPUp
-        table[3]=nucleoUp
-        boolRefUp=True
-        boolRefLow=False
+        table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
         if dmax:
-            table[4]=seqLow[(len(seqLow)/2)]
+                table[4]=nucleoLow
         else:
-            table[4]='.'
+                table[4]='.'
         if snpUp[10]=="*":
-            table[5]="."
+                table[5]="."
         else:
-            table[5]=snpUp[10]
+                table[5]=snpUp[10]
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Both paths are unmapped       
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         if nucleoLow<nucleoUp:
-            table[0]="."
-            table[1]=positionSnpLow
-            table[2]=numSNPLow
-            table[3]=nucleoLow
-            table[4]=nucleoUp
-            boolRefUp=False
-            boolRefLow=True
-            if snpLow[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpLow[10]
+            table=FillVCF(table,numSNPLow,".",".",nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,".",".",geno,nbGeno,phased,listCouvGeno,boolRefLow)
         else:
-            table[0]="."
-            table[1]=positionSnpUp
-            table[2]=numSNPUp
-            table[3]=nucleoUp
-            table[4]=nucleoLow
-            boolRefUp=True
-            boolRefLow=False
-            if snpLow[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpUp[10]
-    return(table,boolRefUp,boolRefLow)
+            table=FillVCF(table,numSNPUp,".",".",nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,".",".",geno,nbGeno,phased,listCouvGeno,boolRefLow)
+    return(table)
 ##############################################################
 ##############################################################   
 def printOneline(table,VCF):
@@ -1154,8 +1093,8 @@ def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigL
     
 ##############################################################
 ##############################################################
-def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,couv,lettreRef,reverse,geno,nbGeno,phased,listCouvGeno,boolRefLow):
-    #TODO intégrer cette fonction de remplissage au reste
+def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,couv,nucleoRef,reverse,geno,nbGeno,phased,listCouvGeno,boolRefLow):
+    """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""
     table[0]=chrom
     table[1]=pos
     table[2]=numSNP
@@ -1166,7 +1105,7 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRank)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeft)+";"+"UR:"+str(unitigRight)+";"+"CL:"+str(contigLeft)+";"+"CR:"+str(contigRight)+";"+str(couv)+";"+"Genome:"+str(lettreRef)+";"+"Sd:"+str(reverse)
+    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRank)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeft)+";"+"UR:"+str(unitigRight)+";"+"CL:"+str(contigLeft)+";"+"CR:"+str(contigRight)+";"+str(couv)+";"+"Genome:"+str(nucleoRef)+";"+"Sd:"+str(reverse)
     table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCouvGeno)
     return table  
 ##############################################################
