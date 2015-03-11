@@ -9,9 +9,9 @@ vcffile=""
 genome=""
 PATH_BWA=""
 discoSNPs=""
-l=""
-n=""
-s=""
+l=10
+n=3
+s=0
 
 
 function help {
@@ -19,21 +19,38 @@ echo " ##############################"
 echo "   Run VCF_creator pipeline     "
 echo " ##############################"
 echo "Usage : ./run_pipeline_VCF_creator.sh OPT"
-echo -e "##Ghost mode : Create a vcf file without alignment : ./run_pipeline_VCF_creator.sh -p <disco_file>.fa -o <output>.vcf"
-echo -e "##Pipeline mode : Alignment +VCF Creation : ./run_pipeline_VCF_creator.sh -b <path_bwa> -g <ref>.fasta -p <disco_file>.fa -o <output>.vcf -n <mismatch_number>"
-echo -e "##VCF creation : samfile already there, goes to : ./run_pipeline_VCF_creator.sh -f <file>.sam -n <mismatch_number> -o <output>.vcf"
-echo -e "\t-h : print this message"
-echo -e "\t-b : path where bwa is"
-echo -e "\t-c : path where VCF_creator is"
-echo -e "\t-g : reference genome (.fasta) for alignment with snps from discosnp++ with path"
-echo -e "\t-p : snps from discosnp++ with path"
-echo -e "\t-s : bwa option : distance with the seed"
-echo -e "\t-n : bwa option : allowed distance with the reference for a snp"
-echo -e "\t-l : bwa option : lenght of the seed for alignment"
-echo -e "\t-f : <file>.sam : skip the algnment phases to create the vcf file "
-echo -e "\t-o : output <file>.vcf"
-echo -e "\t-w : remove tmp files (index files)"
+echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:" 
+echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w]"
+echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
+echo -e "\t\t./run_VCF_creator.sh -b <path_bwa> -g <ref> -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w] "
+echo -e "##MODE 3: USING A HOME MADE ALIGNMENT. Samfile from bwa already exists: "
+echo -e "\t\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+echo
+echo -e "\t-h: print this message"
+echo -e "\t-p: discosnp++ output file (foo_coherent.fa)"
+echo -e "\t\t Mandatory unless MODE 3"
+echo -e "\t-o: output <file> (VCF format)"
+echo -e "\t\t Mandatory"
 
+#echo -e "\t-c : path where VCF_creator is"
+echo -e "\t-g: reference genome (Fasta format)"
+echo -e "\t\t Optional unless MODE 2: you want the mapping positions of the predicted variants in the VCF file and you do not provide a third-party sam file. E.G.: -b and -g options must be used together"
+echo -e "\t-b: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+echo -e "\t\t Optional unless MODE 2 if bwa is not in the binary path. E.G.: -b and -g options must be used together"
+
+echo -e "\t-f: <file>.sam: skip the alignment phases to create the vcf file"
+echo -e "\t\t Optional unless MODE 3: you want the mapping positions of the predicted variants in the VCF file without remapping on a reference genome. -f option must be used together with -n"
+
+echo -e "\t-s: bwa option: seed distance"
+echo -e "\t\t Optional, default 0"
+echo -e "\t-l: bwa option: length of the seed for alignment"
+echo -e "\t\t Optional, default 10"
+echo -e "\t-n: bwa option: maximal bwa mapping distance"
+echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends from this parameter."
+echo -e "\t\t Mandatory in MODE 3. "
+
+echo -e "\t-w: keep waste tmp files (index files) "
+echo -e "\t\t Optional"
 }
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -56,10 +73,10 @@ case $opt in
 	PATH_BWA=$OPTARG
 	;;
 
-	c)
-	echo -e "\t##VCF_creator directory: $OPTARG" >&2
-	PATH_VCF_creator=$OPTARG
-	;;
+	# c)
+#        echo -e "\t##VCF_creator directory: $OPTARG" >&2
+#        PATH_VCF_creator=$OPTARG
+#        ;;
 
 	g)
 	echo -e "\t##use genome : $OPTARG" >&2
@@ -107,22 +124,24 @@ case $opt in
 	;;
 esac
 done
+
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ###Tests
-if [ -z "$PATH_VCF_creator" ];then
-	PATH_VCF_creator=$DIR"/tools"
+if [ -z "$vcffile" ];then
+	help
+	exit 1
 fi
+
+# if [ -z "$PATH_VCF_creator" ];then
+#        PATH_VCF_creator=$DIR"/tools"
+# fi
+PATH_VCF_creator=$DIR"/tools"
 if [ ! -e  $PATH_VCF_creator/VCF_creator.py ]; then
 	echo "...Unable to find VCF_creator..."
 	exit 1
 fi
-if [ -z "$s" ];then
-	s=0
-fi
-if [ -z "$l" ];then
-	l=10
-fi
+
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -139,8 +158,8 @@ if [ -z "$samfile" ];then
                        exit 1 
                 else
                         n=3
-                        vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)".vcf"
-                        python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -n $n -o $vcf
+                        
+                        python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -n $n -o $vcffile
 		        echo -e "... Creation of the vcf file : done ...==> $vcf" 
 		        exit 
                 fi    
@@ -159,18 +178,20 @@ if [ -z "$samfile" ];then
 	fi
 	
 	
-	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
-		echo -e "...You must provide an output <file>.vcf : option -o (for help -h)..."
-		echo -e "...Usage : ./run_pipeline_VCF_creator.sh OPT..."
+	if [ -z "$vcffile" ] ; then
+		echo -e "...You must provide an output <file> : option -o (for help -h)..."
+              help
 		exit 1
 	fi
 	if [ -z "$genome" ]; then
 		echo -e "...You must provide a genome of reference : option -g (for help -h)..."
+              help
 		exit 1
 	fi
 	
 	if [ -z "$discoSNPs" ];then
 		echo "... Error : file disco is missing : option -p (for help -h)..."
+              help
 		exit 1
 	else
 		if [ ! -e $PATH_VCF_creator/remove_extensions_disco_file.py ];then
@@ -192,9 +213,10 @@ if [ -z "$samfile" ];then
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	#BWA files
-	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf"
-	samfile=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".sam"
-	saifile=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".sai"
+       #Pierre: user gave a file name we must respect its choice.
+#	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf" 
+	samfile=$(basename $vcffile .vcf)"_n"$n"_l"$l"_s"$s".sam"
+	saifile=$(basename $vcffile .vcf)"_n"$n"_l"$l"_s"$s".sai"
 	indexamb=$genome".amb"
 	indexann=$genome".ann"
 	indexbwt=$genome".bwt"
@@ -210,7 +232,7 @@ if [ -z "$samfile" ];then
 	fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-	##Alignment disco snps on the reference genome
+	##Alignment discosnps on the reference genome
 	if [ -e $saifile ]; then
 		echo -e "...Alignment : Using the existing file : $saifile"
 	else
@@ -219,29 +241,30 @@ if [ -z "$samfile" ];then
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Creation of the samfile
-	if [ -e $samfile ]; then
-		echo -e "...Samfile already exists. Skipped to vcf creation..."
-	else
+       ## Pierre : commented, else we may align the disco output and then say to user: ok sam exists we don't use it. 
+	# if [ -e $samfile ]; then
+#               echo -e "...Samfile already exists. Skipped to vcf creation..."
+#        else
 		$PATH_BWA/bwa samse -n 1000 $genome $saifile $discoSNPsbis > $samfile
-	fi 
+       # fi 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Creation of the vcf file
-	if [ -e $vcf ]; then
-		echo -e "...VCF file for this alignment already exists...==> $vcf"
-	else 
-		python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n --o $vcf
-		echo -e "... Creation of the vcf file : done ...==> $vcf"
-	fi	
+	# if [ -e $vcffile ]; then
+#               echo -e "...VCF file for this alignment already exists...==> $vcf"
+#        else
+		python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -o $vcffile
+		echo -e "... Creation of the vcf file : done ...==> $vcffile"
+       # fi       
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	
 else
-####Skip alignment phase to create a vcf file
+       ####Skip alignment phase to create a vcf file
 ##Test to execute VCF_creator
 	echo -e "...Skipping alignment phase..."
 	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
-		echo -e "...You must provide an output <file>.vcf..."
+		echo -e "...You must provide an output <file>..."
 		exit 1
 	fi
 	if [ -z "$n" ]; then
@@ -249,13 +272,14 @@ else
 		exit 1
 	fi
 	##Creation of the vcf file
-	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -output $vcffile	
+       
+	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -o $vcffile
 fi
 
-if [ $remove=0 ];then
-	rm -r $saifile $discoSNPsbis
+if [ $remove=1 ];then
+	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis
 else
-	rm -r $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis
+	rm -f $saifile $discoSNPsbis
 fi	
 
 

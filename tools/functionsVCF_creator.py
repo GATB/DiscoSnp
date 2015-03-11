@@ -525,6 +525,10 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         posModif=int(listPos[0])
     else:
         posModif=0
+    
+    
+    listPolymorphismePosUp=None
+    listPolymorphismePosLow=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 #Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment

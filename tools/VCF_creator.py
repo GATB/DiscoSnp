@@ -41,19 +41,19 @@ for opt, arg in opts :
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
         fichier = arg
-        if ".sam" or ".fa" or ".fasta" in fichier:
-            samfile=open(fichier,'r')
-        else:
-            print "...Unknown file extension for the input. Try with a <file>.sam..."
-            sys.exit(2)
+        #if ".sam" or ".fa" or ".fasta" in fichier:
+        samfile=open(fichier,'r')
+        #else:
+        #    print "...Unknown file extension for the input. Try with a <file>.sam..."
+        #    sys.exit(2)
     elif opt in ("-n","--mismatch"):
          nbMismatchBWA= arg
     elif opt in ("-o","--output"):
-        if ".vcf" in arg:
-            VCF = open(arg,'w')
-        else :
-            print "...Unknown file extension for the output. Try with a <file>.vcf..."
-            sys.exit(2)
+        #if ".vcf" in arg: (we don't care the out file name, user is free to call it foo.hey)
+        VCF = open(arg,'w')
+        #else :
+        #    print "...Unknown file extension for the output. Try with a <file>.vcf..."
+        #    sys.exit(2)
     else:
         print("Unkwnown option {} ".format(opt))
         usage()
