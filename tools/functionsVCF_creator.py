@@ -441,13 +441,13 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
             pos+=1
         if pos==posCentraleRef:
             if isinstance(parsingPosMut[i],str):
-                boolEgalRef=0
+                boolEgalRef=False
                 nucleoRef=parsingPosMut[i]
             else:
-                boolEgalRef=1
+                boolEgalRef=True
             break
         if pos>posCentraleRef:
-            boolEgalRef=1
+            boolEgalRef=True
             break
         i+=1
     return(boolEgalRef,nucleoRef)
@@ -480,8 +480,9 @@ def GetSequence(snpUp,snpLow):
     return(seqUp,seqLow)
 
 ##############################################################
+#dicoHeader snps : dicoHeader[key]=[posD,ntUp,ntLow] 
+#dicoHeader indel : dicoHeader[key]=[posD,ind,amb]
 ##############################################################
-
 def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel):
     #INIT VALUES
     posSNPUp=None
@@ -530,7 +531,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpUp[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if snpUp[1]=="0":
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPos,posModif,indel)
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPos,posModif,indel) # gets the positions of the variants with an eventual shift ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUp[0]
@@ -563,42 +564,39 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         reverseLow="."
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-    ####UP : Test position et SNP : identique ou non à la séquence de référence
+    ####Up Case : Check for all the variants if there are identical to the reference and proc 
     if int(snpUp[3])>0:
-        #Extraction tag MD
-        MD,Z,posMutUp = snpUp[18].split(":")
+        MD,Z,posMutUp = snpUp[18].split(":") # MD tag parsing
         if len(listPos)>1: # CLOSE SNPS
-            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de list boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp
             if reverseUp==1:
                 i=0
                 for i in range(len(listPos)):
-                    boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
-                    if nucleoRefUp==None:
-                        nucleoRefUp=listnucleoUp[i]
-                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
+                    boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i]) # Check if the variant is identical to the reference ; return a boolean and the nucleotide of the reference
+                    if nucleoRefUp==None: #If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+                        nucleoRefUp=listnucleoUp[i] 
+                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] # Dictionnary for close snps to keep all the results gived by the different functions
             elif reverseUp==-1:
                 i=0
                 for i in range(len(listPosR)):
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
-                    if nucleoRefUp==None:
+                    if nucleoRefUp==None: 
                         nucleoRefUp=listnucleoUpR[i]
                     dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
-        else:
+        else: #SIMPLE SNPS
             boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp,posMutUp,posCentraleUp)
             if nucleoRefUp==None:
                 nucleoRefUp=seqUp[posModif]
     
-    elif int(snpUp[3])<=0 and len(listPos)==0 :
-        nucleoUp = seqUp[int(listPos[0])-1]
+    elif int(snpUp[3])<=0 :
+        nucleoUp = dicoHeaderUp["P_1"][0]
         positionSnpUp = posCentraleUp
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-####Low : Test position et SNP : identique ou non à la séquence de référence
+####Low 
     if int(snpLow[3])>0:
         #Extraction tag MD
         MD,Z,posMutLow = snpLow[18].split(":")
         if len(listPos)>1:
-            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de list boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLow[i],reverseLow
             if reverseLow==1:
                 i=0
                 for i in range(len(listPos)):
@@ -618,8 +616,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             if nucleoRefLow==None:
                 nucleoRefLow=seqLow[int(posModif)-1]
     
-    elif int(snpLow[3])<=0 and len(listPos)==0 :
-        nucleoLow = seqLow[listPos[0]]
+    elif int(snpLow[3])<=0:
+        nucleoLow = dicoHeaderUp["P_1"][1]
         positionSnpLow = posCentraleLow
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -640,7 +638,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------    #---------------------------------------------------------------------------------------------------------------------------
 
-    #SNP Positions
+    #Variants (INDEL and SIMPLE SNPS) Positions : add the position of mapping gived by bwa to the variant position and for indel add ambiguity position
     if len(listPos)==1:
         if indel==True:
             nucleoLow="."
@@ -688,6 +686,7 @@ def MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,
 ( If the number of mismatch is the same in both cases it is the lower lexicographical SNP which is selected for reference .
 The Boolean allows to know the reference SNP ) """
     posRef=0
+    #Two paths mapped
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         nmUp=posUp[int(snpUp[3])]
         nmLow=posLow[int(snpLow[3])]
@@ -844,7 +843,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     #Variables
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-    #SNPs proches chemins mappés
+    #Close snps mapped
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         #choix de la position de ref:
         boolRefUp=int(dicoUp[listPolymorphismePosUp[0]][0])
@@ -959,7 +958,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
                 table[7]=info
             table[6]=filterField
             printOneline(table,VCF)
-    #SNPs proches : chemins unmapped
+    #Close snps : unmapped
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         i=0
         for i in range(len(listPolymorphismePos)):
