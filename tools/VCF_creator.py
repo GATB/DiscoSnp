@@ -196,16 +196,16 @@ if ".sam" in fichier:
                 listPolymorphismePos,listLettreUp,listLettreLow,listPosR,listLettreUpR,listLettreLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-            ##SNP simple
+            ##one SNP
             if len(listPolymorphismePos)==0:
                 tp="SNP"
                 table[6]=filterField
                 posModif=len(snpUp[9])/2
                 lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,bug,erreur,reverseUp,reverseLow,lettreRefUp,lettreRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
-                #Création VCF
+                #Creation VCF
                 table,boolRefUp,boolRefLow=fillVCFSimpleSnp(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,bug,erreur,dmax)
                 table=GetGenotype(genoUp,boolRefLow,table,nbGeno,phased,listCouvGeno)
-                #Remplissage du champ info en fonction de la référence
+                #Fills the info field with the values of the reference
                 if boolRefUp==1:
                     info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
                 else:
@@ -221,7 +221,7 @@ if ".sam" in fichier:
             else: 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-                ##SNPs proches
+                ##Close SNPs
                 indel=0
                 dicoUp={}
                 dicoLow={}
@@ -232,7 +232,7 @@ if ".sam" in fichier:
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-        #Cas des Indels                    
+        ##Case of INDEL                   
         if "INDEL" in snpUp[0] :
             indel=1
             table[6]=filterField
@@ -314,20 +314,27 @@ else:
         line1=line1.strip('>')
         line2=line2.rstrip('\n')
         line2=line2.strip('>')
-        
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------        
         #Variables
         comptPol=0     # number of SNPs in case of close SNPs - useless for indels
         
         snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
-        
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------        
         if numSNPLow != numSNPUp:
             print "WARNING two consecutive lines do not store the same variant id: "
             print line1
             print line2
             sys.exit(1)
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------            
         #Information on coverage by dataset
         couvUp,couvLow,listCouvGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+        ##one SNP
         if "SNP" in line1:
             tp="SNP"
             indel=0
@@ -342,6 +349,9 @@ else:
                 phased=False
                 printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
                 continue
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+            ##Close SNPs
 	    else:
                 phased=True
                 for comptPol in range(0,len(listPolymorphismePos)):
@@ -350,7 +360,10 @@ else:
                         ntUp=dicoHeaderUp[key][1]
                         printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
                 continue
-        else:
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+        ##Case of INDEL
+        elif "INDEL" in line1:
             indel=1
             phased=False
             if len(seq1)<len(seq2):
