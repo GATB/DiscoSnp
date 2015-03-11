@@ -84,11 +84,11 @@ VCF.write('##FORMAT=<ID=GT,Number=1,Type=Integer,Description="Genotype">\n')
 VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
 VCF.write('##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">\n')
 nbGeno=0
+nbSnp=0
 nbSnp,nbGeno = Comptage(fichier)
-nbCol=9
-# table = [[0] * int(nbCol) for _ in range(int(nbSnp))] # create a 9 cols array
 table = [0] * 10 # create a 10 cols array
 
+##Create the header of the VCF File with all the fields + one field by genotypes/samples/individuals
 if nbGeno==0: # Without genotypes
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
 else:
@@ -98,11 +98,9 @@ else:
         VCF.write(str(nomCol)+"\t")
         if i==int(nbGeno)-1:
             VCF.write(str(nomCol)+"\n")            
-            
-previousSnp=None # we read the file by pair, thus we need to remind the previous read SNP. 
-mul=0
-pb=0
-nbunmapped=0
+############################################################### 
+###VCF_creator NORMAL MODE : take a samfile and create a vcf###
+###############################################################
 if ".sam" in fichier:
     while True:
         line1=samfile.readline()
@@ -164,12 +162,10 @@ if ".sam" in fichier:
         #VCF champ INFO Multi
         if boolXAUp==1 and boolXALow==1:
             multi="multi"
-            mul+=1
         elif boolXAUp==0 and boolXALow==0:
             multi="none"
         elif (boolXAUp==1 and boolXALow==0) or  (boolXAUp==0 and boolXALow==1):
             multi="one"
-            mul+=1
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         #VCF champs Filter
@@ -193,7 +189,7 @@ if ".sam" in fichier:
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listLettreUp,listLettreLow,listPosR,listLettreUpR,listLettreLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel)
+                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##one SNP
@@ -201,15 +197,15 @@ if ".sam" in fichier:
                 tp="SNP"
                 table[6]=filterField
                 posModif=len(snpUp[9])/2
-                lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,bug,erreur,reverseUp,reverseLow,lettreRefUp,lettreRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
+                nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
-                table,boolRefUp,boolRefLow=fillVCFSimpleSnp(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,bug,erreur,dmax)
+                table,boolRefUp,boolRefLow=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax)
                 table=GetGenotype(genoUp,boolRefLow,table,nbGeno,phased,listCouvGeno)
                 #Fills the info field with the values of the reference
-                if boolRefUp==1:
-                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
+                if boolRefUp==True:
+                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
                 else:
-                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(lettreRefLow)+";"+"Sd:"+str(reverseLow)
+                    info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
                 if dmax==True:
                     table[7]=info+";"+"DMax:"+str(dmax)
                 else:
@@ -228,7 +224,7 @@ if ".sam" in fichier:
                 posModif=None
                 dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 # this function comptutes the VCF and prints it!!
-                printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,couvUp,couvLow,listLettreUp,listLettreLow,genoUp,nbGeno,listCouvGeno,VCF) 
+                printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,couvUp,couvLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCouvGeno,VCF) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -239,70 +235,66 @@ if ".sam" in fichier:
             seqInsert=0
             seqUp=snpUp[9]
             seqLow=snpLow[9]
+            # To know in which sequence the insertion is and to get it
+            #Reverse the sequence to get the good mapped insert if it needs to
+            seqUp,seqLow=GetSequence(snpUp,snpLow)
             if len(seqUp)<len(seqLow):
                 seq=seqLow
             else:
                 seq=seqUp
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+            #Get from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
             listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel)
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+            #Parsing of the discosnp Header
             snpUp,numSNPUp,unitigLeftUP,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
             snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-            lettreLow,positionSnpLow,lettreUp,positionSnpUp,boolRefLow,boolRefUp,bug,erreur,reverseUp,reverseLow,lettreRefUp,lettreRefLow= RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
-            if len(seqUp)<len(seqLow) and reverseUp==0:
-                lettreLow=insert
-                lettreUp=ntStart
+            nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow= RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
+            #Check the strand (forward or reverse) to have the right sequence of insert
+            if boolRefUp==True and reverseUp==-1:
+                insert=ReverseSeq(insert)
+                ntStart=ReverseComplement(ntStart)
+            elif boolRefLow==True and reverseLow==-1:
+                insert=ReverseSeq(insert)
+                ntStart=ReverseComplement(ntStart)
+            #Check if the insert correpond to the upper path or to the lower path
+            if len(seqUp)<len(seqLow):
+                nucleoLow=insert
+                nucleoUp=ntStart
             else:
-                lettreUp=insert
-                lettreLow=ntStart
-            if boolRefUp==1:
-                if len(lettreUp)==len(insert):
-                    lettreRefUp="."
+                nucleoUp=insert
+                nucleoLow=ntStart
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+            ## Fill the VCF if the upper path is considered as the reference
+            if boolRefUp==True:
+                if len(nucleoUp)==len(insert):
+                    nucleoRefUp="."
                     tp="INS"
                 else:
-                    lettreRefUp="."
+                    nucleoRefUp="."
                     tp="DEL"
-                table[0]=snpUp[2]                    
-                table[1]=int(positionSnpUp)-1
-                table[2]=numSNPUp
-                table[3]=lettreUp
-                table[4]=lettreLow
-                table=GetGenotype(genoUp,0,table,nbGeno,phased,listCouvGeno)
-                if snpUp[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpUp[10]
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(lettreRefUp)+";"+"Sd:"+str(reverseUp)
-            elif boolRefLow==1:
-                if len(lettreLow)==len(insert):
-                    lettreRefLow="."
+                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCouvGeno,boolRefLow)
+            ## Fill the VCF if the lower path is considered as the reference
+            elif boolRefLow==True:
+                if len(nucleoLow)==len(insert):
+                    nucleoRefLow="."
                     tp="INS"
                 else:
-                    lettreRefLow="."
+                    nucleoRefLow="."
                     tp="DEL"
-                table[0]=snpLow[2]    
-                table[1]=int(positionSnpLow)-1
-                table[2]=numSNPLow
-                table[3]=lettreLow
-                table[4]=lettreUp
-                table=GetGenotype(genoUp,1,table,nbGeno,phased,listCouvGeno)
-                if snpLow[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpLow[10]
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(lettreRefLow)+";"+"Sd:"+str(reverseLow)
-            else:
-                if lettreUp==refLettre or lettreUp==refLettreR:
-                    lettreRefUp="<DEL>"
-                else:
-                    lettreRefUp="<INS>"
-                table[0]=snpUp[2]                    
-                table[1]=pos
-                table[2]=numSNPUp
-                table[3]=lettreUp
-                table[4]=lettreLow
-                table=GetGenotype(genoUp,0,table,nbGeno,phased,listCouvGeno)
-                table[5]=snpUp[10]
-            table[7]=info
+                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCouvGeno,boolRefLow)
             printOneline(table,VCF)
+            
+#---------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------- 
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+##################################################################### 
+###VCF_creator GHOST MODE : take a fasta in input and create a vcf###
+#####################################################################   
 else:
     while True:
         line1=samfile.readline()
@@ -341,13 +333,13 @@ else:
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listLettreUp,listLettreLow,listPosR,listLettreUpR,listLettreLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel)
+                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel)
 	#dicoHeader[key]=[posD,ntUp,ntLow]
 	    if len(listPolymorphismePos)==0:
                 ntLow=dicoHeaderUp["P_1"][2]
                 ntUp=dicoHeaderUp["P_1"][1]
                 phased=False
-                printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -358,7 +350,7 @@ else:
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
-                        printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                        PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -377,7 +369,7 @@ else:
             else:
                 ntUp=ntStart
                 ntLow=insert
-            printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+            PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
             continue     
         	
 #---------------------------------------------------------------------------------------------------------------------------
