@@ -19,6 +19,9 @@ echo " ##############################"
 echo "   Run VCF_creator pipeline     "
 echo " ##############################"
 echo "Usage : ./run_pipeline_VCF_creator.sh OPT"
+echo -e "##Ghost mode : Create a vcf file without alignment : ./run_pipeline_VCF_creator.sh -p <disco_file>.fa -o <output>.vcf"
+echo -e "##Pipeline mode : Alignment +VCF Creation : ./run_pipeline_VCF_creator.sh -b <path_bwa> -g <ref>.fasta -p <disco_file>.fa -o <output>.vcf -n <mismatch_number>"
+echo -e "##VCF creation : samfile already there, goes to : ./run_pipeline_VCF_creator.sh -f <file>.sam -n <mismatch_number> -o <output>.vcf"
 echo -e "\t-h : print this message"
 echo -e "\t-b : path where bwa is"
 echo -e "\t-c : path where VCF_creator is"
@@ -125,6 +128,23 @@ fi
 #---------------------------------------------------------------------------------------------------------------------------
 ####Use the pipeline of aligement
 if [ -z "$samfile" ];then
+        #Ghost mode
+        if [ -z "$genome" ]; then
+                echo -e "...Ghost mode..."
+                echo -e "...Creation of a vcf without alignment..."
+                if [ -z "$discoSNPs" ] && [ -z "$vcffile" ];then
+                       echo -e "...To create a vcf without alignment ..."
+                       echo -e "...You must provide an output <file>.vcf : option -o..."
+                       echo -e "...And the file disco : option -p..."
+                       exit 1 
+                else
+                        n=3
+                        vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)".vcf"
+                        python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -n $n -o $vcf
+		        echo -e "... Creation of the vcf file : done ...==> $vcf" 
+		        exit 
+                fi    
+        fi
 	if [ -z "$PATH_BWA" ] ;then
 		IS_BWA=$(command -v bwa)
 	
@@ -172,7 +192,7 @@ if [ -z "$samfile" ];then
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	#BWA files
-	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fasta)"_n"$n"_l"$l"_s"$s".vcf"
+	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf"
 	samfile=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".sam"
 	saifile=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".sai"
 	indexamb=$genome".amb"
@@ -229,7 +249,7 @@ else
 		exit 1
 	fi
 	##Creation of the vcf file
-	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n --output $vcffile	
+	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -output $vcffile	
 fi
 
 if [ $remove=0 ];then

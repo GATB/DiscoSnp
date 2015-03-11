@@ -27,7 +27,7 @@ def usage():
     print usage
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"h:s:n:o",["help","disco_file","mismatch","output="])
+    opts, args = getopt.getopt(sys.argv[1:],"h:s:n:o:",["help","disco_file","mismatch","output="])
     if not opts:
         usage()
         sys.exit(2)
@@ -41,7 +41,7 @@ for opt, arg in opts :
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
         fichier = arg
-        if ".sam" in fichier:
+        if ".sam" or ".fa" or ".fasta" in fichier:
             samfile=open(fichier,'r')
         else:
             print "...Unknown file extension for the input. Try with a <file>.sam..."
@@ -101,14 +101,6 @@ else:
             
 previousSnp=None # we read the file by pair, thus we need to remind the previous read SNP. 
 mul=0
-nbOk=0
-nbmulti=0
-nbrupture1=0
-nbrupture2=0
-nbrupture3=0
-nbrupturedmax=0
-nbrupture1=0
-nbrupture0=0
 pb=0
 nbunmapped=0
 if ".sam" in fichier:
@@ -195,16 +187,13 @@ if ".sam" in fichier:
             filterField="probleme...."
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-        #Ecriture dans le vcf
         if "SNP" in snpUp[0] :
 #---------------------------------------------------------------------------------------------------------------------------
             indel=0
-            #Vérification du nombre de polymorphisme
             listPolymorphismePos=[]
-            #Récupération des positions de mapping associées à leur nombre de mutation
+            #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
                 listPolymorphismePos,listLettreUp,listLettreLow,listPosR,listLettreUpR,listLettreLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel)
-            #Remplissage du vcf selon 2 cas :
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##SNP simple
@@ -314,7 +303,70 @@ if ".sam" in fichier:
                 table[5]=snpUp[10]
             table[7]=info
             printOneline(table,VCF)
-                    
+else:
+    while True:
+        line1=samfile.readline()
+        if not line1: break # end of file
+        seq1=samfile.readline() # read the seq associate to the SNP
+        line2=samfile.readline() # read a couple of line
+        seq2=samfile.readline()
+        line1=line1.rstrip('\n')
+        line1=line1.strip('>')
+        line2=line2.rstrip('\n')
+        line2=line2.strip('>')
+        
+        #Variables
+        comptPol=0     # number of SNPs in case of close SNPs - useless for indels
+        
+        snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
+        snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
+        
+        if numSNPLow != numSNPUp:
+            print "WARNING two consecutive lines do not store the same variant id: "
+            print line1
+            print line2
+            sys.exit(1)
+        #Information on coverage by dataset
+        couvUp,couvLow,listCouvGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
+        if "SNP" in line1:
+            tp="SNP"
+            indel=0
+            listPolymorphismePos=[]
+            #Gets the position and the nucleotide of the variants by header parsing
+            if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
+                listPolymorphismePos,listLettreUp,listLettreLow,listPosR,listLettreUpR,listLettreLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel)
+	#dicoHeader[key]=[posD,ntUp,ntLow]
+	    if len(listPolymorphismePos)==0:
+                ntLow=dicoHeaderUp["P_1"][2]
+                ntUp=dicoHeaderUp["P_1"][1]
+                phased=False
+                printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                continue
+	    else:
+                phased=True
+                for comptPol in range(0,len(listPolymorphismePos)):
+                        key="P_"+str(comptPol+1)
+                        ntLow=dicoHeaderUp[key][2]
+                        ntUp=dicoHeaderUp[key][1]
+                        printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                continue
+        else:
+            indel=1
+            phased=False
+            if len(seq1)<len(seq2):
+                seq=seq1
+            else:
+                seq=seq2
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel)                
+            if seq==seq1:
+                ntLow=ntStart
+                ntUp=insert
+            else:
+                ntUp=ntStart
+                ntLow=insert
+            printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+            continue     
+        	
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -322,4 +374,7 @@ if ".sam" in fichier:
 
 VCF.close()
 samfile.close()
+
+
+
 

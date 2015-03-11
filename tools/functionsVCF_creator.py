@@ -49,6 +49,7 @@ def Comptage(fichier):
 ##############################################################
 def ParsingDiscoSNP(snp,boolNum):
     if isinstance(snp,str):
+        snp=snp.rstrip('\r')
         snp=snp.rstrip('\n')
         snp=snp.split('\t')
     listeCouverture=[]
@@ -893,7 +894,8 @@ def fillVCFSimpleSnp(snpUp,snpLow,lettreLow,positionSnpLow,lettreUp,positionSnpU
             else:
                 table[5]=snpUp[10]
     return(table,boolRefUp,boolRefLow)
-    
+##############################################################
+##############################################################   
 def printOneline(table,VCF):
     for i in range(len(table)):
         element=table[i]
@@ -1133,7 +1135,35 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno):
     return table
 ##############################################################
 ##############################################################
-
+def printVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,geno,nbGeno,phased,listCouvGeno,VCF):
+    #Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6] 
+    table[0]="."
+    table[1]="."  
+    table[5]="."
+    table[6]="."
+    
+    table[2]=numSNPUp
+    table[3]=ntUp
+    table[4]=ntLow
+    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)
+    table=GetGenotype(geno,0,table,nbGeno,phased,listCouvGeno)
+    printOneline(table,VCF)
+    
+##############################################################
+##############################################################
+def printVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,unitigLeft,unitigRight,contigLeft,contigRight,couv,geno,nbGeno,phased,listCouvGeno,VCF):
+    #TODO intégrer cette fonction de remplissage au reste
+    table[0]=chrom
+    table[1]=pos
+    table[2]=numSNP
+    table[3]=ref
+    table[4]=alt 
+    table[5]=qual
+    table[6]=filterfield
+    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)
+    table=GetGenotype(geno,0,table,nbGeno,phased,listCouvGeno)
+    return table  
+    
 
 
 
