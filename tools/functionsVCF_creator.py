@@ -52,8 +52,8 @@ def ParsingDiscoSNP(snp,boolNum):
         snp=snp.rstrip('\r')
         snp=snp.rstrip('\n')
         snp=snp.split('\t')
-    listeCouverture=[]
-    listeC=[]
+    listCoverture=[]
+    listC=[]
     j=0
     numSNP=None
     unitigLeft=None
@@ -188,13 +188,13 @@ def ParsingDiscoSNP(snp,boolNum):
                 if matchInt:
                     valRank=j
         elif "C" in i:
-            couverture=i.split('_')
+            coverage=i.split('_')
             j=0
-            for j in range(len(couverture)):
-                matchInt=re.match(r'^\d+$',couverture[j])
+            for j in range(len(coverage)):
+                matchInt=re.match(r'^\d+$',coverage[j])
                 if matchInt:
-                    listeCouverture.append(str(couverture[j]))
-                    listeC.append(str(couverture[j-1]))
+                    listCoverture.append(str(coverage[j]))
+                    listC.append(str(coverage[j-1]))
         elif "nb_pol" in i :
             nb_pol=i.split('_')
             j=0
@@ -204,15 +204,15 @@ def ParsingDiscoSNP(snp,boolNum):
                     nb_pol=j
         elif "G" in i:
             i=i.replace("_",":")
-            listegeno=i.split(":")
-            if len(listegeno)>2:
-                listelikelihood=listegeno[2].split(",")
+            listgeno=i.split(":")
+            if len(listgeno)>2:
+                listlikelihood=listgeno[2].split(",")
             else:
-                listelikelihood=0
-            dicoGeno[listegeno[0]]=[listegeno[1],listelikelihood]
+                listlikelihood=0
+            dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
     
     if boolNum==0:
-        return(snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listeCouverture,listeC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
+        return(snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverture,listC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
     else:
         return(numSNP)
 
@@ -221,98 +221,89 @@ def ParsingDiscoSNP(snp,boolNum):
 # snp2: sam line 2
 # 
 ##############################################################
-def GetCouple(snp1,snp2):
+def GetCouple(snpUp,snpLow):
     """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch ; retrieves a Boolean indicating whether the SNP is multimapped or not"""
-    posUp = {}
+    posUp = {} #dictionnary of all the position (keys) associated with the number of mismatches (values) 
     posLow = {}
     i=0
     j=0
-    #Boolean snps mapped
-    boolMapUp=1
-    boolMapLow=1
     #Boolean snps mulimapped
-    boolXAUp=0
-    boolXALow=0
-    if "lower" in snp1[0]:
-        snpLow=snp1
-    else:
-        snpUp=snp1
-    if "lower" in snp2[0]:
-        snpLow=snp2
-    else:
-        snpUp=snp2
-    #Error list with mapping position very close
-    listeerreurUp=set([(int(snpUp[3])-1),(int(snpUp[3])+1),(int(snpUp[3])+2),(int(snpUp[3])+3),(int(snpUp[3])-3),(int(snpUp[3])-2),int(snpUp[3])])
-    listeerreurLow=set([(int(snpLow[3])-1),(int(snpLow[3])+1),(int(snpLow[3])+2),(int(snpLow[3])+3),(int(snpLow[3])-3),(int(snpLow[3])-2),int(snpLow[3])])
+    boolXAUp=False
+    boolXALow=False
+    #Error list with mapping positions very close to the firt position give by bwa
+    listerreurUp=set([(int(snpUp[3])-1),(int(snpUp[3])+1),(int(snpUp[3])+2),(int(snpUp[3])+3),(int(snpUp[3])-3),(int(snpUp[3])-2),int(snpUp[3])])
+    listerreurLow=set([(int(snpLow[3])-1),(int(snpLow[3])+1),(int(snpLow[3])+2),(int(snpLow[3])+3),(int(snpLow[3])-3),(int(snpLow[3])-2),int(snpLow[3])])
     #Creation of a dict with mapping position associate with number of mismatch
-    if 'XA' in ''.join(snpUp): # XA: tag for multiple mapping
+    if 'XA' in ''.join(snpUp): # XA: tag for multiple mapping : Check if the upper path is multiple mapped 
         i=0
         #parsing XA tag
-        listeXA=snpUp[19].split(';')
-        strXA = ','.join(listeXA)
-        listeXA = strXA.split(',')
-        listeXA.pop()
-        position=listeXA[1:]
-        while i<len(position):
-            if abs(int(position[i])) not in listeerreurUp :
-                boolXAUp=1
-                posUp[abs(int(position[i]))]=int(position[i+2])
+        listXA=snpUp[19].split(';')
+        strXA = ','.join(listXA)
+        listXA = strXA.split(',')
+        listXA.pop()
+        position=listXA[1:] #position=[pos,cigarcode,number of mismatch , pos,cigarcode,number of mismatch]
+        while i<len(position): # runs through the list 4 by 4 to get all the positions 
+            if abs(int(position[i])) not in listerreurUp : #Checks if the position is not too close to the main one
+                boolXAUp=True
+                posUp[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionnary
             i+=4
-    if 'XA' in ''.join(snpLow):
+    if 'XA' in ''.join(snpLow):# XA: tag for multiple mapping : Check if the lower path is multiple mapped 
         i=0
-        listeXA=snpLow[19].split(';')
-        strXA = ','.join(listeXA)
-        listeXA = strXA.split(',')
-        listeXA.pop()
-        position=listeXA[1:]
+        listXA=snpLow[19].split(';')
+        strXA = ','.join(listXA)
+        listXA = strXA.split(',')
+        listXA.pop()
+        position=listXA[1:]
         while i<len(position):
-            if abs(int(position[i])) not in listeerreurLow :
-                boolXALow=1
+            if abs(int(position[i])) not in listerreurLow :
+                boolXALow=True
                 posLow[abs(int(position[i]))]=int(position[i+2])
             i+=4
-    #Add main position to the dict if the path is mapped
+    #Add first position give by BWA to the dictionnary if the path is mapped
     if abs(int(snpUp[3]))>0:
-        poubelle,poubelle,nbMismatchUp=snpUp[12].split(":")
+        garbage,garbage,nbMismatchUp=snpUp[12].split(":")
         posUp[abs(int(snpUp[3]))]=int(nbMismatchUp)
-    
-    else : boolMapUp=0
     if abs(int(snpLow[3]))>0:
-        poubelle,poubelle,nbMismatchLow=snpLow[12].split(":")
+        garbage,garbage,nbMismatchLow=snpLow[12].split(":")
         posLow[abs(int(snpLow[3]))]=int(nbMismatchLow)
-    else : boolMapLow=0
-    return(posUp,posLow,snpLow,snpUp,boolMapUp,boolMapLow,boolXAUp,boolXALow)
+    return(posUp,posLow,snpLow,snpUp,boolXAUp,boolXALow)
 
 
 ##############################################################
+#listCup=["C1","C2"]
+#listCovertureUp=[23,45]
 ##############################################################
-def GetCoverage(listeCUp,listeCLow,listeCouvertureUp,listeCouvertureLow):
+def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
+    """Takes as input lists list  """
     i=0
-    couvUp=''
-    listeCouvGeno=[]
-    if len(listeCouvertureUp)>1 and len(listeCouvertureLow)>1:
-        while i<len(listeCouvertureUp):
-            listeCouvGeno.append(int(listeCouvertureUp[i])+int(listeCouvertureLow[i]))
-            if couvUp!='':
-                couvUp=str(couvUp)+';'+str(listeCUp[i])+':'+str(listeCouvertureUp[i])+"|"+str(listeCouvertureLow[i])
+    covUp=''
+    listCovGeno=[]
+    ##Create a string if the number of coverage is superior to 1
+    if len( listCoverageUp)>1 and len( listCoverageLow)>1:
+        while i<len( listCoverageUp):
+            listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))
+            if covUp!='':
+                covUp=str(covUp)+';'+str( listCUp[i])+':'+str( listCoverageUp[i])+"|"+str( listCoverageLow[i])
             else:
-                couvUp=str(listeCUp[i])+':'+str(listeCouvertureUp[i])+"|"+str(listeCouvertureLow[i])
+                covUp=str( listCUp[i])+':'+str( listCoverageUp[i])+"|"+str( listCoverageLow[i])
             i+=1
         i=0
-        couvLow=''
-        while i<len(listeCouvertureLow):
-            if couvLow!='':
-                couvLow=str(couvLow)+';'+str(listeCLow[i])+':'+str(listeCouvertureLow[i])+"|"+str(listeCouvertureUp[i])
+        covLow=''
+        while i<len( listCoverageLow):
+            if covLow!='':
+                covLow=str(covLow)+';'+str( listCLow[i])+':'+str( listCoverageLow[i])+"|"+str( listCoverageUp[i])
             else:
-                couvLow=str(listeCLow[i])+':'+str(listeCouvertureLow[i])+"|"+str(listeCouvertureUp[i])
+                covLow=str( listCLow[i])+':'+str( listCoverageLow[i])+"|"+str( listCoverageUp[i])
             i+=1
     else:
-        couvUp=str(listeCUp[0])+':'+str(listeCouvertureUp[0])
-        couvLow=str(listeCLow[0])+':'+str(listeCouvertureLow[0])
-    return(couvUp,couvLow,listeCouvGeno)
+        covUp=str( listCUp[0])+':'+str( listCoverageUp[0])
+        covLow=str( listCLow[0])+':'+str( listCoverageLow[0])
+    return(covUp,covLow,listCovGeno) #string covUp C1:5|23;C2:35|1 listCovGeno=[28,36]
 ##############################################################
 ##############################################################
 def addPosition(position,ensemble,delta):
-    if len(ensemble)==0:
+    """Add a position to a set of positions only if the difference between the two is greater than delta"""
+    if len(ensemble)==0: # Case : it's the first position add to the set
         ensemble.append(position)
         return(ensemble)
     if abs(position-ensemble[0])>delta:
@@ -323,8 +314,9 @@ def addPosition(position,ensemble,delta):
 ##############################################################
 ##############################################################
 def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
+    """Main function of the snp validation : check if the couple is validated with only one mapping position at the number of mismatch tested"""
     couple=None
-    listePos= []
+    listPos= []
     ensemble=None
     delta=3
     if abs(int(snpUp[3]))<=0 and abs(int(snpLow[3]))<=0:
@@ -333,15 +325,15 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
     else:
         for position,nbMismatch in posUp.items():
             if nbMismatch==int(NM):
-                listePos=addPosition(position,listePos,delta)
-                ensemble=set(listePos)
+                listPos=addPosition(position,listPos,delta)
+                ensemble=set(listPos)
                 if abs(len(ensemble))>1:
                     couple="multiple"
                     return(couple)
         for position,nbMismatch in posLow.items():
             if nbMismatch==int(NM):
-                listePos=addPosition(position,listePos,delta)
-                ensemble=set(listePos)
+                listPos=addPosition(position,listPos,delta)
+                ensemble=set(listPos)
                 if abs(len(ensemble))>1:
                     couple="multiple"
                     return(couple)
@@ -358,18 +350,18 @@ def ReverseComplement(nucleotide):
     return "C"
 ##############################################################
 ##############################################################
-def CigarCodeChecker(cigarcode,seq,listepol,posModif,indel):
+def CigarCodeChecker(cigarcode,seq,listpol,posModif,indel):
     """Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
     parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode)
-    listePosRef=[]
-    listeShift=[]
+    listPosRef=[]
+    listShift=[]
     somme=0
     shift=0
     pos=0
     i=1
     j=0
     #Close snps
-    if len(listepol)>1:
+    if len(listpol)>1:
         while i<len(parsingCigarCode):
             #Soft clipping
             if parsingCigarCode[i]=="S":
@@ -384,18 +376,18 @@ def CigarCodeChecker(cigarcode,seq,listepol,posModif,indel):
             #Insertion
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
-            while int(pos)>=int(listepol[j]):
-                posRef=int(listepol[j])+shift
-                listePosRef.append(posRef)
-                listeShift.append(shift)
-                if j<(len(listepol)-1):
+            while int(pos)>=int(listpol[j]):
+                posRef=int(listpol[j])+shift
+                listPosRef.append(posRef)
+                listShift.append(shift)
+                if j<(len(listpol)-1):
                     j+=1
                 else:
-                    return(listePosRef,listeShift)
+                    return(listPosRef,listShift)
             i+=2
     #Lonely snp
     else:
-        lenDemiSeq=int(listepol[0])
+        lenDemiSeq=int(listpol[0])
         while i<len(parsingCigarCode):
             if parsingCigarCode[i]=="S":
                 shift-=int(parsingCigarCode[i-1])
@@ -406,12 +398,12 @@ def CigarCodeChecker(cigarcode,seq,listepol,posModif,indel):
                 shift+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
-            if len(listepol)==1:
+            if len(listpol)==1:
                 if pos>=int(lenDemiSeq):
                     posCentraleRef=int(lenDemiSeq)+shift
                     return(posCentraleRef,shift)
             i+=2
-    return(listePosRef,listeShift)
+    return(listPosRef,listShift)
 ##############################################################
 ##############################################################
 def ReferenceChecker(shift,posMut,posCentraleRef):
@@ -467,23 +459,23 @@ def GetSequence(snpUp,snpLow):
     seqUp=snpUp[9]
     if snpUp[1]=="16":
         i=0
-        listeSeqUp=list(seqUp)
+        listSeqUp=list(seqUp)
         seqUp=''
-        while i<len(listeSeqUp):
+        while i<len(listSeqUp):
             if seqUp!='':
-                seqUp=str(ReverseComplement(listeSeqUp[i]))+seqUp
+                seqUp=str(ReverseComplement(listSeqUp[i]))+seqUp
             else :
-                seqUp=str(ReverseComplement(listeSeqUp[i]))
+                seqUp=str(ReverseComplement(listSeqUp[i]))
             i+=1
     if snpLow[1]=="16":
         i=0
-        listeSeqLow=list(str(seqLow))
+        listSeqLow=list(str(seqLow))
         seqLow=''
-        while i<len(listeSeqLow):
+        while i<len(listSeqLow):
             if seqLow!='':
-                seqLow=str(ReverseComplement(listeSeqLow[i]))+seqLow
+                seqLow=str(ReverseComplement(listSeqLow[i]))+seqLow
             else :
-                seqLow=str(ReverseComplement(listeSeqLow[i]))
+                seqLow=str(ReverseComplement(listSeqLow[i]))
             i+=1
     return(seqUp,seqLow)
 
@@ -519,7 +511,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
     #List of snps
     if indel==False:
-        listePos,listenucleoUp,listenucleoLow,listePosR,listenucleoUpR,listenucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel)
+        listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel)
     else:
         seqUp=snpUp[9]
         seqLow=snpLow[9]
@@ -527,9 +519,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             seq=seqLow
         else:
             seq=seqUp
-        listePos,listePosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel)
+        listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel)
     if indel==True:
-        posModif=int(listePos[0])
+        posModif=int(listPos[0])
     else:
         posModif=0
 #---------------------------------------------------------------------------------------------------------------------------
@@ -538,35 +530,35 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpUp[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if snpUp[1]=="0":
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listePos,posModif,indel)
-            listePolymorphismePosUp=listePos
-            if len(listePos)==1 and indel==False:
-                nucleoUp=listenucleoUp[0]
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPos,posModif,indel)
+            listPolymorphismePosUp=listPos
+            if len(listPos)==1 and indel==False:
+                nucleoUp=listnucleoUp[0]
         elif snpUp[1]=="16":
             reverseUp=-1
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listePosR,posModif,indel)
-            listePolymorphismePosUp=listePosR
-            if len(listePos)==1 and indel==False:
-                nucleoUp=listenucleoUpR[0]
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPosR,posModif,indel)
+            listPolymorphismePosUp=listPosR
+            if len(listPos)==1 and indel==False:
+                nucleoUp=listnucleoUpR[0]
     else:
-        posCentraleUp=listePos
+        posCentraleUp=listPos
         shiftUp=None
         reverseUp="."
     if int(snpLow[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if snpLow[1]=="0":
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],seqLow,listePos,posModif,indel)
-            listePolymorphismePosLow=listePos
-            if len(listePos)==1 and indel==False:
-                nucleoLow=listenucleoLow[0]
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],seqLow,listPos,posModif,indel)
+            listPolymorphismePosLow=listPos
+            if len(listPos)==1 and indel==False:
+                nucleoLow=listnucleoLow[0]
         elif snpLow[1]=="16":
             reverseLow=-1
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],seqLow,listePosR,posModif,indel)
-            listePolymorphismePosLow=listePosR
-            if len(listePos)==1 and indel==False:
-                nucleoLow=listenucleoLowR[0]
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],seqLow,listPosR,posModif,indel)
+            listPolymorphismePosLow=listPosR
+            if len(listPos)==1 and indel==False:
+                nucleoLow=listnucleoLowR[0]
     else:
-        posCentraleLow=listePos
+        posCentraleLow=listPos
         shiftLow=None
         reverseLow="."
 #---------------------------------------------------------------------------------------------------------------------------
@@ -575,29 +567,29 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpUp[3])>0:
         #Extraction tag MD
         MD,Z,posMutUp = snpUp[18].split(":")
-        if len(listePos)>1: # CLOSE SNPS
-            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de liste boolRefUp,nucleoRefUp,posCentraleUp[i],listenucleoUp[i],reverseUp
+        if len(listPos)>1: # CLOSE SNPS
+            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de list boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp
             if reverseUp==1:
                 i=0
-                for i in range(len(listePos)):
+                for i in range(len(listPos)):
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
                     if nucleoRefUp==None:
-                        nucleoRefUp=listenucleoUp[i]
-                    dicopolUp[listePos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listenucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
+                        nucleoRefUp=listnucleoUp[i]
+                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
             elif reverseUp==-1:
                 i=0
-                for i in range(len(listePosR)):
+                for i in range(len(listPosR)):
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
                     if nucleoRefUp==None:
-                        nucleoRefUp=listenucleoUpR[i]
-                    dicopolUp[listePosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listenucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
+                        nucleoRefUp=listnucleoUpR[i]
+                    dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
         else:
             boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp,posMutUp,posCentraleUp)
             if nucleoRefUp==None:
                 nucleoRefUp=seqUp[posModif]
     
-    elif int(snpUp[3])<=0 and len(listePos)==0 :
-        nucleoUp = seqUp[int(listePos[0])-1]
+    elif int(snpUp[3])<=0 and len(listPos)==0 :
+        nucleoUp = seqUp[int(listPos[0])-1]
         positionSnpUp = posCentraleUp
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -605,51 +597,51 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpLow[3])>0:
         #Extraction tag MD
         MD,Z,posMutLow = snpLow[18].split(":")
-        if len(listePos)>1:
-            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de liste boolRefLow,nucleoRefLow,posCentraleLow[i],listenucleoLow[i],reverseLow
+        if len(listPos)>1:
+            #Dictionnaire contenant la position des polymorphismes(clés) et sous forme de list boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLow[i],reverseLow
             if reverseLow==1:
                 i=0
-                for i in range(len(listePos)):
+                for i in range(len(listPos)):
                     boolRefLow,nucleoRefLow=ReferenceChecker(shiftLow[i],posMutLow,posCentraleLow[i])
                     if nucleoRefLow==None:
-                        nucleoRefLow=listenucleoLow[i]
-                    dicopolLow[listePos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listenucleoLow[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
+                        nucleoRefLow=listnucleoLow[i]
+                    dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLow[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
             elif reverseLow==-1:
                 i=0
-                for i in range(len(listePosR)):
+                for i in range(len(listPosR)):
                     boolRefLow,nucleoRefLow=ReferenceChecker(shiftLow[i],posMutLow,posCentraleLow[i])
                     if nucleoRefLow==None:
-                        nucleoRefLow=listenucleoLowR[i]
-                    dicopolLow[listePosR[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listenucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
+                        nucleoRefLow=listnucleoLowR[i]
+                    dicopolLow[listPosR[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
         else:
             boolRefLow,nucleoRefLow=ReferenceChecker(shiftLow,posMutLow,posCentraleLow)
             if nucleoRefLow==None:
                 nucleoRefLow=seqLow[int(posModif)-1]
     
-    elif int(snpLow[3])<=0 and len(listePos)==0 :
-        nucleoLow = seqLow[listePos[0]]
+    elif int(snpLow[3])<=0 and len(listPos)==0 :
+        nucleoLow = seqLow[listPos[0]]
         positionSnpLow = posCentraleLow
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ####Two paths mapped at different main position (first given by bwa)
     if (int(snpUp[3])>0 and int(snpLow[3])>0) and (int(snpUp[3])!=int(snpLow[3])):
-        if len(listePos)>1:
+        if len(listPos)>1:
             i=0
-            for i in range(len(listePos)):
-                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicopolUp[listePolymorphismePosUp[i]][1],dicopolLow[listePolymorphismePosLow[i]][1],dicopolUp[listePolymorphismePosUp[0]][3],dicopolLow[listePolymorphismePosLow[0]][3],dicopolUp[listePolymorphismePosUp[i]][0],dicopolLow[listePolymorphismePosLow[i]][0],indel)
-                dicopolUp[listePolymorphismePosUp[i]][0]=boolRefUp
-                dicopolUp[listePolymorphismePosUp[i]][1]=nucleoRefUp
-                dicopolLow[listePolymorphismePosLow[i]][0]=boolRefLow
-                dicopolLow[listePolymorphismePosLow[i]][1]=nucleoRefLow
-                dicopolLow[listePolymorphismePosLow[i]][5]=int(dicopolLow[listePolymorphismePosLow[i]][2])+int(posRef)
-                dicopolUp[listePolymorphismePosUp[i]][5]=int(dicopolUp[listePolymorphismePosUp[i]][2])+int(posRef)
+            for i in range(len(listPos)):
+                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicopolUp[listPolymorphismePosUp[i]][1],dicopolLow[listPolymorphismePosLow[i]][1],dicopolUp[listPolymorphismePosUp[0]][3],dicopolLow[listPolymorphismePosLow[0]][3],dicopolUp[listPolymorphismePosUp[i]][0],dicopolLow[listPolymorphismePosLow[i]][0],indel)
+                dicopolUp[listPolymorphismePosUp[i]][0]=boolRefUp
+                dicopolUp[listPolymorphismePosUp[i]][1]=nucleoRefUp
+                dicopolLow[listPolymorphismePosLow[i]][0]=boolRefLow
+                dicopolLow[listPolymorphismePosLow[i]][1]=nucleoRefLow
+                dicopolLow[listPolymorphismePosLow[i]][5]=int(dicopolLow[listPolymorphismePosLow[i]][2])+int(posRef)
+                dicopolUp[listPolymorphismePosUp[i]][5]=int(dicopolUp[listPolymorphismePosUp[i]][2])+int(posRef)
         else:
                 boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------    #---------------------------------------------------------------------------------------------------------------------------
 
     #SNP Positions
-    if len(listePos)==1:
+    if len(listPos)==1:
         if indel==True:
             nucleoLow="."
             nucleoUp="."
@@ -688,7 +680,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 posSNPUp=posCentraleUp+posRef
         return(nucleoLow,posSNPLow,nucleoUp,posSNPUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow)
     else:
-        return(dicopolUp,dicopolLow,listePolymorphismePosUp,listePolymorphismePosLow)
+        return(dicopolUp,dicopolLow,listPolymorphismePosUp,listPolymorphismePosLow)
 ##############################################################
 ##############################################################
 def MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel):
@@ -750,57 +742,57 @@ The Boolean allows to know the reference SNP ) """
 def GetPolymorphisme(dicoHeader,seq,indel):
     #dicoHeader[key]=[posD,ntUp,ntLow]
     #Forward
-    listePos=[]
-    listenucleoUp=[]
-    listenucleoLow=[]
+    listPos=[]
+    listnucleoUp=[]
+    listnucleoLow=[]
     #Reverse
-    listePosR=[]
-    listenucleoUpR=[]
-    listenucleoLowR=[]
+    listPosR=[]
+    listnucleoUpR=[]
+    listnucleoLowR=[]
     tailleSeq=len(seq)
     if indel==False:
         for key,(posD,ntUp,ntLow) in dicoHeader.items():
-            listePos.append(posD)
-            listePosR.append(tailleSeq-int(posD)+1)
-            listenucleoUp.append(ntUp)
-            listenucleoUpR.append(ReverseComplement(ntUp))
-            listenucleoLow.append(ntLow)
-            listenucleoLowR.append(ReverseComplement(ntLow))
-        return(listePos,listenucleoUp,listenucleoLow,listePosR,listenucleoUpR,listenucleoLowR)
+            listPos.append(posD)
+            listPosR.append(tailleSeq-int(posD)+1)
+            listnucleoUp.append(ntUp)
+            listnucleoUpR.append(ReverseComplement(ntUp))
+            listnucleoLow.append(ntLow)
+            listnucleoLowR.append(ReverseComplement(ntLow))
+        return(listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR)
     else:
         for key,(posD,ind,amb) in dicoHeader.items():
-            listePos.append(posD)
-            listePosR.append(tailleSeq-int(posD)+1)
+            listPos.append(posD)
+            listPosR.append(tailleSeq-int(posD)+1)
             insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))]
             ntStart=seq[(int(posD-1)-1)]
             ambiguityPos=amb
-        return(listePos,listePosR,insert,ntStart,ambiguityPos)
+        return(listPos,listPosR,insert,ntStart,ambiguityPos)
 ##############################################################
 ##############################################################
-def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterfield,multi,ok,tp,phased,listCouvGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,couvUp,couvLow):
+def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterfield,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,covUp,covLow):
     """ Fills the different fields of vcf based on boolean ( on whether the SNP is identical or not the reference) , if neither is identical to the reference = > we take the SNP comes first in the lexicographical order"""
     ##Gets the variable of the header of disco snps
-    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listeCouvertureUp,listeCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listeCouvertureLow,listeClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         ##The path identical to the reference is the lower path 
         if boolRefLow==True and boolRefUp==False:
-            table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
          ##The path identical to the reference is the upper path 
         elif boolRefUp==True and boolRefLow==False:
-            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
         ##No path is identical to the reference => lexicographique choice
         elif boolRefUp==False and boolRefLow==False:
             if nucleoUp<nucleoLow:
-                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
             else:
-              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)  
+              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)  
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped      
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
-        table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+        table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
         ##If the number of mismatch is the max : that means the second path will be mapped at number of mismatch +1
         if dmax:
                 table[4]=nucleoUp
@@ -813,7 +805,7 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Upper path mapped and lower path unmapped        
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
-        table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCouvGeno,boolRefLow)
+        table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if dmax:
                 table[4]=nucleoLow
         else:
@@ -826,9 +818,9 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##Case : Both paths are unmapped       
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         if nucleoLow<nucleoUp:
-            table=FillVCF(table,numSNPLow,".",".",nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,".",".",geno,nbGeno,phased,listCouvGeno,boolRefLow)
+            table=FillVCF(table,numSNPLow,".",".",nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
-            table=FillVCF(table,numSNPUp,".",".",nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,".",".",geno,nbGeno,phased,listCouvGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,".",".",nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
     return(table)
 ##############################################################
 ##############################################################   
@@ -841,7 +833,7 @@ def printOneline(table,VCF):
 
 ##############################################################
 ##############################################################
-def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePolymorphismePosUp,listePolymorphismePosLow,listePolymorphismePos,multi,ok,couvUp,couvLow,listenucleoUp,listenucleoLow,geno,nbGeno,listeCouvGeno, VCF):
+def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF):
     info=''
     champAlt=0
     comptPol=0
@@ -850,29 +842,29 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
     tp="SNP"
     phased=True
     #Variables
-    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listeCouvertureUp,listeCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listeCouvertureLow,listeCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     #SNPs proches chemins mappés
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         #choix de la position de ref:
-        boolRefUp=int(dicoUp[listePolymorphismePosUp[0]][0])
-        boolRefLow=int(dicoLow[listePolymorphismePosLow[0]][0])
-        nucleoUp1=dicoUp[listePolymorphismePosUp[0]][3]
-        nucleoLow1=dicoLow[listePolymorphismePosLow[0]][3]
-        positionSnpUp1=dicoUp[listePolymorphismePosUp[0]][5]
-        positionSnpLow1=dicoLow[listePolymorphismePosLow[0]][5]
-        reverseLow=dicoLow[listePolymorphismePosLow[0]][4]
-        reverseUp=dicoUp[listePolymorphismePosUp[0]][4]
-        for comptPol in range(len(listePolymorphismePos)):
-            positionSnpUp=dicoUp[listePolymorphismePosUp[comptPol]][5]
-            positionSnpLow=dicoLow[listePolymorphismePosLow[comptPol]][5]
-            nucleoUp=dicoUp[listePolymorphismePosUp[comptPol]][3]
-            nucleoRefUp=dicoUp[listePolymorphismePosUp[comptPol]][1]
-            nucleoLow=dicoLow[listePolymorphismePosLow[comptPol]][3]
-            nucleoRefLow=dicoLow[listePolymorphismePosLow[comptPol]][1]
+        boolRefUp=int(dicoUp[listPolymorphismePosUp[0]][0])
+        boolRefLow=int(dicoLow[listPolymorphismePosLow[0]][0])
+        nucleoUp1=dicoUp[listPolymorphismePosUp[0]][3]
+        nucleoLow1=dicoLow[listPolymorphismePosLow[0]][3]
+        positionSnpUp1=dicoUp[listPolymorphismePosUp[0]][5]
+        positionSnpLow1=dicoLow[listPolymorphismePosLow[0]][5]
+        reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
+        reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
+        for comptPol in range(len(listPolymorphismePos)):
+            positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
+            positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
+            nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
+            nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
+            nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
+            nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
             #Remplissage VCF
             if boolRefLow==True and boolRefUp==False:
-                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno)
+                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
                 table[0]=snpLow[2]
                 table[1]=positionSnpLow
                 table[2]=numSNPLow
@@ -886,7 +878,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                 else:
                     table[4]=nucleoUp
             elif boolRefUp==True and boolRefLow==False:
-                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno)
+                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
                 table[0]=snpUp[2]
                 table[1]=positionSnpUp
                 table[2]=numSNPUp
@@ -906,7 +898,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                     table[1]=positionSnpUp
                     table[2]=numSNPUp
                     table[3]=nucleoUp
-                    table=GetGenotype(geno,0,table,nbGeno,phased,listeCouvGeno)
+                    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
                     if snpUp[10]=="*":
                         table[5]="."
                     else:
@@ -920,7 +912,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                     table[1]=positionSnpLow
                     table[2]=numSNPLow
                     table[3]=nucleoLow
-                    table=GetGenotype(geno,1,table,nbGeno,phased,listeCouvGeno)
+                    table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
                     if snpLow[10]=="*":
                         table[5]="."
                     else:
@@ -934,7 +926,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                     table[1]=positionSnpUp
                     table[2]=numSNPUp
                     table[3]=nucleoUp
-                    table=GetGenotype(geno,0,table,nbGeno,phased,listeCouvGeno)
+                    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
                     if snpUp[10]=="*":
                         table[5]="."
                     else:
@@ -948,7 +940,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                     table[1]=positionSnpLow
                     table[2]=numSNPLow
                     table[3]=nucleoLow
-                    table=GetGenotype(geno,1,table,nbGeno,phased,listeCouvGeno)
+                    table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
                     if snpLow[10]=="*":
                         table[5]="."
                     else:
@@ -958,9 +950,9 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
                     else:
                         table[4]=nucleoUp
             if boolRefUp==True:
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
+                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
             else:
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
+                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(covLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
             if dmax:
                 table[7]=info+";"+"DMax:"+str(dmax)
             else:
@@ -970,74 +962,74 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
     #SNPs proches : chemins unmapped
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         i=0
-        for i in range(len(listePolymorphismePos)):
-            positionSnpUp=listePolymorphismePos[i]
-            positionSnpLow=listePolymorphismePos[i]
-            nucleoUp=listenucleoUp[i]
+        for i in range(len(listPolymorphismePos)):
+            positionSnpUp=listPolymorphismePos[i]
+            positionSnpLow=listPolymorphismePos[i]
+            nucleoUp=listnucleoUp[i]
             nucleoRefUp=None
-            nucleoLow=listenucleoLow[i]
+            nucleoLow=listnucleoLow[i]
             nucleoRefLow=None
             table[0]=snpUp[2]
             table[1]=positionSnpUp
             table[2]=numSNPUp
             table[3]=nucleoUp
-            table=GetGenotype(geno,0,table,nbGeno,phased,listeCouvGeno)
+            table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
             if snpUp[10]=="*":
                 table[5]="."
             else:
                 table[5]=snpUp[10]
-            info="Type:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(nucleoRefUp)
+            info="Type:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)
             table[6]=filterField
             table[7]=info
             printOneline(table,VCF)
     
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
-        reverseUp=dicoUp[listePolymorphismePosUp[0]][4]
-        for comptPol in range(len(listePolymorphismePos)):
-            positionSnpUp=dicoUp[listePolymorphismePosUp[comptPol]][5]
-            nucleoUp=dicoUp[listePolymorphismePosUp[comptPol]][3]
-            nucleoRefUp=dicoUp[listePolymorphismePosUp[comptPol]][1]
+        reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
+        for comptPol in range(len(listPolymorphismePos)):
+            positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
+            nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
+            nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
             table[0]=snpUp[2]
             table[1]=positionSnpUp
             table[2]=numSNPUp
             table[3]=nucleoUp
-            table=GetGenotype(geno,0,table,nbGeno,phased,listeCouvGeno)
+            table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
             if snpUp[10]=="*":
                 table[5]="."
             else:
                 table[5]=snpUp[10]
             if (int(reverseUp)==-1) and dmax:
-                table[4]=ReverseComplement(seqLow[int(listePolymorphismePosLow[comptPol])-1])
+                table[4]=ReverseComplement(seqLow[int(listPolymorphismePosLow[comptPol])-1])
             elif int(reverseUp)==1 and dmax:
-                table[4]=seqLow[int(listePolymorphismePosLow[comptPol])-1]
+                table[4]=seqLow[int(listPolymorphismePosLow[comptPol])-1]
             else:
                 table[4]='.'
-            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
+            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
             table[7]=info
             table[6]=filterField
             printOneline(table,VCF)
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
-        reverseLow=dicoLow[listePolymorphismePosLow[0]][4]
-        for comptPol in range(len(listePolymorphismePos)):
-            positionSnpLow=dicoLow[listePolymorphismePosLow[comptPol]][5]
-            nucleoLow=dicoLow[listePolymorphismePosLow[comptPol]][3]
-            nucleoRefLow=dicoLow[listePolymorphismePosLow[comptPol]][1]
+        reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
+        for comptPol in range(len(listPolymorphismePos)):
+            positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
+            nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
+            nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
             table[0]=snpLow[2]
             table[1]=positionSnpLow
             table[2]=numSNPLow
             table[3]=nucleoLow
-            table=GetGenotype(geno,1,table,nbGeno,phased,listeCouvGeno)
+            table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
             if snpLow[10]=="*":
                 table[5]="."
             else:
                 table[5]=snpLow[10]
             if (int(reverseLow)==-1) and dmax:
-                table[4]=ReverseComplement(seqUp[int(listePolymorphismePosUp[comptPol])-1])
+                table[4]=ReverseComplement(seqUp[int(listPolymorphismePosUp[comptPol])-1])
             elif int(reverseLow)==1 and dmax:
-                table[4]=seqUp[int(listePolymorphismePosUp[comptPol])-1]
+                table[4]=seqUp[int(listPolymorphismePosUp[comptPol])-1]
             else:
                 table[4]='.'
-            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(couvLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
+            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(covLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
             table[7]=info
             table[6]=filterField
             printOneline(table,VCF)
@@ -1046,7 +1038,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listePol
 # geno: [key][0] : genotype (0/0, 0/1 or 1/1)
 # geno: [key][1] : likelihood for the 3 possible genotypes ("x,y,z")
 ##############################################################
-def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno):
+def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
     j=0
     genotypes=""
     for i in range(0,nbGeno):
@@ -1066,8 +1058,8 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno):
             likelihood=str(','.join(current_genotype[1]))
         else:
             likelihood=str(likelihood)
-        genotypes+=str(current_genotype[0])+":"+str(listeCouvGeno[i])+":"+likelihood
-        #genotypes+=str(current_genotype[0])+":"+str(listeCouvGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
+        genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+likelihood
+        #genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
         
         if i<nbGeno-1 :
             genotypes+="\t" # Add a \t except if this is the last genotype
@@ -1077,7 +1069,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listeCouvGeno):
     return table
 ##############################################################
 ##############################################################
-def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,geno,nbGeno,phased,listCouvGeno,VCF):
+def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
     #Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6] 
     table[0]="."
     table[1]="."  
@@ -1087,13 +1079,13 @@ def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigL
     table[2]=numSNPUp
     table[3]=ntUp
     table[4]=ntLow
-    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(couvUp)
-    table=GetGenotype(geno,0,table,nbGeno,phased,listCouvGeno)
+    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)
+    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
     printOneline(table,VCF)
     
 ##############################################################
 ##############################################################
-def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,couv,nucleoRef,reverse,geno,nbGeno,phased,listCouvGeno,boolRefLow):
+def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow):
     """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""
     table[0]=chrom
     table[1]=pos
@@ -1105,21 +1097,21 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRank)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeft)+";"+"UR:"+str(unitigRight)+";"+"CL:"+str(contigLeft)+";"+"CR:"+str(contigRight)+";"+str(couv)+";"+"Genome:"+str(nucleoRef)+";"+"Sd:"+str(reverse)
-    table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCouvGeno)
+    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRank)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeft)+";"+"UR:"+str(unitigRight)+";"+"CL:"+str(contigLeft)+";"+"CR:"+str(contigRight)+";"+str(cov)+";"+"Genome:"+str(nucleoRef)+";"+"Sd:"+str(reverse)
+    table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
     return table  
 ##############################################################
 ##############################################################
 def ReverseSeq(seq):
     """Take a sequence and reverse it"""  
     i=0
-    listeSeq=list(seq)
+    listSeq=list(seq)
     seq=''
-    while i<len(listeSeq):
+    while i<len(listSeq):
         if seq!='':
-                seq=str(ReverseComplement(listeSeq[i]))+seq
+                seq=str(ReverseComplement(listSeq[i]))+seq
         else :
-                seq=str(ReverseComplement(listeSeq[i]))
+                seq=str(ReverseComplement(listSeq[i]))
         i+=1
     return(seq)
 

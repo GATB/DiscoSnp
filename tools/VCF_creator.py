@@ -88,7 +88,7 @@ nbSnp=0
 nbSnp,nbGeno = Comptage(fichier)
 table = [0] * 10 # create a 10 cols array
 
-##Create the header of the VCF File with all the fields + one field by genotypes/samples/individuals
+##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
 if nbGeno==0: # Without genotypes
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
 else:
@@ -109,11 +109,9 @@ if ".sam" in fichier:
         if line1.startswith('@'): continue # we do not read headers
         
         line2=samfile.readline() # read couple of lines
-        
+        ##npUp and snpLow are lists of the line in the samfile file
         snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
-        
-        
         
         
         if numSNPLow != numSNPUp:
@@ -123,7 +121,7 @@ if ".sam" in fichier:
             sys.exit(1)
             
         #Information on coverage by dataset
-        couvUp,couvLow,listCouvGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
+        covUp,covLow,listCovGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                
         #Variables
@@ -135,7 +133,7 @@ if ".sam" in fichier:
         indel=False    # boolean to know if it is an indel
         phased=False    # am I phased?
         filterField='.' # init the vcf field filter
-        posUp,posLow,snpLow,snpUp,boolMapUp,boolMapLow,boolXAUp,boolXALow = GetCouple(snpUp,snpLow) # get all the positions of mapping for one variant with the associated number of mapping errors
+        posUp,posLow,snpLow,snpUp,boolXAUp,boolXALow = GetCouple(snpUp,snpLow) # get all the positions of mapping for one variant with the associated number of mapping errors
         seqUp=snpUp[9]   # sequences
         seqLow=snpLow[9] # sequences
         
@@ -160,11 +158,11 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         #VCF champ INFO Multi
-        if boolXAUp==1 and boolXALow==1:
+        if boolXAUp==True and boolXALow==True:
             multi="multi"
-        elif boolXAUp==0 and boolXALow==0:
+        elif boolXAUp==False and boolXALow==False:
             multi="none"
-        elif (boolXAUp==1 and boolXALow==0) or  (boolXAUp==0 and boolXALow==1):
+        elif (boolXAUp==True and boolXALow==False) or  (boolXAUp==False and boolXALow==True):
             multi="one"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -199,7 +197,7 @@ if ".sam" in fichier:
                 posModif=len(snpUp[9])/2
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
-                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterField,multi,ok,tp,phased,listCouvGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,couvUp,couvLow)
+                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterField,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
                 printOneline(table,VCF)
                 continue
     
@@ -213,7 +211,7 @@ if ".sam" in fichier:
                 posModif=None
                 dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 # this function comptutes the VCF and prints it!!
-                printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,couvUp,couvLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCouvGeno,VCF) 
+                printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -265,7 +263,7 @@ if ".sam" in fichier:
                 else:
                     nucleoRefUp="."
                     tp="DEL"
-                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCouvGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
             ## Fill the VCF if the lower path is considered as the reference
             elif boolRefLow==True:
                 if len(nucleoLow)==len(insert):
@@ -274,7 +272,7 @@ if ".sam" in fichier:
                 else:
                     nucleoRefLow="."
                     tp="DEL"
-                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,couvLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCouvGeno,boolRefLow)
+                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
             printOneline(table,VCF)
             
 #---------------------------------------------------------------------------------------------------------------------------
@@ -312,7 +310,7 @@ else:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------            
         #Information on coverage by dataset
-        couvUp,couvLow,listCouvGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
+        covUp,covLow,listCovGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         ##one SNP
@@ -328,7 +326,7 @@ else:
                 ntLow=dicoHeaderUp["P_1"][2]
                 ntUp=dicoHeaderUp["P_1"][1]
                 phased=False
-                PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -339,7 +337,7 @@ else:
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
-                        PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+                        PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -358,7 +356,7 @@ else:
             else:
                 ntUp=ntStart
                 ntLow=insert
-            PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,couvUp,ntUp,ntLow,genoUp,nbGeno,phased,listCouvGeno,VCF)
+            PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
             continue     
         	
 #---------------------------------------------------------------------------------------------------------------------------
