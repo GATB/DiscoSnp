@@ -222,34 +222,63 @@ float rank_phi(const int *sum_up, const int *sum_lo, const int number_of_read_se
 //}
 
 
-
-const char * genotype_simple_model(const int c1, const int c2, const float err, const float prior_het){
-    const float lik0 = pow(1-err,c1)*pow(err,c2); // homozygous higher (0/0)
-    const float lik1 = pow(1-err,c2)*pow(err,c1); // homozygous higher (1/1)
-    const float lik2 = pow(0.5,c1+c2);            // heterozygous (0/1)
-
-//    printf("%d %d LIKE %f %f %f \n", c1, c2, lik0, lik1, lik2);
+/**
+ * Computes the log10(Cnk)
+ */
+const double mylog10choose (const int n,const int k){
+    if (n==k){
+        return 0;
+    }
+    double  res=0;
+    int i;
+    for(i=k+1;i<=n;i++){
+        res+=log10(i);
+    }
     
-    const float prob0 = lik0*(1-prior_het)/2;
-    const float prob1 = lik1*(1-prior_het)/2;
-    const float prob2 = lik2*prior_het;
-//    printf("PROB %f %f %f \n", prob0, prob1, prob2);
+    for(i=1;i<=n-k;i++) {
+        res-=log10(i);
+    }
     
-    if ( prob0>=prob1 &&  prob0>=prob2) return "0/0";
-    if ( prob1>=prob0 &&  prob1>=prob2) return "1/1";
-    return "0/1";
+    return res;
 }
 
 
-int get_average_quality(unsigned char * quality_string){
-    int i,n=strlen((const char *)quality_string);
-    int res=0;
-    for (i=0;i<n;i++){
-        res+=quality_string[i];
+char * genotype_simple_model(const int c1, const int c2, const float err, const float prior_het){
+    
+    // LIKELIHOOD
+    double lik0 = c1*log10(1-err)+c2*log10(err)+mylog10choose(c1+c2,c1);
+    double lik1 = c2*log10(1-err)+c1*log10(err)+mylog10choose(c1+c2,c1);
+    double lik2 = (c1+c2)*log10(0.5)+mylog10choose(c1+c2,c1);
+    
+    // PRIOR HETEROZYGOUS
+    lik0+=log10((1-prior_het)/2);
+    lik1+=log10((1-prior_het)/2);
+    lik2+=log10(prior_het);
+
+    // PHRED SCORE
+    lik0=floor(-10*lik0);
+    lik1=floor(-10*lik1);
+    lik2=floor(-10*lik2);
+    
+    // FORMATING RESULTS
+    char * append = (char *)malloc(sizeof(char)*2048);
+    char geno[4];
+    if (lik0<lik1 &&lik0<lik2){
+        sprintf(geno, "0/0");
     }
-    printf("%s\n", quality_string);
-    if(n==0){fprintf(stderr, "HEY !!!\n");}
-    return res/n;
+    else
+    {
+        
+        if (lik1<lik0 && lik1<lik2){
+            sprintf(geno, "1/1");
+        }
+    
+        else{
+            sprintf(geno, "0/1");
+        }
+    }
+    sprintf(append, "%s:%d,%d,%d",geno,(int)lik0,(int)lik2,(int)lik1);
+    return append;
 }
 
 /**
@@ -312,16 +341,18 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
         }
 	}
     const float err = 0.01;
-    const float prior_het = 0.33;
+    const float prior_het = 1/(float)3;
     
     float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
     char genotypes[8192]; genotypes[0]='\0';
-    char append[2048];
+    char append[16000];
     
     if(compute_genotype){
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-            sprintf(append, "G%d_%s:0,0,0|",read_set_id+1,genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het)); // TODO Likelihood !!!
+            char * geno_likelihood = genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
+            sprintf(append, "G%d_%s|",read_set_id+1,geno_likelihood);
+            free(geno_likelihood);
             strcat(genotypes,append);
         }
     }
