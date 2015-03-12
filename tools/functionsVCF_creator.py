@@ -540,6 +540,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUpR[0]
     else:
+        listPolymorphismePosUp=listPos
         posCentraleUp=listPos
         shiftUp=None
         reverseUp="."
@@ -557,6 +558,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLowR[0]
     else:
+        listPolymorphismePosLow=listPos
         posCentraleLow=listPos
         shiftLow=None
         reverseLow="."
@@ -625,7 +627,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-####Two paths mapped at different main position (first given by bwa)
+####Two paths mapped at different main position (first given by bwa) : test which path will be the reference with the function mismatchChecker
     if (int(snpUp[3])>0 and int(snpLow[3])>0) and (int(snpUp[3])!=int(snpLow[3])):
         if len(listPos)>1:
             i=0
@@ -640,7 +642,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         else:
                 boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------    #---------------------------------------------------------------------------------------------------------------------------
-
     #Variants (INDEL and SIMPLE SNPS) Positions : add the position of mapping gived by bwa to the variant position and for indel add ambiguity position
     if len(listPos)==1:
         if indel==True:
@@ -843,6 +844,7 @@ def printOneline(table,VCF):
     VCF.write('\n')    
 
 ##############################################################
+#dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
 ##############################################################
 def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF):
     info=''
@@ -852,20 +854,27 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     seqLow=snpLow[9]
     tp="SNP"
     phased=True
+    ##Sorts the list of position to get the smallest one and its position in the list unsorted!
+    listSortedPos=list(listPolymorphismePos)
+    listSortedPos.sort()
+    indexSmallestPos=listPolymorphismePos.index(listSortedPos[0])
+    ##Keep the close snps to sort them : indeed all the lists and dictionnaries :listnucleoUp,listPolymorphismePosUp,listPolymorphismePosLow,listnucleoLow dicoUp,dicoLow are classified according to dicoHeader so if we start by sorting we lose the correspondence between data
+    tablebis = []
+    k=0
     #Variables
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     #Close snps mapped
     if int(snpUp[3])>0 and int(snpLow[3])>0:
-        #choix de la position de ref:
-        boolRefUp=int(dicoUp[listPolymorphismePosUp[0]][0])
-        boolRefLow=int(dicoLow[listPolymorphismePosLow[0]][0])
-        nucleoUp1=dicoUp[listPolymorphismePosUp[0]][3]
-        nucleoLow1=dicoLow[listPolymorphismePosLow[0]][3]
-        positionSnpUp1=dicoUp[listPolymorphismePosUp[0]][5]
-        positionSnpLow1=dicoLow[listPolymorphismePosLow[0]][5]
-        reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
-        reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
+        #Remembers the values for the first snps ==> the others snps will dependent on these parameters
+        boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
+        boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
+        nucleoUp1=dicoUp[listPolymorphismePosUp[indexSmallestPos]][3]
+        nucleoLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][3]
+        positionSnpUp1=dicoUp[listPolymorphismePosUp[indexSmallestPos]][5]
+        positionSnpLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][5]
+        reverseLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][4]
+        reverseUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][4]
         for comptPol in range(len(listPolymorphismePos)):
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
@@ -875,101 +884,29 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
             #Remplissage VCF
             if boolRefLow==True and boolRefUp==False:
-                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
-                table[0]=snpLow[2]
-                table[1]=positionSnpLow
-                table[2]=numSNPLow
-                table[3]=nucleoLow
-                if snpLow[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpLow[10]
-                if (int(reverseUp)==-1 and int(reverseLow)==1) or (int(reverseUp)==1 and int(reverseLow)==-1):
-                    table[4]=ReverseComplement(nucleoUp)
-                else:
-                    table[4]=nucleoUp
+                 table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                 table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
             elif boolRefUp==True and boolRefLow==False:
-                table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
-                table[0]=snpUp[2]
-                table[1]=positionSnpUp
-                table[2]=numSNPUp
-                table[3]=nucleoUp
-                if snpUp[10]=="*":
-                    table[5]="."
-                else:
-                    table[5]=snpUp[10]
-                if (int(reverseUp)==1 and int(reverseLow)==-1) or (int(reverseUp)==-1 and int(reverseLow)==1):
-                    table[4]=ReverseComplement(nucleoLow)
-                else:
-                    table[4]=nucleoLow
-            
+                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
             elif boolRefUp==False and boolRefLow==False:
                 if nucleoUp1<nucleoLow1:
-                    table[0]=snpUp[2]
-                    table[1]=positionSnpUp
-                    table[2]=numSNPUp
-                    table[3]=nucleoUp
-                    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
-                    if snpUp[10]=="*":
-                        table[5]="."
-                    else:
-                        table[5]=snpUp[10]
-                    if (int(reverseUp)==1 and int(reverseLow)==-1) or (int(reverseUp)==-1 and int(reverseLow)==1):
-                        table[4]=ReverseComplement(nucleoLow)
-                    else:
-                        table[4]=nucleoLow
+                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
                 elif  nucleoUp1>nucleoLow1:
-                    table[0]=snpLow[2]
-                    table[1]=positionSnpLow
-                    table[2]=numSNPLow
-                    table[3]=nucleoLow
-                    table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
-                    if snpLow[10]=="*":
-                        table[5]="."
-                    else:
-                        table[5]=snpLow[10]
-                    if (int(reverseUp)==-1 and int(reverseLow)==1) or (int(reverseUp)==1 and int(reverseLow)==-1):
-                        table[4]=ReverseComplement(nucleoUp)
-                    else:
-                        table[4]=nucleoUp
+                      table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                      table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
                 elif positionSnpUp1<positionSnpLow1:
-                    table[0]=snpUp[2]
-                    table[1]=positionSnpUp
-                    table[2]=numSNPUp
-                    table[3]=nucleoUp
-                    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
-                    if snpUp[10]=="*":
-                        table[5]="."
-                    else:
-                        table[5]=snpUp[10]
-                    if (int(reverseUp)==1 and int(reverseLow)==-1) or (int(reverseUp)==-1 and int(reverseLow)==1):
-                        table[4]=ReverseComplement(nucleoLow)
-                    else:
-                        table[4]=nucleoLow
+                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
                 elif positionSnpUp1>positionSnpLow1:
-                    table[0]=snpLow[2]
-                    table[1]=positionSnpLow
-                    table[2]=numSNPLow
-                    table[3]=nucleoLow
-                    table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
-                    if snpLow[10]=="*":
-                        table[5]="."
-                    else:
-                        table[5]=snpLow[10]
-                    if (int(reverseUp)==-1 and int(reverseLow)==1) or (int(reverseUp)==1 and int(reverseLow)==-1):
-                        table[4]=ReverseComplement(nucleoUp)
-                    else:
-                        table[4]=nucleoUp
-            if boolRefUp==True:
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
-            else:
-                info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(covLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
-            if dmax:
-                table[7]=info+";"+"DMax:"+str(dmax)
-            else:
-                table[7]=info
-            table[6]=filterField
-            printOneline(table,VCF)
+                    table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
+            tablebis.append(list(table))
+        tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
+        l=0
+        for l in range(len(tablebis)):
+                printOneline(tablebis[l],VCF)
     #Close snps : unmapped
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         i=0
@@ -992,8 +929,12 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             info="Type:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)
             table[6]=filterField
             table[7]=info
-            printOneline(table,VCF)
-    
+            tablebis.append(list(table))
+        tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
+        l=0
+        for l in range(len(tablebis)):
+                printOneline(tablebis[l],VCF)
+    ############
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
         reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
@@ -1018,7 +959,12 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
             table[7]=info
             table[6]=filterField
-            printOneline(table,VCF)
+            tablebis.append(list(table))
+        tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
+        l=0
+        for l in range(len(tablebis)):
+                printOneline(tablebis[l],VCF)
+    ############            
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
         reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
@@ -1043,8 +989,12 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(covLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
             table[7]=info
             table[6]=filterField
-            printOneline(table,VCF)
-
+            tablebis.append(list(table))
+        tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
+        l=0
+        for l in range(len(tablebis)):
+                printOneline(tablebis[l],VCF)   
+            
 ##############################################################
 # geno: [key][0] : genotype (0/0, 0/1 or 1/1)
 # geno: [key][1] : likelihood for the 3 possible genotypes ("x,y,z")
@@ -1133,8 +1083,12 @@ def ReverseSeq(seq):
     return(seq)
 
 
-
-
+##############################################################
+##############################################################
+def ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleo):
+    if (int(reverseUp)==-1 and int(reverseLow)==1) or (int(reverseUp)==1 and int(reverseLow)==-1):
+        nucleo=ReverseComplement(nucleo)
+    return(nucleo)
 
 
 
