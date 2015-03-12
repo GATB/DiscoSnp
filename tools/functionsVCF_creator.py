@@ -217,8 +217,8 @@ def ParsingDiscoSNP(snp,boolNum):
         return(numSNP)
 
 ##############################################################
-# snp1: sam line 1
-# snp2: sam line 2
+# snpUp: sam line 1
+# snpLow: sam line 2
 # 
 ##############################################################
 def GetCouple(snpUp,snpLow):
@@ -323,14 +323,14 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
         couple="unmapped"
         return(couple)
     else:
-        for position,nbMismatch in posUp.items():
+        for position,nbMismatch in posUp.items(): # Checks for the upper path
             if nbMismatch==int(NM):
-                listPos=addPosition(position,listPos,delta)
+                listPos=addPosition(position,listPos,delta) #If the position is mapped at NM (number of mismatch tested) test if its not too close with an other position
                 ensemble=set(listPos)
-                if abs(len(ensemble))>1:
+                if abs(len(ensemble))>1: #case of many position of mapping for NM => multiple mapped
                     couple="multiple"
                     return(couple)
-        for position,nbMismatch in posLow.items():
+        for position,nbMismatch in posLow.items():# Checks for the lower path
             if nbMismatch==int(NM):
                 listPos=addPosition(position,listPos,delta)
                 ensemble=set(listPos)
@@ -750,9 +750,12 @@ The Boolean allows to know the reference SNP ) """
                     posRef=int(snpLow[3])
     return(boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef)
 ##############################################################
+#Simple Variant : dicoHeader[key]=[posD,ntUp,ntLow]
+#Indel : dicoHeader[key]=[posD,ind,amb]
 ##############################################################
 def GetPolymorphisme(dicoHeader,seq,indel):
-    #dicoHeader[key]=[posD,ntUp,ntLow]
+    '''Gets from the dicoHeader all the positions, and the nucleotides (R means that it's on the reverse strand)
+      SNP :  one variant correspond to listPos[0], listPosR[0], listnucleoUp[0], listnucleoLow[0],listnucleoUpR[0],listnucleoLowR[0]'''
     #Forward
     listPos=[]
     listnucleoUp=[]
@@ -762,7 +765,7 @@ def GetPolymorphisme(dicoHeader,seq,indel):
     listnucleoUpR=[]
     listnucleoLowR=[]
     tailleSeq=len(seq)
-    if indel==False:
+    if indel==False:##Case of simple snp
         for key,(posD,ntUp,ntLow) in dicoHeader.items():
             listPos.append(posD)
             listPosR.append(tailleSeq-int(posD)+1)
@@ -771,7 +774,7 @@ def GetPolymorphisme(dicoHeader,seq,indel):
             listnucleoLow.append(ntLow)
             listnucleoLowR.append(ReverseComplement(ntLow))
         return(listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR)
-    else:
+    else:##Case of indel
         for key,(posD,ind,amb) in dicoHeader.items():
             listPos.append(posD)
             listPosR.append(tailleSeq-int(posD)+1)
@@ -1011,7 +1014,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
 ##############################################################
 ##############################################################
 def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
-    #Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6] 
+    '''Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6]''' 
     table[0]="."
     table[1]="."  
     table[5]="."
@@ -1063,6 +1066,7 @@ def ReverseSeq(seq):
 ##############################################################
 ##############################################################
 def ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleo):
+    """Checks strand of the reference (forward or reverse) and reverse or not the nucleotide of the alternative path """
     if (int(reverseUp)==-1 and int(reverseLow)==1) or (int(reverseUp)==1 and int(reverseLow)==-1):
         nucleo=ReverseComplement(nucleo)
     return(nucleo)
