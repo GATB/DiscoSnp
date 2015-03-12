@@ -682,6 +682,15 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             else:
                 posSNPLow=None
                 posSNPUp=posCentraleUp+posRef
+        ##Check the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
+        if boolRefLow==True and reverseLow==-1 and reverseUp==1:
+               nucleoUp=ReverseComplement(nucleoUp)
+        elif boolRefLow==True and reverseLow==1 and reverseUp==-1:
+               nucleoUp=ReverseComplement(nucleoUp)
+        if boolRefUp==True and reverseUp==-1 and reverseLow==1:
+               nucleoLow=ReverseComplement(nucleoLow)
+        elif boolRefUp==True and reverseUp==1 and reverseLow==-1:
+               nucleoLow=ReverseComplement(nucleoLow)
         return(nucleoLow,posSNPLow,nucleoUp,posSNPUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow)
     else:
         return(dicopolUp,dicopolLow,listPolymorphismePosUp,listPolymorphismePosLow)
@@ -1095,7 +1104,10 @@ def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigL
 ##############################################################
 def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow):
     """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""
-    table[0]=chrom
+    if chrom=="*":
+        table[0]="."
+    else:
+        table[0]=chrom
     table[1]=pos
     table[2]=numSNP
     table[3]=ref

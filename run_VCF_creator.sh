@@ -2,7 +2,7 @@
 
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-remove=1
+remove=0
 PATH_VCF_creator=""
 samfile=""
 vcffile=""
@@ -18,7 +18,7 @@ function help {
 echo " ##############################"
 echo "   Run VCF_creator pipeline     "
 echo " ##############################"
-echo "Usage : ./run_pipeline_VCF_creator.sh OPT"
+echo "Usage : ./run_VCF_creator.sh OPT"
 echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:" 
 echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w]"
 echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
@@ -49,7 +49,7 @@ echo -e "\t-n: bwa option: maximal bwa mapping distance"
 echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends from this parameter."
 echo -e "\t\t Mandatory in MODE 3. "
 
-echo -e "\t-w: keep waste tmp files (index files) "
+echo -e "\t-w: remove waste tmp files (index files) "
 echo -e "\t\t Optional"
 }
 
@@ -60,7 +60,7 @@ while getopts "hb:c:g:p:l:n:s:wf:o:" opt; do
 case $opt in
 
 	w)
-	remove=0
+	remove=1
 	;;
 
 	h)
