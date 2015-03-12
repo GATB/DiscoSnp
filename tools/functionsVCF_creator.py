@@ -864,7 +864,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     #Variables
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-    #Close snps mapped
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         #Remembers the values for the first snps ==> the others snps will dependent on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
@@ -907,88 +908,64 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         l=0
         for l in range(len(tablebis)):
                 printOneline(tablebis[l],VCF)
-    #Close snps : unmapped
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Both paths are unmapped     
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
+        reverseUp="."
         i=0
         for i in range(len(listPolymorphismePos)):
-            positionSnpUp=listPolymorphismePos[i]
-            positionSnpLow=listPolymorphismePos[i]
+            positionSnpUp="+"+str(listPolymorphismePos[i])
+            positionSnpLow="+"+str(listPolymorphismePos[i])
             nucleoUp=listnucleoUp[i]
-            nucleoRefUp=None
+            nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
-            nucleoRefLow=None
-            table[0]=snpUp[2]
-            table[1]=positionSnpUp
-            table[2]=numSNPUp
-            table[3]=nucleoUp
-            table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
-            if snpUp[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpUp[10]
-            info="Type:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)
-            table[6]=filterField
-            table[7]=info
+            nucleoRefLow="."
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
         for l in range(len(tablebis)):
                 printOneline(tablebis[l],VCF)
-    ############
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Upper path mapped and lower path unmapped  
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
+        comptPol=0
         reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
+            nucleoLow="."
+            nucleoRefLow="."
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
             nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
-            table[0]=snpUp[2]
-            table[1]=positionSnpUp
-            table[2]=numSNPUp
-            table[3]=nucleoUp
-            table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
-            if snpUp[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpUp[10]
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
             if (int(reverseUp)==-1) and dmax:
                 table[4]=ReverseComplement(seqLow[int(listPolymorphismePosLow[comptPol])-1])
             elif int(reverseUp)==1 and dmax:
                 table[4]=seqLow[int(listPolymorphismePosLow[comptPol])-1]
             else:
                 table[4]='.'
-            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)+";"+"Genome:"+str(nucleoRefUp)+";"+"Sd:"+str(reverseUp)
-            table[7]=info
-            table[6]=filterField
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
         for l in range(len(tablebis)):
                 printOneline(tablebis[l],VCF)
-    ############            
+#---------------------------------------------------------------------------------------------------------------------------
+##Case : Lower path mapped and upper path unmapped            
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
         reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
+            nucleoUp="."
+            nucleoRefUp="."
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
             nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
-            table[0]=snpLow[2]
-            table[1]=positionSnpLow
-            table[2]=numSNPLow
-            table[3]=nucleoLow
-            table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno)
-            if snpLow[10]=="*":
-                table[5]="."
-            else:
-                table[5]=snpLow[10]
+            table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,0)
             if (int(reverseLow)==-1) and dmax:
                 table[4]=ReverseComplement(seqUp[int(listPolymorphismePosUp[comptPol])-1])
             elif int(reverseLow)==1 and dmax:
                 table[4]=seqUp[int(listPolymorphismePosUp[comptPol])-1]
             else:
                 table[4]='.'
-            info="Ty:"+str(tp)+";"+"Rk:"+str(valRankLow)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeftLow)+";"+"UR:"+str(unitigRightLow)+";"+"CL:"+str(contigLeftLow)+";"+"CR:"+str(contigRightLow)+";"+str(covLow)+";"+"Genome:"+str(nucleoRefLow)+";"+"Sd:"+str(reverseLow)
-            table[7]=info
-            table[6]=filterField
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
