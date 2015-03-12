@@ -173,7 +173,7 @@ if ".sam" in fichier:
         
         elif couple == "unmapped":
             filterField="."
-            ok=-1
+            ok="."
         elif couple == "multiple":
             filterField="MULTIPLE"
             ok=-1

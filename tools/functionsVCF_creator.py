@@ -518,25 +518,25 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     else:
         seqUp=snpUp[9]
         seqLow=snpLow[9]
-        if len(seqUp)<len(seqLow):
+        if len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
             seq=seqLow
         else:
             seq=seqUp
-        listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel)
+        listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel) # For indel get the insert, the list of position and the possible ambiguity for the position 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 #Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if snpUp[1]=="0":
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPos,posModif,indel) # gets the positions of the variants with an eventual shift ; in case of close snps return a list 
+        if snpUp[1]=="0": #Forward Strand
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
-            if len(listPos)==1 and indel==False:
-                nucleoUp=listnucleoUp[0]
-        elif snpUp[1]=="16":
+            if len(listPos)==1 and indel==False: #simple snp
+                nucleoUp=listnucleoUp[0] # Gets the nucleotide 
+        elif snpUp[1]=="16":# Reverse Strand
             reverseUp=-1
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],seqUp,listPosR,posModif,indel)
-            listPolymorphismePosUp=listPosR
+            listPolymorphismePosUp=listPosR #List of all the reverse position
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUpR[0]
     else:
