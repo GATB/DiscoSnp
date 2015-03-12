@@ -1,6 +1,6 @@
 %% BioMed_Central_Bib_Style_v1.01
 
-\begin{thebibliography}{16}
+\begin{thebibliography}{18}
 % BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
 \ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
 \ifx \binits  \undefined \def \binits#1{#1}\fi
@@ -324,6 +324,22 @@ doi:\doiurl{10.1093/bioinformatics/btu406}
 \endbibitem
 
 %%% 14
+\bibitem{Nielsen2011}
+\begin{barticle}
+\bauthor{\bsnm{Nielsen}, \binits{R.}},
+\bauthor{\bsnm{Paul}, \binits{J.S.}},
+\bauthor{\bsnm{Albrechtsen}, \binits{A.}},
+\bauthor{\bsnm{Song}, \binits{Y.S.}}:
+\batitle{{Genotype and SNP calling from next-generation sequencing data.}}
+\bjtitle{Nature reviews. Genetics}
+\bvolume{12},
+\bfpage{443}--\blpage{451}
+(\byear{2011}).
+doi:\doiurl{10.1038/nrg2986}
+\end{barticle}
+\endbibitem
+
+%%% 15
 \bibitem{luo2012soapdenovo2}
 \begin{barticle}
 \bauthor{\bsnm{Luo}, \binits{R.}},
@@ -345,7 +361,7 @@ doi:\doiurl{10.1093/bioinformatics/btu406}
 \end{barticle}
 \endbibitem
 
-%%% 15
+%%% 16
 \bibitem{langmead2012fast}
 \begin{barticle}
 \bauthor{\bsnm{Langmead}, \binits{B.}},
@@ -358,7 +374,7 @@ doi:\doiurl{10.1093/bioinformatics/btu406}
 \end{barticle}
 \endbibitem
 
-%%% 16
+%%% 17
 \bibitem{Kvitek2013}
 \begin{barticle}
 \bauthor{\bsnm{Kvitek}, \binits{D.J.}},
@@ -371,6 +387,21 @@ doi:\doiurl{10.1093/bioinformatics/btu406}
 \bfpage{1003972}
 (\byear{2013}).
 doi:\doiurl{10.1371/journal.pgen.1003972}
+\end{barticle}
+\endbibitem
+
+%%% 18
+\bibitem{bwa}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{H.}},
+\bauthor{\bsnm{Durbin}, \binits{R.}}:
+\batitle{{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}}.
+\bjtitle{Bioinformatics}
+\bvolume{25}(\bissue{14}),
+\bfpage{1754}--\blpage{1760}
+(\byear{2009}).
+doi:\doiurl{10.1093/bioinformatics/btp324}
 \end{barticle}
 \endbibitem
 
@@ -680,6 +711,22 @@ doi:\doiurl{10.1371/journal.pgen.1003972}
 </bibl>
 
 <bibl id="B14">
+  <title><p>{Genotype and SNP calling from next-generation sequencing
+  data.}</p></title>
+  <aug>
+    <au><snm>Nielsen</snm><fnm>R</fnm></au>
+    <au><snm>Paul</snm><fnm>JS</fnm></au>
+    <au><snm>Albrechtsen</snm><fnm>A</fnm></au>
+    <au><snm>Song</snm><fnm>YS</fnm></au>
+  </aug>
+  <source>Nature reviews. Genetics</source>
+  <pubdate>2011</pubdate>
+  <volume>12</volume>
+  <fpage>443</fpage>
+  <lpage>-451</lpage>
+</bibl>
+
+<bibl id="B15">
   <title><p>SOAPdenovo2: an empirically improved memory-efficient short-read de
   novo assembler</p></title>
   <aug>
@@ -703,7 +750,7 @@ doi:\doiurl{10.1371/journal.pgen.1003972}
   <fpage>18</fpage>
 </bibl>
 
-<bibl id="B15">
+<bibl id="B16">
   <title><p>Fast gapped-read alignment with Bowtie 2</p></title>
   <aug>
     <au><snm>Langmead</snm><fnm>B</fnm></au>
@@ -718,7 +765,7 @@ doi:\doiurl{10.1371/journal.pgen.1003972}
   <lpage>-359</lpage>
 </bibl>
 
-<bibl id="B16">
+<bibl id="B17">
   <title><p>{Whole genome, whole population sequencing reveals that loss of
   signaling networks is the major adaptive strategy in a constant
   environment.}</p></title>
@@ -732,6 +779,22 @@ doi:\doiurl{10.1371/journal.pgen.1003972}
   <issue>11</issue>
   <fpage>e1003972</fpage>
   <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3836717\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+<bibl id="B18">
+  <title><p>{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}</p></title>
+  <aug>
+    <au><snm>Li</snm><fnm>H</fnm></au>
+    <au><snm>Durbin</snm><fnm>R</fnm></au>
+  </aug>
+  <source>Bioinformatics</source>
+  <pubdate>2009</pubdate>
+  <volume>25</volume>
+  <issue>14</issue>
+  <fpage>1754</fpage>
+  <lpage>-1760</lpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2705234\&tool=pmcentrez\&rendertype=abstract</url>
 </bibl>
 
 </refgrp>

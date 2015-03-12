@@ -106,7 +106,8 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{{\it DiscoSnp++}: detection of all kind of SNPs and of indels from raw unassembled read set(s)}
+\title{{\it DiscoSnp++}: detection of all kinds of SNPs and indels from raw unassembled read set(s)}
+%CL attention : all kinds of indels, ne vaudrait-il pas mieux etre plus prudent et mettre small indels ?
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -196,10 +197,14 @@
 
 \begin{abstract} % abstract
 
-NGS data provides an unprecedented access to life mechanisms. In particular these data enable to detect polymorphisms such as SNPs and indels. 
-As these polymorphisms represent a fundamental source of information in agronomy, environment or medicine,  their detection is a routine task with NGS data. The main methods for their prediction usually need a reference genome. However, non-model organisms and highly divergent genomes such as in cancer studies are more and more investigated. 
-\disco tool had been successfully applied to predicts isolated SNPs from raw read set(s) (1 to $n$) without the need of a reference genome. 
-We propose \discopp, the successor of \disco, which has the advantage of a new algorithm design that reduces time and memory consumption, detects all kind of SNP, detects indels, genotypes results and output a VCF file. Results show that \discopp performs better than state-of-the-art methods both in term of results quality and computational resources. 
+Next Generation Sequencing (NGS) data provide an unprecedented access to life mechanisms. In particular, these data enable to detect polymorphisms such as SNPs and indels. 
+As these polymorphisms represent a fundamental source of information in agronomy, environment or medicine,  their detection in NGS data is now a routine task. The main methods for their prediction usually need a reference genome. However, non-model organisms and highly divergent genomes such as in cancer studies are more and more investigated. 
+The \disco tool has been successfully applied to predict isolated SNPs from raw read set(s) 
+%(1 to $n$) 
+without the need of a reference genome. 
+We propose \discopp, the successor of \disco, which benefits from a new algorithm 
+%software ? du point de vue algo ce n'est pas different, non ?
+design that reduces time and memory consumption, detects all kinds of SNP and small indels, adds genotype information and outputs a VCF file. Results show that \discopp performs better than state-of-the-art methods in terms of both quality and computational resources. 
 
 \end{abstract}
 
@@ -259,26 +264,34 @@ We propose \discopp, the successor of \disco, which has the advantage of a new a
 
 \section*{Introduction}
 
-NGS data provides an unprecedented access to life mechanisms. In particular these data enable to asses genetic differences between chromosomes, individuals or species. 
-Such polymorphisms represent a fundamental source of information in many aspect of biology with numerous applications in agronomy, environment or medicine. 
+Next Generation Sequencing (NGS) data provides an unprecedented access to life mechanisms. In particular, these data enable to assess genetic differences between chromosomes, individuals or species. 
+Such polymorphisms represent a fundamental source of information in many aspects of biology with numerous applications in agronomy, environment or medicine. 
 
-Within the democratization of the sequencing provided by the NGS technologies, determining genetic differences as SNPs or indels has become a routine task the last decade. There exists large number of applications designed for predicting such polymorphisms. Mostly, these methods are based on the use of a reference genome as this is a case for GATK~\cite{gatk} or SamTools~\cite{Li2009} mapping sequenced reads or by mapping partial assemblies as for DISCOVAR~\cite{Weisenfeld2014} or FERMI~\cite{Li2012} to cite a few. Basically they first map the NGS reads on the reference and in a second phase the differences between the reference and the reads are analyzed to be classified and ranked with respect to distinct criteria, and output. 
+Within the democratization of the sequencing provided by the NGS technologies, determining genetic differences as SNPs or indels has now become a routine task.
+% the last decade. 
+There exist numerous software designed for predicting such polymorphisms. Mostly, these methods are based on the use of a reference genome as this is the case for GATK~\cite{gatk} or SamTools~\cite{Li2009} 
+%CL pb ici dans la phrase
+mapping sequenced reads or by mapping partial assemblies as for DISCOVAR~\cite{Weisenfeld2014} or FERMI~\cite{Li2012} to cite a few. Basically, they first map the NGS reads to the reference and in a second phase they scan the reference genome to analyse for each locus the differences between the reference sequence and the mapped reads. %CL : enleve la partie classification et ranking ?? are analyzed to be classified and ranked with respect to several criteria, and output. %and output ?
 
-These methods are highly accepted and used. However, they present severe drawbacks. First they suffer from the mapping quality. Highly repeated regions of the reference genome are difficult to map with a high degree of confidence.  Polymorphism detected from these repeated regions may be erroneous as the quantification of mapped reads is erroneous and as the differences between occurrences of the repeats can be interpreted as the output polymorphism. Secondly, they suffer from the fact that they need a high quality reference genome. This evident and strong condition limit the application to reference species. 
+These methods are well accepted and extensively used. However, they present severe drawbacks. First they are extremely 
+%CL trop fort extremely ?
+sensitive to the mapping quality. Highly repeated regions of the reference genome are difficult to map with a high degree of confidence.  Polymorphism detected from these repeated regions may be erroneous as the quantification of mapped reads is erroneous and as the differences between occurrences of the repeats can be wrongly interpreted as polymorphism. Secondly, they suffer from the fact that they need a high quality reference genome. This evident and strong condition limits the application to reference species. 
 
-In practice, biologists are more and more working on species for which there exists no confident reference genome. Additionally, despite large improvements in the sequencing techniques this last decade, reconstructing a perfect and complete genome from reads remains a highly complex task~\cite{assemblathon2}. In this context there is an important need for \emph{reference-free} methods detecting SNPs and indels, directly from NGS reads, without requiring an assembled reference sequence. A method may consists in first assemble reads before to map them back on the so obtained reference, as this is the case in~\cite{Willing2011}. However such methods cumulate both the assembly and the mapping difficulties. In this manuscript, we refer to such methods as the \emph{hybrid} strategy. 
+In practice, biologists are more and more working on species for which there exists no confident reference genome. Additionally, despite major improvements in the sequencing techniques this last decade, reconstructing a perfect and complete genome from reads remains a highly complex task~\cite{assemblathon2}. In this context, there is an important need for \emph{reference-free} methods detecting SNPs and indels, directly from NGS reads, without requiring an assembled reference sequence. An alternative method consists in first assemble the reads before to map them back to the so obtained reference, as this is the case in~\cite{Willing2011}. However, such methods cumulate both the assembly and the mapping difficulties. In this manuscript, we refer to such methods as the \emph{hybrid} strategy. 
 
-A few methods~\cite{Peterlongo2010,iqbal2012novo,Leggett2013,Nordstrom2013,Kissplice} were proposed for \emph{de-novo} detection of polymorphism.  All these methods are based on the use of the \emph{de Bruijn graph}, i.e. a directed graph where the set of vertices corresponds to the set of words of length $k$ ($k$-mers) contained in the reads, and there is an edge between two $k$-mers if they overlap on $k-1$ nucleotides. In this data structure polymorphism generate recognizable patterns called the \emph{bubbles}. These tools detects and analyze such bubbles in order to decide their origin (sequencing errors, polymorphism from inexact repeats, real SNP or indel). 
+A few methods~\cite{Peterlongo2010,iqbal2012novo,Leggett2013,Nordstrom2013,Kissplice} were proposed for \emph{de-novo} detection of polymorphism.  All these methods are based on the use of the \emph{de Bruijn graph}, i.e. a directed graph where the set of vertices corresponds to the set of words of length $k$ ($k$-mers) contained in the reads, and there is an edge between two $k$-mers if they overlap on $k-1$ nucleotides. In this data structure, polymorphisms generate recognizable patterns called the \emph{bubbles}. These tools detect and analyze such bubbles in order to decipher their origin (sequencing errors, inexact repeats, real SNP or indel). 
 
-We recently proposed \disco, a \emph{reference-free} method for detecting isolated SNPs~\cite{Uricaru2014a}. The \disco approach outperforms other \emph{reference-free} methods both in term of computational needs and in term of results quality. Its main features are \textbf{1}/ its extremely low memory usage (several billion reads may be analyzed with no more than 6 GB RAM memory), \textbf{2}/ its high execution speed, \textbf{3}/ its high precision and recall, \textbf{4}/ the precision of the score assigned to each predicted SNP, \textbf{5}/ the fact that is can be applied on one to $n$ read sets, and \textbf{6}/ the kind of SNPs it detects, called \emph{isolated}. Isolated SNPs are SNPs that are distant to the left and to the right by at least $k$ nucleotides from any other polymorphism, with $k$ one of the main parameters of a SNP detection tool. Isolated SNPs have the advantage to be easily amplified by PCR. However isolated SNPs do jot represent all SNPs. In particular in case of highly polymorphic genomes and in case of numerous distinct genomes, only a fraction of SNPs are isolated and so detected by \disco.
+We recently proposed \disco, a \emph{reference-free} method for detecting isolated SNPs~\cite{Uricaru2014a}. The \disco approach outperforms other \emph{reference-free} methods in terms of both computational needs and results quality. Its main features are \textbf{1}/ its extremely low memory usage (several billion reads may be analyzed with no more than 6 GB RAM memory), \textbf{2}/ its high execution speed, \textbf{3}/ its high precision and recall, \textbf{4}/ the precision of the score assigned to each predicted SNP, \textbf{5}/ the fact that it can be applied to any number of read sets (from 1 to $n$), and \textbf{6}/ the kind of SNPs it detects, called \emph{isolated}. Isolated SNPs are SNPs that are distant to the left and to the right by at least $k$ nucleotides from any other polymorphisms, with $k$ being one of the main parameters of any \emph{de novo}
+%CL : vrai any ?
+SNP detection tool. Isolated SNPs have the advantage to be easily amplified by PCR. However isolated SNPs do not represent all SNPs. Although isolated SNPs are usually the most common, in some cases, such as with highly polymorphic genomes and/or with numerous distinct genomes compared simultaneously, only a fraction of SNPs are isolated and so detected by \disco.
 
 
-In this paper, we present \discopp that is an extension of the \disco tool. The tool was re-implemented from scratch using the GATB library~\cite{Drezen2014}. Except the running time that has been improved, the detection of isolated SNPs remains exactly the same with \disco and \discopp. Additionally, \discopp detects new kind of variants and it may proposes a VCF of the predicted variants.  
+In this paper, we present \discopp that is an extension of the \disco tool. The tool was re-implemented from scratch using the GATB library~\cite{Drezen2014}. The detection of isolated SNPs remains exactly the same with \discopp, but with a much better running time. Additionally, \discopp detects new kinds of variants and it can output the predicted variants in the commonly-used VCF format.  
 
+%CL je mettrais ces paragraphes plutôt dans la partie suivante, ce n'est plus vraiment de l'intro, ça devient technique (et raccourcirais pour pas que discoSNP prenne plus de place que ++)
+The \disco tool is based on the analysis of the \emph{de Bruijn Graph} (dBG) for predicting \emph{isolated SNPs}. An \emph{isolated SNP} is a SNPs that is at least $k$ nucleotides apart from any other polymorphism, with $k$ the size of the $k$-mers used in the dBG. 
 
-The \disco tool is based on the analysis of the de Bruijn Graph (dBG) for predicting \emph{isolated SNPs}. An \emph{isolated SNP} is a SNPs that is at least $k$ nucleotides apart from any other polymorphism, with $k$ the size of the $k$-mers used in the dBG. 
-
-In a dBG, a \emph{bubble} denotes a path in the graph which diverges into two distinct paths before to merge back. In the dBG of one or several read sets, a specific motif witnesses the presence of isolated SNPs. This motif is a bubble whose the two distinct paths are composed of exactly $k$ nodes. Figure~\ref{fig:basical_bubble}.a shows a toy example of such a bubble. 
+In a dBG, a \emph{bubble} denotes a path in the graph which diverges into two distinct paths before to merge back. In the dBG of one or several read sets, a specific motif witnesses the presence of isolated SNPs. This motif is a bubble whose both distinct paths are composed of exactly $k$ nodes. Figure~\ref{fig:basical_bubble}.a shows a toy example of such a bubble. 
 
 
 
@@ -291,81 +304,111 @@ A score between 0 and 1 is affected to each SNP. This score is the Phi coefficie
 
 
 \section*{Improvements in \discopp}
-Several improvements are proposed in \discopp. In particular the type of predicted variant is not limited to isolated SNPs. In addition, a VCF file is output, providing among others the genotype of the predictions.
+Several improvements are proposed in \discopp. In particular, the type of predicted variant is no longer limited to isolated SNPs. In addition, a VCF file is output, providing among others the genotype of the predictions and their mapping position on a reference genome if provided.
 
 \subsection*{Detecting close SNPs and indels}
 
 
-Conversely to isolated SNPs, \emph{close} SNPs are SNPs close to each other or to any source of polymorphism by less than $k$ nucleotides.
-In the dBG, close SNPs generate a bubble whose the two distinct paths are composed of more than $k$ nodes. Figure~\ref{fig:basical_bubble}.b shows a toy example of such a bubble.  
+Conversely to isolated SNPs, \emph{close} SNPs are SNPs that are close to each other or to any source of polymorphism by less than $k$ nucleotides.
+In the dBG, close SNPs generate a bubble in which the two distinct paths still contain the same number of nodes, but this number is no longer equal to $k$, but is larger than $k$.
+%are composed of more than $k$ nodes. 
+Figure~\ref{fig:basical_bubble}.b shows a toy example of such a bubble.  
 In \discopp, we extended the initial model detection in order to detect close SNPs in addition to isolated ones. The user may limit the maximal number of close SNPs that can be detected in a bubble. %This highly limit the computation time as well as the false positive rate. 
 
-As presented Figure~\ref{fig:basical_bubble}.c, indels in data also generate bubbles in the dBG. The two paths of such bubbles are of distinct lengths. The smaller one is of size at most $k-1$ nodes. \discopp detects isolated indels in the dBG. The user limits the maximal size of the insertion. 
+As presented in Figure~\ref{fig:basical_bubble}.c, indels also generate bubbles in the dBG. The two paths of such bubbles are of distinct lengths. The smaller one is of size at most $k-1$ nodes. \discopp detects isolated indels in the dBG. The user limits the maximal size of the insertion. 
+%CL ajouter des détails sur les tailles d'indels qui peuvent être détectés :  a priori n'importe quelle taille, mais à cause des branchements limitation... c'est imporatnt je pense d'etre honnete sur les tailles. 
 
 \subsection*{Predicting genotypes}
-For each prediction, a genotype is provided (based on the Nielsen 2011 review~\cite{Nielsen2011}, see Additional File 1 for details about the genotyping process). Users may deactivate genotyping, for instance when results are not predicted from diploid species. XXX TODO
+For each prediction and each dataset, a genotype is provided assuming each dataset corresponds to a diploid individual. Genotypes are inferred independently for each individual, based on the read coverage of each allele of the bubble. To do so, the likelihoods of the three possible genotypes (homozygous 0/0 or 1/1 or heterozygous, 0/1) are computed based on a simple binomial model as described in the Nielsen 2011 review~\cite{Nielsen2011}, see Additional File 1 for likelihood formula and details). These computations rely on only one parameter, namely the \emph{error probability}, that is the probability that a read maps to a given allele erroneously,
+%assuming it is fixed and indepentent between all observations.
+ it was fixed to 0.01, referring to classical sequencing error rates. Finally, the genotype showing the largest likelihood is chosen and all three likelihoods are also output (-log10 transformed) as additional information. Notably, only the probability of observing the data (ie. the read counts for each allele) given the genotype is computed, no prior is used so as to compute the posterior probabilities of each genotype given the data. Users may deactivate genotyping, for instance when the input datasets are not coming from diploid individuals.
 
 \subsection*{Providing a VCF file}
-The original \disco output is a fasta file. It contains a couple of sequences for each predicted variant. Headers of these sequences contain the read coverage, the average read quality, and the predicted genotypes per variant and per input read set. The read coverage enables to provides additionally a trustful ranking of the predictions (see for instance the results presented Figure~\ref{fig:roc_human}).
+The original \disco output is a fasta file. It contains a couple of sequences for each predicted polymorphism. Headers of these sequences contain the read count and average read quality per allele, and the predicted genotype, and these for each input read set. 
+%CL : attention pas 1 genotype par variant
+The read coverages for all datasets are used to provide additionally a trustful ranking of the predictions based on their discrimination between the datasets 
+%CL: pas sur que ce soit bien dit...
+(see for instance the results presented Figure~\ref{fig:roc_human}).
 
 In \discopp, in addition to the original fasta format, a VCF file is output. This file provides all pieces of information contained in the original fasta headers.
 
-If a reference genome may be provided, the \discopp output are mapped on it. In this case, for the variants successfully mapped on the reference, the VCF contains their genomic positions, the reference and the alternative allele unless none of the mapped sequences correspond to the reference genome, and additional mapping information (see Additional File 1 for details about the mapping process and details about the VCF content). 
-If no reference is provided, this fields are replaced by dummy value '.'.
+Importantly, if a reference genome is provided, \discopp predictions are mapped to it. In this case, for the variants successfully mapped to the reference, the VCF file contains their genomic position, the reference and the alternative allele unless none of the mapped sequences correspond to the reference genome, and additional mapping information (see Additional File 1 for details about the mapping process and details about the VCF content). Notably, each polymorphism is classified according to the uniqueness of its mapping and this enables to further identify (and possibly filter out) putative false positives due to repeats in the genome.
+%CL : ajouter qqchose sur unique ou multiple mapping -> permet de discriminer encore plus les FP
+If no reference is provided, the genomic position fields are replaced by dummy value '.'.
 
 \subsection*{Other improvements}
-The code was re-implemented from scratch using the GATB library~\cite{Drezen2014}. This provides a much easier way to handle the graph file, it improves the progress messages and this improves the running time. In addition, \discopp handles pair of reads during the counting phase. Simply, each pair of read files is considered as a unique read set while computing coverages, qualities, rank and genotypes. 
+The code was re-implemented from scratch using the GATB library~\cite{Drezen2014}. This provides a much easier way to handle the graph file, this improves the running time, with clearer progress messages. 
+%CL ajout sur GATB
+In particular, the graph file format is common to other GATB tools, and the graph can be computed once for a given dataset and later be used with several other tools such as de novo assembly (minia \cite{}) and inversion discovery (TakeABreak\cite{}). 
+%bientot rajouter MindTheGap, BGREAT ?
+Additionally, \discopp handles pair of reads during the counting phase. Simply, each pair of read files is considered as a unique read set while computing coverages, qualities, ranks and genotypes. 
+
+%CL il faudra rajouter ici le seuil automatique ?
 
 \section*{Results}
-We propose results both on synthetic and on real datasets. Synthetic datasets offer a way to exactly compute the precision and the recall of \discopp and the state-of-the-art methods. Real datasets enable to assess the 
+We propose results both on synthetic and on real datasets. Synthetic datasets offer a way to exactly compute the precision and the recall of \discopp and of state-of-the-art methods. Real datasets enable to assess the %TODO
 
 \subsection*{Results on synthetic datasets}
-We first propose a bench of results based on synthetic datasets. As presented in the Additional File 1, these datasets are derived from real genomes, either from Escherichia Coli or or from the human chromosome 1. 
+We first propose a bench of results based on synthetic datasets. As presented in the Additional File 1, these datasets are derived from real genomes, either from \emph{Escherichia coli} or from the human chromosome 1. 
 
-In these experiments, we generated the set of SNPs and indels. Thus we dispose from the exact and exhaustive list of variant to be found, and we are able to compute the precision and the recall of the predictions (see Additional File 1 for precision and recall computation details). We tested \discopp and \co and an hybrid method composed of SOAPdenovo2~\cite{luo2012soapdenovo2} for generating the assembly, Bowtie~\cite{langmead2012fast} for mapping the reads on the assembly, and GATK~\cite{gatk} for calling variants from this mapping. Presented results were obtained using the GATK \emph{UnifiedGenotyper} option. As presented in the Additional File 1, while following the GATK guidelines (including read realignment and using the \emph{HaplotypeCaller} option), the result quality is similar while the execution time is 3 times longer (from approximately 19h to 54h for the human chromosome 1 experiment). 
+In these experiments, we generated the set of SNPs and indels. 
+%CL je pense que c'est important de détailler quelles tailles d'indels
+Thus, we dispose of the exact and exhaustive list of variants to be found, and we are able to compute the precision and the recall of the predictions (see Additional File 1 for precision and recall computation details). We tested \discopp, \co~\cite{iqbal2012novo} and an hybrid method composed of SOAPdenovo2~\cite{luo2012soapdenovo2} for generating the assembly, Bowtie2~\cite{langmead2012fast} for mapping the reads on the assembly, and GATK~\cite{gatk} for calling variants. Presented results were obtained using \emph{UnifiedGenotyper} option of GATK. As presented in the Additional File 1, when following the GATK guidelines (including read realignment and using the \emph{HaplotypeCaller} option), the result quality is similar but at the expense of a much longer execution time (almost 3 times longer, from approximately 19h to 54h for the human chromosome 1 experiment). 
 
 \subsubsection*{Two and more bacterial read sets}
-We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an Escherichia Coli individual. As presented in the Additional File 1, we simulated SNPs and indels such that the distribution inside a subset of individuals is realistic. 
+We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an \emph{Escherichia coli} individual. As presented in the Additional File 1, we simulated SNPs and indels such that the distributions of shared polymorphism between subsets of individuals are realistic. 
 
-Precision and recall results, presented Figure~\ref{fig:ncoli}, allow to draw conclusions while calling SNPs from several haploid individuals. On these data, both for calling SNPs or indels, the \co precision is perfect or nearly perfect, while recall highly decreases while the number of read sets increases, and it reaches less than 9\% for 30 genomes. 
+Precision and recall results, presented in Figure~\ref{fig:ncoli}, allow to draw conclusions while calling SNPs from several haploid individuals. 
+%CL la phrase ci-dessus ne dit pas grand chose, preciser quelles conclusions ?
+On these data, for calling both SNPs and indels, the \co precision is perfect or nearly perfect, whereas the recall strongly decreases when the number of read sets increases, until reaching less than 9\% for 30 individuals. 
 
-For SNP calling, the hybrid strategy provides better results than \discopp: its recall is slightly better, and its precision remains more or less constant while the \discopp precision linearly decreases with the number of read sets. 
+For SNP calling, the hybrid strategy provides better results than \discopp: its recall is slightly better, and its precision remains more or less constant whereas the \discopp precision linearly decreases with the number of read sets. 
+%CL je ne me rappelle plus comment on explique que c'est la precision qui decroit (j'aurais plutot dit le recall a priori, on est en -b 2)?
+
+However, concerning indel calling, the hybrid strategy shows bad performances, that may be explained by the difficulty of mapping reads with indels. Conversely, \discopp presents high quality results both in terms of precision and in terms of recall. 
 
 
-For indel calling, the hybrid strategy shows bad performances, that may be explained by the hardness of mapping read with indels. Conversely, \discopp presents high quality results both in term of precision and in term of recall. 
+In short and in terms of results quality only, for calling all SNPs from a large number of read sets from a rather simple haploid genome, it is preferable to use an hybrid approach. However, we recall that for calling isolated SNPs only, \disco and the hybrid strategy lead to similar results (see~\cite{Uricaru2014a}). Note that the \disco results may be mimicked with \discopp by forbidding indels and close SNPs predictions. As for indel calls, \discopp performs better than the other methods.
 
-
-In short and in term of results quality only, for calling all SNPs from a large number of read sets from rather simple haploid genome, it is preferable to use an hybrid approach. However, we recall that for calling isolated SNPs only, \disco and the hybrid strategy lead to similar results (see~\cite{Uricaru2014a}). Note that the \disco results may be mimicked with \discopp by forbidding indels and close SNPs predictions. For indel calls, \discopp performs better than the other methods.
-
-As shown Figure~\ref{fig:ncoliperf}, \discopp runs much faster that other methods and uses much less RAM memory. Moreover, one may also insist on the fact that \discopp is extremely simple to use. Table~\ref{tab:2colicmpxt}, showing the number of operations to perform for each method, witness this simplicity.
+Importantly, as shown in Figure~\ref{fig:ncoliperf}, \discopp runs much faster that other methods and uses much less RAM memory. Moreover, one may also insist on the fact that \discopp is extremely simple to use. Table~\ref{tab:2colicmpxt}, showing the number of operations to perform for each method, witnesses unequivocally
+%clearly 
+this simplicity.
 
 \subsubsection*{Two human datasets}
 \label{ssec:twohumans}
-For testing \discopp on a diploid genome, we propose an experiment based on the human chromosome 1, assembly GRCh37. Using variants from the 1000 genomes project, we simulated two individuals, generating 25,928 indels and 288,069 SNPs. The data simulation protocol is presented in the Additional File 1. 
+For testing \discopp on a diploid and more complex genome, we propose an experiment based on the human chromosome 1, assembly GRCh37. Using variants from the 1000 genomes project, we simulated two individuals, generating 25,928 indels and 288,069 SNPs. 
+%CL idem indel size
+The data simulation protocol is presented in the Additional File 1. 
 
-Results while considering all predictions are presented Table~\ref{tab:humanresults}. 
-The main conclusion is that, except for the hybrid approach that predicts few indels (40.97\%) with a high precision (96.15\%), other results do not show  notable difference, even if one may notice that precision is globally higher for indels, while the recall is higher for SNPs. 
+Results while 
+%CL je ne suis pas trop sure du while ici
+considering all predictions are presented Table~\ref{tab:humanresults}. 
+The main conclusion is that, except from the hybrid approach that predicts few indels (40.97\%) with a high precision (96.15\%), other results do not show  notable difference, even if one may notice that precision is globally larger for indels, whereas the recall is higher for SNPs. 
 
 Results presented Figure~\ref{fig:roc_human} provide additional pieces of information for the hybrid and the \discopp approaches. They show precision/recall values with respect to the ranking of the predictions (\co results are not ranked in this framework). Results show that the hybrid approach predictions are badly ranked: it appears that predictions showing the best scores are mainly false positives. Additionally, results show that the \discopp ranking is extremely efficient for separating false positives from true positives. Most of the predictions ranked with a score $>0.2$ are true positives (97.78\%  of the SNPs and 98.97\% of the indels). 
 
-From these experiment on a complex eukaryotic species, one may conclude that \discopp overall results quality are similar to results from other methods. However, it is the only tool with a reliable ranking of the results, enabling to select more than 50\% of the predictions with a nearly perfect precision.
+From these experiment on a complex eukaryotic species, one may conclude that \discopp overall results quality is similar to the ones from other methods. However, it is the only tool with a reliable ranking of the results, enabling to select more than 50\% of the predictions with a nearly perfect precision.
 
+As previously mentioned, \discopp provides for each predicted polymorphism, genotype estimations for all individuals. On this dataset, over the 245,690 true positive variants, 240,935 predicted genotypes (98.06\%) were correct. 
+%CL : on ne devrait pas avoir 2x plus de genotypes, car 2 individus ? ou bien correct veut dire correct pour les 2 individus ?
+%CL :  ne pourrait-on pas rajouter les infos de mapping : ie. le % de bons génotypes sur les variants mappés uniquement -> les 2% mauvais seraient dus à des répétitions (devraient être plus souvent hetero que homo ?) 
 
-As previously mentioned, \discopp provides an estimated genotype. On this dataset, over the 245,690 true positive variants, 240,935 predicted genotypes (98.06\%) were correct.
+As shown in Figure~\ref{fig:perf_human}, \discopp runs much faster that other methods (3.6x and 17.5x times faster than \co and the hybrid approach respectively) and uses much less RAM memory (36.2x and 22.9x times less memory than \co and the hybrid approach respectively). 
 
-As shown Figure~\ref{fig:perf_human}, \discopp runs much faster that other methods (respectively 3.6x and 17.5x times faster than \co and the hybrid approach) and uses much less RAM memory (respectively 36.2x and 22.9x times less memory than \co and the hybrid approach). 
-
+HERE des resultats de mapping sur ref ?? avec genome initial et genome divergent ?
 
 
 
 \subsection*{Results on real datasets}
-We used a set of biologically validated SNPs predicted from an artificial evolution study on Saccharomyces cerevisiae~\cite{Kvitek2013}. 
-In this study, three glucose-limited, chemostat-evolved populations of haploid S288c, named
+We used a set of biologically validated SNPs predicted from an artificial evolution study on \emph{Saccharomyces cerevisiae}~\cite{Kvitek2013}. 
+In this study, three glucose-limited, chemostat-evolved populations of the haploid yeast strain S288c, named
 E1, E2 and E3, were sequenced every $\approx70$ generations, giving eight samples per population. Using a reference-based mapping approach, 110 mutations were discovered, among which only 33 have a minor allele frequency (MAF) $>10\%$ and 32 were confirmed by Sanger sequencing.  \discopp was run independently on populations E1, E2 and E3. For each population, \discopp was applied on the eight read sets corresponding to the eight time points, with the default parameters and c = 11. 
 
-This dataset enables to evaluate \discopp SNP recall on real read datasets. Among 32 validated SNPs, 29 were predicted by \discopp, leading to an estimated recall of 90.7\%. Using parameter -b 2 leads to the detection of the unpredicted SNPs. The fact that these SNP are not detected with default (-b 1) parameter means that its bubble is symmetrically branching (see~\cite{Uricaru2014a} for an explanation of the branching filtration strategies). This reveals that these SNP are located in a complex region of the genome. 
+This dataset enables to evaluate \discopp recall for SNPs only on real read datasets. Among the 32 experimentally validated SNPs, 29 were predicted by \discopp, leading to an estimated recall of 90.7\%. Using parameter -b 2 leads to the detection of the unpredicted SNPs. The fact that these SNPs were not detected with the default (-b 1) parameter means that its bubble is symmetrically branching (see~\cite{Uricaru2014a} for an explanation of the branching filtering strategies). This suggests that these SNPs are located in complex regions of the genome. %CL on devrait le vérifier avec les résultats de mapping -> mappés multiplement ? 
 
-Note that in the~\cite{Kvitek2013} study, no SNP with a MAF $<10\%$ were validated and no indel were validated, so we could not assess the precision of the \discopp predictions on this dataset.
+%CL est-ce qu'il y a avait des SNPs proches dans le lot de validés : un mot dessus ? sinon, ca risque de ressembler beaucoup au papier NAR cette section...
+
+Note that in the~\cite{Kvitek2013} study, no SNP with a MAF $<10\%$ were validated and no indel were validated, so we could not assess the precision of these types of \discopp predictions on this dataset.
 
 
 % \section*{Conclusion}
@@ -375,7 +418,7 @@ Note that in the~\cite{Kvitek2013} study, no SNP with a MAF $<10\%$ were validat
 	\item \textbf{Project name:} \discopp
 	\item \textbf{Operating systems}: Linux and osx;
 	\item \textbf{Programming language}: C++ (main algorithms), bash and python;
-	\item \textbf{Other requirement}: BWA~\cite{bwa} if users requires to map predictions on a reference genome while generating a VCF ouput;
+	\item \textbf{Other requirement}: BWA~\cite{bwa} if users require to map predictions to a reference genome when generating a VCF ouput;
 	\item \textbf{License}: GNU AFFERO GENERAL PUBLIC LICENSE \url{gnu.org/licenses/agpl.html}
 	\item \textbf{Any restrictions to use by non-academics}: license needed
 \end{itemize}
