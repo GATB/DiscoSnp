@@ -494,7 +494,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     nucleoLow=None
     nucleoRefUp=None
     nucleoRefLow=None
-    
+    listPolymorphismePosUp=None
+    listPolymorphismePosLow=None
     
     posModif=dicoHeaderUp["P_1"][0] #Position of the first variant gived by discosnp
     seqUp=list(snpUp[9])
@@ -522,10 +523,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         else:
             seq=seqUp
         listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel)
-    
-    
-    listPolymorphismePosUp=None
-    listPolymorphismePosLow=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 #Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
@@ -592,7 +589,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 	    
     
     elif int(snpUp[3])<=0 :
-        nucleoUp = dicoHeaderUp["P_1"][0]
+        nucleoUp = dicoHeaderUp["P_1"][1]
         positionSnpUp = posCentraleUp
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -623,7 +620,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 nucleoRefLow=ReverseComplement(dicoHeaderUp["P_1"][2])
     
     elif int(snpLow[3])<=0:
-        nucleoLow = dicoHeaderUp["P_1"][1]
+        nucleoLow = dicoHeaderUp["P_1"][2]
         positionSnpLow = posCentraleLow
 
 #---------------------------------------------------------------------------------------------------------------------------
