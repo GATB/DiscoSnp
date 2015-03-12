@@ -385,9 +385,9 @@ def CigarCodeChecker(cigarcode,seq,listpol,posModif,indel):
                 else:
                     return(listPosRef,listShift)
             i+=2
-    #Lonely snp
+    #Simple snp and Indel
     else:
-        lenDemiSeq=int(listpol[0])
+        lenDemiSeq=posModif
         while i<len(parsingCigarCode):
             if parsingCigarCode[i]=="S":
                 shift-=int(parsingCigarCode[i-1])
@@ -412,6 +412,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     i=0
     matchInt=None
     nucleoRef=None
+    boolEgalRef=None
     if '^' in posMut:
         pos=shift
         motifDel=re.compile("[0-9]*\^[A-Za-z]*")
@@ -495,7 +496,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     nucleoRefLow=None
     
     
-    
+    posModif=dicoHeaderUp["P_1"][0] #Position of the first variant gived by discosnp
     seqUp=list(snpUp[9])
     seqLow=list(snpLow[9])
     reverseUp=1
@@ -521,10 +522,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         else:
             seq=seqUp
         listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel)
-    if indel==True:
-        posModif=int(listPos[0])
-    else:
-        posModif=0
     
     
     listPolymorphismePosUp=None
@@ -588,8 +585,11 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
         else: #SIMPLE SNPS
             boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp,posMutUp,posCentraleUp)
-            if nucleoRefUp==None:
-                nucleoRefUp=seqUp[posModif]
+            if nucleoRefUp==None and reverseUp==1:#If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+                nucleoRefUp=dicoHeaderUp["P_1"][1]
+            elif nucleoRefUp==None and reverseUp==-1:
+                nucleoRefUp=ReverseComplement(dicoHeaderUp["P_1"][1])
+	    
     
     elif int(snpUp[3])<=0 :
         nucleoUp = dicoHeaderUp["P_1"][0]
@@ -617,8 +617,10 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     dicopolLow[listPosR[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
         else:
             boolRefLow,nucleoRefLow=ReferenceChecker(shiftLow,posMutLow,posCentraleLow)
-            if nucleoRefLow==None:
-                nucleoRefLow=seqLow[int(posModif)-1]
+            if nucleoRefLow==None and reverseLow==1:#If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+                nucleoRefLow=dicoHeaderUp["P_1"][2]
+            elif nucleoRefLow==None and reverseLow==-1:
+                nucleoRefLow=ReverseComplement(dicoHeaderUp["P_1"][2])
     
     elif int(snpLow[3])<=0:
         nucleoLow = dicoHeaderUp["P_1"][1]
@@ -1044,31 +1046,34 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
 def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
     j=0
     genotypes=""
-    for i in range(0,nbGeno):
-        key="G"+str(i+1) # Create the dictionnary key
-        current_genotype = geno[key]
-        likelihood=current_genotype[1]
-        if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0
-            if "1/1" in current_genotype[0]:
-                current_genotype[0]=current_genotype[0].replace("1/1","0/0")
-            elif "0/0" in current_genotype[0]:
-                current_genotype[0]=current_genotype[0].replace("0/0","1/1")
-        
-        if phased==True: # in case of phasing we change the / symbol
-            current_genotype[0]=current_genotype[0].replace("/","|")
-        #TODO REMOVE THIS TEST WHEN WE HAVE ALL FILES WITH RIGHT HEADER
-        if isinstance(likelihood,list):
-            likelihood=str(','.join(current_genotype[1]))
-        else:
-            likelihood=str(likelihood)
-        genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+likelihood
-        #genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
-        
-        if i<nbGeno-1 :
-            genotypes+="\t" # Add a \t except if this is the last genotype
+    if int(nbGeno)==0:
+        return table
+    else:
+            for i in range(0,nbGeno):
+                key="G"+str(i+1) # Create the dictionnary key
+                current_genotype = geno[key]
+                likelihood=current_genotype[1]
+                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0
+                    if "1/1" in current_genotype[0]:
+                        current_genotype[0]=current_genotype[0].replace("1/1","0/0")
+                    elif "0/0" in current_genotype[0]:
+                        current_genotype[0]=current_genotype[0].replace("0/0","1/1")
+                
+                if phased==True: # in case of phasing we change the / symbol
+                    current_genotype[0]=current_genotype[0].replace("/","|")
+                #TODO REMOVE THIS TEST WHEN WE HAVE ALL FILES WITH RIGHT HEADER
+                if isinstance(likelihood,list):
+                    likelihood=str(','.join(current_genotype[1]))
+                else:
+                    likelihood=str(likelihood)
+                genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+likelihood
+                #genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
+                
+                if i<nbGeno-1 :
+                    genotypes+="\t" # Add a \t except if this is the last genotype
 
-    table[8]="GT:DP:PL"
-    table[9]=genotypes
+            table[8]="GT:DP:PL"
+            table[9]=genotypes
     return table
 ##############################################################
 ##############################################################
