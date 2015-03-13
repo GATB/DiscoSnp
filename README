@@ -2,7 +2,12 @@
 ./compile_discoSnp++.sh
 
 ############### QUICK START ##################
-./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz" -T
+ * WITHOUT mapping results on a reference genome:
+       ./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz" -T
+ * WITH mapping results on a reference genome:
+       ./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz" -T  -G data_sample/reference_genome.fa 
+       Warning: if bwa is not in you PATH, then add the option "-B path_to_bwa". For instance:    
+       ./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz" -T  -G data_sample/reference_genome.fa -B /home/me/my_programs/bwa-0.7.12/
 
 ############### MORE DOCUMENTATION ###########
 See doc/doc/discoSnp_user_guide.pdf

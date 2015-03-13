@@ -45,6 +45,9 @@ EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
 
 
+genome="" 
+bwa_path_option="" 
+
 #######################################################################
 #################### END HEADER                 #######################
 #######################################################################
@@ -52,12 +55,12 @@ DISCO_BUILD_PATH="$EDIR/build/"
 function help {
 echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
 echo "Version "$version
-echo "Usage: ./run_discoSnp++.sh OPT"
+echo "Usage: ./run_discoSnp++.sh -r \"list of reads files separated by space\" [OPTIONS]"
 echo -e "\tMANDATORY:"
-echo -e "\t\t -r list of reads separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
+echo -e "\t\t -r list of reads files separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
 echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
 
-echo -e "\tOPT:"
+echo -e "\tDISCOSNP++ OPTIONS:"
 echo -e "\t\t -m: indicates that read sets are paired. Each couple of read sets is considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) "
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
@@ -75,6 +78,10 @@ echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
+echo -e "\tVCF CREATION OPTIONS"
+echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
+echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path. "
 echo -e "\t\t -h: Prints this message and exist"
 echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
 }
@@ -83,7 +90,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlmgn" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -160,6 +167,17 @@ echo "use D=$OPTARG" >&2
 D=$OPTARG
 ;;
 
+	B)
+	echo -e "BWA directory: $OPTARG" >&2
+	bwa_path_option="-B "$OPTARG
+	;;
+
+
+	G)
+	echo -e "use genome : $OPTARG" >&2
+	genome=$OPTARG
+	;;
+       
 \?)
 echo "Invalid option: -$OPTARG" >&2
 exit 1
@@ -355,12 +373,37 @@ rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
 #######################################################################
 
 echo -e "\t###############################################################"
-echo -e "\t#################### DISCOSNP++ FINISHED #######################"
+echo -e "\t#################### DISCOSNP++ FINISHED ######################"
 echo -e "\t###############################################################"
-echo -e -n "\t ending date="
+echo -e -n "\t ending discoSnp++ date="
 date
+
+
+
+
+
+#######################################################################
+#################### Deal with VCF ###############################
+#######################################################################
+
+
+echo -e "\t###############################################################"
+echo -e "\t#################### CREATE VCF         #######################"
+echo -e "\t###############################################################"
+
+if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
+       echo "$EDIR/run_VCF_creator.sh -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf"
+       $EDIR/run_VCF_creator.sh -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf
+else # A Reference genome is provided, vcf creator mode 2
+       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf"
+       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf
+fi
+
+echo -e -n "\t ending vcf creation date="
+date
+echo
+echo -e "\t################################################################################################################"
 echo -e "\t SNPs and indels are stored in \""$kissprefix\_coherent.fa"\""
+echo -e "\t VCF file is \""$kissprefix\_coherent.vcf"\""
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-
-
-
+echo -e "\t################################################################################################################"

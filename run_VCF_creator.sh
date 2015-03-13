@@ -22,7 +22,7 @@ echo "Usage : ./run_VCF_creator.sh OPT"
 echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:" 
 echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w]"
 echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
-echo -e "\t\t./run_VCF_creator.sh -b <path_bwa> -g <ref> -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w] "
+echo -e "\t\t./run_VCF_creator.sh -B <path_bwa> -G <ref> -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w] "
 echo -e "##MODE 3: USING A HOME MADE ALIGNMENT. Samfile from bwa already exists: "
 echo -e "\t\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
 echo
@@ -33,10 +33,10 @@ echo -e "\t-o: output <file> (VCF format)"
 echo -e "\t\t Mandatory"
 
 #echo -e "\t-c : path where VCF_creator is"
-echo -e "\t-g: reference genome (Fasta format)"
-echo -e "\t\t Optional unless MODE 2: you want the mapping positions of the predicted variants in the VCF file and you do not provide a third-party sam file. E.G.: -b and -g options must be used together"
-echo -e "\t-b: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
-echo -e "\t\t Optional unless MODE 2 if bwa is not in the binary path. E.G.: -b and -g options must be used together"
+echo -e "\t-G: reference genome (Fasta format)"
+echo -e "\t\t Optional unless MODE 2: you want the mapping positions of the predicted variants in the VCF file and you do not provide a third-party sam file. E.G.: -B and -G options must be used together"
+echo -e "\t-B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+echo -e "\t\t Optional unless MODE 2 if bwa is not in the binary path. E.G.: -B and -G options must be used together"
 
 echo -e "\t-f: <file>.sam: skip the alignment phases to create the vcf file"
 echo -e "\t\t Optional unless MODE 3: you want the mapping positions of the predicted variants in the VCF file without remapping on a reference genome. -f option must be used together with -n"
@@ -56,7 +56,7 @@ echo -e "\t\t Optional"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hb:c:g:p:l:n:s:wf:o:" opt; do
+while getopts "hB:c:G:p:l:n:s:wf:o:" opt; do
 case $opt in
 
 	w)
@@ -68,7 +68,7 @@ case $opt in
 	exit 1
 	;;
 
-	b)
+	B)
 	echo -e "\t##BWA directory: $OPTARG" >&2
 	PATH_BWA=$OPTARG
 	;;
@@ -78,7 +78,7 @@ case $opt in
 #        PATH_VCF_creator=$OPTARG
 #        ;;
 
-	g)
+	G)
 	echo -e "\t##use genome : $OPTARG" >&2
 	genome=$OPTARG
 	;;
@@ -170,7 +170,7 @@ if [ -z "$samfile" ];then
 	
 	
 		if [ -z "$IS_BWA" ];then
-			echo -e "... BWA not found... add bwa to \$PATH or give directly the path (-b)"
+			echo -e "... BWA not found... add bwa to \$PATH or give directly the path (-B)"
 			exit 1
 		else 
 			PATH_BWA=$(dirname $IS_BWA)
@@ -184,7 +184,7 @@ if [ -z "$samfile" ];then
 		exit 1
 	fi
 	if [ -z "$genome" ]; then
-		echo -e "...You must provide a genome of reference : option -g (for help -h)..."
+		echo -e "...You must provide a genome of reference : option -G (for help -h)..."
               help
 		exit 1
 	fi
