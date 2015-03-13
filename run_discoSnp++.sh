@@ -46,7 +46,8 @@ DISCO_BUILD_PATH="$EDIR/build/"
 
 
 genome="" 
-bwa_path_option="" 
+bwa_path_option=""
+bwa_distance=4
 
 #######################################################################
 #################### END HEADER                 #######################
@@ -81,7 +82,9 @@ echo -e "\t\t -n: do not compute the genotypes"
 echo -e "\tVCF CREATION OPTIONS"
 echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
-echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path. "
+echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
+echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
+echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
 echo -e "\t\t -h: Prints this message and exist"
 echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
 }
@@ -90,7 +93,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -177,6 +180,11 @@ D=$OPTARG
 	echo -e "use genome : $OPTARG" >&2
 	genome=$OPTARG
 	;;
+       
+       M)
+       echo "use M=$OPTARG" >&2
+       M=$OPTARG
+       ;;
        
 \?)
 echo "Invalid option: -$OPTARG" >&2
@@ -394,9 +402,18 @@ echo -e "\t###############################################################"
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        echo "$EDIR/run_VCF_creator.sh -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf"
        $EDIR/run_VCF_creator.sh -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf
+       if [ $? -ne 0 ]
+       then
+       echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+       fi
 else # A Reference genome is provided, vcf creator mode 2
-       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf"
-       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf
+       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M"
+       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M
+
+       if [ $? -ne 0 ]
+       then
+       echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+       fi
 fi
 
 echo -e -n "\t ending vcf creation date="
