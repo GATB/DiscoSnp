@@ -54,15 +54,16 @@ INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools                          DE
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data_sample                    DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output_analyses                DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp++.sh            DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp++.sh          DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt                 DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh               DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh              DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_VCF_creator.sh             DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README                         DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
 
 # For the source archive, we exclude some unwanted directories.
 # For creating the SOURCE package we should ignore some files
-SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "my_local_data" "donot_release")
+SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} ".DS_Store" "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "my_local_data" "donot_release")
 
 # To be done at the end. 
 INCLUDE (Delivery)
