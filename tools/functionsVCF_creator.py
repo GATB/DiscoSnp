@@ -643,7 +643,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------    #---------------------------------------------------------------------------------------------------------------------------
     #Variants (INDEL and SIMPLE SNPS) Positions : add the position of mapping gived by bwa to the variant position and for indel add ambiguity position
-    if len(listPos)==1:
+    if int(nb_polUp)==1:
         if indel==True:
             nucleoLow="."
             nucleoUp="."
@@ -689,6 +689,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                nucleoLow=ReverseComplement(nucleoLow)
         elif boolRefUp==True and reverseUp==1 and reverseLow==-1:
                nucleoLow=ReverseComplement(nucleoLow)
+        ##Check which path chooses if there are both different from the reference
+        if boolRefUp==False and boolRefLow==False:
+               boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
         return(nucleoLow,posSNPLow,nucleoUp,posSNPUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow)
     else:
         return(dicopolUp,dicopolLow,listPolymorphismePosUp,listPolymorphismePosLow)
@@ -795,6 +798,7 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
         ##The path identical to the reference is the lower path 
         if boolRefLow==True and boolRefUp==False:
             table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+            
          ##The path identical to the reference is the upper path 
         elif boolRefUp==True and boolRefLow==False:
             table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
@@ -802,8 +806,9 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
         elif boolRefUp==False and boolRefLow==False:
             if nucleoUp<nucleoLow:
                 table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
-            else:
-              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)  
+            elif nucleoUp>nucleoLow:
+              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+              
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped      
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
@@ -842,6 +847,8 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 def printOneline(table,VCF):
     for i in range(len(table)):
         element=table[i]
+        if element == 0:
+                return
         VCF.write(str(element))
         if i<len(table)-1: VCF.write("\t")
     VCF.write('\n')    
@@ -857,10 +864,9 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     seqLow=snpLow[9]
     tp="SNP"
     phased=True
-    ##Sorts the list of position to get the smallest one and its position in the list unsorted!
-    listSortedPos=list(listPolymorphismePos)
-    listSortedPos.sort()
-    indexSmallestPos=listPolymorphismePos.index(listSortedPos[0])
+    print "listePos avant tri"
+    print listPolymorphismePos
+    table = [0] * 10 # create a 10 cols array
     ##Keep the close snps to sort them : indeed all the lists and dictionnaries :listnucleoUp,listPolymorphismePosUp,listPolymorphismePosLow,listnucleoLow dicoUp,dicoLow are classified according to dicoHeader so if we start by sorting we lose the correspondence between data
     tablebis = []
     k=0
@@ -870,6 +876,42 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
+        ##Sorts the list of position to get the smallest one and its position in the list unsorted!
+        listSortedPosUp=list(listPolymorphismePosUp)
+        listSortedPosUp.sort()
+        indexSmallestPosUp=listPolymorphismePosUp.index(listSortedPosUp[0])
+        listSortedPosLow=list(listPolymorphismePosLow)
+        listSortedPosLow.sort()
+        indexSmallestPosLow=listPolymorphismePosLow.index(listSortedPosLow[0])
+        boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][0]
+        boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][0]
+        if boolRefUp==True:
+            indexSmallestPos=indexSmallestPosUp
+        elif boolRefLow==True:
+            indexSmallestPos=indexSmallestPosLow
+        elif boolRefUp==False and boolRefLow==False:
+            nucleoUp1=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][3]
+            nucleoLow1=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][3]
+            if nucleoUp1<nucleoLow1:
+                indexSmallestPos=indexSmallestPosUp
+            else:
+                indexSmallestPos=indexSmallestPosLow
+        print "***snp Up, Low, dico Up, dico Low*** boolRefUp boolRefLow"
+        print snpUp
+        print snpLow
+        print dicoUp
+        print dicoLow
+        print indexSmallestPos
+        print "listPolymorphismePos"
+        print listPolymorphismePos
+        print "listPolymorphismePosUp"
+        print listPolymorphismePosUp
+        print "listPolymorphismePosLow"
+        print listPolymorphismePosLow
+        print "dicoUp smallest pos"
+        print dicoUp[listPolymorphismePosUp[indexSmallestPos]]
+        print dicoUp[listPolymorphismePosUp[0]]
+        print dicoUp[listPolymorphismePosUp[1]]
         #Remembers the values for the first snps ==> the others snps will dependent on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
@@ -879,6 +921,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         positionSnpLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][5]
         reverseLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][4]
         reverseUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][4]
+        print boolRefUp
+        print boolRefLow
         for comptPol in range(len(listPolymorphismePos)):
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]

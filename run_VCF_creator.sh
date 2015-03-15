@@ -94,7 +94,7 @@ case $opt in
 	;;
 
 	n)
-	echo -e "\##use number of mismatches : $OPTARG" >&2
+	echo -e "\t##use number of mismatches : $OPTARG" >&2
 	n=$OPTARG
 	;;
 

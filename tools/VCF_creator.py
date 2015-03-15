@@ -119,7 +119,7 @@ if ".sam" in fichier:
             print line1
             print line2
             sys.exit(1)
-            
+        table = [0] * 10 # create a 10 cols array;init it every line   
         #Information on coverage by dataset
         covUp,covLow,listCovGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -191,16 +191,14 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##one SNP
-            if len(listPolymorphismePos)==0:
+            if int(nb_polUp)==1:
                 tp="SNP"
-                table[6]=filterField
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
                 table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterField,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
-                printOneline(table,VCF)
                 continue
     
-            else: 
+            elif int(nb_polUp)>1: 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                 ##Close SNPs
@@ -216,7 +214,6 @@ if ".sam" in fichier:
         ##Case of INDEL                   
         if "INDEL" in snpUp[0] :
             indel=True
-            table[6]=filterField
             seqInsert=0
             seqUp=snpUp[9]
             seqLow=snpLow[9]
@@ -272,6 +269,7 @@ if ".sam" in fichier:
                     tp="DEL"
                 table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
             printOneline(table,VCF)
+            continue
             
 #---------------------------------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------------------------------- 
@@ -291,6 +289,7 @@ else:
         line1=line1.strip('>')
         line2=line2.rstrip('\n')
         line2=line2.strip('>')
+        table = [0] * 10
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------        
         #Variables
