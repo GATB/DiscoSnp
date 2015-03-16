@@ -864,8 +864,6 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     seqLow=snpLow[9]
     tp="SNP"
     phased=True
-    print "listePos avant tri"
-    print listPolymorphismePos
     table = [0] * 10 # create a 10 cols array
     ##Keep the close snps to sort them : indeed all the lists and dictionnaries :listnucleoUp,listPolymorphismePosUp,listPolymorphismePosLow,listnucleoLow dicoUp,dicoLow are classified according to dicoHeader so if we start by sorting we lose the correspondence between data
     tablebis = []
@@ -896,22 +894,6 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
                 indexSmallestPos=indexSmallestPosUp
             else:
                 indexSmallestPos=indexSmallestPosLow
-        print "***snp Up, Low, dico Up, dico Low*** boolRefUp boolRefLow"
-        print snpUp
-        print snpLow
-        print dicoUp
-        print dicoLow
-        print indexSmallestPos
-        print "listPolymorphismePos"
-        print listPolymorphismePos
-        print "listPolymorphismePosUp"
-        print listPolymorphismePosUp
-        print "listPolymorphismePosLow"
-        print listPolymorphismePosLow
-        print "dicoUp smallest pos"
-        print dicoUp[listPolymorphismePosUp[indexSmallestPos]]
-        print dicoUp[listPolymorphismePosUp[0]]
-        print dicoUp[listPolymorphismePosUp[1]]
         #Remembers the values for the first snps ==> the others snps will dependent on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
@@ -921,8 +903,6 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         positionSnpLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][5]
         reverseLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][4]
         reverseUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][4]
-        print boolRefUp
-        print boolRefLow
         for comptPol in range(len(listPolymorphismePos)):
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
