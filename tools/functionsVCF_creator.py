@@ -845,10 +845,10 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##############################################################
 ##############################################################   
 def printOneline(table,VCF):
+    if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+        return
     for i in range(len(table)):
         element=table[i]
-        if element == 0:
-                return
         VCF.write(str(element))
         if i<len(table)-1: VCF.write("\t")
     VCF.write('\n')    
