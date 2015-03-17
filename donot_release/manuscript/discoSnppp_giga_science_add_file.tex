@@ -80,6 +80,7 @@
 \startlocaldefs
 
 \usepackage{xspace}
+\usepackage{amsmath}
 \newcommand{\disco}{{\it DiscoSnp}\xspace}
 \newcommand{\discopp}{{\it DiscoSnp++}\xspace}
 \newcommand{\co}{{\it cortex}\xspace}
@@ -485,14 +486,17 @@ Depending on the user choice and the availability of a reference genome, \discop
  \For{$d$ (distance) in range 0:$t$}
  \State Compute $U=\{$genomic positions  where $S_A$ and/or $S_B$ mapped at distance $<=d\}$
  \If{$|U|==1$}
- \State Set prediction $p$ as mapped at this unique position (within distance $d$)
+ \State Set prediction $p$ as Mapped at this unique position (within distance $d$)
  \State Break
  \EndIf
  \If{$|U|>1$}
- \State Set prediction $p$ as unmappable at a unique position
+ \State Set prediction $p$ Multiple Mapped
  \State Break
  \EndIf
  \EndFor
+ \If{$p$ never set as ``Mapped'' (Unique position or Multiple Mapping)}
+ \State  {set $p$ as ``Unmapped''}
+ \EndIf
  \EndFor
  \end{algorithmic}
  \caption{Mapping and validation of mapped variants}
@@ -556,7 +560,57 @@ The proposed VCF file contains the following fields:
 \end{itemize}
 
 \section{Genotyping} % (fold)
-TODO
+\begin{align*}
+       c_u &: \text{Coverage upper path} \\
+       c_l &: \text{Coverage lower path}\\
+       err &: \text{Uniform error rate} (0.01) \\
+       prior &: \text{heterozygous prior} (0.33)\\
+       like_{0/0}&=-10\log_{10}\left((1-err)^{c_u}\times err^{c_l}\times C_{c_u+c_l}^{c_u} \times \frac{1-prior}{2}\right)\\
+       like_{1/1}&=-10\log_{10}\left(err^{c_u}\times (1-err)^{c_l}\times C_{c_u+c_l}^{c_u} \times \frac{1-prior}{2}\right)\\
+       like_{0/1}&=-10\log_{10}\left(\left(\frac{1}{2}\right)^{c_u+c_l}\times prior\right)\\
+       min(&like_{0/0},like_{1/1},like_{0/1}) \Rightarrow 0/0, \text{or } 1/1, \text{or } 0/1\\
+\end{align*}
+
+\section{Algorithm: Bubble walking}
+
+\begin{algorithm}
+ \begin{algorithmic}[1]
+\State{\#Search for SNPs}
+ \For{each couple of successor kmers $kmer_1,kmer_2$}
+ \State{expand($kmer_1,kmer_2$, 1 SNPs already detected up to $P$ authorized close SNPs)}
+ \EndFor
+\State{\#Search for Indels (whatever predicted SNPs)}
+\For{each path selected as the $extended\_path$}
+\State{Breadth first extend the $extended\_path$ (up to $D$ nuc.)}
+\If{Last character of the extension == last char. of the non expanded $kmer$}
+\State{expand($kmer_1,kmer_2$, 1 variant already detected up to $1$ authorized variant)}
+\EndIf
+\EndFor
+ \end{algorithmic}
+ \caption{SNP \& Indels caller}
+\end{algorithm}
+
+
+\begin{algorithm}
+ \begin{algorithmic}[1]
+ \State {Test branching $kmer_1,kmer_2$. \textbf{Exit if necessary}}
+ \State {Get $kmer_1^{+}$ and $kmer_2^{+}$ the unique possible extensions of $kmer_1$ and $kmer_2$ with the same $\alpha$. Note that with branching=2: there may exist several couple  $kmer_1^{+}$, $kmer_2^{+}$, both extended with the same $\alpha$} 
+ \If {$kmer_1^{+} == kmer_2^{+}$}
+ \State {Finish the bubble \& \textbf{stop the expand} }
+ \Else
+ \State {Expand($kmer_1^{+}$, $kmer_2^{+}$, 0 new SNP detected up to $P$ authorized close SNPs)}
+ \EndIf
+ \If {Number detected close SNPs $<P$}
+ \For{ $kmer_1^{+}$ and $kmer_2^{+}$ two kmers extending  $kmer_1$ and $kmer_2$ with distinct $\alpha, \beta$}\If {$kmer_1^{+} == kmer_2^{+}$}
+ \State {Finish the bubble \& \textbf{stop the expand} }
+ \Else
+ \State {Expand($kmer_1^{+}$, $kmer_2^{+}$, 1 new SNP detected up to $P$ authorized close SNPs)}
+ \EndIf
+ \EndFor
+ \EndIf
+ \end{algorithmic}
+ \caption{Expand two kmers}
+\end{algorithm}
 
 \bibliographystyle{bmc-mathphys} % Style BST file
 \bibliography{discoSnppp_giga_science}      % Bibliography file (usually '*.bib' )
