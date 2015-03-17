@@ -33,6 +33,7 @@ k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
 c=4 # minimal coverage
 C=$max_C # maximal coverage
+M=4
 d=1 # estimated number of error per read (used by kissreads only)
 D=0 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble

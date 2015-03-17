@@ -164,7 +164,7 @@ static int NT2int(char nt)  {  return (nt>>1)&3;  }
  ** INPUT   :
  ** OUTPUT  :
  ** RETURN  :
- ** REMARKS : TODO: change the recursive approach for a breadth first one (queue already stored in the bubbleFinder class.
+ ** REMARKS : breadth first search (queue already stored in the bubbleFinder class.
  Then limit the queue size. Thus early possible bubbles are tested even if longer insers are too complex to be treated.
  *********************************************************************/
 void BubbleFinder::start_indel_prediction(Bubble& bubble){
@@ -231,7 +231,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
                ) continue;
             Graph::Vector<Node> successors = graph.successors<Node> (current);
             
-            /** No branching authorized in the insertion in b0 mode. */
+            /** No branching authorized in the insertion mode. */
             if (successors.size()>1 && authorised_branching==0) {
                 queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue...
                 break; // ...and stop
@@ -292,7 +292,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             bubble.begin[1] = successors[j];
             
             /*************************************************/
-            /** Try an isolated SNP                         **/
+            /** Try a SNP                         **/
             /*************************************************/
             start_snp_prediction(bubble);
             

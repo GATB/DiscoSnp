@@ -1,0 +1,92 @@
+\input{td-common.tex}
+\usepackage{array}
+\usepackage{url}
+\usepackage{moreverb}
+\usepackage{verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{xspace}
+\newcommand{\discopp}{{\it DiscoSnp++}\xspace}
+\newcommand{\code}[1]{\begin{center} \textcolor{gray}{\#{\emph{#1}}} \end{center}} 
+\newcommand{\sligne}{\begin{center} \begin{tabular}{c}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\ \hline\\\end{tabular}\end{center}}
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Formation Bioinformatique pour le traitement de données de séquençage (NGS)\\
+TP \discopp}
+\date{Mars 2015} 
+\author{Pierre Peterlongo}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{}
+%%%%%%%%%%%%%%%%%%%%
+
+%%%
+\section*{Préambule} % (fold)
+\label{sec:preambule}
+Lors de ce TP nous débuterons par l'utilisation de \discopp intégralement en ligne de commande. Les lignes de commandes spécifiées dans cet énoncé sont formatée ainsi:
+\code{command}
+% section preambule (end)
+
+\section{Téléchargement et installation} % (fold)
+\label{sec:telechargement_et_installation}
+Nous allons débuter par télécharger et installer \discopp. Pour cela allez sur la page: \url{http://colibread.inria.fr/software/discosnp/} et télécharger la dernière version de \discopp. \\
+
+L'archive ``DiscoSNPpp-X.Y.Z-Source.zip'' se trouve maintenant sur votre machine. Trouvez la puis décompressez la:
+
+
+\code{unzip DiscoSNPpp-X.Y.Z-Source.zip}
+
+Une fois dans le répertoire créé (\emph{``DiscoSNP++-X.Y.Z''}), vous pouvez compiler les outils à l'aide de la commande suivante:
+
+\code{./compile\_discoSnp++.sh}
+
+\section{Premiers pas}
+La commande principale est ``run\_discoSnp++.sh''. Nous pouvons l'appeler sans arguments ou avec des arguments. Commençons par lancer la commande sans arguments:
+\code{./run\_discoSnp++.sh}
+Dans ce cas, l'aide est affichée. Cette commande est équivalente à l'appel de ``run\_discoSnp++.sh'' avec l'option/l'argument ``-h'':
+\code{./run\_discoSnp++.sh -h}
+
+\qu Lisez attentivement les options possibles. Étant donné un jeux de reads ``reads.fasta'', indiquez la commande minimal pour traiter ce jeux de reads avec les arguments par défaut de \discopp
+
+
+\qu Lisez le fichier README et lancez les deux commandes qui y sont indiquées. Quelle différence lors de l'appel de ``run\_discoSnp++.sh'' avec ou sans l'option -G ?
+
+
+\section{Application E. Coli}
+
+Vous trouverez un ensemble de jeux de reads correspondants à différents individus E. Coli dans lesquels nous avons artificiellement inséré des variants.   
+
+...
+
+
+\section{Application sur un fragment du génome humain}
+Vous trouverez à cette adresse deux jeux de reads correspondant à deux individus humains issus du projet 1000 génomes: humch1\_00096\_reads.fasta.gz et humch1\_00100\_reads.fasta.gz. Ces deux jeux de reads correspondent à un séquençage à profondeur $40x$ pour chacun des 2 individus, avec des reads de taille 100 et un taux d'erreur uniforme de 0.1\%.
+
+ Nous avons conservé les 10  premiers millions de nucléotides du chromosome 1 de ces deux individus. Nous avons simulé les variants détectés par le projet 1000 génomes pour ces 2 individus.
+
+Nous avons également à notre disposition le fichier ``humch1\_first\_10M.fasta'' qui est notre génome de référence. Il s'agit du génome hg19 limité lui aussi au 10  premiers millions de nucléotides du chromosome 1.
+\subsection{Premiers tests}
+\qu Que signifie la notion de SNP \emph{isolé} ?
+
+\qu Quelle ligne de commande utiliser pour détecter les SNPs dits \emph{isolés} dans les reads de ces deux individus ? Lancez \discopp avec cette ligne de commande. 
+
+\qu Quels fichiers ont été générés ? Indiquez pour chacun d'entre eux leur contenu et leur utilité. 
+
+\qu Quelle ligne de commande utiliser pour détecter également des SNPs dits \emph{proches} dans ces données ? Relancez \discopp en détectant jusqu'à 4 SNPs proches dans une même \emph{bubble} ?
+
+\qu Lors de votre dernière commande vous avez recalculé le graphe de de Bruijn des $k$-mers des deux jeux de reads (fichier .h5). Cela vous parait il judicieux ? Combien de temps cela a t'il pris ? Comment éviter ce calcul redondant ? 
+
+\qu Relancez \discopp en détectant jusqu'à 40 SNPs proches dans une même \emph{bubble}. Que se passe t'il ? Essayez de lancer \discopp en recherchant au plus 10 SNPs proches par bubble. 
+
+\qu Jusqu'à présent \discopp n'a pas détecté d'indels. Pouvez vous expliquer pourquoi ? Indiquez puis exécutez la commande permettant de détecter des indels de taille $\leq$ 10.
+
+\qu Si tout va bien nous avons lancé quatre fois \discopp avec succès. Comment retrouvez vous les résultats de ces différents appels ? 
+
+\subsection{Validation des résultats}
+Sachant que nous avons nous même généré les données nous disposons d'une liste parfaite et exhaustive des variants qu'il faut retrouver. Ceci nous permet d'estimer la précision (proportion de mauvais variants prédits) et le recall (proportion de variant correctement détectés).
+
+
+\end{document}
+

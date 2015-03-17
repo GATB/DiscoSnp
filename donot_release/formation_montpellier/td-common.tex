@@ -1,0 +1,52 @@
+\documentclass[french,10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}  
+\usepackage{fullpage}
+\usepackage{babel}
+\usepackage{graphicx}
+\usepackage{palatino}
+\usepackage{verbatim,moreverb}
+\usepackage{amsmath,bbold}
+\usepackage{algorithm,algorithmic}
+
+
+%%%%%%%%%%%%%
+
+%\newlength{\lon}
+\newcounter{quest}
+
+\newcommand{\question}[1]{
+ \addtocounter{quest}{1} \bigskip
+%\settowidth{\lon}{\noindent {\bf Q \arabic{quest}.#1}}
+\noindent {\bf Q \arabic{quest}.#1}\,\,  %\hskip+1cm %\hskip-\lon 
+}
+
+
+\newcommand{\qu}{\question{}}
+\newcommand{\qb}{\question{$\mathbf{{}^{*}}$}}
+\newcommand{\qbb}{\question{$\mathbf{{}^{**}}$}}
+
+%%%%%%%%%%%%%
+
+% \newcommand{\solu}[1]{\displaysol{#1}} % Avec solutions
+\newcommand{\solu}[1]{}                % Sans solutions
+
+\newcommand{\displaysol}[1]{
+   \textbf{Sol :} 
+  #1 
+  \textbf{--Fin sol}
+  }
+
+\newcommand{\sol}[1]{\solu{~\\ #1}}
+\newcommand{\soll}[1]{\solu{~\\ #1}}
+
+\newcommand{\solution}[1]{\solu{#1}}
+
+%%%%%%%%%%%%%
+
+\newcommand{\ligne}{\vskip1cm
+\centerline{\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_}
+\vskip1cm}
+\newcommand{\fl}{\longrightarrow}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\spa}{\phantom{1234}}
