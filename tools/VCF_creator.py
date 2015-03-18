@@ -73,10 +73,10 @@ VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type 
 VCF.write('##INFO=<ID=Ty,Number=1,Type=Float,Description="SNP, INS, DEL or "."">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
 VCF.write('##INFO=<ID=DT,Number=1,Type=Integer,Description="Mapping distance with reference">\n')
-VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="Lenght of the unitig left">\n')
-VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="Lenght of the unitig right">\n')
-VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="Lenght of the contig left">\n')
-VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="Lenght of the contig right">\n')
+VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig left">\n')
+VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
+VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
+VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
 VCF.write('##INFO=<ID=C,Number=1,Type=Integer,Description="Depth of each allele by samples">\n')
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (1) or Forward (0) Alignement">\n')
@@ -92,12 +92,14 @@ table = [0] * 10 # create a 10 cols array
 if nbGeno==0: # Without genotypes
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
 else:
+    i=0
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t')
     for i in range(0,int(nbGeno)):
         nomCol="G"+str(i+1)
         VCF.write(str(nomCol)+"\t")
         if i==int(nbGeno)-1:
-            VCF.write(str(nomCol)+"\n")            
+            VCF.write("\n")
+i=0            
 ############################################################### 
 ###VCF_creator NORMAL MODE : take a samfile and create a vcf###
 ###############################################################
