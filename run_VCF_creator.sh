@@ -160,7 +160,7 @@ if [ -z "$samfile" ];then
                         n=3
                         
                         python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -n $n -o $vcffile
-		        echo -e "... Creation of the vcf file : done ...==> $vcf" 
+		        echo -e "... Creation of the vcf file : done ...==> $vcffile" 
 		        exit 
                 fi    
         fi

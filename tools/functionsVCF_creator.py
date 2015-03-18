@@ -296,6 +296,7 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
                 covLow=str( listCLow[i])+':'+str( listCoverageLow[i])+"|"+str( listCoverageUp[i])
             i+=1
     else:
+        listCovGeno.append(int( listCoverageUp[0])+int( listCoverageLow[0]))
         covUp=str( listCUp[0])+':'+str( listCoverageUp[0])
         covLow=str( listCLow[0])+':'+str( listCoverageLow[0])
     return(covUp,covLow,listCovGeno) #string covUp C1:5|23;C2:35|1 listCovGeno=[28,36]
