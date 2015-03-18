@@ -40,12 +40,14 @@ for opt, arg in opts :
         usage()
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
+        boolmyname=False
         fichier = arg
-        #if ".sam" or ".fa" or ".fasta" in fichier:
+        listNameFile=fichier.split(".")
+        if "BWA_OPT" in listNameFile[0]:
+               boolmyname=True
+               listName=listNameFile[0].split("BWA_OPT")
+               listName[1]=listName[1].replace("_", " ")
         samfile=open(fichier,'r')
-        #else:
-        #    print "...Unknown file extension for the input. Try with a <file>.sam..."
-        #    sys.exit(2)
     elif opt in ("-n","--mismatch"):
          nbMismatchBWA= arg
     elif opt in ("-o","--output"):
@@ -67,19 +69,26 @@ today=time.localtime()
 date=str(today.tm_year)+str(today.tm_mon)+str(today.tm_mday)
 VCF.write('##fileformat=VCFv4.1\n')
 VCF.write('##filedate='+str(date)+'\n')
+VCF.write('##source=VCF_creator\n')
+if boolmyname:
+        VCF.write('##BWA_Options : '+str(listName[1])+'\n')
+        VCF.write('##Disco File='+str(listName[0])+".fa"+'\n')
+else:
+        VCF.write('##reference=file://'+str(fichier)+'\n')
 VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches ">\n')
 VCF.write('##ALT=<ID=ALT,Number=1,Type=String,Description="Allele of the other path ">\n')
 VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or \'.\' ">\n')
 VCF.write('##INFO=<ID=Ty,Number=1,Type=Float,Description="SNP, INS, DEL or "."">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
+VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : both paths multiply mapped : multi ; one path multiply mapped : one ; else : none">\n')
 VCF.write('##INFO=<ID=DT,Number=1,Type=Integer,Description="Mapping distance with reference">\n')
 VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig left">\n')
 VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
 VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
 VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
-VCF.write('##INFO=<ID=C,Number=1,Type=Integer,Description="Depth of each allele by samples">\n')
+VCF.write('##INFO=<ID=C,Number=1,Type=Integer,Description="Depth of each allele by sample">\n')
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
-VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (1) or Forward (0) Alignement">\n')
+VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=Integer,Description="Genotype">\n')
 VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
 VCF.write('##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">\n')

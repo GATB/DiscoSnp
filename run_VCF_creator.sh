@@ -215,7 +215,7 @@ if [ -z "$samfile" ];then
 	#BWA files
        #Pierre: user gave a file name we must respect its choice.
 #	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf" 
-	samfile=$(basename $vcffile .vcf)"_n"$n"_l"$l"_s"$s".sam"
+	samfile=$(basename $discoSNPs .fa)"BWA_OPT_n"$n"_l"$l"_s"$s".sam"
 	saifile=$(basename $vcffile .vcf)"_n"$n"_l"$l"_s"$s".sai"
 	indexamb=$genome".amb"
 	indexann=$genome".ann"
