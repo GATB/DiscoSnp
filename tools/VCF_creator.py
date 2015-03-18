@@ -333,11 +333,13 @@ else:
             ##Close SNPs
 	    else:
                 phased=True
+                ID=1
                 for comptPol in range(0,len(listPolymorphismePos)):
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
-                        PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                        PrintVCFGhost(table,str(numSNPUp)+"_"+str(ID),tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                        ID+=1
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------

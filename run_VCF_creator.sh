@@ -90,7 +90,7 @@ case $opt in
 
 	s)
 	echo -e "\t##use distance with the seed : $OPTARG" >&2
-	l=$OPTARG
+	s=$OPTARG
 	;;
 
 	n)
@@ -100,7 +100,7 @@ case $opt in
 
 	l)
 	echo -e "\t##use seed length : $OPTARG" >&2
-	s=$OPTARG
+	l=$OPTARG
 	;;
 
 	f)

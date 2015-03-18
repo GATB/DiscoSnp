@@ -934,8 +934,11 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
+        ID=1
         for l in range(len(tablebis)):
+                tablebis[l][2]=str(table[2])+"_"+str(ID)
                 printOneline(tablebis[l],VCF)
+                ID+=1
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Both paths are unmapped     
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
@@ -952,53 +955,56 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
+        ID=1
         for l in range(len(tablebis)):
+                tablebis[l][2]=str(table[2])+"_"+str(ID)
                 printOneline(tablebis[l],VCF)
+                ID+=1
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Upper path mapped and lower path unmapped  
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
         comptPol=0
         reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
-            nucleoLow="."
+            if (int(reverseUp)==-1):
+                nucleoLow=ReverseComplement(listnucleoLow[comptPol])
+            elif int(reverseUp)==1:
+                nucleoLow=listnucleoLow[comptPol]
             nucleoRefLow="."
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
             nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
             table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
-            if (int(reverseUp)==-1) and dmax:
-                table[4]=ReverseComplement(seqLow[int(listPolymorphismePosLow[comptPol])-1])
-            elif int(reverseUp)==1 and dmax:
-                table[4]=seqLow[int(listPolymorphismePosLow[comptPol])-1]
-            else:
-                table[4]='.'
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
+        ID=1
         for l in range(len(tablebis)):
+                tablebis[l][2]=str(table[2])+"_"+str(ID)
                 printOneline(tablebis[l],VCF)
+                ID+=1
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped            
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
         reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
         for comptPol in range(len(listPolymorphismePos)):
-            nucleoUp="."
+            if (int(reverseLow)==-1):
+                nucleoUp=ReverseComplement(listnucleoUp[comptPol])
+            elif int(reverseLow)==1:
+                nucleoUp=listnucleoUp[comptPol]
             nucleoRefUp="."
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
             nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
             table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,0)
-            if (int(reverseLow)==-1) and dmax:
-                table[4]=ReverseComplement(seqUp[int(listPolymorphismePosUp[comptPol])-1])
-            elif int(reverseLow)==1 and dmax:
-                table[4]=seqUp[int(listPolymorphismePosUp[comptPol])-1]
-            else:
-                table[4]='.'
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
+        ID=1
         for l in range(len(tablebis)):
-                printOneline(tablebis[l],VCF)   
+                tablebis[l][2]=str(table[2])+"_"+str(ID)
+                printOneline(tablebis[l],VCF)
+                ID+=1  
             
 ##############################################################
 # geno: [key][0] : genotype (0/0, 0/1 or 1/1)
