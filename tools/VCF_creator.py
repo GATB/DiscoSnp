@@ -78,10 +78,10 @@ if boolmyname:
         VCF.write('##SAMPLE='+str(listName[0])+".fa"+'\n')
 else:
         VCF.write('##SAMPLE=file://'+str(fichier)+'\n')
-VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches ">\n')
-VCF.write('##ALT=<ID=ALT,Number=1,Type=String,Description="Allele of the other path ">\n')
-VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or \'.\' ">\n')
-VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or "."">\n')
+VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
+VCF.write('##ALT=<ID=ALT,Number=1,Type=String,Description="Allele of the other path">\n')
+VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or \'.\'">\n')
+VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
 VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : both paths multiply mapped : multi ; one path multiply mapped : one ; else : none">\n')
 VCF.write('##INFO=<ID=DT,Number=1,Type=Integer,Description="Mapping distance with reference">\n')
@@ -100,7 +100,7 @@ VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the ref
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
 VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
-VCF.write('##FORMAT=<ID=PL,Number=G,Type=Float,Description="Phred-scaled Genotype Likelihoods">\n')
+VCF.write('##FORMAT=<ID=PL,Number=.,Type=Float,Description="Phred-scaled Genotype Likelihoods">\n')
 table = [0] * 10 # create a 10 cols array
 
 ##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals

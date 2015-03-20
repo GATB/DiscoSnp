@@ -945,8 +945,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         reverseUp="."
         i=0
         for i in range(len(listPolymorphismePos)):
-            positionSnpUp="+"+str(listPolymorphismePos[i])
-            positionSnpLow="+"+str(listPolymorphismePos[i])
+            positionSnpUp=str(listPolymorphismePos[i])
+            positionSnpLow=str(listPolymorphismePos[i])
             nucleoUp=listnucleoUp[i]
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
@@ -1056,6 +1056,8 @@ def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigL
     table[4]=ntLow
     table[7]="Ty="+str(tp)+";"+"Rk="+str(valRankUp)+";"+"UL="+str(unitigLeftUp)+";"+"UR="+str(unitigRightUp)+";"+"CL="+str(contigLeftUp)+";"+"CR="+str(contigRightUp)+";"+str(covUp)
     table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
+    table[7]=table[7].replace("None",".")
+    table[7]=table[7].replace("none",".")
     printOneline(table,VCF)
     
 ##############################################################
@@ -1076,6 +1078,8 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,
         table[5]=qual
     table[6]=filterfield
     table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"MULTI="+str(multi)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+str(cov)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
+    table[7]=table[7].replace("None",".")
+    table[7]=table[7].replace("none",".")
     table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
     return table  
 ##############################################################
