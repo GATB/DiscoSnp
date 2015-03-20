@@ -487,8 +487,8 @@ def GetSequence(snpUp,snpLow):
 ##############################################################
 def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel):
     #INIT VALUES
-    posSNPUp=None
-    posSNPLow=None
+    posSNPUp="0"+str(dicoHeaderUp["P_1"][0])
+    posSNPLow="0"+str(dicoHeaderUp["P_1"][0])
     boolRefUp=None
     boolRefLow=None
     nucleoUp=None
@@ -593,7 +593,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpUp[3])<=0 :
         nucleoUp = dicoHeaderUp["P_1"][1]
-        positionSnpUp = posCentraleUp
+        positionSnpUp = posSNPUp
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ####Low 
@@ -624,7 +624,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpLow[3])<=0:
         nucleoLow = dicoHeaderUp["P_1"][2]
-        positionSnpLow = posCentraleLow
+        positionSnpLow = posSNPLow
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -681,6 +681,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             else:
                 posSNPLow=None
                 posSNPUp=posCentraleUp+posRef
+        elif (int(snpUp[3])<=0 and int(snpLow[3])<=0):
+                posSNPUp="0"+str(dicoHeaderUp["P_1"][0])
+                posSNPLow="0"+str(dicoHeaderUp["P_1"][0])
         ##Check the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
         if boolRefLow==True and reverseLow==-1 and reverseUp==1:
                nucleoUp=ReverseComplement(nucleoUp)
@@ -837,11 +840,11 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
                 table[5]=snpUp[10]
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Both paths are unmapped       
-    elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
+    elif int(snpUp[3])<=0 and int(snpLow[3])<=0:#FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if nucleoLow<nucleoUp:
-            table=FillVCF(table,numSNPLow,".",".",nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPLow,".",positionSnpUp,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
-            table=FillVCF(table,numSNPUp,".",".",nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,".",positionSnpLow,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
     return(table)
 ##############################################################
 ##############################################################   
@@ -884,6 +887,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         indexSmallestPosLow=listPolymorphismePosLow.index(listSortedPosLow[0])
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][0]
+        #Decide what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
         if boolRefUp==True:
             indexSmallestPos=indexSmallestPosUp
         elif boolRefLow==True:
@@ -945,8 +949,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         reverseUp="."
         i=0
         for i in range(len(listPolymorphismePos)):
-            positionSnpUp=str(listPolymorphismePos[i])
-            positionSnpLow=str(listPolymorphismePos[i])
+            positionSnpUp="0"+str(listPolymorphismePos[i])
+            positionSnpLow="0"+str(listPolymorphismePos[i])
             nucleoUp=listnucleoUp[i]
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
