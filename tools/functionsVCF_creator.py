@@ -283,22 +283,22 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
         while i<len( listCoverageUp):
             listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))
             if covUp!='':
-                covUp=str(covUp)+';'+str( listCUp[i])+':'+str( listCoverageUp[i])+"|"+str( listCoverageLow[i])
+                covUp=str(covUp)+';'+str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
             else:
-                covUp=str( listCUp[i])+':'+str( listCoverageUp[i])+"|"+str( listCoverageLow[i])
+                covUp=str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
             i+=1
         i=0
         covLow=''
         while i<len( listCoverageLow):
             if covLow!='':
-                covLow=str(covLow)+';'+str( listCLow[i])+':'+str( listCoverageLow[i])+"|"+str( listCoverageUp[i])
+                covLow=str(covLow)+';'+str( listCLow[i])+'='+str( listCoverageLow[i])+","+str( listCoverageUp[i])
             else:
-                covLow=str( listCLow[i])+':'+str( listCoverageLow[i])+"|"+str( listCoverageUp[i])
+                covLow=str( listCLow[i])+'='+str( listCoverageLow[i])+","+str( listCoverageUp[i])
             i+=1
     else:
         listCovGeno.append(int( listCoverageUp[0])+int( listCoverageLow[0]))
-        covUp=str( listCUp[0])+':'+str( listCoverageUp[0])
-        covLow=str( listCLow[0])+':'+str( listCoverageLow[0])
+        covUp=str( listCUp[0])+'='+str( listCoverageUp[0])
+        covLow=str( listCLow[0])+'='+str( listCoverageLow[0])
     return(covUp,covLow,listCovGeno) #string covUp C1:5|23;C2:35|1 listCovGeno=[28,36]
 ##############################################################
 ##############################################################
@@ -1054,7 +1054,7 @@ def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigL
     table[2]=numSNPUp
     table[3]=ntUp
     table[4]=ntLow
-    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRankUp)+";"+"UL:"+str(unitigLeftUp)+";"+"UR:"+str(unitigRightUp)+";"+"CL:"+str(contigLeftUp)+";"+"CR:"+str(contigRightUp)+";"+str(covUp)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRankUp)+";"+"UL="+str(unitigLeftUp)+";"+"UR="+str(unitigRightUp)+";"+"CL="+str(contigLeftUp)+";"+"CR="+str(contigRightUp)+";"+str(covUp)
     table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
     printOneline(table,VCF)
     
@@ -1075,7 +1075,7 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty:"+str(tp)+";"+"Rk:"+str(valRank)+";"+"MULTI:"+str(multi)+";"+"DT:"+str(ok)+";"+"UL:"+str(unitigLeft)+";"+"UR:"+str(unitigRight)+";"+"CL:"+str(contigLeft)+";"+"CR:"+str(contigRight)+";"+str(cov)+";"+"Genome:"+str(nucleoRef)+";"+"Sd:"+str(reverse)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"MULTI="+str(multi)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+str(cov)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
     table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
     return table  
 ##############################################################
