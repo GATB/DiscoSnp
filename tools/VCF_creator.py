@@ -75,12 +75,12 @@ nbSnp=0
 nbSnp,nbGeno = Comptage(fichier)
 if boolmyname:
         VCF.write('##BWA_Options='+str(listName[1])+'\n')
-        VCF.write('##SAMPLE='+str(listName[0])+".fa"+'\n')
+        VCF.write('##SAMPLE=file://'+str(listName[0])+".fa"+'\n')
 else:
         VCF.write('##SAMPLE=file://'+str(fichier)+'\n')
 VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
 VCF.write('##ALT=<ID=ALT,Number=1,Type=String,Description="Allele of the other path">\n')
-VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or \'.\'">\n')
+VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or .">\n')
 VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
 VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : both paths multiply mapped : multi ; one path multiply mapped : one ; else : none">\n')
@@ -111,7 +111,9 @@ else:
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t')
     for i in range(0,int(nbGeno)):
         nomCol="G"+str(i+1)
-        VCF.write(str(nomCol)+"\t")
+        VCF.write(str(nomCol))
+        if i<nbGeno-1 :
+                VCF.write("\t" )# Add a \t except if this is the last genotype
         if i==int(nbGeno)-1:
             VCF.write("\n")
 i=0            
