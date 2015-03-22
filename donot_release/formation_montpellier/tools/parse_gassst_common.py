@@ -91,6 +91,7 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
     nb_pol=0
     while 1: 
         line=filin.readline() #>INDEL_lower_path_99960|P_1:30_3_2|high|nb_pol_1|C1_24|C2_0|G1_1/1|G2_0/0|rank_1.00000 OR >SNP_higher_path_99995|P_1:30_C/T|high|nb_pol_1|C1_0|C2_38|G1_1/1|G2_0/0|rank_1.00000
+                              #>SNP_higher_path_9979|P_1:30_A/G|high|nb_pol_1|left_unitig_length_48|right_unitig_length_4|left_contig_length_48|right_contig_length_1781|C1_33|C2_0|G1_0/0:6,104,664|G2_1/1:704,110,6|rank_1.00000
         if not line: break
         if line.startswith(">"+typePolymorphism):
             pol_id=int(line.split("|")[0].split("_")[-1])
@@ -116,7 +117,6 @@ def getPredictedPolymorphism (discoResultsFile, threshold, typePolymorphism):
                             nb_pol+=1
                 
                 list_predicted_polymorphism[pol_id] = 0 # This polymorphism has not been confirmed yet
-            
             
             
             

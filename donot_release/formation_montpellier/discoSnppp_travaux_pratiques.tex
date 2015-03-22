@@ -8,7 +8,7 @@
 \usepackage{xcolor}
 \usepackage{xspace}
 \newcommand{\discopp}{{\it DiscoSnp++}\xspace}
-\newcommand{\code}[1]{\begin{center} \textcolor{gray}{\#{\emph{#1}}} \end{center}} 
+\newcommand{\code}[1]{\begin{center} \textcolor{gray}{{\emph{#1}}} \end{center}} 
 \newcommand{\sligne}{\begin{center} \begin{tabular}{c}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\ \hline\\\end{tabular}\end{center}}
 
 \begin{document}
@@ -29,7 +29,7 @@ Lors de ce TP nous débuterons par l'utilisation de \discopp intégralement en l
 \code{command}
 % section preambule (end)
 
-\section{Téléchargement et installation} % (fold)
+\section*{Téléchargement et installation de \discopp} % (fold)
 \label{sec:telechargement_et_installation}
 Nous allons débuter par télécharger et installer \discopp. Pour cela allez sur la page: \url{http://colibread.inria.fr/software/discosnp/} et télécharger la dernière version de \discopp. \\
 
@@ -42,50 +42,152 @@ Une fois dans le répertoire créé (\emph{``DiscoSNP++-X.Y.Z''}), vous pouvez c
 
 \code{./compile\_discoSnp++.sh}
 
-\section{Premiers pas}
+\section*{Pré-requis TP}
+Nous allons utiliser des jeux de données et des outils spécifiques à ce TP. Voici les commandes à utiliser afin d'utiliser correctement ces ressources:
+        \code{wget \url{http://igm.univ-mlv.fr/~peterlon/tp_installer.sh}}
+        \code{./tp\_installer.sh}
+
+% \begin{itemize}
+%        \item Récupérons deux deux jeux de reads: \code{wget \url{http://igm.univ-mlv.fr/~peterlon/humch1_00096_reads.fasta.gz}\\wget \url{http://igm.univ-mlv.fr/~peterlon/humch1_00100_reads.fasta.gz}}
+%        \item Récupérons un génome de référence et des données associées: \code{wget \url{http://igm.univ-mlv.fr/~peterlon/humch1_first_10M.fasta}\\wget \url{http://igm.univ-mlv.fr/~peterlon/ref_human}}
+%        \item Récupérons des outils spécifiques à ce TP: \code{wget \url{http://igm.univ-mlv.fr/~peterlon/tools.zip}}
+%        \item Préparons ces outils:
+%        \code{unzip tools.zip\\cd tools/gassst\\./make \#make osx=1 si vous êtes sous mac\\cd ../..\\ln -s tools/* .}
+% \end{itemize}
+
+
+
+
+
+\section*{Premiers pas}
 La commande principale est ``run\_discoSnp++.sh''. Nous pouvons l'appeler sans arguments ou avec des arguments. Commençons par lancer la commande sans arguments:
 \code{./run\_discoSnp++.sh}
 Dans ce cas, l'aide est affichée. Cette commande est équivalente à l'appel de ``run\_discoSnp++.sh'' avec l'option/l'argument ``-h'':
 \code{./run\_discoSnp++.sh -h}
 
-\qu Lisez attentivement les options possibles. Étant donné un jeux de reads ``reads.fasta'', indiquez la commande minimal pour traiter ce jeux de reads avec les arguments par défaut de \discopp
 
 
-\qu Lisez le fichier README et lancez les deux commandes qui y sont indiquées. Quelle différence lors de l'appel de ``run\_discoSnp++.sh'' avec ou sans l'option -G ?
+%\qu Lisez attentivement les options possibles. 
 
-
-\section{Application E. Coli}
-
-Vous trouverez un ensemble de jeux de reads correspondants à différents individus E. Coli dans lesquels nous avons artificiellement inséré des variants.   
-
-...
-
-
-\section{Application sur un fragment du génome humain}
-Vous trouverez à cette adresse deux jeux de reads correspondant à deux individus humains issus du projet 1000 génomes: humch1\_00096\_reads.fasta.gz et humch1\_00100\_reads.fasta.gz. Ces deux jeux de reads correspondent à un séquençage à profondeur $40x$ pour chacun des 2 individus, avec des reads de taille 100 et un taux d'erreur uniforme de 0.1\%.
-
- Nous avons conservé les 10  premiers millions de nucléotides du chromosome 1 de ces deux individus. Nous avons simulé les variants détectés par le projet 1000 génomes pour ces 2 individus.
-
-Nous avons également à notre disposition le fichier ``humch1\_first\_10M.fasta'' qui est notre génome de référence. Il s'agit du génome hg19 limité lui aussi au 10  premiers millions de nucléotides du chromosome 1.
-\subsection{Premiers tests}
-\qu Que signifie la notion de SNP \emph{isolé} ?
-
-\qu Quelle ligne de commande utiliser pour détecter les SNPs dits \emph{isolés} dans les reads de ces deux individus ? Lancez \discopp avec cette ligne de commande. 
+\qu Lisez le fichier README et lancez la première commande indiquée.
 
 \qu Quels fichiers ont été générés ? Indiquez pour chacun d'entre eux leur contenu et leur utilité. 
 
-\qu Quelle ligne de commande utiliser pour détecter également des SNPs dits \emph{proches} dans ces données ? Relancez \discopp en détectant jusqu'à 4 SNPs proches dans une même \emph{bubble} ?
+\qu Lancez la seconde commande indiquée dans le README. Quelle différence lors de l'appel de ``run\_discoSnp++.sh'' avec ou sans l'option -G ?
+
+\section*{Application sur un fragment du génome humain en version ligne de commandes}
+Les fichiers humch1\_00096\_reads.fasta.gz et humch1\_00100\_reads.fasta.gz sont deux jeux de reads correspondant à deux individus humains issus du projet 1000 génomes.  Nous avons conservé les 10  premiers millions de nucléotides du chromosome 1 de ces deux individus. Nous avons simulé les variants détectés par le projet 1000 génomes pour ces 2 individus. Ces deux jeux de reads correspondent à un séquençage à profondeur $40x$ pour chacun des 2 individus, avec des reads de taille 100 et un taux d'erreur uniforme de 0.1\%.
+
+
+
+Nous avons également à notre disposition le fichier ``humch1\_first\_10M.fasta'' qui est notre génome de référence . Il s'agit du génome hg19 limité lui aussi au 10  premiers millions de nucléotides du chromosome 1.
+
+
+\subsection*{Premiers tests}
+\qu Que signifie la notion de SNP \emph{isolé} ?
+
+\qu Quelle option permet  de détecter ou non des SNPs dits \emph{isolés} dans les reads de ces deux individus ? 
+
+\qu Lancez \discopp sur les reads humains sans rechercher de SNP isolés
+
+\qu Relancez \discopp en détectant jusqu'à 2 SNPs proches dans une même \emph{bubble} ?
 
 \qu Lors de votre dernière commande vous avez recalculé le graphe de de Bruijn des $k$-mers des deux jeux de reads (fichier .h5). Cela vous parait il judicieux ? Combien de temps cela a t'il pris ? Comment éviter ce calcul redondant ? 
 
-\qu Relancez \discopp en détectant jusqu'à 40 SNPs proches dans une même \emph{bubble}. Que se passe t'il ? Essayez de lancer \discopp en recherchant au plus 10 SNPs proches par bubble. 
 
 \qu Jusqu'à présent \discopp n'a pas détecté d'indels. Pouvez vous expliquer pourquoi ? Indiquez puis exécutez la commande permettant de détecter des indels de taille $\leq$ 10.
 
-\qu Si tout va bien nous avons lancé quatre fois \discopp avec succès. Comment retrouvez vous les résultats de ces différents appels ? 
 
-\subsection{Validation des résultats}
+\subsubsection*{Extensions}
+\qu Jusqu'à présent \discopp n'a pas détecté les contigs auxquels appartiennent les variants détectés. Quelle option permet de détecter ces contigs ? 
+
+\qu Lancez \discopp pour détecter 1/ jusqu'à 2 SNPs proches dans une même \emph{bubble} 2/ des indels de taille $\leq$ 10 3/ les contigs auxquels appartiennent les variants détectés.
+
+\qu Si tout va bien nous avons lancé plusieurs fois \discopp avec succès. Comment retrouvez vous les résultats de ces différents appels ? 
+
+\subsection*{Validation des résultats}
 Sachant que nous avons nous même généré les données nous disposons d'une liste parfaite et exhaustive des variants qu'il faut retrouver. Ceci nous permet d'estimer la précision (proportion de mauvais variants prédits) et le recall (proportion de variant correctement détectés).
+
+Nous vous proposons un outil \emph{validator.sh} permettant de calculer automatiquement des statistiques sur les prédictions \discopp. En lui indiquant le fichier \emph{coherent.fa} généré par \discopp, ce script génère :
+\begin{itemize}
+       \item Un fichier .log qui indique pour les SNPs et les Indels la précision et le recall. 
+       \item Un fichier .png qui montre la précision et le recall en fonction du rang. 
+       \item Un fichier \_stat.txt qui indique en particulier le rang moyen des vrais positifs (TP) et des faux positifs (FP) ainsi que la longueur des unitigs et contigs en fonction des TP ou VP.
+       \item Un fichier \_stat.png qui montre des boxplot de la répartition des rangs, longueurs des unitigs ou contigs en fonction de TP ou VP.
+\end{itemize}
+
+\qu Retrouvez le fichier \emph{$\dots$coherent.fa} de votre dernier appel de \discopp. Il devrait s'appeler \emph{discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent.fa}. Lancez la commande 
+\code{./validator.sh discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent.fa}
+
+\qu Lisez le fichier \emph{discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent.log}
+\code{more discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent.log}
+Comment interprétez vous les informations qui y sont présentés ?
+
+\qu Même question pour le fichier \emph{discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent\_stat.txt} et la figure \emph{discoRes\_k\_31\_c\_4\_D\_10\_P\_2\_b\_0\_withlow\_coherent\_stat.png}.
+
+
+%
+% \begin{itemize}
+%        \item tests $k$
+%        \item tests $c$
+%        \item compare $D,P$
+%        \item test $C$ 100
+% \end{itemize}
+
+\subsubsection*{Pour aller plus loin} % (fold)
+\label{ssub:pour_aller_plus_loin}
+Deux paramètres sont critiques lors de l'appel à \discopp: $k$: la longueur des $k$-mers utilisés dans le graphe de de-Bruijn et $c$ le seuil de comptage pour conserver un $k$-mer (tous les $k$-mers vus moins de $c$ fois dans les jeux de données ne sont pas utilisé). Notez que les valeurs utilisée par défaut ont été déterminées empiriquement et ne conviendront pas à toutes les instances. 
+
+\qu Quelle est la valeur de $c$ par défaut ?
+
+\qu Lancez \discopp sans autre option que $c=2$, puis $c=4$ puis $c=10$. Comparez les résultats obtenus en utilisant \emph{validator.sh}. Qu'en concluez vous ?
+%for c in 2 4 10; do ../../../run_discoSnp++.sh -r "humch1_00096_reads.fasta.gz humch1_00100_reads.fasta.gz" -c $c; done
+
+\qu Quelle est la valeur de $k$ par défaut ?
+
+\qu Lancez \discopp sans autre option que $k=11$, puis $k=31$, puis $k=61$. Comparez les résultats obtenus en utilisant \emph{validator.sh}. Qu'en concluez vous ?
+%for k in 11 31 61; do ../../../run_discoSnp++.sh -r "humch1_00096_reads.fasta.gz humch1_00100_reads.fasta.gz" -k $k -g; done
+
+\qu À l'inverse de l'option -c, il existe également un paramètre -C permettant de limiter le nombre maximal d'apparition d'un $k$-mer dans le jeux de données. Quelle est l'utilité d'un tel paramètre ? 
+
+\qu Comment utiliser des données pairées ? Quel est l'impact sur le déroulement de discoSnp++ ?
+
+\qu Lancez \discopp en limitant le nombre d'apparition des $k$-mer à 100 (sans autre option). Comparez avec \emph{validator.sh} les résultats sans l'option -C. Qu'en concluez-vous ?
+
+\qu Lancez \discopp en détectant jusqu'à 40 SNPs proches dans une même \emph{bubble}. Que se passe t'il ? 
+% subsubsection pour_aller_plus_loin (end)
+
+\section*{Utilisation de \discopp sous Galaxy}
+Vous trouverez à cette adresse: \url{http://galaxy.genouest.org/} une instance galaxy intégrant les outils du projet Colib'read et en particulier \discopp.
+
+Vous pourrez accéder à cette instance via les logins/mots de passe qui vous seront fournis lors du TP. 
+
+\subsection*{Interface galaxy}
+\qu Comment uploader vos propres données ? Comment utiliser les données déjà préparées pour ce TP ?
+
+\qu Où trouver les outils Colib'read et plus particulièrement \discopp ?
+
+\qu Une fois sur la page de lancement de \discopp retrouvez les options que nous avons déjà découvertes. Certaines options ne sont pas accessibles depuis l'interface Galaxy. Est-ce limitant pour vous ?
+
+\subsection*{Test sur plus de deux individus}
+
+\qu Lancez sous galaxy \discopp sur un sous-ensemble de quelques individus E. Coli, avec mapping sur génome de référence. Note: les données Coli sont disponibles dans les librairies de données pour ce TP. 
+
+\qu Quand et où retrouvez vous vos résultats ?
+
+\qu Comment retrouvez vous l'information liée à chacun des individus que vous avez utilisés ? 
+
+
+\subsection*{Test sur un unique haploïde}
+% Les données proposées pour ce TP contiennent
+% \begin{itemize}
+%        \item Les données humaines que nous venons de tester
+%        \item Des données issues de 10 individus E. Coli. Dans lesquelles des variants on été insérés de manière à ce que : la moitiée des variants soit partagé par toute paire d'individus, 1/3 par 3, ...
+% \end{itemize}
+\qu Lancez \discopp sur un unique jeux de reads E. Coli (coli\_muted\_n\_30\_genome\_0\_reads.fasta par exemple).
+
+\qu Que pouvez vous dire des résultats ? Aurions nous conclus la même chose sur les données humains (jeux humch1\_00096\_reads.fasta.gz seul par exemple) ?
+
 
 
 \end{document}

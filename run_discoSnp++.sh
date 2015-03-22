@@ -340,6 +340,9 @@ echo -e "\t#############################################################"
 
 i=4 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 smallk=$(($k-$i-1)) # DON'T modify this.
+if (( $smallk>31))  ; then
+  smallk=31
+fi
 
 
 echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"

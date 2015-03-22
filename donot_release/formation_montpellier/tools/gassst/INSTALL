@@ -1,0 +1,21 @@
+Brief installation instructions for GASSST
+________________________________________________________________
+
+
+Decompress the file using the command :
+
+   gunzip Gassst.tar.gz   Uncompresses the archive.
+   tar -xvf Gassst.tar      Unpacks the archive. 
+
+To compile the software type:
+
+   make                      
+ 
+
+To compile for software without SSSE3 type : 
+
+make amd=1
+
+This will generate the binary
+
+Gassst
