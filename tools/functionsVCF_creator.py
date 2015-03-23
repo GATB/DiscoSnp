@@ -395,6 +395,8 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                 if j<(len(listpol)-1):
                     j+=1
                 else:
+                    #if listShift==[]:
+                    #    listShift=[0]*len(listpol)
                     return(listPosRef,listShift)
             i+=2
     #Simple snp and Indel
@@ -415,7 +417,6 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                     posCentraleRef=int(lenDemiSeq)+shift
                     return(posCentraleRef,shift)
             i+=2
-    return(listPosRef,listShift)
 ##############################################################
 #shift : integer shift in the alignment between the reference and the sequence of the variant 
 #posMut : column 19 in the samfile example 30T30 means 30 matches between the ref and the seq of the variant, one mismatch (T on the reference) and 30 matches between the ref and the seq of the variant
@@ -518,10 +519,13 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     nucleoRefLow=None
     listPolymorphismePosUp=None
     listPolymorphismePosLow=None
-    
+    shiftUp=0
+    shiftLow=0
     posModif=dicoHeaderUp["P_1"][0] #Position of the first variant gived by discosnp
     seqUp=list(snpUp[9])
     seqLow=list(snpLow[9])
+    if posModif==0:
+        posModif=len(seqUp)/2
     reverseUp=1
     reverseLow=1
     dicopolUp={}
