@@ -42,10 +42,6 @@ Une fois dans le répertoire créé (\emph{``DiscoSNP++-X.Y.Z''}), vous pouvez c
 
 \code{./compile\_discoSnp++.sh}
 
-\section*{Pré-requis TP}
-Nous allons utiliser des jeux de données et des outils spécifiques à ce TP. Voici les commandes à utiliser afin d'utiliser correctement ces ressources:
-        \code{wget \url{http://igm.univ-mlv.fr/~peterlon/tp_installer.sh}}
-        \code{./tp\_installer.sh}
 
 % \begin{itemize}
 %        \item Récupérons deux deux jeux de reads: \code{wget \url{http://igm.univ-mlv.fr/~peterlon/humch1_00096_reads.fasta.gz}\\wget \url{http://igm.univ-mlv.fr/~peterlon/humch1_00100_reads.fasta.gz}}
@@ -76,6 +72,19 @@ Dans ce cas, l'aide est affichée. Cette commande est équivalente à l'appel de
 \qu Lancez la seconde commande indiquée dans le README. Quelle différence lors de l'appel de ``run\_discoSnp++.sh'' avec ou sans l'option -G ?
 
 \section*{Application sur un fragment du génome humain en version ligne de commandes}
+
+\subsection*{Pré-requis pour l'analyse des données humaines}
+Nous allons créer et utiliser un répertoire spécifique pour cette partie du TP. Dans le répertoire (\emph{``DiscoSNP++-X.Y.Z''}) effectuez les commandes suivantes:
+\code{mkdir tp\_disco\\cd tp\_disco}
+
+\qu Comment appeler \discopp à partir d'un répertoire ne contenant pas le script ``run\_discoSnp++.sh'' ?\\
+
+Nous allons utiliser des jeux de données et des outils spécifiques à ce TP. Voici les commandes à utiliser afin d'utiliser correctement ces ressources:
+        \code{wget \url{http://igm.univ-mlv.fr/~peterlon/tp_installer.sh}}
+        \code{chmod u+x tp\_installer.sh}
+        \code{./tp\_installer.sh}
+        
+        
 Les fichiers humch1\_00096\_reads.fasta.gz et humch1\_00100\_reads.fasta.gz sont deux jeux de reads correspondant à deux individus humains issus du projet 1000 génomes.  Nous avons conservé les 10  premiers millions de nucléotides du chromosome 1 de ces deux individus. Nous avons simulé les variants détectés par le projet 1000 génomes pour ces 2 individus. Ces deux jeux de reads correspondent à un séquençage à profondeur $40x$ pour chacun des 2 individus, avec des reads de taille 100 et un taux d'erreur uniforme de 0.1\%.
 
 
@@ -142,6 +151,8 @@ Deux paramètres sont critiques lors de l'appel à \discopp: $k$: la longueur de
 
 \qu Lancez \discopp sans autre option que $c=2$, puis $c=4$ puis $c=10$. Comparez les résultats obtenus en utilisant \emph{validator.sh}. Qu'en concluez vous ?
 %for c in 2 4 10; do ../../../run_discoSnp++.sh -r "humch1_00096_reads.fasta.gz humch1_00100_reads.fasta.gz" -c $c; done
+%for c in 2 4 10; do ./validator.sh discoRes_k_31_c_$c\_D_0_P_1_b_0_withlow_coherent.fa; done
+
 
 \qu Quelle est la valeur de $k$ par défaut ?
 

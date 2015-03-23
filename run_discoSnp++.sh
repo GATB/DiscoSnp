@@ -424,7 +424,7 @@ echo -e -n "\t ending vcf creation date="
 date
 echo
 echo -e "\t################################################################################################################"
-echo -e "\t SNPs and indels are stored in \""$kissprefix\_coherent.fa"\""
+echo -e "\t fasta of predicted variant is \""$kissprefix\_coherent.fa"\""
 echo -e "\t VCF file is \""$kissprefix\_coherent.vcf"\""
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
 echo -e "\t################################################################################################################"
