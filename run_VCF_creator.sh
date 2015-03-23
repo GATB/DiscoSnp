@@ -154,6 +154,10 @@ fi
 ####Use the pipeline of aligement
 if [ -z "$samfile" ];then
         #Ghost mode
+        if [ ! -z  "$vcffile" ] && [ -z "$genome" ] && [ -z "$discoSNPs" ]; then
+	        help
+	        exit 1
+	fi
         if [ -z "$genome" ]; then
                 echo -e "...Ghost mode..."
                 echo -e "...Creation of a vcf without alignment..."
