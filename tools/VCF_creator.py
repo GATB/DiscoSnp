@@ -152,7 +152,7 @@ if ".sam" in fichier:
         indel=False    # boolean to know if it is an indel
         phased=False    # am I phased?
         filterField='.' # init the vcf field filter
-        posUp,posLow,snpLow,snpUp,boolXAUp,boolXALow = GetCouple(snpUp,snpLow) # get all the positions of mapping for one variant with the associated number of mapping errors
+        posUp,posLow,boolXAUp,boolXALow = GetCouple(snpUp,snpLow) # get all the positions of mapping for one variant with the associated number of mapping errors
         seqUp=snpUp[9]   # sequences
         seqLow=snpLow[9] # sequences
         
