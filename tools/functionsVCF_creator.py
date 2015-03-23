@@ -484,6 +484,10 @@ def GetSequence(snpUp,snpLow):
 ##############################################################
 #dicoHeader snps : dicoHeader[key]=[posD,ntUp,ntLow] 
 #dicoHeader indel : dicoHeader[key]=[posD,ind,amb]
+#snpUp/snpLow : line of the sam file
+#posUp/posLow : dictionnary with all the mapping position of every snps associated with their number of mismatch
+#nb_polUp/nb_polLow : number of variants for the current path
+#indel : boolean True if the current variant is an indel
 ##############################################################
 def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel):
     #INIT VALUES
@@ -697,6 +701,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         if boolRefUp==False and boolRefLow==False:
                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
         return(nucleoLow,posSNPLow,nucleoUp,posSNPUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow)
+        #nucleoLow/nucleoUp : nucleotide of each path corresponding to the variant
+        #posSNPLow/posSNPUp : position of the variant taking into account the shift
+        #boolRefUp/boolRefLow : boolean TRUE the variant (of the path Up or Low) is the reference
     else:
         return(dicopolUp,dicopolLow,listPolymorphismePosUp,listPolymorphismePosLow)
 ##############################################################

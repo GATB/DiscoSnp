@@ -10,7 +10,7 @@ genome=""
 PATH_BWA=""
 discoSNPs=""
 l=10
-n=3
+n=""
 s=0
 
 
@@ -129,8 +129,14 @@ done
 #---------------------------------------------------------------------------------------------------------------------------
 ###Tests
 if [ -z "$vcffile" ];then
-	help
-	exit 1
+        if [ ! -z "$samfile" ];then
+                echo -e "..To skip the alignment phase ..."
+                echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+                exit 1
+        else
+	        help
+	        exit 1
+	fi
 fi
 
 # if [ -z "$PATH_VCF_creator" ];then
@@ -262,7 +268,12 @@ if [ -z "$samfile" ];then
 else
        ####Skip alignment phase to create a vcf file
 ##Test to execute VCF_creator
-	echo -e "...Skipping alignment phase..."
+        echo -e "...Skipping alignment phase..."
+        if [ -z "$n" ];then
+                echo -e " ...To do it you must provide the number of mismatch of the alignment..."
+                echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+                exit 1
+        fi
 	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
 		echo -e "...You must provide an output <file>..."
 		exit 1
@@ -274,6 +285,7 @@ else
 	##Creation of the vcf file
        
 	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -o $vcffile
+	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
 
 if [ $remove=1 ];then
