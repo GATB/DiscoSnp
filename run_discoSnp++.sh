@@ -19,7 +19,7 @@
 #*****************************************************************************
 
 #!/bin/bash
-
+Ttot="$(date +%s)" 
 #### constant #####
 max_C=$((2**31-1))
 
@@ -292,6 +292,7 @@ if [ $remove -eq 1 ]; then
 fi
 
 if [ ! -e $h5prefix.h5 ]; then
+       T="$(date +%s)"      
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
@@ -303,11 +304,15 @@ if [ ! -e $h5prefix.h5 ]; then
 		exit
 	fi
 
+       T="$(($(date +%s)-T))"
+       echo "Graph creation time in seconds: ${T}"
+
 else
 	echo -e "File $h5prefix.h5 exists. We use it as input graph"
 fi
 	
 
+T="$(date +%s)"      
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
@@ -320,6 +325,8 @@ then
     exit
 fi
 
+T="$(($(date +%s)-T))"
+echo "Bubble detection time in seconds: ${T}"
 
 if [ ! -f $kissprefix.fa ]
 then
@@ -333,6 +340,8 @@ fi
 #######################################################################
 #################### KISSREADS                  #######################
 #######################################################################
+
+T="$(date +%s)" 
 echo
 echo -e "\t#############################################################"
 echo -e "\t#################### KISSREADS MODULE #######################"
@@ -354,6 +363,10 @@ then
 echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
 exit
 fi
+
+T="$(($(date +%s)-T))"
+echo "Kissreads (mapping reads on bubbles) time in seconds: ${T}"
+
 
 echo -e "\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
@@ -384,11 +397,6 @@ rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
 #################### DISCOSNP FINISHED ###############################
 #######################################################################
 
-echo -e "\t###############################################################"
-echo -e "\t#################### DISCOSNP++ FINISHED ######################"
-echo -e "\t###############################################################"
-echo -e -n "\t ending discoSnp++ date="
-date
 
 
 
@@ -398,7 +406,7 @@ date
 #################### Deal with VCF ###############################
 #######################################################################
 
-
+T="$(date +%s)" 
 echo -e "\t###############################################################"
 echo -e "\t#################### CREATE VCF         #######################"
 echo -e "\t###############################################################"
@@ -420,9 +428,14 @@ else # A Reference genome is provided, vcf creator mode 2
        fi
 fi
 
-echo -e -n "\t ending vcf creation date="
-date
-echo
+T="$(($(date +%s)-T))"
+echo "Vcf creation time in seconds: ${T}"
+
+echo -e "\t###############################################################"
+echo -e "\t#################### DISCOSNP++ FINISHED ######################"
+echo -e "\t###############################################################"
+Ttot="$(($(date +%s)-Ttot))"
+echo "DiscoSnp++ total time in seconds: ${Ttot}"
 echo -e "\t################################################################################################################"
 echo -e "\t fasta of predicted variant is \""$kissprefix\_coherent.fa"\""
 echo -e "\t VCF file is \""$kissprefix\_coherent.vcf"\""
