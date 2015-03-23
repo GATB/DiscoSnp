@@ -10,4 +10,4 @@
        ./run_discoSnp++.sh -r "data_sample/reads_sequence1.fasta.gz data_sample/reads_sequence2.fasta.gz" -T  -G data_sample/reference_genome.fa -B /home/me/my_programs/bwa-0.7.12/
 
 ############### MORE DOCUMENTATION ###########
-See doc/doc/discoSnp_user_guide.pdf
+See doc/discoSnp_user_guide.pdf

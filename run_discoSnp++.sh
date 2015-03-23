@@ -26,7 +26,7 @@ max_C=$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.0.7"
+version="2.1.2"
 read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -311,12 +311,12 @@ fi
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -D $D -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P $extend"
+    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend"
     exit
 fi
 
@@ -424,7 +424,7 @@ echo -e -n "\t ending vcf creation date="
 date
 echo
 echo -e "\t################################################################################################################"
-echo -e "\t SNPs and indels are stored in \""$kissprefix\_coherent.fa"\""
+echo -e "\t fasta of predicted variant is \""$kissprefix\_coherent.fa"\""
 echo -e "\t VCF file is \""$kissprefix\_coherent.vcf"\""
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
 echo -e "\t################################################################################################################"
