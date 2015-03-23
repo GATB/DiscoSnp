@@ -1,0 +1,72 @@
+---------------------------------------------------------------------------
+GASSST
+Global Alignment Short Sequence Search Tool
+version 1.29 
+
+Authors: D. Lavenier ENS-Cachan/IRISA
+	 D. Fleury   IRISA
+	 G. Rizk     IRISA
+
+Contact : Dominique.lavenier@irisa.fr
+	  Guillaume.Rizk@irisa.fr
+	  
+
+The software is freely available for download and open source under the CeCILL version 2 license.
+GASSST is developed at the Symbiose Team at IRISA-INIRA, Rennes, France. 
+---------------------------------------------------------------------------
+
+
+
+Usage:
+
+  
+   Gassst -d <bank_file> -i <query_file> -o <output_file> -p <identity_percentage> [-w <size_seed>] [-m <output_format>] [-l <complexity_filter>] [-t <size_partition>] [-r <reverse_complement>] [-g <gaps_percentage>] [-n <thread_number>] [-h <max_hits_per_read>] [-s <sensitivity level>] [-b <output best alignments>] [-z <obscure option : bitstat>]
+
+
+Description
+
+   GASSST finds global alignments of short DNA sequences against large DNA banks.
+   The program takes as inputs 2 banks in FASTA format:
+      - bank_file:  a collection of DNA sequences of any length (from short EST sequence to full genome)
+      - query file: a collection of very short DNA sequences
+
+
+
+Required Parameters:
+
+
+   -d <bank_file>		    : (string) Name of a DNA sequence bank in FASTA format
+   -i <query_file>            	    : (string) Name of a DNA sequence bank in FASTA format - Short sequences
+   -o <output_file>                 : (string) Name of the output file to store the results
+   -p <identity_percentage>         : (integer) Minimum percentage of identity. Must be in the interval [0 100]
+
+Additional Options:
+
+   -w <size_seed>             	    : (integer) Size of the anchoring seed. Must be in the interval [6 20] (Default : automatic)
+   -m <output_format>         	    : (integer) 1 = standard Gassst format. 0 = human readable format. 8 = blast-like m8 format (Default : 1)
+   -n <thread number>         	    : (integer) Number of processor threads (Default : 1)
+   -l <complexity_filter>           : (integer) 0 = low complexity filter off. 1 = low complexity filter on (Default : on)
+   -t <size_partition>        	    : (integer) Maximum size for the bank's partitions in Megabytes. Must be in the interval [1;1 600] (Default : 2% of the RAM size, recommended)
+   -r <reverse_complement>    	    : (integer) 0 = Disable the revert complement research, 1 = Enable the revert complement research (Default : 1)
+   -g <gaps_percentage>             : (integer) Percentage of gaps allowed. (Default : maximum allowed by identity percentage)
+   -h <max alignment per read>	    : (integer) Maximum number of alignment per query. 0 means no limit (Default : 100)
+   -s <sensitivity level>	    : (integer) Sensitivity level, in [0-5]. 0 is fastest, 5 is best sensitivity (Default : 2)
+   -b <output best alignments>      : (integer) 1 = output best alignments. 0 = output random alignments, slightly faster (Default : 1)
+
+
+
+Example for alignments with 90% similarity minimum :
+ 
+Gassst -d  genome.fasta  -i reads.fasta  -o output  -p 90 
+
+
+Then call "gassst_to_sam" if you want to convert output to SAM format:
+
+./gassst_to_sam output output.sam
+
+
+
+Warning :  The gassst_to_sam utility currently only takes as input the standard Gassst output format ("1"), not format "0" or "8".
+
+
+new in 1.28 : fixed bugs in gassst_to_sam 
