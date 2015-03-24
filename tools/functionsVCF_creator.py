@@ -76,6 +76,20 @@ def ParsingDiscoSNP(snp,boolNum):
     dicoGeno={}
     SNP=0
     INDEL=False
+    ID=None
+    matchInt=None
+    key=None
+    chaine=None
+    ind=None
+    chaine1=None
+    chaine2=None
+    amb=None
+    rank=None
+    coverage=None
+    nb_pol=None
+    gen=None
+    listegeno=None
+    listlikelihood=None
     for i in snp:
         if 'SNP' or 'INDEL' in i:
             nomDisco=i.split('|')
@@ -204,8 +218,8 @@ def ParsingDiscoSNP(snp,boolNum):
                 if matchInt:
                     nb_pol=j
         elif "G" in i:
-            i=i.replace("_",":")
-            listgeno=i.split(":")
+            gen=i.replace("_",":")
+            listgeno=gen.split(":")
             if len(listgeno)>2:
                 listlikelihood=listgeno[2].split(",")
             else:
@@ -231,6 +245,12 @@ def GetCouple(snpUp,snpLow):
     #Boolean snps mulimapped
     boolXAUp=False
     boolXALow=False
+    listXA=None
+    strXA=None
+    position=None
+    garbage=None
+    nbMismatchUp=None
+    nbMismatchLow=None
     #Error list with mapping positions very close to the firt position give by bwa
     listerreurUp=set([(int(snpUp[3])-1),(int(snpUp[3])+1),(int(snpUp[3])+2),(int(snpUp[3])+3),(int(snpUp[3])-3),(int(snpUp[3])-2),int(snpUp[3])])
     listerreurLow=set([(int(snpLow[3])-1),(int(snpLow[3])+1),(int(snpLow[3])+2),(int(snpLow[3])+3),(int(snpLow[3])-3),(int(snpLow[3])-2),int(snpLow[3])])
@@ -280,6 +300,7 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
     i=0
     covUp=''
     listCovGeno=[]
+    covLow=''
     ##Create a string if the number of coverage is superior to 1
     if len( listCoverageUp)>1 and len( listCoverageLow)>1:
         while i<len( listCoverageUp):
@@ -327,6 +348,8 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
     listPos= []
     ensemble=None
     delta=3
+    position=None
+    nbMismatch=None
     if abs(int(snpUp[3]))<=0 and abs(int(snpLow[3]))<=0:
         couple="unmapped"
         return(couple)
@@ -372,6 +395,8 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
     pos=0
     i=1
     j=0
+    lenDemiSeq=posModif
+    posCentraleRef=None
     #Close snps
     if len(listpol)>1:
         while i<len(parsingCigarCode): # Goes through the list by twos to get all the letters and to take them into account
@@ -401,7 +426,6 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             i+=2
     #Simple snp and Indel
     else:
-        lenDemiSeq=posModif
         while i<len(parsingCigarCode):# Goes through the list by twos to get all the letters and to take them into account
             if parsingCigarCode[i]=="S":
                 shift-=int(parsingCigarCode[i-1])
@@ -429,6 +453,12 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     matchInt=None
     nucleoRef=None
     boolEgalRef=None
+    motifDel=None
+    dictDel={}
+    deletion=None
+    numeroDel=None
+    parsingPosMut=None
+    strNumerodel=None
     if '^' in posMut: #Means there is a deletion relative to the reference
         pos=shift
         motifDel=re.compile("[0-9]*\^[A-Za-z]*") #motif of the deletion example  : 31^CGC
@@ -477,6 +507,9 @@ def GetSequence(snpUp,snpLow):
     """Get reverse sequence"""
     seqLow=snpLow[9]
     seqUp=snpUp[9]
+    listSeqUp=[]
+    listSeqLow=[]
+    i=0
     if snpUp[1]=="16": #Case of mapping reverse
         i=0
         listSeqUp=list(seqUp)
@@ -521,6 +554,26 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     listPolymorphismePosLow=None
     shiftUp=0
     shiftLow=0
+    posCentraleUp=None
+    posCentraleLow=None
+    listPos=None
+    listnucleoUp=None
+    listnucleoLow=None
+    listPosR=None
+    listnucleoUpR=None
+    listnucleoLowR=None
+    seqUp=None
+    seqLow=None
+    reverseUp=None
+    reverseLow=None
+    MD=None
+    Z=None
+    posMutUp=None
+    posMutLow=None
+    ambiguityPos=None
+    insert=None
+    ntStart=None
+    
     posModif=dicoHeaderUp["P_1"][0] #Position of the first variant gived by discosnp
     seqUp=list(snpUp[9])
     seqLow=list(snpLow[9])
@@ -619,7 +672,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpUp[3])<=0 :
         nucleoUp = dicoHeaderUp["P_1"][1]
-        positionSnpUp = posSNPUp
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
     ####Lower Case 
@@ -650,7 +702,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpLow[3])<=0:
         nucleoLow = dicoHeaderUp["P_1"][2]
-        positionSnpLow = posSNPLow
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -735,6 +786,8 @@ def MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,
 ( If the number of mismatch is the same in both cases it is the lower lexicographical SNP which is selected for reference .
 The Boolean allows to know the reference SNP ) """
     posRef=0
+    nmUp=None
+    nmLow=None
     #Two paths mapped
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         nmUp=posUp[int(snpUp[3])]
@@ -823,6 +876,37 @@ def GetPolymorphisme(dicoHeader,seq,indel):
 def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterfield,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,covUp,covLow):
     """ Fills the different fields of vcf based on boolean ( on whether the SNP is identical or not the reference) , if neither is identical to the reference = > we take the SNP comes first in the lexicographical order"""
     ##Gets the variable of the header of disco snps
+    numSNPUp=None
+    unitigLeftUp=None
+    unitigRightUp=None
+    contigLeftUp=None
+    contigRightUp=None
+    valRankUp=None
+    listCoverageUp=None
+    listCUp=None
+    nb_polUp=None
+    lnUp=None
+    posDUp=None
+    ntUp=None
+    ntLow=None
+    genoUp=None
+    dicoHeaderUp=None
+    numSNPLow=None
+    unitigLeftLow=None
+    unitigRightLow=None
+    contigLeftLow=None
+    contigRightLow=None
+    valRankLow=None
+    listCoverageLow=None
+    listClow=None
+    nb_polLow=None
+    lnlow=None
+    posDLow=None
+    ntUp=None
+    ntLow=None
+    genoLow=None
+    dicoHeaderLow=None
+
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -901,6 +985,55 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     ##Keep the close snps to sort them : indeed all the lists and dictionnaries :listnucleoUp,listPolymorphismePosUp,listPolymorphismePosLow,listnucleoLow dicoUp,dicoLow are classified according to dicoHeader so if we start by sorting we lose the correspondence between data
     tablebis = []
     k=0
+    listSortedPosUp=None
+    indexSmallestPosUp=None
+    listSortedPosLow=None
+    indexSmallestPosLow=None
+    indexSmallestPos=None
+    numSNPUp=None
+    unitigLeftUp=None
+    unitigRightUp=None
+    contigLeftUp=None
+    contigRightUp=None
+    valRankUp=None
+    listCoverageUp=None
+    listCUp=None
+    nb_polUp=None
+    lnUp=None
+    posDUp=None
+    ntUp=None
+    ntLow=None
+    genoUp=None
+    dicoHeaderUp=None
+    numSNPLow=None
+    unitigLeftLow=None
+    unitigRightLow=None
+    contigLeftLow=None
+    contigRightLow=None
+    valRankLow=None
+    listCoverageLow=None
+    listClow=None
+    nb_polLow=None
+    lnlow=None
+    posDLow=None
+    ntUp=None
+    ntLow=None
+    genoLow=None
+    dicoHeaderLow=None
+    positionSnpUp1=None
+    nucleoUp1=None
+    nucleoLow1=None
+    positionSnpLow1=None
+    reverseLow=None
+    reverseUp=None
+    boolRefUp=None
+    boolRefLow=None
+    positionSnpUp=None
+    nucleoUp=None
+    nucleoLow=None
+    positionSnpLow=None
+    ID=0
+    comptPol=0
     #Variables
     snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
@@ -1046,6 +1179,9 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
 def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
     j=0
     genotypes=""
+    key=None
+    current_genotype=None
+    likelihood=None
     if int(nbGeno)==0:
         return table
     else:

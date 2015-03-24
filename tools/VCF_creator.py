@@ -120,6 +120,77 @@ i=0
 ############################################################### 
 ###VCF_creator NORMAL MODE : take a samfile and create a vcf###
 ###############################################################
+snpUp=None
+numSNPUp=None
+unitigLeftUp=None
+unitigRightUp=None
+contigLeftUp=None
+contigRightUp=None
+valRankUp=None
+listCoverageUp=None
+listCUp=None
+nb_polUp=None
+lnUp=None
+posDUp=None
+ntUp=None
+ntLow=None
+genoUp=None
+dicoHeaderUp=None
+
+snpLow=None
+numSNPLow=None
+unitigLeftLow=None
+unitigRightLow=None
+contigLeftLow=None
+contigRightLow=None
+valRankLow=None
+listCoverageLow=None
+listClow=None
+nb_polLow=None
+lnlow=None
+posDLow=None
+ntUp=None
+ntLow=None
+genoLow=None
+dicoHeaderLow=None
+posUp=None
+posLow=None
+boolXAUp=None
+boolXALow=None
+couple=None
+NM=0
+rupture=0
+filterfield=None
+covUp=None
+covLow=None
+listCovGeno=None
+listPolymorphismePos=None
+listnucleoUp=None
+listnucleoLow=None
+listPosR=None
+listnucleoUpR=None
+listnucleoLowR=None
+dicoUp=None
+dicoLow=None
+listPolymorphismePosUp=None
+listPolymorphismePosLow=None
+insert=None
+ntStart=None
+ambiguity=None
+nucleoLow=None
+positionSnpLow=None
+nucleoUp=None
+positionSnpUp=None
+boolRefLow=None
+boolRefUp=None
+reverseUp=None
+reverseLow=None
+nucleoRefUp=None
+nucleoRefLow=None
+key=None
+ntUp=None
+ntLow=None
+
 if ".sam" in fichier:
     while True:
         line1=samfile.readline()
@@ -131,7 +202,6 @@ if ".sam" in fichier:
         ##npUp and snpLow are lists of the line in the samfile file
         snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
-        
         
         if numSNPLow != numSNPUp:
             print "WARNING two consecutive lines do not store the same variant id: "
