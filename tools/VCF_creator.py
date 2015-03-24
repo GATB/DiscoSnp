@@ -238,9 +238,9 @@ if ".sam" in fichier:
                 rupture=NM
                 break
         if rupture==nbMismatchBWA:
-            if snpLow[1]=="4":    # Sam classifies in the second filed: 0: forward mapped, 16: reverse mapped, 4: unmapped
+            if int(snpLow[3])<=0 :   
                 dmax=True
-            elif snpUp[1]=="4":
+            elif int(snpUp[3])<=0:
                 dmax=True
             else:
                 dmax==False
