@@ -510,7 +510,7 @@ def GetSequence(snpUp,snpLow):
     listSeqUp=[]
     listSeqLow=[]
     i=0
-    if snpUp[1]=="16": #Case of mapping reverse
+    if int(snpUp[1]) & 16: #Case of mapping reverse
         i=0
         listSeqUp=list(seqUp)
         seqUp=''
@@ -520,7 +520,7 @@ def GetSequence(snpUp,snpLow):
             else :
                 seqUp=str(ReverseComplement(listSeqUp[i]))
             i+=1
-    if snpLow[1]=="16":#Case of mapping reverse
+    if int(snpLow[1]) & 16:#Case of mapping reverse
         i=0
         listSeqLow=list(str(seqLow))
         seqLow=''
@@ -606,13 +606,14 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
+        posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if snpUp[1]=="0": #Forward Strand
+        if int(snpUp[1]) & 0 : #Forward Strand
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
-        elif snpUp[1]=="16":# Reverse Strand
+        elif int(snpUp[1]) & 16:# Reverse Strand
             reverseUp=-1
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,posModif,indel)
             listPolymorphismePosUp=listPosR #List of all the reverse position
@@ -625,13 +626,14 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         reverseUp="."
 ###Case mapped variant Low :Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpLow[3])>0:
+        posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if snpLow[1]=="0":
+        if int(snpLow[1]) & 0:
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]
-        elif snpLow[1]=="16":
+        elif int(snpLow[1]) & 16:
             reverseLow=-1
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,posModif,indel)
             listPolymorphismePosLow=listPosR
