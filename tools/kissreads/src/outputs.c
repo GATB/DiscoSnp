@@ -199,23 +199,23 @@ float rank_phi(const int *sum_up, const int *sum_lo, const int number_of_read_se
 //    const float lik0 = c1*log10(1-err)+c2*log10(err)+log10(Cnp(c1,c1+c2));
 //    const float lik1 = c2*log10(1-err)+c1*log10(err)+log10(Cnp(c1,c1+c2));
 //    const float lik2 = (c1+c2)*log10(0.5)+log10(Cnp(c1,c1+c2));
-//    
-//    
+//
+//
 ////    revoyer les trois avec la plus petite du moins 1à comme reference de genotype.a
-//    
-//    
-//    
+//
+//
+//
 //    pow(1-err,c1)*pow(err,c2); // homozygous higher (0/0)
 //    const float lik1 = pow(1-err,c2)*pow(err,c1); // homozygous higher (1/1)
 //    const float lik2 = pow(0.5,c1+c2);            // heterozygous (0/1)
-//    
+//
 //    //    printf("%d %d LIKE %f %f %f \n", c1, c2, lik0, lik1, lik2);
-//    
+//
 //    const float prob0 = lik0*(1-prior_het)/2;
 //    const float prob1 = lik1*(1-prior_het)/2;
 //    const float prob2 = lik2*prior_het;
 //    //    printf("PROB %f %f %f \n", prob0, prob1, prob2);
-//    
+//
 //    if ( prob0>=prob1 &&  prob0>=prob2) return "0/0";
 //    if ( prob1>=prob0 &&  prob1>=prob2) return "1/1";
 //    return "0/1";
@@ -254,7 +254,7 @@ char * genotype_simple_model(const int c1, const int c2, const float err, const 
     lik0+=log10((1-prior_het)/2);
     lik1+=log10((1-prior_het)/2);
     lik2+=log10(prior_het);
-
+    
     // PHRED SCORE
     lik0=floor(-10*lik0);
     lik1=floor(-10*lik1);
@@ -272,7 +272,7 @@ char * genotype_simple_model(const int c1, const int c2, const float err, const 
         if (lik1<lik0 && lik1<lik2){
             sprintf(geno, "1/1");
         }
-    
+        
         else{
             sprintf(geno, "0/1");
         }
@@ -424,29 +424,29 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
     
     
     
-//	if( qual ){// TODO: UNTESTED CODE - APRIL 2013
-//        // we are providing results for generic dataset
-//        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-//            qual_1[read_set_id] = 0;
-//            qual_2[read_set_id] = 0;
-//            qual_3[read_set_id] = 0;
-//            qual_4[read_set_id] = 0;
-//            for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id]->w)-kmer_size;j++){
-//#ifdef CHARQUAL // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
-//                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]) qual_1[read_set_id] = qual_1[read_set_id] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j];
-//                if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]) qual_2[read_set_id] = qual_2[read_set_id] + results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j];
-//                if(results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]) qual_3[read_set_id] = qual_3[read_set_id] + results_against_set[cycle_id+2]->sum_quality_per_position[read_set_id][j];
-//                if(results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]) qual_4[read_set_id] = qual_4[read_set_id] + results_against_set[cycle_id+3]->sum_quality_per_position[read_set_id][j];
-//#else
-//                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]) qual_1[read_set_id] = qual_1[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]);
-//                if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]) qual_2[read_set_id] = qual_2[read_set_id] + (results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]);
-//                if(results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]) qual_3[read_set_id] = qual_3[read_set_id] + (results_against_set[cycle_id+2]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]);
-//                if(results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]) qual_4[read_set_id] = qual_4[read_set_id] + (results_against_set[cycle_id+3]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]);
-//                
-//#endif
-//            }
-//        }
-//    } // END UNTESTED CODE
+    //	if( qual ){// TODO: UNTESTED CODE - APRIL 2013
+    //        // we are providing results for generic dataset
+    //        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+    //            qual_1[read_set_id] = 0;
+    //            qual_2[read_set_id] = 0;
+    //            qual_3[read_set_id] = 0;
+    //            qual_4[read_set_id] = 0;
+    //            for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id]->w)-kmer_size;j++){
+    //#ifdef CHARQUAL // FIXME: IT SHOULKD BE THE OPOSIT NO ? (PIERRE APRL 2013)
+    //                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]) qual_1[read_set_id] = qual_1[read_set_id] + results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j];
+    //                if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]) qual_2[read_set_id] = qual_2[read_set_id] + results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j];
+    //                if(results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]) qual_3[read_set_id] = qual_3[read_set_id] + results_against_set[cycle_id+2]->sum_quality_per_position[read_set_id][j];
+    //                if(results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]) qual_4[read_set_id] = qual_4[read_set_id] + results_against_set[cycle_id+3]->sum_quality_per_position[read_set_id][j];
+    //#else
+    //                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]) qual_1[read_set_id] = qual_1[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]);
+    //                if(results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]) qual_2[read_set_id] = qual_2[read_set_id] + (results_against_set[cycle_id+1]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+1]->read_coherent_positions[read_set_id][j]);
+    //                if(results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]) qual_3[read_set_id] = qual_3[read_set_id] + (results_against_set[cycle_id+2]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+2]->read_coherent_positions[read_set_id][j]);
+    //                if(results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]) qual_4[read_set_id] = qual_4[read_set_id] + (results_against_set[cycle_id+3]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id+3]->read_coherent_positions[read_set_id][j]);
+    //
+    //#endif
+    //            }
+    //        }
+    //    } // END UNTESTED CODE
     
     
     // on upper path
@@ -455,16 +455,16 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
 	// on lower path
 	int sum_lo[number_of_read_sets];
     
-//    // considering the uncoherent as covered by 0 reads
-//	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-//		cov_1[read_set_id]=results_against_set[cycle_id]->read_coherent[read_set_id]?results_against_set[cycle_id]->number_mapped_reads[read_set_id]:0;
-//        cov_2[read_set_id]=results_against_set[cycle_id+1]->read_coherent[read_set_id]?results_against_set[cycle_id+1]->number_mapped_reads[read_set_id]:0;
-//        sum_up[read_set_id]=cov_1[read_set_id]+cov_2[read_set_id];
-//        cov_3[read_set_id]=results_against_set[cycle_id+2]->read_coherent[read_set_id]?results_against_set[cycle_id+2]->number_mapped_reads[read_set_id]:0;
-//        cov_4[read_set_id]=results_against_set[cycle_id+3]->read_coherent[read_set_id]?results_against_set[cycle_id+3]->number_mapped_reads[read_set_id]:0;
-//        sum_lo[read_set_id]=cov_3[read_set_id]+cov_4[read_set_id];
-//	}
-     // not changing the uncoherent
+    //    // considering the uncoherent as covered by 0 reads
+    //	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
+    //		cov_1[read_set_id]=results_against_set[cycle_id]->read_coherent[read_set_id]?results_against_set[cycle_id]->number_mapped_reads[read_set_id]:0;
+    //        cov_2[read_set_id]=results_against_set[cycle_id+1]->read_coherent[read_set_id]?results_against_set[cycle_id+1]->number_mapped_reads[read_set_id]:0;
+    //        sum_up[read_set_id]=cov_1[read_set_id]+cov_2[read_set_id];
+    //        cov_3[read_set_id]=results_against_set[cycle_id+2]->read_coherent[read_set_id]?results_against_set[cycle_id+2]->number_mapped_reads[read_set_id]:0;
+    //        cov_4[read_set_id]=results_against_set[cycle_id+3]->read_coherent[read_set_id]?results_against_set[cycle_id+3]->number_mapped_reads[read_set_id]:0;
+    //        sum_lo[read_set_id]=cov_3[read_set_id]+cov_4[read_set_id];
+    //	}
+    // not changing the uncoherent
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 		cov_1[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
         cov_2[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id];
@@ -473,8 +473,8 @@ void print_quadruplet_i(FILE* out, const p_fragment_info * results_against_set, 
         cov_4[read_set_id]=results_against_set[cycle_id+3]->number_mapped_reads[read_set_id];
         sum_lo[read_set_id]=cov_3[read_set_id]+cov_4[read_set_id];
 	}
-   
-
+    
+    
     float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
     
     if (!standard_fasta)
@@ -586,8 +586,8 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 		}
 	}
     
-//	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
-//           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+    //	printf("Among %d bubbles:\n\t%d read coherent and\n\t%d not read coherent\n",
+    //           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
 	if (!silent) printf("Among %d bubbles: %d are read coherent\n", nb_events_per_set, nb_read_coherent);
 }
 
@@ -635,7 +635,7 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
 	}
     
 	if (!silent)  printf("Among %d inversions:\n\t%d read coherent and\n\t%d not read coherent\n",
-           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+                         nb_events_per_set, nb_read_coherent, nb_unread_coherent);
     
     
 }
@@ -676,7 +676,7 @@ void print_results_invs(FILE * coherent_out, FILE * uncoherent_out,  const p_fra
 	}
     
 	if (!silent) printf("Among %d inversions:\n\t%d read coherent and\n\t%d not read coherent\n",
-           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+                        nb_events_per_set, nb_read_coherent, nb_unread_coherent);
 }
 #endif // !READ2INV
 
@@ -691,17 +691,6 @@ void print_sequence_i(FILE* out, const p_fragment_info * results_against_set, in
 	int avg[number_of_read_sets];
     int read_set_id;
     
-//	if( qual ){
-//        // we are providing results for generic dataset
-//        for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-//            avg[read_set_id] = 0;
-//            for (j=kmer_size-1;j<=strlen(results_against_set[cycle_id]->w)-kmer_size;j++){
-//                if(results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]){
-//                    avg[read_set_id] = avg_up[read_set_id] + (results_against_set[cycle_id]->sum_quality_per_position[read_set_id][j] / results_against_set[cycle_id]->read_coherent_positions[read_set_id][j]);
-//                }
-//            }
-//        }
-//    }
 	
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 		sum[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id];
@@ -719,7 +708,49 @@ void print_sequence_i(FILE* out, const p_fragment_info * results_against_set, in
 	
 }
 
+void print_subcontig(FILE * out, const int start, const int stop, p_fragment_info contig){
+    int i;
+    fprintf(out, ">%s[%d,%d[\n", contig->comment,start,stop);
+    for (i=start;i<stop;i++)
+        fprintf(out, "%c", contig->w[i]);
+    fprintf(out, "\n");
+}
 
+void split_and_print_a_contig(p_fragment_info contig, FILE * out, const int min_coverage, const int min_contig_size){
+    int i;
+    // V1: the whole fragment has to be k_read coherent or V2 where the last k positions have no influence on the coherency of the fragment.
+    // V2 is appropriate for the cases where the fragment is the end of a sequence (transcript, chromosome) and thus, no read are "longer" than the sequence:
+    //    ----------------- fragment
+    //    °°°°°°°°°°°°        read
+    //    °°°°°°°°°°°°     read
+    //         °°°°°°°°°°°° read
+    //         °°°°°°°°°°°° read
+    int start_interval=0;
+#ifdef KMER_SPANNING
+    const int stop=strlen(contig->w)-minimal_read_overlap;
+#else
+    const int stop=strlen(contig->w);
+#endif
+    for(i=0;i<stop;i++){
+        if(contig->read_coherent_positions[0][i]<min_coverage) { // we found a non covered positio n
+            if (i-start_interval>=min_contig_size){                    // we don't output too small contigs
+                print_subcontig(out, start_interval,i,contig);
+            }
+            start_interval=i+1;
+        }
+    }
+
+    // end of the contig.
+    if (strlen(contig->w)-start_interval>=min_contig_size){                    // we don't output too small contigs
+        print_subcontig(out, start_interval,strlen(contig->w),contig);
+    }
+}
+
+void split_and_print_all_contigs(p_fragment_info * contigs, FILE * out, const int min_coverage, const int min_contig_size, const int nb_events_per_set){
+    int i;
+    for(i=0;i<nb_events_per_set;i++)
+        split_and_print_a_contig(contigs[i],out, min_coverage,min_contig_size);
+}
 
 void print_generic_results(FILE * coherent_out, FILE * uncoherent_out,  const p_fragment_info * results_against_set, const int number_of_read_sets, int nb_events_per_set, int qual){
     
@@ -737,7 +768,7 @@ void print_generic_results(FILE * coherent_out, FILE * uncoherent_out,  const p_
         }
     }
     if (!silent)  printf("Among %d sequences:\n\t%d read coherent and\n\t%d not read coherent\n",
-           nb_events_per_set, nb_read_coherent, nb_unread_coherent);
+                         nb_events_per_set, nb_read_coherent, nb_unread_coherent);
 }
 
 

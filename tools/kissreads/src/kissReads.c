@@ -49,7 +49,7 @@ char * getVersion(){
 void print_usage_and_exit(char * name){
 	fprintf (stderr, "NAME\nkissReads, version %s\n", getVersion());
 
-    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-P] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-h] \n", name);
+    fprintf (stderr, "\nSYNOPSIS\n%s <toCheck.fasta> <readsC1.fasta> [<readsC2.fasta> [<readsC3.fasta] ...] [-k value] [-c value] [-d value] [-O value] [-o name] [-u name] [-n] [-g] [-P] [-I] [-i index_stride] [-m align_file] [-p] [-s] [-f] [-X] [-h] \n", name);
 
 	fprintf (stderr, "\nDESCRIPTION\n");
 	fprintf (stderr, "Checks for each sequence contained into the toCheck.fasta if\n");
@@ -68,6 +68,8 @@ void print_usage_and_exit(char * name){
 	fprintf (stderr, "\t -c min_coverage: a sequence is covered by at least min_coverage coherent reads. Default: 2\n");
     fprintf (stderr, "\t -d max_substitutions: Maximal number of substitutions authorized between a read and a fragment. Note that no substitution is allowed on the central position while anaylizing the kissnp output. Default: 1.\n");
 
+    fprintf (stderr, "\t -X min_contig_size: analyse an assembly. The input file contains contigs. We split contigs at positions were a kmer/the position is not covered by min_coverage reads. Splited contigs of length < min_contig_size are not output.\n");
+    
     fprintf (stderr, "\t -p: only print coverage, do not separate between coherent and uncoherent sequences. Not compatible with -u option.\n");
 	fprintf (stderr, "\t -o file_name: write read-coherent outputs. Default: standard output \n");
 	fprintf (stderr, "\t -u file_name: write unread-coherent outputs. Not compatible with -p option. Default: standard output \n");
@@ -101,6 +103,8 @@ int main(int argc, char **argv) {
     minimal_read_overlap=0;
     char map_snps=0; // input is a kissnp output
     char map_invs=0; // input is an intl (read2sv) output.
+    char split_contigs=0; // input is an assembly, we split configs into read coherent ones
+    int min_contig_size=50;
     only_print=0; // if "only_print" == 1 do not separate between coherent and uncoherent.
     
     char input_only_upper=0; // By default: all characters (upper or lower) are read
@@ -155,7 +159,7 @@ int main(int argc, char **argv) {
 	while (1)
 	{
 
-        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpsngPI-:t:");
+        int temoin = getopt (argc-number_of_read_sets-1, &argv[number_of_read_sets+1], "c:d:k:O:o:u:q:m:i:fpX:sngPI-:t:");
 
 		if (temoin == -1){
 			break;
@@ -175,6 +179,10 @@ int main(int argc, char **argv) {
                 break;
             case 'p':
                 only_print=1;
+                break;
+            case 'X':
+                split_contigs=1;
+                min_contig_size=atoi(optarg);
                 break;
 
             case 'o':
@@ -336,6 +344,10 @@ int main(int argc, char **argv) {
         
         
         printf("\tOUT\n");
+        if(split_contigs){
+            printf("\t *(-X) Split contgs. Don't ouput contigs of length<%d\n", min_contig_size);
+        }
+        
         if (only_print) printf("\t print all results in file: %s\n", coherent_file_name);
         else{
             printf("\t *(-o) Read-coherent results file: %s\n", coherent_file_name);
@@ -435,7 +447,10 @@ int main(int argc, char **argv) {
         print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes, paired);
     else if(map_invs)
         print_results_invs(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
-    else   print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality); // TODO
+    else if(split_contigs)
+        split_and_print_all_contigs(results_against_set, coherent_out, min_coverage, min_contig_size, nb_events_per_set); 
+    else
+        print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
     
     free(seed_table);
     FreeHashTable((struct HashTable*)seeds_count);
