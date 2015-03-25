@@ -17,7 +17,8 @@ seuils=c("0_0","0_2","0_5")
 
 
 
-for (seuil in seuils){
+#for (seuil in seuils){}
+  seuil="0_0"
   temp=read.table(paste("res_discosnp++/res_b1_D_10_P_4_c_4_d_1/res_temp_afac_t_",seuil,"_pos_SNP_precision.txt",sep=""))
   a=data.frame(seuil=rep(seuil,length(nb)),nb=nb,disco_precision_SNP=temp[,1])
   a
@@ -34,7 +35,7 @@ for (seuil in seuils){
   a=cbind(a,data.frame(disco_recall_INDEL=temp[,1]))
   
   final=rbind(final,a)
-}
+#}
 
 
 

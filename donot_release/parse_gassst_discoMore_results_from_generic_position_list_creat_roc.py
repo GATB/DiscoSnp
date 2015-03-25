@@ -128,7 +128,7 @@ def doAll(discoResFile, logFile, gassstResFile, polymorphism, threshold, verbose
     else:
         list_reference=storeThePolymorphismPositionsFromLogFile(logFile, polymorphism)
     checkMappedDiscoPaths(gassstResFile,polymorphism, list_reference, list_predicted,threshold,list_predicted_positions)
-    parse_gassst_common.print_results(nb_predicted, list_reference, polymorphism, threshold)
+    parse_gassst_common.print_results(nb_predicted, list_reference, polymorphism, threshold, list_predicted)
     if roc:
         prev_out=sys.stdout
         roc_file_name="roc_"+polymorphism
