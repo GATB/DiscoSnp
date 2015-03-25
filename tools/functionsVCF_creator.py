@@ -510,7 +510,7 @@ def GetSequence(snpUp,snpLow):
     listSeqUp=[]
     listSeqLow=[]
     i=0
-    if (int(snpUp[1]) &  16)==16: #Case of mapping reverse
+    if CheckBitwiseFlag(snpUp[1],4): #Case of mapping reverse
         i=0
         listSeqUp=list(seqUp)
         seqUp=''
@@ -520,7 +520,7 @@ def GetSequence(snpUp,snpLow):
             else :
                 seqUp=str(ReverseComplement(listSeqUp[i]))
             i+=1
-    if (int(snpLow[1]) &  16)==16:#Case of mapping reverse
+    if CheckBitwiseFlag(snpLow[1],4):#Case of mapping reverse
         i=0
         listSeqLow=list(str(seqLow))
         seqLow=''
@@ -606,12 +606,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpUp[3])>0:
         posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if (int(snpUp[1]) &  0)==0 : #Forward Strand
+        if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
-        elif (int(snpUp[1]) &  16)==16:# Reverse Strand
+        elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
             reverseUp=-1
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,posModif,indel)
             listPolymorphismePosUp=listPosR #List of all the reverse position
@@ -626,12 +626,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpLow[3])>0:
         posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if (int(snpLow[1]) &  0)==0:
+        if not CheckBitwiseFlag(snpLow[1],4):
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]
-        elif (int(snpLow[1]) &  16)==16:
+        elif CheckBitwiseFlag(snpLow[1],4):
             reverseLow=-1
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,posModif,indel)
             listPolymorphismePosLow=listPosR
@@ -1273,8 +1273,30 @@ def ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleo):
         nucleo=ReverseComplement(nucleo)
     return(nucleo)
 
+##############################################################
+#data=str(bin(int(FLAG SAM)))[::-1]
+#bit = field to test
+#0   read paired
+#1   read mapped in proper pair
+#2   read unmapped
+#3   mate unmapped
+#4   read reverse strand
+#5   mate reverse strand
+#6   first in pair
+#7   second in pair
+#8   not primary alignment
+#9   read fails platform/vendor quality checks
+#10  read is PCR or optical duplicate
+#11  supplementary alignment
+#
+##############################################################
 
-
+def CheckBitwiseFlag(FLAG,bit):
+        data=str(bin(int(FLAG)))[::-1]
+        try:
+                return(data[bit]=='1')
+        except IndexError:
+                return False
 
 
 
