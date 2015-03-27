@@ -17,4 +17,4 @@ make delivery -j
 
 ## Pour tester ce qu'il y a dans les archives avant d'envoyer sur la forge
 #make package -j
-#make package_source -j
+make package_source -j

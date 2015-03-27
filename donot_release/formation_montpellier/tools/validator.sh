@@ -4,8 +4,8 @@ echo python remove_extensions_disco_file.py $prefix.fa  $prefix\_up.fa
 python remove_extensions_disco_file.py $prefix.fa  $prefix\_up.fa
 
 # Mapping sur le génome de ref.
-echo gassst/Gassst -i $prefix\_up.fa -d humch1_first_5M.fasta -p 95 -w 15 -m 1 -l 0 -r 1 -s 5 -o $prefix.gassst
-gassst/Gassst -i $prefix\_up.fa -d humch1_first_5M.fasta -p 95 -w 15 -m 1 -l 0 -r 1 -s 5 -o $prefix.gassst
+echo gassst/Gassst -i $prefix\_up.fa -d humch1_first_10M.fasta -p 95 -w 15 -m 1 -l 0 -r 1 -s 5 -o $prefix.gassst
+gassst/Gassst -i $prefix\_up.fa -d humch1_first_10M.fasta -p 95 -w 15 -m 1 -l 0 -r 1 -s 5 -o $prefix.gassst
 
 # Analyse des données mappées
 echo python ./parse_gassst_discoMore_results_from_generic_position_list_creat_roc.py -d $prefix\_up.fa -l ref_human -g $prefix.gassst -r > $prefix.log

@@ -158,6 +158,14 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
  * \param[in] nt : the nucleotide in ASCII
  * \return the translated nucleotide */
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
+
+
+void clear_queue_pair( std::queue<pair<Node, string>> &q )
+{
+    std::queue<pair<Node, string>> empty;
+    std::swap( q, empty );
+}
+
 /*********************************************************************
  ** METHOD  :
  ** PURPOSE :
@@ -188,7 +196,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             // TODO maybe we could stop the whole breadth first search in case a bubble was found at a found_del_size and the current insert_size is <= found_del_size-2
             DEBUG((cout<<"queue size  "<<breadth_first_queue.size()<<" max_breadth "<<max_recursion_depth<<endl));
             if(breadth_first_queue.size()>max_recursion_depth){
-                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
+                clear_queue_pair(breadth_first_queue);
                 break; // This bubble is too complex, we stop.
             }
             pair<Node,string> element=breadth_first_queue.front();
@@ -201,7 +209,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             /** however, if we reach a node at depth lower than the succesfull bubble, as no other bubbles are stored in the queue with */
             /** a higher length (property of the queue), then we can safelly stop the breadth first search */
             if (insert_size == found_del_size-1){
-                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue...
+                clear_queue_pair(breadth_first_queue);
                 break; // ...and stop
             }
             /** checks if an indel was already found at a lower depth */
@@ -220,8 +228,6 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
                    expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension)){
                     found_del_size=insert_size;   // an extension was found. We'll check if other extensions with same size can be found.
                     continue;                     // we won't add stuffs in the queue, we can continue.
-//                    queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue
-//                    break; // stop after finding one insertion.
                 }
             }
             
@@ -233,7 +239,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             
             /** No branching authorized in the insertion mode. */
             if (successors.size()>1 && authorised_branching==0) {
-                queue<pair<Node,string>>().swap(breadth_first_queue); // clear the queue...
+                clear_queue_pair(breadth_first_queue);
                 break; // ...and stop
             }
 
@@ -537,15 +543,16 @@ void BubbleFinder::finish (Bubble& bubble)
     /** compute the bubble paths */
     string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
     string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
-    string comment="";
+    stringstream comment;
+//    string comment="";
     if ( bubble.polymorphism_type=="SNP" ){
         int polymorphism_id=1;
         for (int i=0;i<path_0.length();i++){
             if (path_0[i]!=path_1[i]) {
                 if (polymorphism_id>1) {
-                    comment.append(",");
+                    comment << ",";
                 }
-                comment.append("P_"+std::to_string(polymorphism_id)+":"+std::to_string(i)+"_"+path_0[i]+"/"+path_1[i]);
+                comment<<"P_" << std::to_string(polymorphism_id) << ":" << std::to_string(i) << "_" << path_0[i] << "/" << path_1[i];
                 polymorphism_id++;
             }
         }
@@ -553,17 +560,17 @@ void BubbleFinder::finish (Bubble& bubble)
     if ( bubble.polymorphism_type=="INDEL" ){
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
         const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
-        comment.append("P_1:"+std::to_string(sizeKmer-1)+"_"+std::to_string(insert_size)+"_"+std::to_string(size_repeat));
+        comment << "P_1:" << std::to_string(sizeKmer-1) << "_" << std::to_string(insert_size) << "_" << std::to_string(size_repeat);
     }
     
     
     if (bubble.extended_string[0].length()<=bubble.extended_string[1].length()){
-        buildSequence (bubble, 0, "higher", bubble.seq1, comment);
-        buildSequence (bubble, 1, "lower",  bubble.seq2, comment);
+        buildSequence (bubble, 0, "higher", bubble.seq1, comment.str());
+        buildSequence (bubble, 1, "lower",  bubble.seq2, comment.str());
     }
     else{ // put the smaller overlap as the first sequence.
-        buildSequence (bubble, 1, "higher", bubble.seq1, comment);
-        buildSequence (bubble, 0, "lower",  bubble.seq2, comment);
+        buildSequence (bubble, 1, "higher", bubble.seq1, comment.str());
+        buildSequence (bubble, 0, "lower",  bubble.seq2, comment.str());
     }
     
     /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with

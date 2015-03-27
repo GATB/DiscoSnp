@@ -328,7 +328,7 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, string polymorphism_comments);
+    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, std::string polymorphism_comments);
 
     /** */
     bool two_possible_extensions_on_one_path (const Node& node) const;
