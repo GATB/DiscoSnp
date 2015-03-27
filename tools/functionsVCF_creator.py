@@ -320,8 +320,8 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
             i+=1
     else:
         listCovGeno.append(int( listCoverageUp[0])+int( listCoverageLow[0]))
-        covUp=str( listCUp[0])+'='+str( listCoverageUp[0])
-        covLow=str( listCLow[0])+'='+str( listCoverageLow[0])
+        covUp=str( listCUp[0])+'='+str( listCoverageUp[0])+","+str( listCoverageLow[0])
+        covLow=str( listCLow[0])+'='+str( listCoverageLow[0])+","+str( listCoverageUp[0])
     return(covUp,covLow,listCovGeno) #string covUp C1:5|23;C2:35|1 listCovGeno=[28,36]
 ##############################################################
 #position : current position to add at the ensemble
@@ -404,7 +404,7 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             if parsingCigarCode[i]=="S":
                 shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
                 pos+=int(parsingCigarCode[i-1]) # pos corresponds to the current position in the cigarcode
-            #Match or Mismatch 
+            #Match or Mismatch  
             elif parsingCigarCode[i]=="M":
                 pos+=int(parsingCigarCode[i-1])
             #Deletion
@@ -413,6 +413,16 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             #Insertion
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
+            # hard clipping (clipped sequences NOT present in SEQ)
+            elif parsingCigarCode[i]=="H":
+                pos+=int(parsingCigarCode[i-1])
+            # padding (silent deletion from padded reference)
+            elif parsingCigarCode[i]=="P":
+                pos+=int(parsingCigarCode[i-1])
+            elif parsingCigarCode[i]=="=":
+                pos+=int(parsingCigarCode[i-1])
+            elif parsingCigarCode[i]=="X":
+                pos+=int(parsingCigarCode[i-1])
             while int(pos)>=int(listpol[j]):# Goes through the list of position (close snps) and see if the position is affected by the shift (means shift before the position)
                 posRef=int(listpol[j])+shift # Add the shift to the position (to get the real position of the snp on the reference)
                 listPosRef.append(posRef) #Add the position to the list by taking into account the shift only if the current position 
@@ -436,6 +446,16 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                 shift+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
+            # hard clipping (clipped sequences NOT present in SEQ)
+            elif parsingCigarCode[i]=="H":
+                pos+=int(parsingCigarCode[i-1])
+            # padding (silent deletion from padded reference)
+            elif parsingCigarCode[i]=="P":
+                pos+=int(parsingCigarCode[i-1])
+            elif parsingCigarCode[i]=="=":
+                pos+=int(parsingCigarCode[i-1])
+            elif parsingCigarCode[i]=="X":
+                pos+=int(parsingCigarCode[i-1])
             if len(listpol)==1:
                 if pos>=int(lenDemiSeq):
                     posCentraleRef=int(lenDemiSeq)+shift
@@ -604,9 +624,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
-        posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand
+        if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
@@ -624,14 +643,13 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         reverseUp="."
 ###Case mapped variant Low :Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpLow[3])>0:
-        posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if not CheckBitwiseFlag(snpLow[1],4):
+        if not CheckBitwiseFlag(snpLow[1],4):#Forward Strand
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]
-        elif CheckBitwiseFlag(snpLow[1],4):
+        elif CheckBitwiseFlag(snpLow[1],4):# Reverse Strand
             reverseLow=-1
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,posModif,indel)
             listPolymorphismePosLow=listPosR
@@ -960,7 +978,7 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##############################################################
 ##############################################################   
 def printOneline(table,VCF):
-    if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+    if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] or (table[0]==0 and table[1]==0 and table[3]==0 and table[4]==0):
         return
     for i in range(len(table)):
         element=table[i]
