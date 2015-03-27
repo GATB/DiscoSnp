@@ -12,7 +12,14 @@ def homo_or_hereto(text_genotype):
     if text_genotype.split(sep)[0].strip()==text_genotype.split(sep)[1].strip():
         return 1
     return 0
-  
+    
+    
+#######################################################################################################################
+#  Give a predicted mapped polymophism (possibly close SNPs):
+#   1/ checks all mapping position of the SNPs in case of SNP / checks that the predicted indels falls in a region with an indel in case of indel.
+#   2/ For the confirmed predictions: 
+#       - mark them as found.
+#   Return the number of matched positions
 def findNbMachedPolymorphism(list_reference_polymorphism, start, stop, predicted_positions, typePolymorphism, forward):
     nbMapped=0 # True positive prediction 
     if forward:
@@ -21,11 +28,11 @@ def findNbMachedPolymorphism(list_reference_polymorphism, start, stop, predicted
             rev_repredicted_positions.append(stop-start-pos-1) # stores also the reverse positions (in case the mapping ins in the reverse order)
         predicted_positions=rev_repredicted_positions
     for pos in range(start, stop+1):
-        if pos in list_reference_polymorphism and list_reference_polymorphism[pos]==False:
+        if pos in list_reference_polymorphism :# and list_reference_polymorphism[pos]==False:
             # we check that the genomic position matches the polymorphism found.
             # In case of SNP, this is a precise position (checked with 0 and 1 index)
             # In case of INDEL: we don't know preciselly where the breakpoint is. Thus, the simulated indel position matched are systematically considered as TP. 
-            if pos-start in predicted_positions or pos-start-1 in predicted_positions or pos-start+1 in predicted_positions:
+            if pos-start in predicted_positions:# or pos-start-1 in predicted_positions or pos-start+1 in predicted_positions:
                 list_reference_polymorphism[pos]=True
                 nbMapped+=1
                 # In case of indels: we stop the matching as soon as one indel was found (else we detect too much TP)
@@ -33,8 +40,9 @@ def findNbMachedPolymorphism(list_reference_polymorphism, start, stop, predicted
                 if typePolymorphism == "INDEL": 
                     break
 
-    if nbMapped > len(predicted_positions):
-        print typePolymorphism,"WARNING: nb TP",nbMapped,"is bigger than the number of predictions",len(predicted_positions) 
+    # if nbMapped > len(predicted_positions):
+        # print typePolymorphism,"WARNING: nb TP",nbMapped,"is bigger than the number of predictions",len(predicted_positions)
+        # print predicted_positions
     return nbMapped
     
 
@@ -177,14 +185,27 @@ def printRoc (discoResultsFile, list_reference, list_predicted_polymorphism, thr
             
     
 
-def print_results(nb_predicted, list_reference, polymorphism, threshold):
-   nbTP=0
+def print_results(nb_predicted, list_reference, polymorphism, threshold, list_predicted):
+   nbTP_1=0
+   nbTP_2=0
    # if polymorphism=="INDEL": print list_reference
+   
+   # VERSION 1: Count as TP the simulated&validated
    for chro in list_reference:
        for i in list_reference[chro]:
            if list_reference[chro][i]==True:
-               nbTP+=1
+               nbTP_1+=1
+ 
+   # VERSION 2: Count as TP the predicted validated.
+   for variant_id in list_predicted:
+       nbTP_2+=list_predicted[variant_id]
 
+     
+     
+   print nbTP_1, nbTP_2
+   
+   nbTP=nbTP_2
+   
    nb_simulated=0
    for chro in list_reference:
        nb_simulated+=len(list_reference[chro])
@@ -195,10 +216,10 @@ def print_results(nb_predicted, list_reference, polymorphism, threshold):
    print "             ",polymorphism
    if threshold>0:
        print " from",polymorphism,"predicted with a rank bigger or equal to",threshold,":"
-   print nb_simulated, polymorphism,"in the reference.\t Among them", nbTP, "are correctly predicted"
-   print nb_predicted, polymorphism,"were predicted.\t Among them", nbTP, "are correctly mapped"
-   if nb_predicted>0: print polymorphism,"precision\t %.2f"% float(nbTP/float(nb_predicted)*100)
-   if len(list_reference)>0: print polymorphism,"recall\t %.2f"% float(nbTP/float(nb_simulated)*100)
+   print nb_simulated, polymorphism,"in the reference.\t Among them", nbTP_1, "are correctly predicted"
+   print nb_predicted, polymorphism,"were predicted.\t Among them", nbTP_2, "are correctly mapped"
+   if len(list_reference)>0: print polymorphism,"recall\t %.2f"% float(nbTP_1/float(nb_simulated)*100)
+   if nb_predicted>0: print polymorphism,"precision\t %.2f"% float(nbTP_2/float(nb_predicted)*100)
    print "-------------------------------"
 
 # def print_few_results(nb_predicted, list_reference):

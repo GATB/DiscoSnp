@@ -2,579 +2,579 @@
 
 --------------------------------------------------------------------------------
 2 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-242 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 97.11
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 4807 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 91.70
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+242 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 97.11
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 3 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-356 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 66.01
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 7106 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 62.03
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+356 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 66.01
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 4 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-453 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 51.88
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 9242 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 47.70
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+453 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 51.88
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 5 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-576 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 40.80
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 11342 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 38.86
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+576 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 40.80
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 6 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-689 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 34.11
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 13341 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 33.04
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+689 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 34.11
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 7 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-800 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 29.38
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 15387 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 28.65
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+800 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 29.38
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 8 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-908 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 25.88
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 17347 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 25.41
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+908 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 25.88
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 9 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-991 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 23.71
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 19244 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 22.91
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+991 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 23.71
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 10 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1090 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 21.56
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 21078 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 20.91
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1090 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 21.56
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 11 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1176 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 19.98
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 22825 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 19.31
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1176 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 19.98
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 12 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1276 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 18.42
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 24586 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 17.93
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1276 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 18.42
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 13 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1363 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 17.24
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 26290 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 16.77
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1363 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 17.24
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 14 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1451 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 16.20
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 27980 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 15.75
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1451 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 16.20
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 15 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1543 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 15.23
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 29623 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 14.88
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1543 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 15.23
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 16 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1634 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 14.38
--------------------------------
-nbindel 0
+4408 4408
 -------------------------------
               SNP
 31237 SNP in the reference.	 Among them 4408 are correctly predicted
 4551 SNP were predicted.	 Among them 4408 are correctly mapped
-SNP precision	 96.86
 SNP recall	 14.11
+SNP precision	 96.86
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1634 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 14.38
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 17 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1725 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 13.62
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 32841 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 13.43
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1725 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 13.62
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 18 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1810 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 12.98
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 34380 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 12.82
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1810 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 12.98
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 19 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1888 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 12.45
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 35844 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 12.30
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1888 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 12.45
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 20 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-1953 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 12.03
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 37283 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 11.83
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+1953 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 12.03
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 21 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2023 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 11.62
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 38703 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 11.39
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2023 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 11.62
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 22 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2100 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 11.19
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 40099 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 11.00
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2100 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 11.19
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 23 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2162 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 10.87
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 41470 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 10.63
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2162 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 10.87
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 24 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2237 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 10.51
--------------------------------
-nbindel 0
+4409 4409
 -------------------------------
               SNP
 42854 SNP in the reference.	 Among them 4409 are correctly predicted
 4551 SNP were predicted.	 Among them 4409 are correctly mapped
-SNP precision	 96.88
 SNP recall	 10.29
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2237 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 10.51
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 25 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2308 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 10.18
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 44213 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 9.97
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2308 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 10.18
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 26 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2379 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 9.88
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 45426 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 9.71
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2379 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 9.88
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 27 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2457 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 9.56
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 46707 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 9.44
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2457 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 9.56
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 28 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2523 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 9.31
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 47940 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 9.20
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2523 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 9.31
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 29 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2594 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 9.06
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 49196 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 8.96
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2594 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 9.06
+INDEL precision	 100.00
 -------------------------------
 
 
 --------------------------------------------------------------------------------
 30 GENOMES
-nbindel 235
--------------------------------
-              INDEL
-2660 INDEL in the reference.	 Among them 235 are correctly predicted
-235 INDEL were predicted.	 Among them 235 are correctly mapped
-INDEL precision	 100.00
-INDEL recall	 8.83
--------------------------------
-nbindel 0
+4410 4410
 -------------------------------
               SNP
 50421 SNP in the reference.	 Among them 4410 are correctly predicted
 4552 SNP were predicted.	 Among them 4410 are correctly mapped
-SNP precision	 96.88
 SNP recall	 8.75
+SNP precision	 96.88
+-------------------------------
+235 235
+-------------------------------
+              INDEL
+2660 INDEL in the reference.	 Among them 235 are correctly predicted
+235 INDEL were predicted.	 Among them 235 are correctly mapped
+INDEL recall	 8.83
+INDEL precision	 100.00
 -------------------------------

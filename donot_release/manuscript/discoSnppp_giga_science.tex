@@ -367,20 +367,20 @@ Thus, we dispose of the exact and exhaustive list of variants to be found, and w
 
 \subsubsection*{Two and more bacterial read sets}
 %CL si on a implementé le seuil auto par jeu de donnees, pourrait faire une expe avec des couvertures differentes dans chaque jeu : on serait peut-être bien meilleurs que les autres ?? (on laisserait celle-là en mat. supp pour montrer que meme sans ces variations on est meilleur)
-We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an \emph{Escherichia coli} individual. As presented in the Additional File 1, we simulated SNPs and indels such that the distributions of shared polymorphism between subsets of individuals are realistic. 
+We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an \emph{Escherichia Coli} individual. As presented in the Additional File 1, we simulated SNPs and indels such that the distributions of shared polymorphism between subsets of individuals are realistic. 
 
-Precision and recall results, presented in Figure~\ref{fig:ncoli}, allow to draw conclusions while calling SNPs from several haploid individuals. 
+Precision and recall results, presented in Figure~\ref{fig:ncoli}, allow to draw the following conclusions while calling SNPs from several haploid individuals. 
 %CL la phrase ci-dessus ne dit pas grand chose, preciser quelles conclusions ?
+%PP: +the following
 On these data, for calling both SNPs and indels, the \co precision is perfect or nearly perfect, whereas the recall strongly decreases when the number of read sets increases, until reaching less than 9\% for 30 individuals. 
 
-For SNP calling, the hybrid strategy provides better results than \discopp: its recall is slightly better, and its precision remains more or less constant whereas the \discopp precision linearly decreases with the number of read sets. 
-%CL je ne me rappelle plus comment on explique que c'est la precision qui decroit (j'aurais plutot dit le recall a priori, on est en -b 2)?
-
-However, concerning indel calling, the hybrid strategy shows bad performances, that may be explained by the difficulty of mapping reads with indels. Conversely, \discopp presents high quality results both in terms of precision and in terms of recall. 
+For SNP calling, the hybrid and \discopp provide similar excellent recall (respectively at least 98.98\% and 96.65\%). We may however note that recall slightly decreases for \discopp when increasing the number of read sets while this is not the case for the hybrid approach. The precision is stable for the hybrid approach whatever the number of read sets ($\approx 91\%$), while it increases from 91\% to 98\% with the number of read sets for the \discopp approach. 
 
 
-In short and in terms of results quality only, for calling all SNPs from a large number of read sets from a rather simple haploid genome, it is preferable to use an hybrid approach. However, we recall that for calling isolated SNPs only, \disco and the hybrid strategy lead to similar results (see~\cite{Uricaru2014a}). Note that the \disco results may be mimicked with \discopp by forbidding indels and close SNPs predictions. As for indel calls, \discopp performs better than the other methods.
+About the indel calling, the hybrid strategy shows bad performances, that may be explained by the difficulty of mapping reads with indels. Conversely, \discopp presents high quality results both in terms of precision and in terms of recall. 
 
+%PP TODO: changer ce paragraphe avec les nouveaux résultats disco. 
+In short, in term of results quality,  \discopp outperforms the compared methods except considering the SNP precision which is similar to the hybrid approach one. 
 Importantly, as shown in Figure~\ref{fig:ncoliperf}, \discopp runs much faster that other methods and uses much less RAM memory. Moreover, one may also insist on the fact that \discopp is extremely simple to use. Table~\ref{tab:2colicmpxt}, showing the number of operations to perform for each method, witnesses unequivocally
 %clearly 
 this simplicity.
@@ -391,8 +391,7 @@ For testing \discopp on a diploid and more complex genome, we propose an experim
 %CL idem preciser indel size
 The data simulation protocol is presented in the Additional File 1. 
 
-Results while 
-%CL je ne suis pas trop sure du while ici
+Results 
 considering all predictions are presented Table~\ref{tab:humanresults}. 
 The main conclusion is that, except from the hybrid approach that predicts few indels (40.97\%) with a high precision (96.15\%), other results do not show  notable difference, even if one may notice that precision is globally larger for indels, whereas the recall is higher for SNPs. 
 
@@ -543,7 +542,7 @@ ED implemented the GATB library and re-coded \disco using this library, includin
 
 \begin{figure}[h!]  
 	\includegraphics[width=\linewidth]{../tests_n_coli_NAR/n_coli.png}
-\caption{\csentence{\discopp, \co and hybrid strategy (SOAPdenovo2+GATK) results, depending on the number of input haploid individuals.} SOAPdenovo2 and GATK were launched with default parameters. For \discopp and \co, $k$-mers having three or fewer occurrences in all datasets were removed. Precision and recall: filled symbols represent the precision and empty symbols represent the recall. \textbf{Left:} results on SNPs predictions. \textbf{Right:} results on indels predictions. \label{fig:ncoli}}
+\caption{\csentence{\discopp, \co and hybrid strategy (SOAPdenovo2+GATK) results, depending on the number of input haploid individuals.} SOAPdenovo2 and GATK were launched with default parameters. For \discopp and \co, $k$-mers having three or fewer occurrences in all datasets were removed. Precision and recall: filled symbols represent the precision and empty symbols represent the recall. \textbf{Left:} results on indels predictions. \textbf{Right:} results on SNPs predictions. \label{fig:ncoli}}
 \end{figure}
 
 
