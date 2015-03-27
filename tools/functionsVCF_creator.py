@@ -97,6 +97,7 @@ def ParsingDiscoSNP(snp,boolNum):
     i=0
     for i in nomDisco:
         if "SNP" in i:
+            discoName=i
             SNP=1
             ID= i.split('_')
             for j in ID:
@@ -160,6 +161,7 @@ def ParsingDiscoSNP(snp,boolNum):
             INDEL=True
             ID= i.split('_')
             j=0
+            discoName=i
             for j in ID:
                 matchInt=re.match(r'^\d+|$',j)
                 if matchInt:
@@ -227,7 +229,7 @@ def ParsingDiscoSNP(snp,boolNum):
             dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
     
     if boolNum==0:
-        return(snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverture,listC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
+        return(discoName,snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverture,listC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
     else:
         return(numSNP)
 
@@ -319,10 +321,10 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
                 covLow=str( listCLow[i])+'='+str( listCoverageLow[i])+","+str( listCoverageUp[i])
             i+=1
     else:
-        listCovGeno.append(int( listCoverageUp[0])+int( listCoverageLow[0]))
+        listCovGeno.append(int(listCoverageUp[0])+int(listCoverageLow[0]))
         covUp=str( listCUp[0])+'='+str( listCoverageUp[0])+","+str( listCoverageLow[0])
         covLow=str( listCLow[0])+'='+str( listCoverageLow[0])+","+str( listCoverageUp[0])
-    return(covUp,covLow,listCovGeno) #string covUp C1:5|23;C2:35|1 listCovGeno=[28,36]
+    return(covUp,covLow,listCovGeno) #string covUp C1=5,23;C2=35,1 listCovGeno=[28,36]
 ##############################################################
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions
@@ -415,9 +417,11 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                 shift-=int(parsingCigarCode[i-1])
             # hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
+                shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
                 pos+=int(parsingCigarCode[i-1])
             # padding (silent deletion from padded reference)
             elif parsingCigarCode[i]=="P":
+                shift+=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="=":
                 pos+=int(parsingCigarCode[i-1])
@@ -448,9 +452,11 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                 shift-=int(parsingCigarCode[i-1])
             # hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
+                shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
                 pos+=int(parsingCigarCode[i-1])
             # padding (silent deletion from padded reference)
             elif parsingCigarCode[i]=="P":
+                shift+=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="=":
                 pos+=int(parsingCigarCode[i-1])
@@ -458,7 +464,7 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
                 pos+=int(parsingCigarCode[i-1])
             if len(listpol)==1:
                 if pos>=int(lenDemiSeq):
-                    posCentraleRef=int(lenDemiSeq)+shift
+                    posCentraleRef=int(lenDemiSeq)+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence
                     return(posCentraleRef,shift)
             i+=2
 ##############################################################
@@ -922,9 +928,10 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
     ntLow=None
     genoLow=None
     dicoHeaderLow=None
-
-    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    posUnmmapedUp=None
+    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    posUnmmapedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -971,9 +978,9 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##Case : Both paths are unmapped       
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:#FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if nucleoLow<nucleoUp:
-            table=FillVCF(table,numSNPLow,".",positionSnpUp,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmmapedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
-            table=FillVCF(table,numSNPUp,".",positionSnpLow,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmmapedUp)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
     return(table)
 ##############################################################
 ##############################################################   
@@ -1050,9 +1057,11 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     positionSnpLow=None
     ID=0
     comptPol=0
+    posUnmmapedUp=None
     #Variables
-    snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    posUnmmapedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -1127,13 +1136,13 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         reverseUp="."
         i=0
         for i in range(len(listPolymorphismePos)):
-            positionSnpUp="0"+str(listPolymorphismePos[i])
-            positionSnpLow="0"+str(listPolymorphismePos[i])
+            positionSnpUp=int(listPolymorphismePos[i])+int(posUnmmapedUp)
+            positionSnpLow=int(listPolymorphismePos[i])+int(posUnmmapedUp)
             nucleoUp=listnucleoUp[i]
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
             nucleoRefLow="."
-            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPUp,discoNameUp,positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1315,9 +1324,15 @@ def CheckBitwiseFlag(FLAG,bit):
                 return(data[bit]=='1')
         except IndexError:
                 return False
-
-
-
+##############################################################
+##############################################################
+def CheckContigUnitig(unitig,contig):
+        if contig:
+                return(int(contig))
+        elif unitig:
+                return(int(unitig))
+        else:
+                return 0
 
 
 
