@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define DEBUG(a) // a
+#define DEBUG(a)  //a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 
@@ -438,6 +438,10 @@ bool BubbleFinder::expand (
         
         /** extend the bubble with the couple of nodes */
         finished_bubble |= expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+        
+        /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
+        /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
+        if(finished_bubble && successors[i].first==successors[i].second) break;
     }
     
     DEBUG((cout<<"stop try"<<endl));
@@ -457,6 +461,9 @@ bool BubbleFinder::expand (
                     if ( graph.getNT(successors1[i1],sizeKmer-1) == graph.getNT(successors2[i2],sizeKmer-1))
                     continue; // This has already been tested in previous loop
                 finished_bubble |= expand_heart(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+                /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
+                /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
+                if(finished_bubble && successors1[i1]==successors2[i2]) break;
             }
         }
     }
