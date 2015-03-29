@@ -380,6 +380,8 @@ else:
         line2=line2.rstrip('\n')
         line2=line2.strip('>')
         table = [0] * 10
+        posUnmappedUp=None
+        pos=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------        
         #Variables
@@ -387,6 +389,7 @@ else:
         
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
+        posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------        
         if numSNPLow != numSNPUp:
@@ -413,7 +416,8 @@ else:
                 ntLow=dicoHeaderUp["P_1"][2]
                 ntUp=dicoHeaderUp["P_1"][1]
                 phased=False
-                PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                pos=(int(dicoHeaderUp["P_1"][0])+int(posUnmappedUp))
+                PrintVCFGhost(table,numSNPUp,discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -425,7 +429,8 @@ else:
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
-                        PrintVCFGhost(table,str(numSNPUp)+"_"+str(ID),tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                        pos=(int(dicoHeaderUp[key][0])+int(posUnmappedUp))
+                        PrintVCFGhost(table,str(numSNPUp)+"_"+str(ID),discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
                         ID+=1
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
@@ -445,7 +450,8 @@ else:
             else:
                 ntUp=ntStart
                 ntLow=insert
-            PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+            pos=(int(dicoHeaderUp["P_1"][0])+int(posUnmappedUp))
+            PrintVCFGhost(table,numSNPUp,discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
             continue     
         	
 #---------------------------------------------------------------------------------------------------------------------------

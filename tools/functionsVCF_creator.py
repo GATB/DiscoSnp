@@ -928,10 +928,11 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
     ntLow=None
     genoLow=None
     dicoHeaderLow=None
-    posUnmmapedUp=None
+    posUnmappedUp=None
     discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-    posUnmmapedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
+    posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
+    posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -978,9 +979,9 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##Case : Both paths are unmapped       
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:#FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if nucleoLow<nucleoUp:
-            table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmmapedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmappedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
-            table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmmapedUp)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmappedLow)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
     return(table)
 ##############################################################
 ##############################################################   
@@ -1057,11 +1058,12 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
     positionSnpLow=None
     ID=0
     comptPol=0
-    posUnmmapedUp=None
+    posUnmappedUp=None
     #Variables
     discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
     discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
-    posUnmmapedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
+    posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
+    posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -1136,8 +1138,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPoly
         reverseUp="."
         i=0
         for i in range(len(listPolymorphismePos)):
-            positionSnpUp=int(listPolymorphismePos[i])+int(posUnmmapedUp)
-            positionSnpLow=int(listPolymorphismePos[i])+int(posUnmmapedUp)
+            positionSnpUp=int(listPolymorphismePos[i])+int(posUnmappedUp)
+            positionSnpLow=int(listPolymorphismePos[i])+int(posUnmappedLow)
             nucleoUp=listnucleoUp[i]
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
@@ -1238,10 +1240,10 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
     return table
 ##############################################################
 ##############################################################
-def PrintVCFGhost(table,numSNPUp,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
+def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
     '''Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6]''' 
-    table[0]="."
-    table[1]="."  
+    table[0]=chrom
+    table[1]=position
     table[5]="."
     table[6]="."
     
