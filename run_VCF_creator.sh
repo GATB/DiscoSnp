@@ -13,7 +13,6 @@ l=10
 n=""
 s=0
 
-
 function help {
 echo " ##############################"
 echo "   Run VCF_creator pipeline     "
@@ -46,7 +45,7 @@ echo -e "\t\t Optional, default 0"
 echo -e "\t-l: bwa option: length of the seed for alignment"
 echo -e "\t\t Optional, default 10"
 echo -e "\t-n: bwa option: maximal bwa mapping distance"
-echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends from this parameter."
+echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends on this parameter."
 echo -e "\t\t Mandatory in MODE 3. "
 
 echo -e "\t-w: remove waste tmp files (index files) "
@@ -292,10 +291,14 @@ else
 	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
 
-if [ $remove=1 ];then
-	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis
+cat $vcffile|grep "#">tmp.vcf
+cat $vcffile|grep -v  "#"|sort -k 2n,2n -n>>tmp.vcf
+mv tmp.vcf $vcffile
+
+if [ $remove -eq 1 ];then
+	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
-	rm -f $saifile $discoSNPsbis
+	rm -f $saifile $discoSNPsbis tmp.vcf
 fi	
 
 

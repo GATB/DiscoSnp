@@ -79,8 +79,7 @@ if boolmyname:
 else:
         VCF.write('##SAMPLE=file://'+str(fichier)+'\n')
 VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
-VCF.write('##ALT=<ID=ALT,Number=1,Type=String,Description="Allele of the other path">\n')
-VCF.write('##FILTER=<ID=MULTIPLE,Number=1,Type=String,Description="Mapping type : PASS or MULTIPLE or .">\n')
+VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">\n')
 VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
 VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : both paths multiply mapped : multi ; one path multiply mapped : one ; else : none">\n')

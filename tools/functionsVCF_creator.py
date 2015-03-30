@@ -696,6 +696,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpUp[3])<=0 :
         nucleoUp = dicoHeaderUp["P_1"][1]
+        if reverseLow==-1:
+               nucleoUp = ReverseComplement(dicoHeaderUp["P_1"][1])
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
     ####Lower Case 
@@ -726,6 +728,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     
     elif int(snpLow[3])<=0:
         nucleoLow = dicoHeaderUp["P_1"][2]
+        if reverseUp==-1:
+               nucleoLow = ReverseComplement(dicoHeaderUp["P_1"][2])
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -783,8 +787,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 posSNPLow=None
                 posSNPUp=posCentraleUp+posRef
         elif (int(snpUp[3])<=0 and int(snpLow[3])<=0):
-                posSNPUp="0"+str(dicoHeaderUp["P_1"][0])
-                posSNPLow="0"+str(dicoHeaderUp["P_1"][0])
+                posSNPUp=dicoHeaderUp["P_1"][0]
+                posSNPLow=dicoHeaderUp["P_1"][0]
         ##Check the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
         if boolRefLow==True and reverseLow==-1 and reverseUp==1:
                nucleoUp=ReverseComplement(nucleoUp)
@@ -954,11 +958,6 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##Case : Lower path mapped and upper path unmapped      
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
         table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
-        ##If the number of mismatch is the max : that means the second path will be mapped at number of mismatch +1
-        if dmax:
-                table[4]=nucleoUp
-        else:
-                table[4]='.'
         if snpLow[10]=="*":
                 table[5]="."
         else:
@@ -967,10 +966,6 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 ##Case : Upper path mapped and lower path unmapped        
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
         table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
-        if dmax:
-                table[4]=nucleoLow
-        else:
-                table[4]='.'
         if snpUp[10]=="*":
                 table[5]="."
         else:
