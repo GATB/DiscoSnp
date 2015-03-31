@@ -217,7 +217,6 @@ if ".sam" in fichier:
         info=None      # info vcf field
         multi=None     # multi vcf field
         ok=None        # distance for which the SNP is mapped, -1 if not mapped or if multiple mapped
-        dmax=False     # only one of the two paths mapped at maximal distance. 
         indel=False    # boolean to know if it is an indel
         phased=False    # am I phased?
         filterField='.' # init the vcf field filter
@@ -236,22 +235,6 @@ if ".sam" in fichier:
             if couple== "ok" or couple == "multiple":
                 rupture=NM
                 break
-        if rupture==nbMismatchBWA:
-            if int(snpLow[3])<=0 :   
-                dmax=True
-            elif int(snpUp[3])<=0:
-                dmax=True
-            else:
-                dmax==False
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-        #VCF champ INFO Multi
-        if boolXAUp==True and boolXALow==True:
-            multi="multi"
-        elif boolXAUp==False and boolXALow==False:
-            multi="none"
-        elif (boolXAUp==True and boolXALow==False) or  (boolXAUp==False and boolXALow==True):
-            multi="one"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         #VCF champs Filter
@@ -269,6 +252,16 @@ if ".sam" in fichier:
             filterField="probleme...."
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
+        #VCF champ INFO Multi
+        if boolXAUp==True and boolXALow==True:
+            multi="multi"
+        elif boolXAUp==False and boolXALow==False:
+            multi="none"
+        elif (boolXAUp==True and boolXALow==False) or  (boolXAUp==False and boolXALow==True):
+            multi="one"
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+
         if "SNP" in snpUp[0] :
 #---------------------------------------------------------------------------------------------------------------------------
             indel=False
@@ -283,7 +276,7 @@ if ".sam" in fichier:
                 tp="SNP"
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
-                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,dmax,filterField,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
+                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterField,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
                 printOneline(table,VCF)
                 continue
     
@@ -296,7 +289,7 @@ if ".sam" in fichier:
                 dicoLow={}
                 dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 # this function comptutes the VCF and prints it!!
-                printVCFSNPclose(dicoUp,dicoLow,table,filterField,dmax,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF) 
+                printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
