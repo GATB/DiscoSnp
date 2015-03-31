@@ -94,7 +94,7 @@ else:
         i=0
         for i in range(0,int(nbGeno)):
                 nomCol="C"+str(i+1)
-                VCF.write('##INFO=<ID='+str(nomCol)+',Number=2,Type=Integer,Description="Depth of each allele by sample'+str(i+1)+'">\n')
+                VCF.write('##INFO=<ID='+str(nomCol)+',Number=2,Type=Integer,Description="Depth of each allele for sample '+str(i+1)+'">\n')
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
@@ -189,7 +189,6 @@ nucleoRefLow=None
 key=None
 ntUp=None
 ntLow=None
-tp=None
 
 if ".sam" in fichier:
     while True:
@@ -268,8 +267,6 @@ if ".sam" in fichier:
             ok=-1
         else : 
             filterField="probleme...."
-
-
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         if "SNP" in snpUp[0] :
