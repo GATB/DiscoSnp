@@ -12,7 +12,7 @@ discoSNPs=""
 l=10
 n=""
 s=0
-
+igv=0
 function help {
 echo " ##############################"
 echo "   Run VCF_creator pipeline     "
@@ -37,6 +37,9 @@ echo -e "\t\t Optional unless MODE 2: you want the mapping positions of the pred
 echo -e "\t-B: bwa path. i.e. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
 echo -e "\t\t Optional unless MODE 2 if bwa is not in the binary path. E.G.: -B and -G options must be used together"
 
+echo -e "\t-I : Creation of output specific to IGV (Integrative Genomics Viewer)"
+echo -e "\t\t Optional"
+
 echo -e "\t-f: <file>.sam: skip the alignment phases to create the vcf file"
 echo -e "\t\t Optional unless MODE 3: you want the mapping positions of the predicted variants in the VCF file without remapping on a reference genome. -f option must be used together with -n"
 
@@ -55,7 +58,7 @@ echo -e "\t\t Optional"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hB:c:G:p:l:n:s:wf:o:" opt; do
+while getopts "hB:c:G:p:l:n:s:wIf:o:" opt; do
 case $opt in
 
 	w)
@@ -105,6 +108,11 @@ case $opt in
 	f)
 	echo -e "\t##use directly samfile : $OPTARG" >&2
 	samfile=$OPTARG
+	;;
+	
+	I)
+	echo -e "\t##Will create a vcf file for IGV : Sorting VCF by mapping positions and removing unmapped variants"
+	igv=1
 	;;
 		
 	o)
@@ -291,9 +299,13 @@ else
 	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
 
-cat $vcffile|grep "#">tmp.vcf
-cat $vcffile|grep -v  "#"|sort -k 2n,2n -n>>tmp.vcf
-mv tmp.vcf $vcffile
+if [ $igv -eq 1 ] ; then 
+        igvfile=$(basename $vcffile .vcf)"_for_IGV.vcf"
+        cat $vcffile|grep "#">$igvfile
+        cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "SNP">>$igvfile
+        echo -e "... Creation of the vcf file for IGV: done ...==> $igvfile"
+fi
+
 
 if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
