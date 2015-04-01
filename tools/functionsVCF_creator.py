@@ -630,7 +630,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
-        posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)# if there is a problem with the bitwise flag
         listPolymorphismePosUp=listPos
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
@@ -644,6 +643,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             listPolymorphismePosUp=listPosR #List of all the reverse position
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUpR[0]
+        else:
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)
+            listPolymorphismePosUp=listPos
+            if len(listPos)==1 and indel==False: #simple snp
+                nucleoUp=listnucleoUp[0] # Gets the nucleotide 
+           
     else: ###Case unmapped variant Up
         listPolymorphismePosUp=listPos
         posCentraleUp=listPos
@@ -665,6 +670,11 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             listPolymorphismePosLow=listPosR
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLowR[0]
+        else:
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
+            listPolymorphismePosLow=listPos
+            if len(listPos)==1 and indel==False:
+                nucleoLow=listnucleoLow[0]             
     else:###Case unmapped variant Low
         listPolymorphismePosLow=listPos
         posCentraleLow=listPos
