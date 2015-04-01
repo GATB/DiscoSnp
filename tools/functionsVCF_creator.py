@@ -630,6 +630,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
+        posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)# if there is a problem with the bitwise flag
+        listPolymorphismePosUp=listPos
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
@@ -649,6 +651,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         reverseUp="."
 ###Case mapped variant Low :Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpLow[3])>0:
+        posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel) # if there is a problem with the bitwise flag
+        listPolymorphismePosLow=listPos
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpLow[1],4):#Forward Strand
             posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
