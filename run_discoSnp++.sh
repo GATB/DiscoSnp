@@ -419,8 +419,8 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
        fi
 else # A Reference genome is provided, vcf creator mode 2
-       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M"
-       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M
+       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I"
+       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I
 
        if [ $? -ne 0 ]
        then
@@ -438,6 +438,12 @@ Ttot="$(($(date +%s)-Ttot))"
 echo "DiscoSnp++ total time in seconds: ${Ttot}"
 echo -e "\t################################################################################################################"
 echo -e "\t fasta of predicted variant is \""$kissprefix\_coherent.fa"\""
-echo -e "\t VCF file is \""$kissprefix\_coherent.vcf"\""
+
+if [ -z "$genome" ]; then
+       echo -e "\t Ghost VCF file (1-based) is \""$kissprefix\_coherent.vcf"\""
+else
+       echo -e "\t VCF file (1-based) is \""$kissprefix\_coherent.vcf"\""
+       echo -e "\t An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""$kissprefix\_coherent_for_IGV.vcf"\""
+fi
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
 echo -e "\t################################################################################################################"
