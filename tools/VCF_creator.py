@@ -82,7 +82,7 @@ VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Di
 VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">\n')
 VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
-VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : both paths multiply mapped : multi ; one path multiply mapped : one ; else : none">\n')
+VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : path multiply mapped : True ; else : False">\n')
 VCF.write('##INFO=<ID=DT,Number=1,Type=Integer,Description="Mapping distance with reference">\n')
 VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig left">\n')
 VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
@@ -260,11 +260,11 @@ if ".sam" in fichier:
 #---------------------------------------------------------------------------------------------------------------------------
         #VCF champ INFO Multi
         if boolXAUp==True and boolXALow==True:
-            multi="multi"
+            multi="True"
         elif boolXAUp==False and boolXALow==False:
-            multi="none"
+            multi="True"
         elif (boolXAUp==True and boolXALow==False) or  (boolXAUp==False and boolXALow==True):
-            multi="one"
+            multi="False"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
