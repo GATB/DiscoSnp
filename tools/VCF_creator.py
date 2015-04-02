@@ -201,7 +201,15 @@ if ".sam" in fichier:
         ##snpUp and snpLow are lists of the line in the samfile file
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
-        
+        #Verifies that the samfile is formatted
+        #if (("A" or "T" or "G" or "C") not in snpUp[9]) or len(snpUp)<11:
+        #        print "WARNING wrong format for the variant : "+str(discoNameUp)
+        #        print "...We skipped it..."
+        #        continue
+        #if (("A" or "T" or "G" or "C") not in snpLow[9]) or len(snpLow)<11:
+        #        print "WARNING wrong format for the variant : "+str(discoNameLow)
+        #        print "...We skipped it..."
+        #        continue
         if numSNPLow != numSNPUp:
             print "WARNING two consecutive lines do not store the same variant id: "
             print line1

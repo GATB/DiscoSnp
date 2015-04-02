@@ -302,7 +302,7 @@ fi
 if [ $igv -eq 1 ] ; then 
         igvfile=$(basename $vcffile .vcf)"_for_IGV.vcf"
         cat $vcffile|grep "#">$igvfile
-        cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "SNP">>$igvfile
+        cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "^SNP"|grep -v "^INDEL">>$igvfile
         echo -e "... Creation of the vcf file for IGV: done ...==> $igvfile"
 fi
 

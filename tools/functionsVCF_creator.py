@@ -384,10 +384,9 @@ def ReverseComplement(nucleotide):
 ##############################################################
 # cigarcode : in the samfile column 5 example 2S3M1I25M
 # listpol : For close snps example listpol=[31,36,45] (with nb_pol=3)
-# posModif usefull in case of simple snps or indel : give the position of the variant on the sequence
 # indel : boolean True if the current variant is an indel
 ##############################################################
-def CigarCodeChecker(cigarcode,listpol,posModif,indel):
+def CigarCodeChecker(cigarcode,listpol,indel):
     """Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
     parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #parsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
     listPosRef=[]
@@ -397,8 +396,9 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
     pos=0
     i=1
     j=0
-    lenDemiSeq=posModif
     posCentraleRef=None
+    #Reference (REF) =Genome
+    #SEQ =query = discosnp path
     #Close snps
     if len(listpol)>1:
         while i<len(parsingCigarCode): # Goes through the list by twos to get all the letters and to take them into account
@@ -415,6 +415,7 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             #Insertion
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
+                pos+=int(parsingCigarCode[i-1])
             # hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
                 shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
@@ -449,7 +450,8 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             elif parsingCigarCode[i]=="D":
                 shift+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="I":
-                shift-=int(parsingCigarCode[i-1])
+                shift-=int(parsingCigarCode[i-1])# we have a nucleotide of shift compared to the reference
+                pos+=int(parsingCigarCode[i-1]) #We advance in the query SEQ
             # hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
                 shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
@@ -463,8 +465,8 @@ def CigarCodeChecker(cigarcode,listpol,posModif,indel):
             elif parsingCigarCode[i]=="X":
                 pos+=int(parsingCigarCode[i-1])
             if len(listpol)==1:
-                if pos>=int(lenDemiSeq):
-                    posCentraleRef=int(lenDemiSeq)+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence
+                if pos>=int(listpol[0]):
+                    posCentraleRef=int(listpol[0])+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence
                     return(posCentraleRef,shift)
             i+=2
 ##############################################################
@@ -599,12 +601,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     ambiguityPos=None
     insert=None
     ntStart=None
-    
-    posModif=dicoHeaderUp["P_1"][0] #Position of the first variant gived by discosnp
     seqUp=list(snpUp[9])
     seqLow=list(snpLow[9])
-    if posModif==0:
-        posModif=len(seqUp)/2
     reverseUp=1
     reverseLow=1
     dicopolUp={}
@@ -621,33 +619,37 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     else:
         seqUp=snpUp[9]
         seqLow=snpLow[9]
-        if len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
+        if int(snpUp[3])>0 and int(snpLow[3])<=0:
+            seq=seqUp
+        elif int(snpLow[3])>0 and int(snpUp[3])<=0:
+            seq=seqLow           
+        elif len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
             seq=seqLow
         else:
             seq=seqUp
         listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel) # For indel get the insert, the list of position and the possible ambiguity for the position 
+        
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
     if int(snpUp[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
         elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
             reverseUp=-1
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,posModif,indel)
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,indel)
             listPolymorphismePosUp=listPosR #List of all the reverse position
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUpR[0]
-        else:
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,posModif,indel)
+        else:# default case we can not determine the bitwise flag.
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,indel)
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
-           
     else: ###Case unmapped variant Up
         listPolymorphismePosUp=listPos
         posCentraleUp=listPos
@@ -657,18 +659,18 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpLow[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpLow[1],4):#Forward Strand
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]
         elif CheckBitwiseFlag(snpLow[1],4):# Reverse Strand
             reverseLow=-1
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,posModif,indel)
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,indel)
             listPolymorphismePosLow=listPosR
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLowR[0]
         else:
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,posModif,indel)
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]             
