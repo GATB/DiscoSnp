@@ -607,6 +607,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     reverseLow=1
     dicopolUp={}
     dicopolLow={}
+    boolSmallestUp=False
+    boolSmallestLow=False
     i=0
     if int(snpUp[3])>0:
         posRef=int(snpUp[3])
@@ -615,20 +617,19 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
     #List of snps
     if indel==False:
-        listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel)
+        listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel,False)
     else:
         seqUp=snpUp[9]
-        seqLow=snpLow[9]
-        if int(snpUp[3])>0 and int(snpLow[3])<=0:
-            seq=seqUp
-        elif int(snpLow[3])>0 and int(snpUp[3])<=0:
-            seq=seqLow           
-        elif len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
-            seq=seqLow
+        seqLow=snpLow[9]          
+        if len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
+            boolSmallestUp=True
+            boolSmallestLow=False
         else:
-            seq=seqUp
-        listPos,listPosR,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seq,indel) # For indel get the insert, the list of position and the possible ambiguity for the position 
-        
+            boolSmallestUp=False
+            boolSmallestLow=True
+        listPos,listPosRUp,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqUp,indel,boolSmallestUp) # For indel get the insert, the list of position and the possible ambiguity for the position
+        listPos,listPosRLow,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqLow,indel,boolSmallestLow)
+       
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
@@ -641,8 +642,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
         elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
             reverseUp=-1
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,indel)
-            listPolymorphismePosUp=listPosR #List of all the reverse position
+            if indel==True :
+                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp,indel)
+                listPolymorphismePosUp=listPosRUp #List of all the reverse position
+            else:
+                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,indel)
+                listPolymorphismePosUp=listPosR #List of all the reverse position
             if len(listPos)==1 and indel==False:
                 nucleoUp=listnucleoUpR[0]
         else:# default case we can not determine the bitwise flag.
@@ -665,8 +670,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 nucleoLow=listnucleoLow[0]
         elif CheckBitwiseFlag(snpLow[1],4):# Reverse Strand
             reverseLow=-1
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,indel)
-            listPolymorphismePosLow=listPosR
+            if indel==True:
+                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosRLow,indel)
+                listPolymorphismePosLow=listPosRLow
+            else:
+                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,indel)
+                listPolymorphismePosLow=listPosR
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLowR[0]
         else:
@@ -883,7 +892,7 @@ The Boolean allows to know the reference SNP ) """
 #Simple Variant : dicoHeader[key]=[posD,ntUp,ntLow]
 #Indel : dicoHeader[key]=[posD,ind,amb]
 ##############################################################
-def GetPolymorphisme(dicoHeader,seq,indel):
+def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
     '''Gets from the dicoHeader all the positions, and the nucleotides (R means that it's on the reverse strand)
       SNP :  one variant correspond to listPos[0], listPosR[0], listnucleoUp[0], listnucleoLow[0],listnucleoUpR[0],listnucleoLowR[0]'''
     #Forward
@@ -895,6 +904,8 @@ def GetPolymorphisme(dicoHeader,seq,indel):
     listnucleoUpR=[]
     listnucleoLowR=[]
     tailleSeq=len(seq)
+    insert=None
+    ntStart=None
     if indel==False:##Case of simple snp
         for key,(posD,ntUp,ntLow) in dicoHeader.items():
             listPos.append(posD)
@@ -908,8 +919,9 @@ def GetPolymorphisme(dicoHeader,seq,indel):
         for key,(posD,ind,amb) in dicoHeader.items():
             listPos.append(posD)
             listPosR.append(tailleSeq-int(posD)+1)
-            insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))]
-            ntStart=seq[(int(posD-1)-1)]
+            if boolSmallest==True:
+                insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))]
+                ntStart=seq[(int(posD-1)-1)]
             ambiguityPos=amb
         return(listPos,listPosR,insert,ntStart,ambiguityPos)
 ##############################################################

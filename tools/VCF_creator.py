@@ -189,7 +189,6 @@ nucleoRefLow=None
 key=None
 ntUp=None
 ntLow=None
-
 if ".sam" in fichier:
     while True:
         line1=samfile.readline()
@@ -274,7 +273,7 @@ if ".sam" in fichier:
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel)
+                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##one SNP
@@ -314,7 +313,7 @@ if ".sam" in fichier:
                 seq=seqUp
 #---------------------------------------------------------------------------------------------------------------------------
             #Get from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel)
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,True)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             #Get the positons of the variant by taking into account the shift of mapping
@@ -405,7 +404,7 @@ else:
             listPolymorphismePos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel)
+                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel,False)
 	#dicoHeader[key]=[posD,ntUp,ntLow]
 	    if len(listPolymorphismePos)==0:
                 ntLow=dicoHeaderUp["P_1"][2]
@@ -438,7 +437,7 @@ else:
                 seq=seq1
             else:
                 seq=seq2
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel)                
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,True)                
             if seq==seq1:
                 ntLow=ntStart
                 ntUp=insert
