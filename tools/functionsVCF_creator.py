@@ -478,6 +478,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     """MD tag parsing; checks if path nucleotide is identical to the reference nucleotide """
     pos=0
     i=0
+    j=0
     matchInt=None
     nucleoRef=None
     boolEgalRef=None
@@ -488,19 +489,48 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     parsingPosMut=None
     strNumerodel=None
     if '^' in posMut: #Means there is a deletion relative to the reference
+    ###We want to have a liste of all nucleotides and numbers of matches without the nucleotide of deletion 
         pos=shift
         motifDel=re.compile("[0-9]*\^[A-Za-z]*") #motif of the deletion example  : 31^CGC
         dictDel={}
         deletion=re.findall('\d+\^[A-Za-z]*',posMut) # Parsing with the deletion
-        deletion=''.join(deletion)
-        numeroDel=re.findall('\d+',deletion)
-        parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
-        strNumerodel=''.join(numeroDel)
+        parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)#Example with 27^C4^A25 ['27', '^', 'C', '4', '^', 'A', '25']
         for m in motifDel.finditer(posMut):
-            dictDel[m.group()]=parsingPosMut.index('^')-1 #Get the position of the deletion in posMut
-        posMut=posMut.replace(deletion,"")
-        parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
-        parsingPosMut.insert(dictDel[deletion],numeroDel[0])
+            dictDel[m.group()]=posMut.index(m.group()) #Get the position of the deletion in posMut Example 27^C4^A25 
+        if len(deletion)==1:
+                deletion=''.join(deletion)
+                numeroDel=re.findall('\d+',deletion) 
+                strNumerodel=''.join(numeroDel)
+                parsingPosMut.insert(dictDel[deletion],"K"+str(numeroDel[0])+"Z")
+                posMut=''.join(parsingPosMut)
+                posMut=posMut.replace(deletion,"")
+                parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
+                parsingPosMut.remove('Z')
+                parsingPosMut.remove('K')
+        else :
+               j=0
+               while j<=len(deletion)-1:
+                        deletionTmp=''.join(deletion[j])                        
+                        numeroDel=re.findall('\d+',deletionTmp)
+                        strNumerodel=''.join(numeroDel)
+                        dictDel[deletionTmp]= [dictDel[deletionTmp],strNumerodel]# Example{'27^C': [0, '27'], '4^A': [4, '4']}
+                        j+=1
+               parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
+               for key,(index,numeroDel) in dictDel.items():
+                        parsingPosMut.insert(int(index),"K"+str(numeroDel)+"Z")
+               posMut=''.join(parsingPosMut)
+               j=0
+               while j<=len(deletion)-1:
+                        deletionTmp=''.join(deletion[j])
+                        posMut=posMut.replace(deletionTmp,"")
+                        j+=1
+               parsingPosMutbis=re.findall('(\d+|[A-Za-z])',posMut)
+               parsingPosMut=[]
+               element=0
+               for element in range(len(parsingPosMutbis)):
+                        if parsingPosMutbis[element]!="K" and parsingPosMutbis[element]!="Z":
+                                parsingPosMut.append(parsingPosMutbis[element])
+               ###For the Example we will obtain :27^C4^A25 => ['27', '4', '25'] => positions without deletion !!!                                    
     else:
         parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
     while i<len(parsingPosMut):#Convert the number into integer 
@@ -629,7 +659,6 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             boolSmallestLow=True
         listPos,listPosRUp,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqUp,indel,boolSmallestUp) # For indel get the insert, the list of position and the possible ambiguity for the position
         listPos,listPosRLow,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqLow,indel,boolSmallestLow)
-       
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ###Case mapped variant Up : Shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
