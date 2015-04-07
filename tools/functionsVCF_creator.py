@@ -10,8 +10,8 @@ import time
 #FUNCTIONS_________________________________________________________________________________________________________
 ##############################################################
 ##############################################################
-def Comptage(fichier):
-    """Function that counts the number of SNPs"""
+def Counting(fichier):
+    """Function that counts the number of SNPs and the number of genotype"""
     samfile=open(fichier,'r')
     nbSnp=0
     i=0
@@ -53,7 +53,7 @@ def ParsingDiscoSNP(snp,boolNum):
         snp=snp.rstrip('\r')
         snp=snp.rstrip('\n')
         snp=snp.split('\t')
-    listCoverture=[]
+    listCoverage=[]
     listC=[]
     j=0
     numSNP=None
@@ -210,7 +210,7 @@ def ParsingDiscoSNP(snp,boolNum):
             for j in range(len(coverage)):
                 matchInt=re.match(r'^\d+$',coverage[j])
                 if matchInt:
-                    listCoverture.append(str(coverage[j]))
+                    listCoverage.append(str(coverage[j]))
                     listC.append(str(coverage[j-1]))
         elif "nb_pol" in i : ###Esssential
             nb_pol=i.split('_')
@@ -229,7 +229,7 @@ def ParsingDiscoSNP(snp,boolNum):
             dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
     
     if boolNum==0:
-        return(discoName,snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverture,listC,nb_pol,ln,posD,ntUp,ntLow,dicoGeno,dicoHeader)
+        return(discoName,snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverage,listC,nb_pol,posD,ntUp,ntLow,dicoGeno,dicoHeader)
     else:
         return(numSNP)
 
@@ -295,7 +295,7 @@ def GetCouple(snpUp,snpLow):
 
 ##############################################################
 #listCup=["C1","C2"]
-#listCovertureUp=[23,45]
+#listCoverageUp=[23,45]
 ##############################################################
 def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
     """Takes as input lists list  """
@@ -490,7 +490,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
     strNumerodel=None
     if '^' in posMut: #Means there is a deletion relative to the reference
     ###We want to have a liste of all nucleotides and numbers of matches without the nucleotide of deletion 
-        pos=shift
+        pos=shift # take into account if there is a deletion in the sequence
         motifDel=re.compile("[0-9]*\^[A-Za-z]*") #motif of the deletion example  : 31^CGC
         dictDel={}
         deletion=re.findall('\d+\^[A-Za-z]*',posMut) # Parsing with the deletion
@@ -503,10 +503,11 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                 strNumerodel=''.join(numeroDel)
                 parsingPosMut.insert(dictDel[deletion],"K"+str(numeroDel[0])+"Z")
                 posMut=''.join(parsingPosMut)
-                posMut=posMut.replace(deletion,"")
+                posMut=posMut.replace(deletion,"")#delete the motif of the deletion but not the position of the deletion
                 parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
                 parsingPosMut.remove('Z')
                 parsingPosMut.remove('K')
+                
         else :
                j=0
                while j<=len(deletion)-1:
@@ -530,7 +531,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                for element in range(len(parsingPosMutbis)):
                         if parsingPosMutbis[element]!="K" and parsingPosMutbis[element]!="Z":
                                 parsingPosMut.append(parsingPosMutbis[element])
-               ###For the Example we will obtain :27^C4^A25 => ['27', '4', '25'] => positions without deletion !!!                                    
+               ###For example we will obtain :27^C4^A25 => ['27', '4', '25'] => positions without deletion !!!                                    
     else:
         parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
     while i<len(parsingPosMut):#Convert the number into integer 
@@ -987,8 +988,8 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
     genoLow=None
     dicoHeaderLow=None
     posUnmappedUp=None
-    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,lnlow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow,listClow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1109,8 +1110,8 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     comptPol=0
     posUnmappedUp=None
     #Variables
-    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,lnUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
-    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,lnLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
+    discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp, listCoverageUp, listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(snpUp,0)
+    discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
 #---------------------------------------------------------------------------------------------------------------------------
