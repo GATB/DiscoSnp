@@ -112,14 +112,14 @@ final=cbind(final,a)
 #   | |                
 #   |_|                
 
-my_col=c("skyblue4","burlywood4","salmon2")
+my_col=c("slateblue4","aquamarine4","chocolate")
 
 ###############
 ## INDELS
 ###############
 png("n_coli.png",width=825,height=646,pointsize=12,bg="white")
 par(mfrow=c(1,2))
-my_col=c("skyblue4","burlywood4","salmon2")
+#my_col=c("skyblue4","burlywood4","salmon2")
 
 plot(c(2,30),c(10,100),type="n",xlab="nb read sets",ylab="Precision and recall (%)",main="INDEL precision/recall")
 id_seuil=1 # 0_0 for cortex and soap_gatk
