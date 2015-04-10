@@ -9,7 +9,8 @@ doubleBarPlot=function(tab){
   tab=tab[order(-tab$memory),]
 
   # tab$time=tab$time/60
-  col=c("skyblue4","salmon2")
+  # my_col=c("slateblue4","aquamarine4","chocolate")
+  col=c("gold3","indianred3")
   max1=max(tab$memory)
   max2=max(tab$time)
   n=nrow(tab)
@@ -48,7 +49,8 @@ tab=perf[perf$type=="human",]
 tab=tab[order(-tab$memory),]
 
   tab$time=tab$time/60
-  col=c("skyblue4","salmon2")
+  col=c("gold3","indianred3")
+  # col=c("skyblue4","salmon2")
   max1=max(tab$memory)
   max2=max(tab$time)
   n=nrow(tab)
@@ -90,7 +92,8 @@ tab=tab[c(3,5,1,4,6,2),]
 tab
 
   tab$time=tab$time/60
-  col=c("skyblue4","salmon2")
+    col=c("gold3","indianred3")
+  # col=c("skyblue4","salmon2")
   max1=max(tab$memory)
   max2=max(tab$time)
   n=nrow(tab)

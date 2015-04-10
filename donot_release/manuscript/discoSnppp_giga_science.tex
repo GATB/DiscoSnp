@@ -351,9 +351,12 @@ In particular, the graph file format is common to other GATB tools, and the grap
 Additionally, \discopp handles pair of reads during the counting phase. Simply, each pair of read files is considered as a unique read set while computing coverages, qualities, ranks and genotypes. 
 
 %CL il faudra rajouter ici le seuil automatique ?
+%PP avec plaisir :)
 
 \section*{Results}
 %CL suggestion pour que ca ressemble pas trop a la publi NAR : changer les couleurs des figures, changer les figures (mais je n'ai pas d'idées comment...)
+%PP: pour l'instant j'ai changé les couleurs.
+
 We propose results both on synthetic and on real datasets. Synthetic datasets offer a way to exactly compute the precision and the recall of \discopp and of state-of-the-art methods. 
 
 \subsection*{Results on synthetic datasets}
@@ -364,7 +367,7 @@ Thus, we dispose of the exact and exhaustive list of variants to be found, and w
 
 \subsubsection*{Two and more bacterial read sets}
 %CL si on a implementé le seuil auto par jeu de donnees, pourrait faire une expe avec des couvertures differentes dans chaque jeu : on serait peut-être bien meilleurs que les autres ?? 
-%PP: avec la correction de la validation des SNPs détectés plusieurs fois, on est meilleurs que les autres. 
+%PP: avec la correction de la validation des SNPs détectés plusieurs fois, on est déjà meilleurs que les autres. Ceci dit si on pouvait faire encore mieux faut pas s'en priver. 
 We performed an experiment on a variable number of read sets. Each read set corresponds to a simulation of the sequencing of an \emph{Escherichia Coli} individual. As presented in the Additional File 1, we simulated SNPs and indels of size in 1 to 10 (average 5) such that the distributions of shared polymorphism between subsets of individuals are realistic. 
 
 Precision and recall results, presented in Figure~\ref{fig:ncoli}, allow to draw the following conclusions while calling SNPs from several haploid individuals. 
