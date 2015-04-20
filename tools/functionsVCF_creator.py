@@ -475,88 +475,47 @@ def CigarCodeChecker(cigarcode,listpol,indel):
 #posCentraleRef : position of the variant on the reference (taking the shift into account)
 ##############################################################
 def ReferenceChecker(shift,posMut,posCentraleRef):
-    """MD tag parsing; checks if path nucleotide is identical to the reference nucleotide """
-    pos=0
-    i=0
-    j=0
-    matchInt=None
-    nucleoRef=None
-    boolEgalRef=None
-    motifDel=None
-    dictDel={}
-    deletion=None
-    numeroDel=None
-    parsingPosMut=None
-    strNumerodel=None
-    if '^' in posMut: #Means there is a deletion relative to the reference
-    ###We want to have a liste of all nucleotides and numbers of matches without the nucleotide of deletion 
-        pos=shift # take into account if there is a deletion in the sequence
-        motifDel=re.compile("[0-9]*\^[A-Za-z]*") #motif of the deletion example  : 31^CGC
-        dictDel={}
-        deletion=re.findall('\d+\^[A-Za-z]*',posMut) # Parsing with the deletion
-        parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)#Example with 27^C4^A25 ['27', '^', 'C', '4', '^', 'A', '25']
-        for m in motifDel.finditer(posMut):
-            dictDel[m.group()]=posMut.index(m.group()) #Get the position of the deletion in posMut Example 27^C4^A25 
-        if len(deletion)==1:
-                deletion=''.join(deletion)
-                numeroDel=re.findall('\d+',deletion) 
-                strNumerodel=''.join(numeroDel)
-                parsingPosMut.insert(dictDel[deletion],"K"+str(numeroDel[0])+"Z")
-                posMut=''.join(parsingPosMut)
-                posMut=posMut.replace(deletion,"")#delete the motif of the deletion but not the position of the deletion
-                parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
-                parsingPosMut.remove('Z')
-                parsingPosMut.remove('K')
-                
-        else :
-               j=0
-               while j<=len(deletion)-1:
-                        deletionTmp=''.join(deletion[j])                        
-                        numeroDel=re.findall('\d+',deletionTmp)
-                        strNumerodel=''.join(numeroDel)
-                        dictDel[deletionTmp]= [dictDel[deletionTmp],strNumerodel]# Example{'27^C': [0, '27'], '4^A': [4, '4']}
-                        j+=1
-               parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
-               for key,(index,numeroDel) in dictDel.items():
-                        parsingPosMut.insert(int(index),"K"+str(numeroDel)+"Z")
-               posMut=''.join(parsingPosMut)
-               j=0
-               while j<=len(deletion)-1:
-                        deletionTmp=''.join(deletion[j])
-                        posMut=posMut.replace(deletionTmp,"")
-                        j+=1
-               parsingPosMutbis=re.findall('(\d+|[A-Za-z])',posMut)
-               parsingPosMut=[]
-               element=0
-               for element in range(len(parsingPosMutbis)):
-                        if parsingPosMutbis[element]!="K" and parsingPosMutbis[element]!="Z":
-                                parsingPosMut.append(parsingPosMutbis[element])
-               ###For example we will obtain :27^C4^A25 => ['27', '4', '25'] => positions without deletion !!!                                    
-    else:
-        parsingPosMut=re.findall('(\d+|[A-Za-z])',posMut)
-    while i<len(parsingPosMut):#Convert the number into integer 
-        matchInt=re.match(r'\d+',parsingPosMut[i])
-        if matchInt:
-            parsingPosMut[i]=int(parsingPosMut[i])
-        i+=1
-    i=0
-    while i<len(parsingPosMut): # Goes to the list to know if the variant is identical to the reference
-        if isinstance(parsingPosMut[i],int): #Checks if it's a number of nucleotide or a letter
-            pos+=parsingPosMut[i] # Add to pos the current number of the list
-        else :
-            pos+=1 #else add the letter to the pos
-        if pos==posCentraleRef: # Checks if the current position pos is identical to the position of the variant 
-            if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is differente in the variant and in the reference
-                boolEgalRef=False
-                nucleoRef=parsingPosMut[i]
-            else:
-                boolEgalRef=True
-            break
-        if pos>posCentraleRef:
-            boolEgalRef=True
-            break
-        i+=1
-    return(boolEgalRef,nucleoRef)
+        i=0
+        parsingPosMut=None
+        boolDel=True
+        pos=shift
+        nucleoRef=None
+        boolEgalRef=None
+        matchInt=None
+        parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
+        while i<len(parsingPosMut):#Convert the number into integer 
+                matchInt=re.match(r'\d+',parsingPosMut[i])
+                if matchInt:
+                        parsingPosMut[i]=int(parsingPosMut[i])
+                i+=1
+        i=0
+        while i<len(parsingPosMut): # Goes to the list to know if the variant is identical to the reference
+                if isinstance(parsingPosMut[i],int): #Checks if it's a number of nucleotide or a letter
+                        pos+=parsingPosMut[i] # Add to pos the current number of the list
+                elif parsingPosMut[i]=="^":
+                        i+=1
+                        while boolDel:
+                                if isinstance(parsingPosMut[i],int):
+                                        boolDel=False
+                                        pos+=parsingPosMut[i]
+                                        i+=1
+                                else:
+                                        pos-=1
+                                        i+=1
+                else:
+                        pos+=1
+                if pos==posCentraleRef: # Checks if the current position pos is identical to the position of the variant 
+                        if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is differente in the variant and in the reference
+                                boolEgalRef=False
+                                nucleoRef=parsingPosMut[i]
+                        else:
+                                boolEgalRef=True
+                        break
+                if pos>posCentraleRef:
+                        boolEgalRef=True
+                        break
+                i+=1
+        return(boolEgalRef,nucleoRef)   
     # boolEgalRef : boolean if TRUE the nucleotide in the variant is equal to the reference
     # nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
 ##############################################################
