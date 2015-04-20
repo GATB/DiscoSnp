@@ -99,7 +99,7 @@ VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the ref
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
 VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
-VCF.write('##FORMAT=<ID=PL,Number=.,Type=Float,Description="Phred-scaled Genotype Likelihoods">\n')
+VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
 table = [0] * 10 # create a 10 cols array
 
 ##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
@@ -350,6 +350,17 @@ if ".sam" in fichier:
                     nucleoRefLow="."
                     tp="DEL"
                 table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
+            else:
+                  if len(nucleoLow)==len(insert):
+                    nucleoRefLow="."
+                    tp="DEL"
+                    nucleoRefUp="."
+                    
+                  elif len(nucleoUp)==len(insert):
+                    nucleoRefUp="."
+                    tp="INS"
+                    nucleoRefLow="."  
+                  table=FillVCF(table,numSNPUp,discoNameUp,int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)      
             printOneline(table,VCF)
             continue
             

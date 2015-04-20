@@ -1040,7 +1040,7 @@ def printOneline(table,VCF):
         return
     for i in range(len(table)):
         element=table[i]
-        VCF.write(str(element))
+        VCF.write((str(element)).strip())
         if i<len(table)-1: VCF.write("\t")
     VCF.write('\n')    
 
