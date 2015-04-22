@@ -311,7 +311,7 @@ if ".sam" in fichier:
                 seq=seqUp
 #---------------------------------------------------------------------------------------------------------------------------
             #Get from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,True)
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             #Get the positons of the variant by taking into account the shift of mapping

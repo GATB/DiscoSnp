@@ -324,12 +324,12 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
         listCovGeno.append(int(listCoverageUp[0])+int(listCoverageLow[0]))
         covUp=str( listCUp[0])+'='+str( listCoverageUp[0])+","+str( listCoverageLow[0])
         covLow=str( listCLow[0])+'='+str( listCoverageLow[0])+","+str( listCoverageUp[0])
-    return(covUp,covLow,listCovGeno) #string covUp C1=5,23;C2=35,1 listCovGeno=[28,36]
+    return(covUp,covLow,listCovGeno) #string covUp "C1=5,23;C2=35,1" listCovGeno=[28,36]
 ##############################################################
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions
 ##############################################################
-def addPosition(position,ensemble,delta):
+def AddPosition(position,ensemble,delta):
     """Add a position to a set of positions only if the difference between the two is greater than delta"""
     if len(ensemble)==0: # Case : it's the first position add to the set
         ensemble.append(position)
@@ -358,14 +358,14 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
     else:
         for position,nbMismatch in posUp.items(): # Checks for the upper path
             if nbMismatch==int(NM):
-                listPos=addPosition(position,listPos,delta) #If the position is mapped at NM (number of mismatch tested) test if its not too close with an other position
+                listPos=AddPosition(position,listPos,delta) #If the position is mapped at NM (number of mismatch tested) test if its not too close with an other position
                 ensemble=set(listPos)
                 if abs(len(ensemble))>1: #case of many position of mapping for NM => multiple mapped  Exit function
                     couple="multiple"
                     return(couple)
         for position,nbMismatch in posLow.items():# Checks for the lower path
             if nbMismatch==int(NM):
-                listPos=addPosition(position,listPos,delta)
+                listPos=AddPosition(position,listPos,delta)
                 ensemble=set(listPos)
                 if abs(len(ensemble))>1:#case of many position of mapping for NM => multiple mapped  Exit function
                     couple="multiple"
@@ -908,7 +908,7 @@ def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
         for key,(posD,ind,amb) in dicoHeader.items():
             listPos.append(posD)
             listPosR.append(tailleSeq-int(posD)+1)
-            if boolSmallest==True:
+            if boolSmallest==False:
                 insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))]
                 ntStart=seq[(int(posD-1)-1)]
             ambiguityPos=amb
