@@ -266,9 +266,9 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
     ##Create a string if the number of coverage is superior to 1
     if len( listCoverageUp)>1 and len( listCoverageLow)>1:
         while i<len(listCoverageUp):
-            listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))
+            listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))#sums the two coverages
             if covUp!='':
-                covUp=str(covUp)+';'+str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
+                covUp=str(covUp)+';'+str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i]) # creates a string with the coverage
             else:
                 covUp=str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
             i+=1
@@ -1176,13 +1176,16 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
 # geno: [key][0] : genotype (0/0, 0/1 or 1/1)
 # geno: [key][1] : likelihood for the 3 possible genotypes ("x,y,z")
 ##############################################################
-def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
+def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
     """Gets the genotype, the coverage and the likelihood by sample and print it in the correspondand fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
     j=0
     genotypes=""
     key=None
     current_genotype=None
     likelihood=None
+    coverage=None
+    #cov="C1=53425,22;C2=1,2;C3=30,94832;C4=3,2;C5=19,65370"
+    listcov=cov.split(";") #['C1=53425,22', 'C2=1,2', 'C3=30,94832', 'C4=3,2', 'C5=19,65370']
     if int(nbGeno)==0:
         return table
     else:
@@ -1190,7 +1193,11 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
                 key="G"+str(i+1) # Create the dictionnary key
                 current_genotype = geno[key]
                 likelihood=current_genotype[1]
-                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0
+                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes
+                    likelihoodStart=likelihood[2]
+                    likelihoodEnd=likelihood[0]
+                    likelihood[0]=likelihoodStart
+                    likelihood[2]=likelihoodEnd
                     if "1/1" in current_genotype[0]:
                         current_genotype[0]=current_genotype[0].replace("1/1","0/0")
                     elif "0/0" in current_genotype[0]:
@@ -1203,18 +1210,19 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
                     likelihood=str(','.join(current_genotype[1]))
                 else:
                     likelihood=str(likelihood)
-                genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+likelihood
+                coverage=listcov[i].split("=") 
+                genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+likelihood+":"+str(coverage[1])
                 #genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
                 
                 if i<nbGeno-1 :
                     genotypes+="\t" # Add a \t except if this is the last genotype
 
-            table[8]="GT:DP:PL"
+            table[8]="GT:DP:PL:AD"
             table[9]=genotypes
     return table
 ##############################################################
 ##############################################################
-def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
+def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,cov,ntUp,ntLow,geno,nbGeno,phased,listCovGeno,VCF):
     '''Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6]''' 
     table[0]=chrom
     table[1]=position
@@ -1224,8 +1232,8 @@ def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitig
     table[2]=numSNPUp
     table[3]=ntUp
     table[4]=ntLow
-    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRankUp)+";"+"UL="+str(unitigLeftUp)+";"+"UR="+str(unitigRightUp)+";"+"CL="+str(contigLeftUp)+";"+"CR="+str(contigRightUp)+";"+str(covUp)
-    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRankUp)+";"+"UL="+str(unitigLeftUp)+";"+"UR="+str(unitigRightUp)+";"+"CL="+str(contigLeftUp)+";"+"CR="+str(contigRightUp)
+    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno,cov)
     table[7]=table[7].replace("None",".")
     table[7]=table[7].replace("none",".")
     printOneline(table,VCF)
@@ -1247,10 +1255,10 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,ok,unitig
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+str(cov)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
     table[7]=table[7].replace("None",".")
     table[7]=table[7].replace("none",".")
-    table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
+    table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov)
     return table  
 ##############################################################
 ##############################################################

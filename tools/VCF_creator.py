@@ -112,18 +112,12 @@ VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig
 VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
 VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
 VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
-if nbGeno==0:
-        VCF.write('##INFO=<ID=C1,Number=2,Type=Integer,Description="Depth of each allele by sample 1">\n')
-else:
-        i=0
-        for i in range(0,int(nbGeno)):
-                nomCol="C"+str(i+1)
-                VCF.write('##INFO=<ID='+str(nomCol)+',Number=2,Type=Integer,Description="Depth of each allele for sample '+str(i+1)+'">\n')
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
 VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
 VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
+VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele for sample">\n')
 table = [0] * 10 # create a 10 cols array
 
 ##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
