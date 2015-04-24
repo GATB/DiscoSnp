@@ -8,45 +8,61 @@ import subprocess
 import re
 import time
 #FUNCTIONS_________________________________________________________________________________________________________
+#INDEX_____________________________________________________________________________________________________________
+#       Counting : """Function that counts the number of SNPs and the number of genotype"""
+#       ParsingDiscoSNP
+#       GetCouple :"""Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch ; retrieves a Boolean indicating whether the SNP is multimapped or not"""
+#       GetCoverage :"""Takes as input lists list  """
+#       AddPosition :"""Add a position to a set of positions only if the difference between the two is greater than delta"""
+#       ValidationSNP :"""Main function of the snp validation : check if the couple is validated with only one mapping position at the number of mismatch tested"""
+#       ReverseComplement 
+#       CigarCodeChecker :"""Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
+#       ReferenceChecker : """Function which allows to get the MD tag parsing; checks if path nucleotide is identical to the reference nucleotide"""
+#       GetSequence :"""Gets and reverses if it is needed sequence"""
+#       RecupPosSNP :"""Determines : if the paths are mapped in reverse or forward sense ; which paths have the variant identical to the genome (information from the MD Tag) ; the position of mapping of the variant for each path by taking into account the shift with the genome ( soft clipping insertion, deletion  and so on : information from the cigar code) ; the nucleotide variant for the upper path and the lower path"""
+#       MismatchChecker :"""In case of divergent main position (case snp whose two paths are mapped ) to define the reference = > check the number of mismatch( If the number of mismatch is the same in both cases it is the lower lexicographical SNP which is selected for reference .The Boolean allows to know the reference SNP ) """
+#       GetPolymorphisme :'''Gets from the dicoHeader all the positions, and the nucleotides (R means that it's on the reverse strand)SNP :  one variant correspond to listPos[0], listPosR[0], listnucleoUp[0], listnucleoLow[0],listnucleoUpR[0],listnucleoLowR[0]''' 
+#       fillVCFSimpleSnp :""" Fills the different fields of vcf based on boolean ( on whether the SNP is identical or not the reference) , if neither is identical to the reference = > we take the SNP comes first in the lexicographical order"""
+#       printOneline : """Prints the line of the current SNP in the VCF file."""
+#       printVCFSNPclose : """Prints the line of the close SNPs in the VCF file. The first variant will determine which path will be used as reference (checks with the boolean boolRef which path is identical to the reference) """ 
+#       GetGenotype : """Gets the genotype, the coverage and the likelihood by sample and print it in the correspondand fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
+#       PrintVCFGhost :'''Without samfile some fields will have default value : CHROM table[0],POS table[1], QUAL table[5], FILTER [6]''' 
+#       FillVCF:"""Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""
+#       ReverseSeq :"""Take a sequence and reverse it""" 
+#       CheckBitwiseFlag :"""Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
+#       CheckContigUnitig : """Checks if there is an extension in the form of contig or unitig to take into account in the mapping position"""
 ##############################################################
 ##############################################################
 def Counting(fichier):
     """Function that counts the number of SNPs and the number of genotype"""
     samfile=open(fichier,'r')
     nbSnp=0
-    i=0
     nbGeno=0
-    for snp in samfile :
-        matchInt=re.match(r'^@',snp)
-        if matchInt:
+    for line in samfile :
+        matchInt=re.match(r'^@',line)
+        if matchInt:#Removes the header lines from the loop
             continue
         else:
             nbSnp+=1
-            if isinstance(snp,str):
-                snp=snp.rstrip('\n')
-                snp=snp.split('\t')
-            for i in snp:
+            if isinstance(line,str):
+                line=line.rstrip('\n')
+                line=line.split('\t')
+            for i in line:
                 if 'SNP' or 'INDEL' in i:
                     nomDisco=i.split('|')
+                    nb_pol=nomDisco[3].split("_")
+                    nbSnp+=int(nb_pol[2])# Takes into account the number of variant => close snps
                     break
-            i=0
-            for i in nomDisco: # Takes into account the number of variant 
-                if "nb_pol" in i :
-                    nb_pol=i.split('_')
-                    j=0
-                    for j in nb_pol:
-                        matchInt=re.match(r'^\d+$',j)
-                        if matchInt:
-                            nbSnp=nbSnp+int(j)-1
             if nbGeno==0: #Count the number of genotypes in the header
                 for k in nomDisco:
-                    match=re.match(r'^G',k)
+                    match=re.match(r'^C',k)
                     if match:
                         nbGeno+=1
     return(int(nbSnp)/2,nbGeno)
 
 ##############################################################
 #Take the new discoSnp++ header : example SNP_higher_path_13736|P_1:30_A/G|high|nb_pol_1|C1_53425|C2_1|C3_30|C4_3|C5_19|G1_0/0:1947,160066,1067676|G2_0/1:40,9,20|G3_1/1:1895477,284398,3575|G4_0/1:34,9,54|G5_1/1:1306661,196101,2493|Q1_66|Q2_61|Q3_36|Q4_55|Q5_33|rank_0.99909
+#INDEL_lower_path_2355|P_1:30_1_2|high|nb_pol_1|C1_56|C2_23|C3_1721540|C4_41|C5_89|G1_0/1:776,17,955|G2_0/1:318,16,457|G3_1/1:34427840,5179573,73399|G4_0/1:570,16,710|G5_0/1:1510,84,313|Q1_66|Q2_66|Q3_69|Q4_63|Q5_66|rank_0.60362
 ##############################################################
 def ParsingDiscoSNP(snp,boolNum):
     if isinstance(snp,str):
@@ -68,7 +84,6 @@ def ParsingDiscoSNP(snp,boolNum):
     nomDisco=None
     pos=None
     geno=[]
-    ln=0
     posD=0
     ntUp=''
     ntLow=''
@@ -94,116 +109,66 @@ def ParsingDiscoSNP(snp,boolNum):
         if 'SNP' or 'INDEL' in i:
             nomDisco=i.split('|')
             break
-    i=0
-    for i in nomDisco:
-        if "SNP" in i:
+    for i in nomDisco:# loops on the header of discoSnp++
+        if "SNP" in i: #Important to know if we have a snp for the creation of the dictionnary with the information with nucleotide and position
             discoName=i
-            SNP=1
+            SNP=1 
             ID= i.split('_')
-            for j in ID:
-                matchInt=re.match(r'^\d+$',j)
-                if matchInt:
-                    numSNP=j
-        elif 'P_' in i: ## Esssential
-            pos=i.split(',')
-            j=0
-            ln=0
+            numSNP=ID[3]
+        elif 'P_' in i: ## Esssential to have the position on the path of the allele, and the nucleotide of the upper and the lower path (forward direction) => information given by DiscoSnp++
+            pos=i.split(',')#Parsing if there is multiple snps on the paths
             ntUp=''
             ntLow=''
             key=''
             chaine=[]
             ind=0
             dicoHeader={}
-            for j in pos:
+            for j in pos:#loops on the list if there are close snps
                 posD=0
                 if SNP==1:
-                    if ":" in j:
+                    if ":" in j:#P_1:30_A/G or P_1:30_A/G,P_2:31_G/A
                         chaine=j.split(":")
-                        k=0
-                        for k in chaine:
-                            if "P_" in k:
-                                key=k
-                            elif "/" in k:
-                                chaine1=[]
-                                chaine1=k.split('_')
-                                l=0
-                                for l in chaine1:
-                                    if "/" in l:
-                                        chaine2=[]
-                                        chaine2=l.split('/')
-                                        ntUp=chaine2[0]
-                                        ntLow=chaine2[1]
-                                    else:
-                                        posD=int(l)+1
-                    dicoHeader[key]=[posD,ntUp,ntLow] ##### !!! Essential : In case of snps 
-                else:
-                    if ":" in j:
+                        key=chaine[0]
+                        chaine1=chaine[1].split('_')
+                        posD=chaine1[0]
+                        chaine2=chaine1[1].split('/')
+                        ntUp=chaine2[0]
+                        ntLow=chaine2[1]
+                        dicoHeader[key]=[posD,ntUp,ntLow] ##### !!! Essential in case of snp
+                else:#Case of indel 
+                    if ":" in j:# P_1:30_3_2
                         ind=0
                         posD=0
                         chaine=j.split(":")
-                        k=0
                         amb=0
-                        for k in chaine:
-                            if "P_" in k:
-                                key=k
-                            else:
-                                chaine=k.split('_')
-                                l=0
-                                for l in chaine:
-                                    if posD==0:
-                                        posD=int(l)+1
-                                    elif ind==0:
-                                        ind=int(l)
-                                    elif amb==0:
-                                        amb=int(l)
-                    dicoHeader[key]=[posD,ind,amb] ##### !!! Essential In case of indel 
+                        key=chaine[0]
+                        chaine1=chaine[1].split('_')
+                        posD=int(chaine1[0])
+                        ind=int(chaine1[1])
+                        amb=int(chaine1[2])
+                        dicoHeader[key]=[posD,ind,amb] ##### !!! Essential in case of indel 
         elif "INDEL" in i:
             INDEL=True
             ID= i.split('_')
-            j=0
             discoName=i
-            for j in ID:
-                matchInt=re.match(r'^\d+|$',j)
-                if matchInt:
-                    numSNP=j
-        
+            numSNP=ID[3]
         elif "unitig" in i:
             if "left" in i:
                 unitig=i.split('_')
-                j=0
-                for j in unitig:
-                    matchInt=re.match(r'^\d+$',j)
-                    if matchInt:
-                        unitigLeft=j
+                unitigLeft=unitig[3]
             elif "right" in i :
                 unitig=i.split('_')
-                j=0
-                for j in unitig:
-                    matchInt=re.match(r'^\d+$',j)
-                    if matchInt:
-                        unitigRight=j
+                unitigRight=unitig[3]
         elif "contig" in i:
             if "left" in i:
                 contig=i.split('_')
-                j=0
-                for j in contig:
-                    matchInt=re.match(r'^\d+$',j)
-                    if matchInt:
-                        contigLeft=j
+                contigLeft=contig[3]
             elif "right" in i :
                 contig=i.split('_')
-                j=0
-                for j in contig:
-                    matchInt=re.match(r'^\d+$',j)
-                    if matchInt:
-                        contigRight=j
+                contigLeft=contigRight[3]
         elif "rank" in i: 
             rank=i.split('_')
-            j=0
-            for j in rank:
-                matchInt=re.match(r'[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?',j)
-                if matchInt:
-                    valRank=j
+            valRank=rank[1]
         elif "C" in i: ### Essential
             coverage=i.split('_')
             j=0
@@ -214,11 +179,7 @@ def ParsingDiscoSNP(snp,boolNum):
                     listC.append(str(coverage[j-1]))
         elif "nb_pol" in i : ###Esssential
             nb_pol=i.split('_')
-            j=0
-            for j in nb_pol:
-                matchInt=re.match(r'^\d+$',j)
-                if matchInt:
-                    nb_pol=j
+            nb_pol=nb_pol[2]
         elif "G" in i:
             gen=i.replace("_",":")
             listgeno=gen.split(":")
@@ -236,7 +197,6 @@ def ParsingDiscoSNP(snp,boolNum):
 ##############################################################
 # snpUp: sam line 1
 # snpLow: sam line 2
-# 
 ##############################################################
 def GetCouple(snpUp,snpLow):
     """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch ; retrieves a Boolean indicating whether the SNP is multimapped or not"""
@@ -305,7 +265,7 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
     covLow=''
     ##Create a string if the number of coverage is superior to 1
     if len( listCoverageUp)>1 and len( listCoverageLow)>1:
-        while i<len( listCoverageUp):
+        while i<len(listCoverageUp):
             listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))
             if covUp!='':
                 covUp=str(covUp)+';'+str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
@@ -475,6 +435,7 @@ def CigarCodeChecker(cigarcode,listpol,indel):
 #posCentraleRef : position of the variant on the reference (taking the shift into account)
 ##############################################################
 def ReferenceChecker(shift,posMut,posCentraleRef):
+        """Function which allows to get the MD tag parsing; checks if path nucleotide is identical to the reference nucleotide"""
         i=0
         parsingPosMut=None
         boolDel=True
@@ -522,7 +483,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
 #snpUp/snpLow: sam line
 ##############################################################
 def GetSequence(snpUp,snpLow):
-    """Get reverse sequence"""
+    """Gets and reverses if it is needed sequence"""
     seqLow=snpLow[9]
     seqUp=snpUp[9]
     listSeqUp=[]
@@ -559,9 +520,10 @@ def GetSequence(snpUp,snpLow):
 #indel : boolean True if the current variant is an indel
 ##############################################################
 def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel):
+    """Determines : if the paths are mapped in reverse or forward sense ; which paths have the variant identical to the genome (information from the MD Tag) ; the position of mapping of the variant for each path by taking into account the shift with the genome ( soft clipping insertion, deletion  and so on : information from the cigar code) ; the nucleotide variant for the upper path and the lower path"""
     #INIT VALUES
-    posSNPUp="0"+str(dicoHeaderUp["P_1"][0]) # in case of unmapped variant example position : 031
-    posSNPLow="0"+str(dicoHeaderUp["P_1"][0])
+    posSNPUp=dicoHeaderUp["P_1"][0] 
+    posSNPLow=dicoHeaderUp["P_1"][0]
     boolRefUp=None
     boolRefLow=None
     nucleoUp=None
@@ -915,7 +877,7 @@ def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
         return(listPos,listPosR,insert,ntStart,ambiguityPos)
 ##############################################################
 ##############################################################
-def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterfield,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,covUp,covLow):
+def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterfield,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,geno,nbGeno,covUp,covLow):
     """ Fills the different fields of vcf based on boolean ( on whether the SNP is identical or not the reference) , if neither is identical to the reference = > we take the SNP comes first in the lexicographical order"""
     ##Gets the variable of the header of disco snps
     numSNPUp=None
@@ -956,22 +918,22 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
     if int(snpUp[3])>0 and int(snpLow[3])>0:
         ##The path identical to the reference is the lower path 
         if boolRefLow==True and boolRefUp==False:
-            table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
             
          ##The path identical to the reference is the upper path 
         elif boolRefUp==True and boolRefLow==False:
-            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
         ##No path is identical to the reference => lexicographique choice
         elif boolRefUp==False and boolRefLow==False:
             if nucleoUp<nucleoLow:
-                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
             elif nucleoUp>nucleoLow:
-              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+              table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
               
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped      
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
-        table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+        table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if snpLow[10]=="*":
                 table[5]="."
         else:
@@ -979,22 +941,23 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Upper path mapped and lower path unmapped        
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
-        table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+        table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if snpUp[10]=="*":
                 table[5]="."
         else:
                 table[5]=snpUp[10]
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Both paths are unmapped       
-    elif int(snpUp[3])<=0 and int(snpLow[3])<=0:#FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow)
+    elif int(snpUp[3])<=0 and int(snpLow[3])<=0:#FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow)
         if nucleoLow<nucleoUp:
-            table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmappedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmappedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
-            table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmappedLow)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+            table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmappedLow)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
     return(table)
 ##############################################################
 ##############################################################   
 def printOneline(table,VCF):
+    """Prints the line of the current SNP in the VCF file."""
     if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] or (table[0]==0 and table[1]==0 and table[3]==0 and table[4]==0):
         return
     for i in range(len(table)):
@@ -1006,7 +969,8 @@ def printOneline(table,VCF):
 ##############################################################
 #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
 ##############################################################
-def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF):
+def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF):
+    """Prints the line of the close SNPs in the VCF file. The first variant will determine which path will be used as reference (checks with the boolean boolRef which path is identical to the reference) """ 
     info=''
     champAlt=0
     comptPol=0
@@ -1085,7 +1049,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         indexSmallestPosLow=listPolymorphismePosLow.index(listSortedPosLow[0])
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][0]
-        #Decide what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
+        #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
         if boolRefUp==True:
             indexSmallestPos=indexSmallestPosUp
         elif boolRefLow==True:
@@ -1115,23 +1079,23 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
             #Remplissage VCF
             if boolRefLow==True and boolRefUp==False:
-                 table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                 table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
                  table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
             elif boolRefUp==True and boolRefLow==False:
-                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
                 table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
             elif boolRefUp==False and boolRefLow==False:
                 if nucleoUp1<nucleoLow1:
-                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
                     table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
                 elif  nucleoUp1>nucleoLow1:
-                      table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                      table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
                       table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
                 elif positionSnpUp1<positionSnpLow1:
-                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
                     table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
                 elif positionSnpUp1>positionSnpLow1:
-                    table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+                    table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
                     table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
@@ -1153,7 +1117,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
             nucleoRefLow="."
-            table=FillVCF(table,numSNPUp,discoNameUp,positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPUp,discoNameUp,positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1176,7 +1140,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
             nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
-            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1198,7 +1162,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
             nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
-            table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,0)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1213,6 +1177,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
 # geno: [key][1] : likelihood for the 3 possible genotypes ("x,y,z")
 ##############################################################
 def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno):
+    """Gets the genotype, the coverage and the likelihood by sample and print it in the correspondand fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
     j=0
     genotypes=""
     key=None
@@ -1267,7 +1232,7 @@ def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitig
     
 ##############################################################
 ##############################################################
-def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow):
+def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,ok,unitigLeft,unitigRight,contigLeft,contigRight,cov,nucleoRef,reverse,geno,nbGeno,phased,listCovGeno,boolRefLow):
     """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""
     if chrom=="*":
         table[0]="."
@@ -1282,7 +1247,7 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,multi,ok,
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"MULTI="+str(multi)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+str(cov)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+str(cov)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
     table[7]=table[7].replace("None",".")
     table[7]=table[7].replace("none",".")
     table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno)
@@ -1330,6 +1295,7 @@ def ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleo):
 ##############################################################
 
 def CheckBitwiseFlag(FLAG,bit):
+        """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
         try:
                 data=str(bin(int(FLAG)))[::-1]
         except ValueError:
@@ -1341,6 +1307,7 @@ def CheckBitwiseFlag(FLAG,bit):
 ##############################################################
 ##############################################################
 def CheckContigUnitig(unitig,contig):
+        """Checks if there is an extension in the form of contig or unitig to take into account in the mapping position"""
         if contig:
                 return(int(contig))
         elif unitig:

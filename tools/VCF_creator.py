@@ -1,9 +1,23 @@
 #!/bin/python
 # -*- coding: utf-8 -*-
-###############################################
+#*****************************************************************************
+#   VCF_Creator: mapping and VCF creation feature in DiscoSnp++
+#   Copyright (C) 2015  INRIA
+#   Author: C.Riou
 #
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as
+#  published by the Free Software Foundation, either version 3 of the
+#  License, or (at your option) any later version.
 #
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
 #
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#*****************************************************************************
 import os
 import sys
 import subprocess
@@ -11,6 +25,8 @@ import re
 import time
 import getopt
 from functionsVCF_creator import *
+#Default value
+nbMismatchBWA=3
 #Help
 def usage():
     usage= """
@@ -41,18 +57,26 @@ for opt, arg in opts :
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
         boolmyname=False
-        fichier = arg
-        listNameFile=fichier.split(".")
-        if "BWA_OPT" in listNameFile[0]:
-               boolmyname=True
-               listName=listNameFile[0].split("BWA_OPT")
-               listName[1]=listName[1].replace("_", " ")
-        samfile=open(fichier,'r')
+        if os.path.isfile(arg):
+               fileName = arg
+               listNameFile=fileName.split(".")
+               if "BWA_OPT" in listNameFile[0]: # when the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
+                       boolmyname=True # Boolean to know if the file name contains the option of BWA
+                       listName=listNameFile[0].split("BWA_OPT") # parsing of the file name listName[0] corresponds to the name of the discofile listName[1] corresponds to the bwa options
+                       listName[1]=listName[1].replace("_", " ")
+               samfile=open(fileName,'r')
+        else : 
+              print "!! No file :" +str(arg)+"!!"
+              sys.exit(2)  
     elif opt in ("-n","--mismatch"):
          nbMismatchBWA= arg
     elif opt in ("-o","--output"):
+        if arg!=None:
         #if ".vcf" in arg: (we don't care the out file name, user is free to call it foo.hey)
-        VCF = open(arg,'w')
+                VCF = open(arg,'w')
+        else :
+                print "!! No output !!"
+                sys.exit(2)      
         #else :
         #    print "...Unknown file extension for the output. Try with a <file>.vcf..."
         #    sys.exit(2)
@@ -72,12 +96,12 @@ VCF.write('##filedate='+str(date)+'\n')
 VCF.write('##source=VCF_creator\n')
 nbGeno=0
 nbSnp=0
-nbSnp,nbGeno = Counting(fichier)
+nbSnp,nbGeno = Counting(fileName)
 if boolmyname:
         VCF.write('##BWA_Options='+str(listName[1])+'\n')
         VCF.write('##SAMPLE=file://'+str(listName[0])+".fa"+'\n')
 else:
-        VCF.write('##SAMPLE=file://'+str(fichier)+'\n')
+        VCF.write('##SAMPLE=file://'+str(fileName)+'\n')
 VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
 VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">\n')
 VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
@@ -119,22 +143,40 @@ i=0
 ############################################################### 
 ###VCF_creator NORMAL MODE : take a samfile and create a vcf###
 ###############################################################
+#---------------------------------------------------------------------------------------------------------------------------
+#VARIABLES
+#--------------------------------------------------------------------------------------------------------------------------- 
+#--------------------------------------------------------------------------------------------------------------------------- 
+#Upper path
 snpUp=None
-numSNPUp=None
-unitigLeftUp=None
-unitigRightUp=None
-contigLeftUp=None
-contigRightUp=None
-valRankUp=None
-listCoverageUp=None
-listCUp=None
-nb_polUp=None
-posDUp=None
-ntUp=None
-ntLow=None
-genoUp=None
-dicoHeaderUp=None
-
+numSNPUp=None #ID of discoSnp++
+unitigLeftUp=None #lenght of the unitig left
+unitigRightUp=None #lenght of the unitig right
+contigLeftUp=None #lenght of the contig left
+contigRightUp=None #lenght of the contig right
+valRankUp=None #Rank value
+listCoverageUp=None #listCoverageUp=[23,45]
+listCUp=None #listCup=["C1","C2"]
+nb_polUp=None # number of polymorphisme in the disco path 
+posDUp=None #position of the polymorphisme on the disco path
+ntUp=None #allele of the upper path from the discosnp++ header
+genoUp=None #dictionnary with the information of the genotype dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
+dicoHeaderUp=None #dictionnary of all the information from the header of discosnp++ : depending on the variant
+posUp=None #dictionnary with all the mapping positions associated with their number of mismatches with the reference
+boolXAUp=None #boolean to know if a path is multiple mapped in BWA
+covUp=None #string with all the coverage by samples
+listnucleoUpR=None #list of all the allele for the path in reverse direction
+listnucleoUp=None #list of all the allele for the path in forward direction
+dicoUp=None # dictionnary with all the informations for close snps : boolean to know if the allele is identical to the reference,position on the variant, reverse nucleotide for the allele, if the path is reverse or not, mapping position
+#dicoUp=dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
+listPolymorphismePosUp=None # list of the position of the allele on the upper path
+nucleoUp=None #allele of the upper path in the samfile
+positionSnpUp=None #mapping postion of the snp on the upper path
+reverseUp=None #"boolean" to know if the path is mapped in forward (1) or reverse (-1) direction 
+nucleoRefUp=None #allele at the variant position in the reference genome
+boolRefUp=None #boolean to know if the allele on the upper path is identical to the reference 
+#---------------------------------------------------------------------------------------------------------------------------
+#Lower path
 snpLow=None
 numSNPLow=None
 unitigLeftLow=None
@@ -146,48 +188,36 @@ listCoverageLow=None
 listClow=None
 nb_polLow=None
 posDLow=None
-ntUp=None
 ntLow=None
 genoLow=None
 dicoHeaderLow=None
-posUp=None
 posLow=None
-boolXAUp=None
 boolXALow=None
-couple=None
-NM=0
-rupture=0
-filterfield=None
-covUp=None
 covLow=None
-listCovGeno=None
-listPolymorphismePos=None
-listnucleoUp=None
-listnucleoLow=None
-listPosR=None
-listnucleoUpR=None
 listnucleoLowR=None
-dicoUp=None
+listnucleoLow=None
 dicoLow=None
-listPolymorphismePosUp=None
 listPolymorphismePosLow=None
-insert=None
-ntStart=None
-ambiguity=None
 nucleoLow=None
 positionSnpLow=None
-nucleoUp=None
-positionSnpUp=None
-boolRefLow=None
-boolRefUp=None
-reverseUp=None
 reverseLow=None
-nucleoRefUp=None
 nucleoRefLow=None
-key=None
-ntUp=None
-ntLow=None
-if ".sam" in fichier:
+boolRefLow=None 
+#---------------------------------------------------------------------------------------------------------------------------
+# Other variables
+couple=None #string to know if the variant (couple of path) is mapped at a uniq genomic position for a given distance with the reference
+NM=0 #distance with the reference 
+rupture=0 #distance with the reference for which the validation algorithm stopped
+filterfield=None #string with the result for the filter field of the VCF
+listCovGeno=None #list with all the sum of the coverage by sample 
+listPolymorphismePos=None #list with all the position for a path
+listPosR=None #list with all the reverse position for a path
+insert=None #sequence of the insertion + the nucleotide just before
+ntStart=None #nucleotide just before the insertion
+ambiguity=None #possible ambiguity for the position of the insertion/deletion on the path
+key=None # key in dictionnary
+ntSet="ATCG"
+if ".sam" in fileName: #checks if it's a samfile
     while True:
         line1=samfile.readline()
         if not line1: break # end of file
@@ -199,14 +229,14 @@ if ".sam" in fichier:
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
         #Verifies that the samfile is formatted
-        #if (("A" or "T" or "G" or "C") not in snpUp[9]) or len(snpUp)<11:
-        #        print "WARNING wrong format for the variant : "+str(discoNameUp)
-        #        print "...We skipped it..."
-        #        continue
-        #if (("A" or "T" or "G" or "C") not in snpLow[9]) or len(snpLow)<11:
-        #        print "WARNING wrong format for the variant : "+str(discoNameLow)
-        #        print "...We skipped it..."
-        #        continue
+        if 0 in [c in "ACGT" for c in snpUp[9]] or len(snpUp)<11:#Checks if it is really a sequence at the 9th place in the line
+                print "WARNING wrong format for the variant : "+str(discoNameUp)
+                print "...We skipped it..."
+                continue
+        if 0 in [c in "ACGT" for c in snpLow[9]] or len(snpLow)<11:
+                print "WARNING wrong format for the variant : "+str(discoNameLow)
+                print "...We skipped it..."
+                continue
         if numSNPLow != numSNPUp:
             print "WARNING two consecutive lines do not store the same variant id: "
             print line1
@@ -220,7 +250,6 @@ if ".sam" in fichier:
         #Variables
         comptPol=0     # number of SNPs in case of close SNPs - useless for indels
         info=None      # info vcf field
-        multi=None     # multi vcf field
         ok=None        # distance for which the SNP is mapped, -1 if not mapped or if multiple mapped
         indel=False    # boolean to know if it is an indel
         phased=False    # am I phased?
@@ -237,7 +266,7 @@ if ".sam" in fichier:
         rupture=0
         for NM in range(0,int(nbMismatchBWA)+1): 
             couple=ValidationSNP(snpLow,posLow,snpUp,posUp,NM) 
-            if couple== "ok" or couple == "multiple":
+            if couple== "ok" or couple == "multiple" or couple=="unmapped":
                 rupture=NM
                 break
         #VCF champs Filter
@@ -252,16 +281,8 @@ if ".sam" in fichier:
             filterField="MULTIPLE"
             ok=-1
         else : 
-            filterField="probleme...."
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-        #VCF champ INFO Multi
-        if boolXAUp==True and boolXALow==True:
-            multi="True"
-        elif boolXAUp==False and boolXALow==False:
-            multi="True"
-        elif (boolXAUp==True and boolXALow==False) or  (boolXAUp==False and boolXALow==True):
-            multi="False"
+            filterField="bug"
+
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
@@ -279,7 +300,7 @@ if ".sam" in fichier:
                 tp="SNP"
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
-                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterField,multi,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
+                table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterField,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
                 printOneline(table,VCF)
                 continue
     
@@ -292,7 +313,7 @@ if ".sam" in fichier:
                 dicoLow={}
                 dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 # this function comptutes the VCF and prints it!!
-                printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,multi,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF) 
+                printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -340,7 +361,7 @@ if ".sam" in fichier:
                 else:
                     nucleoRefUp="."
                     tp="DEL"
-                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
             ## Fill the VCF if the lower path is considered as the reference
             elif boolRefLow==True:
                 if len(nucleoLow)==len(insert):
@@ -349,7 +370,7 @@ if ".sam" in fichier:
                 else:
                     nucleoRefLow="."
                     tp="DEL"
-                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,multi,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
             else:
                   if len(nucleoLow)==len(insert):
                     nucleoRefLow="."
@@ -360,7 +381,7 @@ if ".sam" in fichier:
                     nucleoRefUp="."
                     tp="INS"
                     nucleoRefLow="."  
-                  table=FillVCF(table,numSNPUp,discoNameUp,int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,multi,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)      
+                  table=FillVCF(table,numSNPUp,discoNameUp,int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)      
             printOneline(table,VCF)
             continue
             
