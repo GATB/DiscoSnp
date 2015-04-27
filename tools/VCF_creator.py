@@ -115,9 +115,9 @@ VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig
 VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is <DEL> or <INS>">\n')
 VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
 VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
-VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Combined depth accross samples (sum)">\n')
+VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
 VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
-VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele for sample">\n')
+VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
 table = [0] * 10 # create a 10 cols array
 
 ##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
@@ -142,7 +142,7 @@ i=0
 #--------------------------------------------------------------------------------------------------------------------------- 
 #--------------------------------------------------------------------------------------------------------------------------- 
 #Upper path
-snpUp=None
+snpUp=None # samline stocks into a list
 numSNPUp=None #ID of discoSnp++
 unitigLeftUp=None #lenght of the unitig left
 unitigRightUp=None #lenght of the unitig right
@@ -210,6 +210,7 @@ insert=None #sequence of the insertion + the nucleotide just before
 ntStart=None #nucleotide just before the insertion
 ambiguity=None #possible ambiguity for the position of the insertion/deletion on the path
 key=None # key in dictionnary
+numberCloseSNp=0
 ntSet="ATCG"
 if ".sam" in fileName: #checks if it's a samfile
     while True:
@@ -220,6 +221,7 @@ if ".sam" in fileName: #checks if it's a samfile
         
         line2=samfile.readline() # read couple of lines
         ##snpUp and snpLow are lists of the line in the samfile file
+        
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
         #Verifies that the samfile is formatted
@@ -284,9 +286,7 @@ if ".sam" in fileName: #checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
             indel=False
             listPolymorphismePos=[]
-            #Gets the position and the nucleotide of the variants by header parsing
-            if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seqUp,indel,False)
+            listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##one SNP
@@ -298,7 +298,8 @@ if ".sam" in fileName: #checks if it's a samfile
                 printOneline(table,VCF)
                 continue
     
-            elif int(nb_polUp)>1: 
+            else:
+                numberCloseSNp+=int(nb_polUp)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                 ##Close SNPs

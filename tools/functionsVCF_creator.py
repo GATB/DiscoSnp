@@ -44,7 +44,7 @@ def Counting(fichier):
             continue
         else:
             nbSnp+=1
-            if isinstance(line,str):
+            if isinstance(line,str): #Test the samline ti know if we have to parse it
                 line=line.rstrip('\n')
                 line=line.split('\t')
             for i in line:
@@ -58,6 +58,7 @@ def Counting(fichier):
                     match=re.match(r'^C',k)
                     if match:
                         nbGeno+=1
+    samfile.close()
     return(int(nbSnp)/2,nbGeno)
 
 ##############################################################
@@ -360,7 +361,7 @@ def CigarCodeChecker(cigarcode,listpol,indel):
     #Reference (REF) =Genome
     #SEQ =query = discosnp path
     #Close snps
-    if len(listpol)>1:
+    if len(listpol)>1:# Checks : in case of close snps 
         while i<len(parsingCigarCode): # Goes through the list by twos to get all the letters and to take them into account
             #Soft clipping
             if parsingCigarCode[i]=="S":
@@ -493,7 +494,7 @@ def GetSequence(snpUp,snpLow):
         i=0
         listSeqUp=list(seqUp)
         seqUp=''
-        while i<len(listSeqUp): #Reverse the sequence usefull for future comparison
+        while i<len(listSeqUp): #Reverse the sequence : usefull for future comparison and to get the position of an eventual indel
             if seqUp!='':
                 seqUp=str(ReverseComplement(listSeqUp[i]))+seqUp
             else :
@@ -562,6 +563,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     boolSmallestUp=False
     boolSmallestLow=False
     i=0
+    #defines the first value of the reference position (first givent by bwa) : will be usefull when the mapping position of each path is the same
     if int(snpUp[3])>0:
         posRef=int(snpUp[3])
     else:
@@ -590,9 +592,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
-                nucleoUp=listnucleoUp[0] # Gets the nucleotide 
+                nucleoUp=listnucleoUp[0] # Gets the nucleotide of the allele
         elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
-            reverseUp=-1
+            reverseUp=-1 
             if indel==True :
                 posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp,indel)
                 listPolymorphismePosUp=listPosRUp #List of all the reverse position
@@ -707,7 +709,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 ####Two paths mapped at different main position (first given by bwa) : test which path will be the reference with the function mismatchChecker
-    if (int(snpUp[3])>0 and int(snpLow[3])>0) and (int(snpUp[3])!=int(snpLow[3])):
+    if ((int(snpUp[3])>0 and int(snpLow[3])>0) and (int(snpUp[3])!=int(snpLow[3]))) or (int(snpUp[3])>0 and int(snpLow[3])>0 and boolRefUp==True and boolRefLow==True):
         if len(listPos)>1:
             i=0
             for i in range(len(listPos)):
@@ -722,13 +724,13 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------    #---------------------------------------------------------------------------------------------------------------------------
     #Variants (INDEL and SIMPLE SNPS) Positions : add the position of mapping gived by bwa to the variant position and for indel add ambiguity position
-    if int(nb_polUp)==1:
-        if indel==True:
-            nucleoLow="."
+    if int(nb_polUp)==1: #Checks if there is only one allele in the path
+        if indel==True: #Case of indel 
+            nucleoLow="." # It will be define later
             nucleoUp="."
-            nucleoRefUp="."
+            nucleoRefUp="." # No nucleotide for the reference => we do not check the MD tag and the cigar for every nucleotide of the insertion
             nucleoRefLow="."
-        if (int(snpUp[3])>0 and int(snpLow[3])>0):
+        if (int(snpUp[3])>0 and int(snpLow[3])>0): #Checks if both paths are mapped
             if indel==True:
                 posSNPUp=posCentraleUp+posRef-int(ambiguityPos)
                 posSNPLow=posCentraleLow+posRef-int(ambiguityPos)
@@ -790,32 +792,32 @@ The Boolean allows to know the reference SNP ) """
     nmUp=None
     nmLow=None
     #Two paths mapped
-    if int(snpUp[3])>0 and int(snpLow[3])>0:
-        nmUp=posUp[int(snpUp[3])]
-        nmLow=posLow[int(snpLow[3])]
-        if nmUp<nmLow:
+    if int(snpUp[3])>0 and int(snpLow[3])>0:#Checks if both paths are mapped 
+        nmUp=posUp[int(snpUp[3])] #distance with the reference for the snpUp
+        nmLow=posLow[int(snpLow[3])] #distance with the reference for the snpLow
+        if nmUp<nmLow: #checks if the upper path has a distance with the reference smaller than the lower path
             boolRefLow=False
-            boolRefUp=True
+            boolRefUp=True 
             nucleoRefLow=nucleoRefUp
             posRef=int(snpUp[3])
-        elif nmUp>nmLow :
+        elif nmUp>nmLow :#checks if the lower path has a distance with the reference smaller than the upper path
             boolRefLow=True
             boolRefUp=False
             nucleoRefUp=nucleoRefLow
             posRef=int(snpLow[3])
-        elif  nmUp==nmLow:
-            if indel==False:
-                if nucleoUp<nucleoLow:
+        elif nmUp==nmLow: #checks if both path have the same number of difference
+            if indel==False: # In case of simple snp
+                if nucleoUp<nucleoLow: #checks the lexicographical order
                     boolRefLow=False
                     boolRefUp=True
                     nucleoRefLow=nucleoRefUp
                     posRef=int(snpUp[3])
-                elif nucleoUp>nucleoLow:
+                elif nucleoUp>nucleoLow: #checks the lexicographical order
                     boolRefLow=True
                     boolRefUp=False
                     nucleoRefUp=nucleoRefLow
                     posRef=int(snpLow[3])
-                else :
+                else : #if none of the alleles is lexicographically less : checks the mapping position and keeps the lefmost position
                     if int(snpUp[3])<int(snpLow[3]):
                         boolRefLow=False
                         boolRefUp=True
@@ -826,9 +828,8 @@ The Boolean allows to know the reference SNP ) """
                         boolRefUp=False
                         nucleoRefUp=nucleoRefLow
                         posRef=int(snpLow[3])
-            
-            else:
-                if int(snpUp[3])<int(snpLow[3]):
+            else: # in case of indel
+                if int(snpUp[3])<int(snpLow[3]): #checks the mapping position and keeps the lefmost position
                     boolRefLow=False
                     boolRefUp=True
                     nucleoRefLow=nucleoRefUp
@@ -929,6 +930,7 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
                 table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
             elif nucleoUp>nucleoLow:
               table=FillVCF(table,numSNPUp,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
+            
               
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped      
@@ -953,6 +955,7 @@ def fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpU
             table=FillVCF(table,numSNPLow,discoNameUp,(int(positionSnpUp)+int(posUnmappedUp)),nucleoLow,nucleoUp,snpLow[10],filterfield,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
         else:
             table=FillVCF(table,numSNPUp,discoNameLow,(int(positionSnpLow)+int(posUnmappedLow)),nucleoUp,nucleoLow,snpUp[10],filterfield,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,".",".",geno,nbGeno,phased,listCovGeno,boolRefLow)
+        
     return(table)
 ##############################################################
 ##############################################################   
@@ -1052,8 +1055,10 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
         if boolRefUp==True:
             indexSmallestPos=indexSmallestPosUp
+            listPolymorphismePos=listPolymorphismePosUp
         elif boolRefLow==True:
             indexSmallestPos=indexSmallestPosLow
+            listPolymorphismePos=listPolymorphismePosLow
         elif boolRefUp==False and boolRefLow==False:
             nucleoUp1=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][3]
             nucleoLow1=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][3]
@@ -1110,9 +1115,9 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     elif int(snpUp[3])<=0 and int(snpLow[3])<=0:
         reverseUp="."
         i=0
-        for i in range(len(listPolymorphismePos)):
-            positionSnpUp=int(listPolymorphismePos[i])+int(posUnmappedUp)
-            positionSnpLow=int(listPolymorphismePos[i])+int(posUnmappedLow)
+        for i in range(len(listPolymorphismePosUp)):
+            positionSnpUp=int(listPolymorphismePosUp[i])+int(posUnmappedUp)
+            positionSnpLow=int(listPolymorphismePosUp[i])+int(posUnmappedLow)
             nucleoUp=listnucleoUp[i]
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
@@ -1131,7 +1136,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     elif int(snpUp[3])>0 and int(snpLow[3])<=0:
         comptPol=0
         reverseUp=dicoUp[listPolymorphismePosUp[0]][4]
-        for comptPol in range(len(listPolymorphismePos)):
+        for comptPol in range(len(listPolymorphismePosUp)):
             if (int(reverseUp)==-1):
                 nucleoLow=ReverseComplement(listnucleoLow[comptPol])
             elif int(reverseUp)==1:
@@ -1153,7 +1158,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
 ##Case : Lower path mapped and upper path unmapped            
     elif int(snpUp[3])<=0 and int(snpLow[3])>0:
         reverseLow=dicoLow[listPolymorphismePosLow[0]][4]
-        for comptPol in range(len(listPolymorphismePos)):
+        for comptPol in range(len(listPolymorphismePosLow)):
             if (int(reverseLow)==-1):
                 nucleoUp=ReverseComplement(listnucleoUp[comptPol])
             elif int(reverseLow)==1:
