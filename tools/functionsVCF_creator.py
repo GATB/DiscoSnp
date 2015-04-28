@@ -596,8 +596,8 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide of the allele
         elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
-            reverseUp=-1 
-            if indel==True :  #We must treats indel independantly because of the position of the indel on the path 
+            reverseUp=-1
+            if indel==True:
                 posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp)
                 listPolymorphismePosUp=listPosRUp #List of all the reverse position
             else:
@@ -862,7 +862,7 @@ def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
     ntStart=None
     if indel==False:##Case of simple snp
         for key,(posD,ntUp,ntLow) in dicoHeader.items():
-            listPos.append(posD)
+            listPos.append(int(posD))
             listPosR.append(tailleSeq-int(posD)+1)
             listnucleoUp.append(ntUp)
             listnucleoUpR.append(ReverseComplement(ntUp))
