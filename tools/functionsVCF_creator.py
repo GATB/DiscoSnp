@@ -35,29 +35,53 @@ import time
 ##############################################################
 def Counting(fichier):
     """Function that counts the number of SNPs and the number of genotype"""
+    fileName, fileExtension = os.path.splitext(fichier)
     samfile=open(fichier,'r')
     nbSnp=0
     nbGeno=0
-    for line in samfile :
-        matchInt=re.match(r'^@',line)
-        if matchInt:#Removes the header lines from the loop
-            continue
-        else:
-            nbSnp+=1
-            if isinstance(line,str): #Test the samline ti know if we have to parse it
-                line=line.rstrip('\n')
-                line=line.split('\t')
-            for i in line:
-                if 'SNP' or 'INDEL' in i:
-                    nomDisco=i.split('|')
-                    nb_pol=nomDisco[3].split("_")
-                    nbSnp+=int(nb_pol[2])# Takes into account the number of variant => close snps
-                    break
-            if nbGeno==0: #Count the number of genotypes in the header
-                for k in nomDisco:
-                    match=re.match(r'^C',k)
-                    if match:
-                        nbGeno+=1
+    nbclose=0
+    nbsimplesnp=0
+    nbINDEL=0
+    if ".sam"==fileExtension:
+            for line in samfile :
+                matchInt=re.match(r'^@',line)
+                if matchInt:#Removes the header lines from the loop
+                    continue
+                else:
+                    nbSnp+=1
+                    if isinstance(line,str): #Test the samline ti know if we have to parse it
+                        line=line.rstrip('\n')
+                        line=line.split('\t')
+                    for i in line:
+                        if 'SNP' or 'INDEL' in i:
+                            nomDisco=i.split('|')
+                            nb_pol=nomDisco[3].split("_")
+                            nbSnp+=int(nb_pol[2])# Takes into account the number of variant => close snps
+                            break
+                    if nbGeno==0: #Count the number of genotypes in the header
+                        for k in nomDisco:
+                            match=re.match(r'^G',k)
+                            if match:
+                                nbGeno+=1
+    else:
+         for line in samfile :
+                if ">" in line:
+                        listLine=line.split("|")
+                        if nbGeno==0:
+                                for nom in listLine:
+                                    match=re.match(r'^G\d+',nom)
+                                    if match:
+                                        nbGeno+=1   
+                        if "SNP_" in line:
+                                listLine=line.split("|")
+                                listnbpol=listLine[3].split("_")
+                                if int(listnbpol[2])>1:
+                                        nbclose+=int(listnbpol[2])
+                                if int(listnbpol[2])==1:
+                                        nbsimplesnp+=1
+                        elif "INDEL_" in line:
+                                nbINDEL+=1
+         nbSnp=nbsimplesnp+nbclose+nbINDEL
     samfile.close()
     return(int(nbSnp)/2,nbGeno)
 
