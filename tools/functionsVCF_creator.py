@@ -1098,7 +1098,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         #Remembers the values for the first snps ==> the others snps will dependent on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
-        #Checks if both allele are identical to the reference => decides which variant to choose 
+        #Checks if both allele are different of the reference => decides which variant to choose as reference 
         if boolRefUp==True and boolRefLow==True:
             #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
             #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)

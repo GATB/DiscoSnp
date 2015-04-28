@@ -275,7 +275,7 @@ if ".sam" in fileName: #checks if it's a samfile
             ok="."
         elif couple == "multiple":
             filterField="MULTIPLE"
-            ok=-1
+            ok=str(NM)
         else : 
             filterField="bug"
 
