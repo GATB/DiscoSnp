@@ -349,6 +349,7 @@ if ".sam" in fileName: #checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ## Fill the VCF if the upper path is considered as the reference
+            
             if boolRefUp==True:
                 if len(nucleoUp)==len(insert):
                     nucleoRefUp="."
@@ -466,9 +467,11 @@ else:
             if seq==seq1:
                 ntLow=ntStart
                 ntUp=insert
+                tp="INS"
             else:
                 ntUp=ntStart
                 ntLow=insert
+                tp="DEL"
             pos=(int(dicoHeaderUp["P_1"][0])+int(posUnmappedUp))
             PrintVCFGhost(table,numSNPUp,discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
             continue     
