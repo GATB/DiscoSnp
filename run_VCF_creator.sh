@@ -9,6 +9,7 @@ vcffile=""
 genome=""
 PATH_BWA=""
 discoSNPs=""
+bwa_threads=""
 l=10
 n=""
 s=0
@@ -51,6 +52,7 @@ echo -e "\t-n: bwa option: maximal bwa mapping distance"
 echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends on this parameter."
 echo -e "\t\t Mandatory in MODE 3. "
 
+echo -e "\t-t: bwa option: Number of threads (default=unlimited) "
 echo -e "\t-w: remove waste tmp files (index files) "
 echo -e "\t\t Optional"
 }
@@ -58,9 +60,13 @@ echo -e "\t\t Optional"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hB:c:G:p:l:n:s:wIf:o:" opt; do
+while getopts "hB:c:G:p:l:n:s:wIf:o:t:" opt; do
 case $opt in
-
+       
+       t)
+       bwa_threads="-t ",$OPTARG
+       ;;
+       
 	w)
 	remove=1
 	;;

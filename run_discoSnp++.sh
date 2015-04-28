@@ -1,3 +1,4 @@
+#!/bin/bash
 #*****************************************************************************
 #   discoSnp++: discovering polymorphism from raw unassembled NGS reads
 #   A tool from the GATB (Genome Assembly Tool Box)
@@ -18,10 +19,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
 
-#!/bin/bash
+
 Ttot="$(date +%s)" 
 #### constant #####
-max_C=$((2**31-1))
+max_C=2147483647 #$((2**31-1))
 
 ###########################################################
 #################### DEFAULT VALUES #######################
