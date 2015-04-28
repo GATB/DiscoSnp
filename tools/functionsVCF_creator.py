@@ -166,7 +166,7 @@ def ParsingDiscoSNP(snp,boolNum):
                 contigLeft=contig[3]
             elif "right" in i :
                 contig=i.split('_')
-                contigLeft=contigRight[3]
+                contigLeft=contig[3]
         elif "rank" in i: 
             rank=i.split('_')
             valRank=rank[1]
@@ -347,7 +347,7 @@ def ReverseComplement(nucleotide):
 # listpol : For close snps example listpol=[31,36,45] (with nb_pol=3)
 # indel : boolean True if the current variant is an indel
 ##############################################################
-def CigarCodeChecker(cigarcode,listpol,indel):
+def CigarCodeChecker(cigarcode,listpol):
     """Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
     parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #parsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
     listPosRef=[]
@@ -446,7 +446,7 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
         matchInt=None
         parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
         while i<len(parsingPosMut):#Convert the number into integer 
-                matchInt=re.match(r'\d+',parsingPosMut[i])
+                matchInt=re.match(r'\d+',parsingPosMut[i]) #integer motif
                 if matchInt:
                         parsingPosMut[i]=int(parsingPosMut[i])
                 i+=1
@@ -456,8 +456,8 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                         pos+=parsingPosMut[i] # Add to pos the current number of the list
                 elif parsingPosMut[i]=="^":
                         i+=1
-                        while boolDel:
-                                if isinstance(parsingPosMut[i],int):
+                        while boolDel: #checks if it is still a letter in the deletion to substract it from the current position
+                                if isinstance(parsingPosMut[i],int): #if it is an integer we achieved to take into account the deletion : adds the integer to the current position
                                         boolDel=False
                                         pos+=parsingPosMut[i]
                                         i+=1
@@ -470,10 +470,10 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                         if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is differente in the variant and in the reference
                                 boolEgalRef=False
                                 nucleoRef=parsingPosMut[i]
-                        else:
+                        else: #if the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
                                 boolEgalRef=True
                         break
-                if pos>posCentraleRef:
+                if pos>posCentraleRef: #if the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
                         boolEgalRef=True
                         break
                 i+=1
@@ -494,16 +494,18 @@ def GetSequence(snpUp,snpLow):
         i=0
         listSeqUp=list(seqUp)
         seqUp=''
+        #Sequence of the upper path
         while i<len(listSeqUp): #Reverse the sequence : usefull for future comparison and to get the position of an eventual indel
-            if seqUp!='':
+            if seqUp!='':#If the sequence is not empty adds the following reverse nucleotide
                 seqUp=str(ReverseComplement(listSeqUp[i]))+seqUp
-            else :
+            else : #Starts the reverse sequence with the first reverse nucleotide 
                 seqUp=str(ReverseComplement(listSeqUp[i]))
             i+=1
     if CheckBitwiseFlag(snpLow[1],4):#Case of mapping reverse
         i=0
         listSeqLow=list(str(seqLow))
         seqLow=''
+        #sequence of the lower path
         while i<len(listSeqLow):
             if seqLow!='':
                 seqLow=str(ReverseComplement(listSeqLow[i]))+seqLow
@@ -572,7 +574,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     #List of snps
     if indel==False:
         listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel,False)
-    else:
+    else: # In case of Indel we will get the insertion in the longest sequence 
         seqUp=snpUp[9]
         seqLow=snpLow[9]          
         if len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
@@ -589,22 +591,22 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpUp[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,indel) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide of the allele
         elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
             reverseUp=-1 
-            if indel==True :
-                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp,indel)
+            if indel==True :  #We must treats indel independantly because of the position of the indel on the path 
+                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp)
                 listPolymorphismePosUp=listPosRUp #List of all the reverse position
             else:
-                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR,indel)
+                posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR)
                 listPolymorphismePosUp=listPosR #List of all the reverse position
-            if len(listPos)==1 and indel==False:
-                nucleoUp=listnucleoUpR[0]
+                if len(listPos)==1 and indel==False:
+                        nucleoUp=listnucleoUpR[0]
         else:# default case we can not determine the bitwise flag.
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos,indel)
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos)
             listPolymorphismePosUp=listPos
             if len(listPos)==1 and indel==False: #simple snp
                 nucleoUp=listnucleoUp[0] # Gets the nucleotide 
@@ -617,22 +619,22 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     if int(snpLow[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpLow[1],4):#Forward Strand
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,indel)
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos)
             listPolymorphismePosLow=listPos
-            if len(listPos)==1 and indel==False:
+            if len(listPos)==1 and indel==False:#Defines the nucleotide of the allele in case of forward strand and simple snp
                 nucleoLow=listnucleoLow[0]
         elif CheckBitwiseFlag(snpLow[1],4):# Reverse Strand
             reverseLow=-1
             if indel==True:
-                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosRLow,indel)
+                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosRLow)
                 listPolymorphismePosLow=listPosRLow
             else:
-                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR,indel)
+                posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosR)
                 listPolymorphismePosLow=listPosR
-            if len(listPos)==1 and indel==False:
+            if len(listPos)==1 and indel==False:#Defines the nucleotide of the allele in case of reverse strand and simple snp
                 nucleoLow=listnucleoLowR[0]
         else:
-            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos,indel)
+            posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPos)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:
                 nucleoLow=listnucleoLow[0]             
@@ -649,14 +651,14 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         if len(listPos)>1: # CLOSE SNPS
             if reverseUp==1:
                 i=0
-                for i in range(len(listPos)):
+                for i in range(len(listPos)):#In case of close snps : goes through the list of allele position
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i]) # Check if the variant is identical to the reference ; return a boolean and the nucleotide of the reference
                     if nucleoRefUp==None: #If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                         nucleoRefUp=listnucleoUp[i] 
                     dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] # Dictionnary for close snps to keep all the results gived by the different functions
             elif reverseUp==-1:
                 i=0
-                for i in range(len(listPosR)):
+                for i in range(len(listPosR)):#In case of close snps with reverse mapping : goes through the list of reverse allele position
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
                     if nucleoRefUp==None: 
                         nucleoRefUp=listnucleoUpR[i]
