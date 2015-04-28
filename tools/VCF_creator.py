@@ -399,6 +399,8 @@ else:
         line1=line1.strip('>')
         line2=line2.rstrip('\n')
         line2=line2.strip('>')
+        seq1=seq1.rstrip('\n')
+        seq2=seq2.rstrip('\n')
         table = [0] * 10
         posUnmappedUp=None
         pos=None
@@ -463,7 +465,7 @@ else:
                 seq=seq1
             else:
                 seq=seq2
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,True)                
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,False)             
             if seq==seq1:
                 ntLow=ntStart
                 ntUp=insert
