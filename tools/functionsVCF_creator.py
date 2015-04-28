@@ -685,7 +685,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i])
                     if nucleoRefUp==None: 
                         nucleoRefUp=listnucleoUpR[i]
-                    dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
+                    dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]                    
         else: #SIMPLE SNPS
             boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp,posMutUp,posCentraleUp)
             if nucleoRefUp==None and reverseUp==1:#If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
@@ -997,7 +997,7 @@ def printOneline(table,VCF):
 ##############################################################
 #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
 ##############################################################
-def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF):
+def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,geno,nbGeno,listCovGeno, VCF,posUp,posLow):
     """Prints the line of the close SNPs in the VCF file. The first variant will determine which path will be used as reference (checks with the boolean boolRef which path is identical to the reference) """ 
     info=''
     champAlt=0
@@ -1078,10 +1078,14 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][0]
         #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
-        if boolRefUp==True:
+        if boolRefUp==True and boolRefLow==True:
+            #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
+            #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
+            boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][1],dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][1],dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][3],dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][3],boolRefUp,boolRefLow,False)    
+        if boolRefUp==True and boolRefLow==False:
             indexSmallestPos=indexSmallestPosUp
             listPolymorphismePos=listPolymorphismePosUp
-        elif boolRefLow==True:
+        elif boolRefLow==True and boolRefUp==False:
             indexSmallestPos=indexSmallestPosLow
             listPolymorphismePos=listPolymorphismePosLow
         elif boolRefUp==False and boolRefLow==False:
@@ -1094,6 +1098,11 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         #Remembers the values for the first snps ==> the others snps will dependent on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
+        #Checks if both allele are identical to the reference => decides which variant to choose 
+        if boolRefUp==True and boolRefLow==True:
+            #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
+            #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
+            boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismePosUp[indexSmallestPos]][1],dicoLow[listPolymorphismePosLow[indexSmallestPos]][1],dicoUp[listPolymorphismePosUp[indexSmallestPos]][3],dicoLow[listPolymorphismePosLow[indexSmallestPos]][3],boolRefUp,boolRefLow,False)  
         nucleoUp1=dicoUp[listPolymorphismePosUp[indexSmallestPos]][3]
         nucleoLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][3]
         positionSnpUp1=dicoUp[listPolymorphismePosUp[indexSmallestPos]][5]
