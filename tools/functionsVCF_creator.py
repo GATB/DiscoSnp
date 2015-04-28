@@ -484,14 +484,13 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                                 if isinstance(parsingPosMut[i],int): #if it is an integer we achieved to take into account the deletion : adds the integer to the current position
                                         boolDel=False
                                         pos+=parsingPosMut[i]
-                                        i+=1
                                 else:
                                         pos-=1
                                         i+=1
                 else:
                         pos+=1
                 if pos==posCentraleRef: # Checks if the current position pos is identical to the position of the variant 
-                        if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is differente in the variant and in the reference
+                        if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is different in the variant and in the reference
                                 boolEgalRef=False
                                 nucleoRef=parsingPosMut[i]
                         else: #if the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
