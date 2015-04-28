@@ -414,11 +414,13 @@ int main(int argc, char **argv) {
     }
 
     int silented=0;
+    
 #ifdef OMP
     if (!silent) silented=1;
     silent=1; // avoids melting messages
 #endif
     
+    if(nbthreads==1 && silented){silent=0;}
 
     
 #ifdef OMP

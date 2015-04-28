@@ -5,8 +5,8 @@ snp_ass_map=read.table("../results_assemblage_mapping/roc_SNP")
 indel_ass_map=read.table("../results_assemblage_mapping/roc_INDEL")
 
 lim=0.2
- col=c("gray51","black","gray1")
-# col=c("salmon3","darkseagreen4","skyblue4","pink4")
+# col=c("gray51","black","gray1")
+ col=c("salmon3","darkseagreen4","skyblue4","pink4")
 
 bitmap("roc_human.png",type="png256",width=8,height=6.5,res=400)
 
