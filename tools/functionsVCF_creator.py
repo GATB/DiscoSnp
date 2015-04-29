@@ -1094,20 +1094,20 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
             #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
             boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][1],dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][1],dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][3],dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][3],boolRefUp,boolRefLow,False)    
-        if boolRefUp==True and boolRefLow==False:
+        if boolRefUp==True and boolRefLow==False: #the smallest position identical to the reference is on the upper path
             indexSmallestPos=indexSmallestPosUp
             listPolymorphismePos=listPolymorphismePosUp
-        elif boolRefLow==True and boolRefUp==False:
+        elif boolRefLow==True and boolRefUp==False:#the smallest position identical to the reference is on the lower path
             indexSmallestPos=indexSmallestPosLow
             listPolymorphismePos=listPolymorphismePosLow
-        elif boolRefUp==False and boolRefLow==False:
+        elif boolRefUp==False and boolRefLow==False: #both paths are different from the reference => choice with the lexicographical order
             nucleoUp1=dicoUp[listPolymorphismePosUp[indexSmallestPosUp]][3]
             nucleoLow1=dicoLow[listPolymorphismePosLow[indexSmallestPosLow]][3]
             if nucleoUp1<nucleoLow1:
                 indexSmallestPos=indexSmallestPosUp
             else:
                 indexSmallestPos=indexSmallestPosLow
-        #Remembers the values for the first snps ==> the others snps will dependent on these parameters
+        #Remembers the values for the first snps ==> the others snps will depend on these parameters
         boolRefUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][0]
         #Checks if both allele are different of the reference => decides which variant to choose as reference 
@@ -1121,21 +1121,21 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         positionSnpLow1=dicoLow[listPolymorphismePosLow[indexSmallestPos]][5]
         reverseLow=dicoLow[listPolymorphismePosLow[indexSmallestPos]][4]
         reverseUp=dicoUp[listPolymorphismePosUp[indexSmallestPos]][4]
-        for comptPol in range(len(listPolymorphismePos)):
+        for comptPol in range(len(listPolymorphismePos)): # Goes through the list of the variant position starting with the smallest
             positionSnpUp=dicoUp[listPolymorphismePosUp[comptPol]][5]
             positionSnpLow=dicoLow[listPolymorphismePosLow[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismePosUp[comptPol]][3]
             nucleoRefUp=dicoUp[listPolymorphismePosUp[comptPol]][1]
             nucleoLow=dicoLow[listPolymorphismePosLow[comptPol]][3]
             nucleoRefLow=dicoLow[listPolymorphismePosLow[comptPol]][1]
-            #Remplissage VCF
-            if boolRefLow==True and boolRefUp==False:
+            #Fills the variable table with the vcf fields;Checks the "REF" path to fill the vcf
+            if boolRefLow==True and boolRefUp==False: #The lower path is defined as REF
                  table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
                  table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
-            elif boolRefUp==True and boolRefLow==False:
+            elif boolRefUp==True and boolRefLow==False:#The upper path is defined as REF
                 table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
                 table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
-            elif boolRefUp==False and boolRefLow==False:
+            elif boolRefUp==False and boolRefLow==False: #the two paths are different from the reference => defines which one will be the reference (thanks to the first allele of the path)
                 if nucleoUp1<nucleoLow1:
                     table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,boolRefLow)
                     table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoLow)
@@ -1148,7 +1148,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
                 elif positionSnpUp1>positionSnpLow1:
                     table=FillVCF(table,numSNPLow,snpLow[2],positionSnpLow,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,geno,nbGeno,phased,listCovGeno,boolRefLow)
                     table[4]=ReverseCheckerCloseSNP(reverseUp,reverseLow,nucleoUp)
-            tablebis.append(list(table))
+            tablebis.append(list(table))#stocks the variable with all the vcf fields for each close snp to sort it and print it in the vcf
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
         ID=1
@@ -1244,7 +1244,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
                 key="G"+str(i+1) # Create the dictionnary key
                 current_genotype = geno[key]
                 likelihood=current_genotype[1]
-                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes
+                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes)
                     likelihoodStart=likelihood[2]
                     likelihoodEnd=likelihood[0]
                     likelihood[0]=likelihoodStart
