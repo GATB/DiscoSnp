@@ -1239,10 +1239,10 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
         return table
     else:
             for i in range(0,nbGeno):
-                key="G"+str(i+1) # Create the dictionary key
+                key="G"+str(i+1) # Creates the dictionary key
                 current_genotype = geno[key]
                 likelihood=current_genotype[1]
-                if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes)
+                if boolRefLow==True: #Checks if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes)
                     likelihoodStart=likelihood[2]
                     likelihoodEnd=likelihood[0]
                     likelihood[0]=likelihoodStart
@@ -1252,7 +1252,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
                     elif "0/0" in current_genotype[0]:
                         current_genotype[0]=current_genotype[0].replace("0/0","1/1")
                 
-                if phased==True: # in case of phasing we change the / symbol
+                if phased==True: #In case of phasing we change the "/" symbol
                     current_genotype[0]=current_genotype[0].replace("/","|")
                 #TODO REMOVE THIS TEST WHEN WE HAVE ALL FILES WITH RIGHT HEADER
                 if isinstance(likelihood,list):
@@ -1264,7 +1264,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
                 #genotypes+=str(current_genotype[0])+":"+str(listCovGeno[i])+":"+str(','.join(current_genotype[1])) # Add the current genotype
                 
                 if i<nbGeno-1 :
-                    genotypes+="\t" # Add a \t except if this is the last genotype
+                    genotypes+="\t" #Adds a \t except if this is the last genotype
 
             table[8]="GT:DP:PL:AD"
             table[9]=genotypes
