@@ -60,9 +60,9 @@ for opt, arg in opts :
         if os.path.isfile(arg):
                fileName = arg
                listNameFile=fileName.split(".")
-               if "BWA_OPT" in listNameFile[0]: # when the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
-                       boolmyname=True # Boolean to know if the file name contains the option of BWA
-                       listName=listNameFile[0].split("BWA_OPT") # parsing of the file name listName[0] corresponds to the name of the discofile listName[1] corresponds to the bwa options
+               if "BWA_OPT" in listNameFile[0]: #When the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
+                       boolmyname=True #Boolean to know if the file name contains the option of BWA
+                       listName=listNameFile[0].split("BWA_OPT") #Parsing of the file name listName[0] corresponds to the name of the discofile listName[1] corresponds to the bwa options
                        listName[1]=listName[1].replace("_", " ")
                samfile=open(fileName,'r')
         else : 
@@ -77,9 +77,6 @@ for opt, arg in opts :
         else :
                 print "!! No output !!"
                 sys.exit(2)      
-        #else :
-        #    print "...Unknown file extension for the output. Try with a <file>.vcf..."
-        #    sys.exit(2)
     else:
         print("Unkwnown option {} ".format(opt))
         usage()
@@ -120,7 +117,7 @@ VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genot
 VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
 table = [0] * 10 # create a 10 cols array
 
-##Create the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
+##Creates the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
 if nbGeno==0: # Without genotypes
     VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
 else:
@@ -130,7 +127,7 @@ else:
         nomCol="G"+str(i+1)
         VCF.write(str(nomCol))
         if i<nbGeno-1 :
-                VCF.write("\t" )# Add a \t except if this is the last genotype
+                VCF.write("\t" )# Adds a \t except if this is the last genotype
         if i==int(nbGeno)-1:
             VCF.write("\n")
 i=0            
@@ -142,7 +139,7 @@ i=0
 #--------------------------------------------------------------------------------------------------------------------------- 
 #--------------------------------------------------------------------------------------------------------------------------- 
 #Upper path
-snpUp=None # samline stocks into a list
+snpUp=None #Samline stocks into a list
 numSNPUp=None #ID of discoSnp++
 unitigLeftUp=None #lenght of the unitig left
 unitigRightUp=None #lenght of the unitig right
@@ -161,7 +158,7 @@ boolXAUp=None #boolean to know if a path is multiple mapped in BWA
 covUp=None #string with all the coverage by samples
 listnucleoUpR=None #list of all the allele for the path in reverse direction
 listnucleoUp=None #list of all the allele for the path in forward direction
-dicoUp=None # dictionnary with all the informations for close snps : boolean to know if the allele is identical to the reference,position on the variant, reverse nucleotide for the allele, if the path is reverse or not, mapping position
+dicoUp=None #dictionnary with all the informations for close snps : boolean to know if the allele is identical to the reference,position on the variant, reverse nucleotide for the allele, if the path is reverse or not, mapping position
 #dicoUp=dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
 listPolymorphismePosUp=None # list of the position of the allele on the upper path
 nucleoUp=None #allele of the upper path in the samfile
@@ -212,14 +209,14 @@ ambiguity=None #possible ambiguity for the position of the insertion/deletion on
 key=None # key in dictionnary
 numberCloseSNp=0
 ntSet="ATCG"
-if ".sam" in fileName: #checks if it's a samfile
+if ".sam" in fileName: #Checks if it's a samfile
     while True:
         line1=samfile.readline()
-        if not line1: break # end of file
+        if not line1: break #End of file
         
-        if line1.startswith('@'): continue # we do not read headers
+        if line1.startswith('@'): continue #We do not read headers
         
-        line2=samfile.readline() # read couple of lines
+        line2=samfile.readline() #Read couple of lines
         ##snpUp and snpLow are lists of the line in the samfile file
         
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
@@ -238,7 +235,7 @@ if ".sam" in fileName: #checks if it's a samfile
             print line1
             print line2
             sys.exit(1)
-        table = [0] * 10 # create a 10 cols array;init it every line   
+        table = [0] * 10 #Creates a 10 cols array;init it every line   
         #Information on coverage by dataset
         covUp,covLow,listCovGeno=GetCoverage(listCUp,listCLow,listCoverageUp,listCoverageLow)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -248,8 +245,8 @@ if ".sam" in fileName: #checks if it's a samfile
         info=None      # info vcf field
         ok=None        # distance for which the SNP is mapped, -1 if not mapped or if multiple mapped
         indel=False    # boolean to know if it is an indel
-        phased=False    # am I phased?
-        filterField='.' # init the vcf field filter
+        phased=False   # am I phased?
+        filterField='.'# init the vcf field filter
         posUp,posLow,boolXAUp,boolXALow = GetCouple(snpUp,snpLow) # get all the positions of mapping for one variant with the associated number of mapping errors
         seqUp=snpUp[9]   # sequences
         seqLow=snpLow[9] # sequences
@@ -307,7 +304,7 @@ if ".sam" in fileName: #checks if it's a samfile
                 dicoUp={}
                 dicoLow={}
                 dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
-                # this function comptutes the VCF and prints it!!
+                #This function comptutes the VCF and prints it!!
                 printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF,posUp,posLow) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -318,7 +315,7 @@ if ".sam" in fileName: #checks if it's a samfile
             seqInsert=0
             seqUp=snpUp[9]
             seqLow=snpLow[9]
-            # To know in which sequence the insertion is and to get it
+            #To know in which sequence the insertion is and to get it
             #Reverse the sequence to get the good mapped insert if it needs to
             seqUp,seqLow=GetSequence(snpUp,snpLow)
             if len(seqUp)<len(seqLow):
@@ -326,11 +323,11 @@ if ".sam" in fileName: #checks if it's a samfile
             else:
                 seq=seqUp
 #---------------------------------------------------------------------------------------------------------------------------
-            #Get from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
+            #Gets from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
             listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-            #Get the positons of the variant by taking into account the shift of mapping
+            #Gets the positons of the variant by taking into account the shift of mapping
             nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow= RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             #Checks the strand (forward or reverse) to have the right sequence of insert
             if boolRefUp==True and reverseUp==-1:
@@ -348,7 +345,7 @@ if ".sam" in fileName: #checks if it's a samfile
                 nucleoLow=ntStart
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-            ## Fill the VCF if the upper path is considered as the reference
+            ##Fills the VCF if the upper path is considered as the reference
             
             if boolRefUp==True:
                 if len(nucleoUp)==len(insert):
@@ -358,7 +355,7 @@ if ".sam" in fileName: #checks if it's a samfile
                     nucleoRefUp="."
                     tp="DEL"
                 table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
-            ## Fill the VCF if the lower path is considered as the reference
+            ##Fills the VCF if the lower path is considered as the reference
             elif boolRefLow==True:
                 if len(nucleoLow)==len(insert):
                     nucleoRefLow="."
@@ -391,9 +388,9 @@ if ".sam" in fileName: #checks if it's a samfile
 else:
     while True:
         line1=samfile.readline()
-        if not line1: break # end of file
-        seq1=samfile.readline() # read the seq associate to the SNP
-        line2=samfile.readline() # read a couple of line
+        if not line1: break #End of file
+        seq1=samfile.readline() #Reads the seq associate to the SNP
+        line2=samfile.readline() #Reads a couple of line
         seq2=samfile.readline()
         line1=line1.rstrip('\n')
         line1=line1.strip('>')
@@ -407,7 +404,7 @@ else:
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------        
         #Variables
-        comptPol=0     # number of SNPs in case of close SNPs - useless for indels
+        comptPol=0     #Number of SNPs in case of close SNPs - useless for indels
         
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
