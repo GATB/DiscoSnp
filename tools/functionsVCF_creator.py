@@ -135,7 +135,7 @@ def ParsingDiscoSNP(snp,boolNum):
             nomDisco=i.split('|')
             break
     for i in nomDisco:# Loops on the header of discoSnp++
-        if "SNP" in i: #Important to know if we have a snp for the creation of the dictionnary with the information with nucleotide and position
+        if "SNP" in i: #Important to know if we have a snp for the creation of the dictionary with the information with nucleotide and position
             discoName=i
             SNP=1 
             ID= i.split('_') 
@@ -212,7 +212,7 @@ def ParsingDiscoSNP(snp,boolNum):
                 listlikelihood=listgeno[2].split(",")
             else:
                 listlikelihood=0
-            dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood] ##Dictionnary with the genotype by sample and a list with the likelihood
+            dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood] ##dictionary with the genotype by sample and a list with the likelihood
     
     if boolNum==0:
         return(discoName,snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverage,listC,nb_pol,posD,ntUp,ntLow,dicoGeno,dicoHeader)
@@ -225,7 +225,7 @@ def ParsingDiscoSNP(snp,boolNum):
 ##############################################################
 def GetCouple(snpUp,snpLow):
     """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch ; retrieves a Boolean indicating whether the SNP is multimapped or not"""
-    posUp = {} #Dictionnary of all the positions (keys) associated with the number of mismatches (values) 
+    posUp = {} #dictionary of all the positions (keys) associated with the number of mismatches (values) 
     posLow = {}
     i=0
     j=0
@@ -253,7 +253,7 @@ def GetCouple(snpUp,snpLow):
         while i<len(position): #Runs through the list 4 by 4 to get all the positions 
             if abs(int(position[i])) not in listerreurUp : #Checks if the position is not too close to the main one
                 boolXAUp=True
-                posUp[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionnary
+                posUp[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionary
             i+=4
     if 'XA' in ''.join(snpLow):#XA: tag for multiple mapping : Checks if the lower path is multiple mapped 
         i=0
@@ -267,7 +267,7 @@ def GetCouple(snpUp,snpLow):
                 boolXALow=True
                 posLow[abs(int(position[i]))]=int(position[i+2])
             i+=4
-    #Adds first position give by BWA to the dictionnary if the path is mapped
+    #Adds first position give by BWA to the dictionary if the path is mapped
     if abs(int(snpUp[3]))>0:
         garbage,garbage,nbMismatchUp=snpUp[12].split(":")
         posUp[abs(int(snpUp[3]))]=int(nbMismatchUp)
@@ -275,7 +275,7 @@ def GetCouple(snpUp,snpLow):
         garbage,garbage,nbMismatchLow=snpLow[12].split(":")
         posLow[abs(int(snpLow[3]))]=int(nbMismatchLow)
     return(posUp,posLow,boolXAUp,boolXALow)
-    ##posUp/posLow : dictionnary with all the position associated with their mismatch number
+    ##posUp/posLow : dictionary with all the position associated with their mismatch number
     ##boolXAUp/boolXALow : boolean if TRUE : the path is multiple mapped for BWA  and the max mapping distance
 
 ##############################################################
@@ -326,7 +326,7 @@ def AddPosition(position,ensemble,delta):
     #ensemble : set of positions for a path
 ##############################################################
 # snpUp/snpLow : sam line
-# posUp/posLow : dictionnary with all the position associated with their mismatch number example : posUp[5687884684]=2
+# posUp/posLow : dictionary with all the position associated with their mismatch number example : posUp[5687884684]=2
 # NM : number of mismatch to test : in the main test every distance 0 to distance max 
 ##############################################################
 def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
@@ -539,7 +539,7 @@ def GetSequence(snpUp,snpLow):
 #dicoHeader snps : dicoHeader[key]=[posD,ntUp,ntLow] 
 #dicoHeader indel : dicoHeader[key]=[posD,ind,amb]
 #snpUp/snpLow : line of the sam file
-#posUp/posLow : dictionnary with all the mapping position of every snps associated with their number of mismatch
+#posUp/posLow : dictionary with all the mapping position of every snps associated with their number of mismatch
 #nb_polUp/nb_polLow : number of variants for the current path
 #indel : boolean True if the current variant is an indel
 ##############################################################
@@ -679,7 +679,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i]) #Checks if the variant is identical to the reference ; returns a boolean and the nucleotide of the reference
                     if nucleoRefUp==None: #If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                         nucleoRefUp=listnucleoUp[i] 
-                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] #Dictionnary for close snps to keep all the results given by the different functions
+                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] #dictionary for close snps to keep all the results given by the different functions
             elif reverseUp==-1:
                 i=0
                 for i in range(len(listPosR)):#In case of close snps with reverse mapping : goes through the list of reverse allele position
@@ -877,11 +877,11 @@ The Boolean allows to know the reference SNP ) """
 def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
     '''Gets from the dicoHeader all the positions, and the nucleotides (R means that it's on the reverse strand)
       SNP :  one variant correspond to listPos[0], listPosR[0], listnucleoUp[0], listnucleoLow[0],listnucleoUpR[0],listnucleoLowR[0]'''
-    #Forward
+    #Forward variables
     listPos=[]
     listnucleoUp=[]
     listnucleoLow=[]
-    #Reverse
+    #Reverse variables
     listPosR=[]
     listnucleoUpR=[]
     listnucleoLowR=[]
@@ -889,18 +889,18 @@ def GetPolymorphisme(dicoHeader,seq,indel,boolSmallest):
     insert=None
     ntStart=None
     if indel==False:##Case of simple snp
-        for key,(posD,ntUp,ntLow) in dicoHeader.items(): #Goes through the dictionnary of parsed header
-            listPos.append(int(posD)) #adds the position of the variant
-            listPosR.append(tailleSeq-int(posD)+1) #adds the reverse position of the variant
-            listnucleoUp.append(ntUp) #adds the allele of the upper path
-            listnucleoUpR.append(ReverseComplement(ntUp))#adds the reverse allele of the upper path
-            listnucleoLow.append(ntLow)#adds the allele of the lower path
-            listnucleoLowR.append(ReverseComplement(ntLow))#adds the reverse allele of the lower path
+        for key,(posD,ntUp,ntLow) in dicoHeader.items(): #Goes through the dictionary of parsed header
+            listPos.append(int(posD)) #Adds the position of the variant
+            listPosR.append(tailleSeq-int(posD)+1) #Adds the reverse position of the variant
+            listnucleoUp.append(ntUp) #Adds the allele of the upper path
+            listnucleoUpR.append(ReverseComplement(ntUp))#Adds the reverse allele of the upper path
+            listnucleoLow.append(ntLow)#Adds the allele of the lower path
+            listnucleoLowR.append(ReverseComplement(ntLow))#Adds the reverse allele of the lower path
         return(listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR)
     else:##Case of indel
-        for key,(posD,ind,amb) in dicoHeader.items():#Goes through the dictionnary of parsed header
-            listPos.append(posD)#adds the position of the variant
-            listPosR.append(tailleSeq-int(posD)+1)#adds the reverse position of the variant
+        for key,(posD,ind,amb) in dicoHeader.items():#Goes through the dictionary of parsed header
+            listPos.append(posD)#Adds the position of the variant
+            listPosR.append(tailleSeq-int(posD)+1)#Adds the reverse position of the variant
             if boolSmallest==False: #If we have teh sequence of the longest path : gets the insert
                 insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
                 ntStart=seq[(int(posD-1)-1)] #Get the nucleotide just before the insertion
@@ -1239,7 +1239,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
         return table
     else:
             for i in range(0,nbGeno):
-                key="G"+str(i+1) # Create the dictionnary key
+                key="G"+str(i+1) # Create the dictionary key
                 current_genotype = geno[key]
                 likelihood=current_genotype[1]
                 if boolRefLow==True: # check if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes)
