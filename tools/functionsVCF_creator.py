@@ -51,7 +51,7 @@ def Counting(fichier):
                     nbSnp+=1
                     if isinstance(line,str): #Test the samline ti know if we have to parse it
                         line=line.rstrip('\n')
-                        line=line.split('\t')
+                        line=line.split('\t')#Splits the line into a list
                     for i in line:
                         if 'SNP' or 'INDEL' in i:
                             nomDisco=i.split('|')
@@ -67,7 +67,7 @@ def Counting(fichier):
          for line in samfile :
                 if ">" in line:
                         listLine=line.split("|")
-                        if nbGeno==0:
+                        if nbGeno==0:#We just count once the number of genotype
                                 for nom in listLine:
                                     match=re.match(r'^G\d+',nom)
                                     if match:
@@ -90,7 +90,7 @@ def Counting(fichier):
 #INDEL_lower_path_2355|P_1:30_1_2|high|nb_pol_1|C1_56|C2_23|C3_1721540|C4_41|C5_89|G1_0/1:776,17,955|G2_0/1:318,16,457|G3_1/1:34427840,5179573,73399|G4_0/1:570,16,710|G5_0/1:1510,84,313|Q1_66|Q2_66|Q3_69|Q4_63|Q5_66|rank_0.60362
 ##############################################################
 def ParsingDiscoSNP(snp,boolNum):
-    if isinstance(snp,str):
+    if isinstance(snp,str):#Converts the line of the samfile into a list
         snp=snp.rstrip('\r')
         snp=snp.rstrip('\n')
         snp=snp.split('\t')
@@ -134,12 +134,12 @@ def ParsingDiscoSNP(snp,boolNum):
         if 'SNP' or 'INDEL' in i:
             nomDisco=i.split('|')
             break
-    for i in nomDisco:# loops on the header of discoSnp++
+    for i in nomDisco:# Loops on the header of discoSnp++
         if "SNP" in i: #Important to know if we have a snp for the creation of the dictionnary with the information with nucleotide and position
             discoName=i
             SNP=1 
-            ID= i.split('_')
-            numSNP=ID[3]
+            ID= i.split('_') 
+            numSNP=ID[3] #Gets the ID of the snp
         elif 'P_' in i: ## Esssential to have the position on the path of the allele, and the nucleotide of the upper and the lower path (forward direction) => information given by DiscoSnp++
             pos=i.split(',')#Parsing if there is multiple snps on the paths
             ntUp=''
@@ -148,9 +148,9 @@ def ParsingDiscoSNP(snp,boolNum):
             chaine=[]
             ind=0
             dicoHeader={}
-            for j in pos:#loops on the list if there are close snps
+            for j in pos:#Loops on the list if there are close snps
                 posD=0
-                if SNP==1:
+                if SNP==1: #Case of snps
                     if ":" in j:#P_1:30_A/G or P_1:30_A/G,P_2:31_G/A
                         chaine=j.split(":")
                         key=chaine[0]
@@ -172,29 +172,29 @@ def ParsingDiscoSNP(snp,boolNum):
                         ind=int(chaine1[1])
                         amb=int(chaine1[2])
                         dicoHeader[key]=[posD,ind,amb] ##### !!! Essential in case of indel 
-        elif "INDEL" in i:
+        elif "INDEL" in i: #Gets the ID of an indel
             INDEL=True
             ID= i.split('_')
             discoName=i
             numSNP=ID[3]
-        elif "unitig" in i:
+        elif "unitig" in i: #Checks the presence and the size of unitig 
             if "left" in i:
                 unitig=i.split('_')
                 unitigLeft=unitig[3]
             elif "right" in i :
                 unitig=i.split('_')
                 unitigRight=unitig[3]
-        elif "contig" in i:
+        elif "contig" in i:#Checks the presence and the size of contig
             if "left" in i:
                 contig=i.split('_')
                 contigLeft=contig[3]
             elif "right" in i :
                 contig=i.split('_')
                 contigLeft=contig[3]
-        elif "rank" in i: 
+        elif "rank" in i: #Gets the rank value
             rank=i.split('_')
             valRank=rank[1]
-        elif "C" in i: ### Essential
+        elif "C" in i: ###Gets the coverage for the path
             coverage=i.split('_')
             j=0
             for j in range(len(coverage)):
@@ -202,17 +202,17 @@ def ParsingDiscoSNP(snp,boolNum):
                 if matchInt:
                     listCoverage.append(str(coverage[j]))
                     listC.append(str(coverage[j-1]))
-        elif "nb_pol" in i : ###Esssential
+        elif "nb_pol" in i : ###Gets the number of variant for the paths
             nb_pol=i.split('_')
             nb_pol=nb_pol[2]
-        elif "G" in i:
+        elif "G" in i: ##Gets the genotype and likelihood by samples
             gen=i.replace("_",":")
             listgeno=gen.split(":")
             if len(listgeno)>2:
                 listlikelihood=listgeno[2].split(",")
             else:
                 listlikelihood=0
-            dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
+            dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood] ##Dictionnary with the genotype by sample and a list with the likelihood
     
     if boolNum==0:
         return(discoName,snp,numSNP,unitigLeft,unitigRight,contigLeft,contigRight,valRank,listCoverage,listC,nb_pol,posD,ntUp,ntLow,dicoGeno,dicoHeader)
@@ -225,11 +225,11 @@ def ParsingDiscoSNP(snp,boolNum):
 ##############################################################
 def GetCouple(snpUp,snpLow):
     """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch ; retrieves a Boolean indicating whether the SNP is multimapped or not"""
-    posUp = {} #dictionnary of all the position (keys) associated with the number of mismatches (values) 
+    posUp = {} #Dictionnary of all the positions (keys) associated with the number of mismatches (values) 
     posLow = {}
     i=0
     j=0
-    #Boolean snps mulimapped
+    #Boolean snps multimapped
     boolXAUp=False
     boolXALow=False
     listXA=None
@@ -244,18 +244,18 @@ def GetCouple(snpUp,snpLow):
     #Creation of a dict with mapping position associate with number of mismatch
     if 'XA' in ''.join(snpUp): # XA: tag for multiple mapping : Check if the upper path is multiple mapped 
         i=0
-        #parsing XA tag
+        #Parsing XA tag
         listXA=snpUp[19].split(';')
         strXA = ','.join(listXA)
         listXA = strXA.split(',')
         listXA.pop()
-        position=listXA[1:] #position=[pos,cigarcode,number of mismatch , pos,cigarcode,number of mismatch]
-        while i<len(position): # runs through the list 4 by 4 to get all the positions 
+        position=listXA[1:] #position=[pos1,cigarcode1,number of mismatch1 , pos2,cigarcode2,number of mismatch2,...]
+        while i<len(position): #Runs through the list 4 by 4 to get all the positions 
             if abs(int(position[i])) not in listerreurUp : #Checks if the position is not too close to the main one
                 boolXAUp=True
                 posUp[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionnary
             i+=4
-    if 'XA' in ''.join(snpLow):# XA: tag for multiple mapping : Check if the lower path is multiple mapped 
+    if 'XA' in ''.join(snpLow):#XA: tag for multiple mapping : Checks if the lower path is multiple mapped 
         i=0
         listXA=snpLow[19].split(';')
         strXA = ','.join(listXA)
@@ -267,7 +267,7 @@ def GetCouple(snpUp,snpLow):
                 boolXALow=True
                 posLow[abs(int(position[i]))]=int(position[i+2])
             i+=4
-    #Add first position give by BWA to the dictionnary if the path is mapped
+    #Adds first position give by BWA to the dictionnary if the path is mapped
     if abs(int(snpUp[3]))>0:
         garbage,garbage,nbMismatchUp=snpUp[12].split(":")
         posUp[abs(int(snpUp[3]))]=int(nbMismatchUp)
@@ -275,8 +275,8 @@ def GetCouple(snpUp,snpLow):
         garbage,garbage,nbMismatchLow=snpLow[12].split(":")
         posLow[abs(int(snpLow[3]))]=int(nbMismatchLow)
     return(posUp,posLow,boolXAUp,boolXALow)
-    ## posUp/posLow : dictionnary with all the position associated with their mismatch number
-    ## boolXAUp/boolXALow : boolean if TRUE : the path is multiple mapped for BWA  and the max mapping distance
+    ##posUp/posLow : dictionnary with all the position associated with their mismatch number
+    ##boolXAUp/boolXALow : boolean if TRUE : the path is multiple mapped for BWA  and the max mapping distance
 
 ##############################################################
 #listCup=["C1","C2"]
@@ -288,13 +288,13 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
     covUp=''
     listCovGeno=[]
     covLow=''
-    ##Create a string if the number of coverage is superior to 1
+    ##Creates a string if the number of coverage is superior to 1
     if len( listCoverageUp)>1 and len( listCoverageLow)>1:
         while i<len(listCoverageUp): #Goes through the list of coverage for the upper path => Usefull if the reference path is the upper path
-            listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))#sums the two coverages
+            listCovGeno.append(int( listCoverageUp[i])+int( listCoverageLow[i]))#Sums the two coverages
             if covUp!='': #Adds the following coverage to the string (upper coverage in the first position ; lower in second)
                 covUp=str(covUp)+';'+str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i]) # creates a string with the coverage
-            else: # Inits with the first coverages
+            else: #Inits with the first coverages
                 covUp=str( listCUp[i])+'='+str( listCoverageUp[i])+","+str( listCoverageLow[i])
             i+=1
         i=0
@@ -302,21 +302,21 @@ def GetCoverage( listCUp, listCLow, listCoverageUp, listCoverageLow):
         while i<len( listCoverageLow): #Goes through the list of coverage for the lower path => Usefull if the reference path is the lower path
             if covLow!='':#Adds the following coverage to the string (lower coverage in the first position ; upper in second)
                 covLow=str(covLow)+';'+str( listCLow[i])+'='+str( listCoverageLow[i])+","+str( listCoverageUp[i])
-            else:# Inits with the first coverages
+            else:#Inits with the first coverages
                 covLow=str( listCLow[i])+'='+str( listCoverageLow[i])+","+str( listCoverageUp[i])
             i+=1
-    else: # In case of one dataset
+    else: #In case of one dataset
         listCovGeno.append(int(listCoverageUp[0])+int(listCoverageLow[0]))
         covUp=str( listCUp[0])+'='+str( listCoverageUp[0])+","+str( listCoverageLow[0])
         covLow=str( listCLow[0])+'='+str( listCoverageLow[0])+","+str( listCoverageUp[0])
-    return(covUp,covLow,listCovGeno) #string covUp "C1=5,23;C2=35,1" listCovGeno=[28,36]
+    return(covUp,covLow,listCovGeno) #String covUp "C1=5,23;C2=35,1" listCovGeno=[28,36]
 ##############################################################
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions
 ##############################################################
 def AddPosition(position,ensemble,delta):
     """Add a position to a set of positions only if the difference between the two is greater than delta"""
-    if len(ensemble)==0: # Case : it's the first position add to the set
+    if len(ensemble)==0: #Case : it's the first position add to the set
         ensemble.append(position)
         return(ensemble)
     if abs(position-ensemble[0])>delta: #Checks in the postions to test have a difference greatest than delta with the first position of the set
@@ -345,17 +345,17 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
             if nbMismatch==int(NM): #Checks if the distance with the reference for the tested position is identical to the tested distance 
                 listPos=AddPosition(position,listPos,delta) #If the position is mapped at NM (number of mismatch tested) test if its not too close with an other position
                 ensemble=set(listPos)
-                if abs(len(ensemble))>1: #case of many position of mapping for NM => multiple mapped  Exit function
+                if abs(len(ensemble))>1: #Case of many position of mapping for NM => multiple mapped  Exit function
                     couple="multiple"
                     return(couple)
-        for position,nbMismatch in posLow.items():# Checks for the lower path
+        for position,nbMismatch in posLow.items():#Checks for the lower path
             if nbMismatch==int(NM):
                 listPos=AddPosition(position,listPos,delta)
                 ensemble=set(listPos)
-                if abs(len(ensemble))>1:#case of many position of mapping for NM => multiple mapped  Exit function
+                if abs(len(ensemble))>1:#Case of many position of mapping for NM => multiple mapped  Exit function
                     couple="multiple"
                     return(couple)
-        if ensemble!=None: # In case of an ensemble==1 uniq genomic mapping position 
+        if ensemble!=None: #In case of an ensemble==1 uniq genomic mapping position 
             couple="ok"
             return(couple)
     return(couple)
@@ -373,7 +373,7 @@ def ReverseComplement(nucleotide):
 ##############################################################
 def CigarCodeChecker(cigarcode,listpol):
     """Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
-    parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #parsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
+    parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #ParsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
     listPosRef=[]
     listShift=[]
     somme=0
@@ -385,12 +385,12 @@ def CigarCodeChecker(cigarcode,listpol):
     #Reference (REF) =Genome
     #SEQ =query = discosnp path
     #Close snps
-    if len(listpol)>1:# Checks : in case of close snps 
-        while i<len(parsingCigarCode): # Goes through the list by twos to get all the letters and to take them into account
+    if len(listpol)>1:#Checks : in case of close snps 
+        while i<len(parsingCigarCode): #Goes through the list by twos to get all the letters and to take them into account
             #Soft clipping
             if parsingCigarCode[i]=="S":
-                shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
-                pos+=int(parsingCigarCode[i-1]) # pos corresponds to the current position in the cigarcode
+                shift-=int(parsingCigarCode[i-1]) #It is the shift in the alignment between the reference and the sequence of the variant 
+                pos+=int(parsingCigarCode[i-1]) #pos corresponds to the current position in the cigarcode
             #Match or Mismatch  
             elif parsingCigarCode[i]=="M":
                 pos+=int(parsingCigarCode[i-1])
@@ -401,11 +401,11 @@ def CigarCodeChecker(cigarcode,listpol):
             elif parsingCigarCode[i]=="I":
                 shift-=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
-            # hard clipping (clipped sequences NOT present in SEQ)
+            #Hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
-                shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
+                shift-=int(parsingCigarCode[i-1]) #It is the shift in the alignment between the reference and the sequence of the variant 
                 pos+=int(parsingCigarCode[i-1])
-            # padding (silent deletion from padded reference)
+            #Padding (silent deletion from padded reference)
             elif parsingCigarCode[i]=="P":
                 shift+=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
@@ -413,20 +413,18 @@ def CigarCodeChecker(cigarcode,listpol):
                 pos+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="X":
                 pos+=int(parsingCigarCode[i-1])
-            while int(pos)>=int(listpol[j]):# Goes through the list of position (close snps) and see if the position is affected by the shift (means shift before the position)
-                posRef=int(listpol[j])+shift # Add the shift to the position (to get the real position of the snp on the reference)
+            while int(pos)>=int(listpol[j]):#Goes through the list of position (close snps) and see if the position is affected by the shift (means shift before the position)
+                posRef=int(listpol[j])+shift #Add the shift to the position (to get the real position of the snp on the reference)
                 listPosRef.append(posRef) #Add the position to the list by taking into account the shift only if the current position 
                 listShift.append(shift)
                 if j<(len(listpol)-1):
                     j+=1
                 else:
-                    #if listShift==[]:
-                    #    listShift=[0]*len(listpol)
                     return(listPosRef,listShift)
             i+=2
     #Simple snp and Indel
     else:
-        while i<len(parsingCigarCode):# Goes through the list by twos to get all the letters and to take them into account
+        while i<len(parsingCigarCode):#Goes through the list by twos to get all the letters and to take them into account
             if parsingCigarCode[i]=="S":
                 shift-=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
@@ -435,13 +433,13 @@ def CigarCodeChecker(cigarcode,listpol):
             elif parsingCigarCode[i]=="D":
                 shift+=int(parsingCigarCode[i-1])
             elif parsingCigarCode[i]=="I":
-                shift-=int(parsingCigarCode[i-1])# we have a nucleotide of shift compared to the reference
+                shift-=int(parsingCigarCode[i-1])#There is a nucleotide of shift compared to the reference
                 pos+=int(parsingCigarCode[i-1]) #We advance in the query SEQ
-            # hard clipping (clipped sequences NOT present in SEQ)
+            #Hard clipping (clipped sequences NOT present in SEQ)
             elif parsingCigarCode[i]=="H":
                 shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
                 pos+=int(parsingCigarCode[i-1])
-            # padding (silent deletion from padded reference)
+            #Padding (silent deletion from padded reference)
             elif parsingCigarCode[i]=="P":
                 shift+=int(parsingCigarCode[i-1])
                 pos+=int(parsingCigarCode[i-1])
@@ -470,18 +468,18 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
         matchInt=None
         parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
         while i<len(parsingPosMut):#Converts the number into integer 
-                matchInt=re.match(r'\d+',parsingPosMut[i]) #integer motif
+                matchInt=re.match(r'\d+',parsingPosMut[i]) #Integer motif
                 if matchInt:
                         parsingPosMut[i]=int(parsingPosMut[i])
                 i+=1
         i=0
-        while i<len(parsingPosMut): # Goes to the list to know if the variant is identical to the reference
+        while i<len(parsingPosMut): #Goes through the list to know if the variant is identical to the reference
                 if isinstance(parsingPosMut[i],int): #Checks if it's a number of nucleotide or a letter
-                        pos+=parsingPosMut[i] # Add to pos the current number of the list
-                elif parsingPosMut[i]=="^":# In case of deletion from the reference we have to substract the deletion from the current position  
+                        pos+=parsingPosMut[i] #Adds to pos the current number of the list
+                elif parsingPosMut[i]=="^":#In case of deletion from the reference we have to substract the deletion from the current position  
                         i+=1
-                        while boolDel: #checks if it is still a letter in the deletion to substract it from the current position
-                                if isinstance(parsingPosMut[i],int): #if it is an integer we achieved to take into account the deletion : adds the integer to the current position
+                        while boolDel: #Checks if it is still a letter in the deletion to substract it from the current position
+                                if isinstance(parsingPosMut[i],int): #If it is an integer we achieved to take into account the deletion : adds the integer to the current position
                                         boolDel=False
                                         pos+=parsingPosMut[i]
                                 else:
@@ -493,10 +491,10 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                         if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is different in the variant and in the reference
                                 boolEgalRef=False
                                 nucleoRef=parsingPosMut[i]
-                        else: #if the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
+                        else: #If the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
                                 boolEgalRef=True
                         break
-                if pos>posCentraleRef: #if the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
+                if pos>posCentraleRef: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
                         boolEgalRef=True
                         break
                 i+=1
@@ -513,7 +511,7 @@ def GetSequence(snpUp,snpLow):
     listSeqUp=[]
     listSeqLow=[]
     i=0
-    if CheckBitwiseFlag(snpUp[1],4): #Case of mapping reverse
+    if CheckBitwiseFlag(snpUp[1],4): #Case of reverse mapping 
         i=0
         listSeqUp=list(seqUp)
         seqUp=''
@@ -528,7 +526,7 @@ def GetSequence(snpUp,snpLow):
         i=0
         listSeqLow=list(str(seqLow))
         seqLow=''
-        #sequence of the lower path
+        #Sequence of the lower path
         while i<len(listSeqLow):
             if seqLow!='':
                 seqLow=str(ReverseComplement(listSeqLow[i]))+seqLow
@@ -588,7 +586,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     boolSmallestUp=False
     boolSmallestLow=False
     i=0
-    #defines the first value of the reference position (first givent by bwa) : will be usefull when the mapping position of each path is the same
+    #Defines the first value of the reference position (first given by bwa) : will be usefull when the mapping position of each path is the same
     if int(snpUp[3])>0:
         posRef=int(snpUp[3])
     else:
@@ -597,7 +595,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     #List of snps : Gets the positions of the variant in reverse and forward position ; gets the nucleotide for each allele for the forward and reverse strand
     if indel==False:
         listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel,False)
-    else: # In case of Indel we will get the insertion in the longest sequence 
+    else: #In case of Indel we will get the insertion in the longest sequence 
         seqUp=snpUp[9]
         seqLow=snpLow[9]          
         if len(seqUp)<len(seqLow): #Determines the longest sequence to get the insertion
@@ -606,41 +604,41 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         else:
             boolSmallestUp=False
             boolSmallestLow=True
-        listPos,listPosRUp,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqUp,indel,boolSmallestUp) # For indel get the insert, the list of position and the possible ambiguity for the position
+        listPos,listPosRUp,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqUp,indel,boolSmallestUp) #For indel get the insert, the list of position and the possible ambiguity for the position
         listPos,listPosRLow,insert,ntStart,ambiguityPos=GetPolymorphisme(dicoHeaderUp,seqLow,indel,boolSmallestLow)
 #---------------------------------------------------------------------------------------------------------------------------
-#Gets the shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
+#Gets the shift by positions (insertion,deletion,sofclipping) and update of the position on the path
 #---------------------------------------------------------------------------------------------------------------------------
-###Case mapped variant Up : Gets the shift by positions (insertion,deletion,sofclipping) and update of the position in alignment
-    if int(snpUp[3])>0: # mapped path
+###Case mapped variant Up : Gets the shift by positions (insertion,deletion,sofclipping) 
+    if int(snpUp[3])>0: #Mapped path
         #Check cigarCode : Presence of insertion, softclipping, deletion
-        if not CheckBitwiseFlag(snpUp[1],4) : #Forward Strand : check the bitwise flag of the samfile
-            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos) # Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
+        if not CheckBitwiseFlag(snpUp[1],4) : #Forward strand : check the bitwise flag of the samfile
+            posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos) #Gets the positions of the variants with an eventual shift from the reference (insertion,deletion,soft clipping) ; in case of close snps return a list 
             listPolymorphismePosUp=listPos
-            if len(listPos)==1 and indel==False: #simple snp
-                nucleoUp=listnucleoUp[0] # Gets the nucleotide of the allele
-        elif CheckBitwiseFlag(snpUp[1],4):# Reverse Strand
+            if len(listPos)==1 and indel==False: #Simple snp
+                nucleoUp=listnucleoUp[0] #Gets the nucleotide of the allele
+        elif CheckBitwiseFlag(snpUp[1],4):#Reverse Strand
             reverseUp=-1
             if indel==True:
                 posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosRUp)
-                listPolymorphismePosUp=listPosRUp #List of all the reverse position
+                listPolymorphismePosUp=listPosRUp #List of all the reverse positions
             else:
                 posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPosR)
-                listPolymorphismePosUp=listPosR #List of all the reverse position
+                listPolymorphismePosUp=listPosR #List of all the reverse positions
                 if len(listPos)==1 and indel==False:
                         nucleoUp=listnucleoUpR[0]
-        else:# default case we can not determine the bitwise flag.
+        else:#Default case we can not determine the bitwise flag.
             posCentraleUp,shiftUp=CigarCodeChecker(snpUp[5],listPos)
             listPolymorphismePosUp=listPos
-            if len(listPos)==1 and indel==False: #simple snp
-                nucleoUp=listnucleoUp[0] # Gets the nucleotide 
-    else: ###Case unmappedpath
+            if len(listPos)==1 and indel==False: #Simple snp
+                nucleoUp=listnucleoUp[0] #Gets the nucleotide 
+    else: ###Case unmapped path
         listPolymorphismePosUp=listPos
         posCentraleUp=listPos
         shiftUp=None
         reverseUp="."
 #---------------------------------------------------------------------------------------------------------------------------
-###Case mapped variant Low : Gets the shift by positions(insertion,deletion,sofclipping) and update of the position in alignment
+###Case mapped variant Low : Gets the shift by positions(insertion,deletion,sofclipping)
     if int(snpLow[3])>0:
         #Check cigarCode : Presence of insertion, softclipping, deletion
         if not CheckBitwiseFlag(snpLow[1],4):#Forward Strand
@@ -648,7 +646,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             listPolymorphismePosLow=listPos
             if len(listPos)==1 and indel==False:#Defines the nucleotide of the allele in case of forward strand and simple snp
                 nucleoLow=listnucleoLow[0]
-        elif CheckBitwiseFlag(snpLow[1],4):# Reverse Strand
+        elif CheckBitwiseFlag(snpLow[1],4):#Reverse strand
             reverseLow=-1
             if indel==True:
                 posCentraleLow,shiftLow=CigarCodeChecker(snpLow[5],listPosRLow)
@@ -673,15 +671,15 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
     ####Upper Case : Checks for all the variants if there are identical to the reference 
     if int(snpUp[3])>0:
-        MD,Z,posMutUp = snpUp[18].split(":") # MD tag parsing
-        if len(listPos)>1: # CLOSE SNPS
+        MD,Z,posMutUp = snpUp[18].split(":") #MD tag parsing
+        if len(listPos)>1: #CLOSE SNPS
             if reverseUp==1:
                 i=0
                 for i in range(len(listPos)):#In case of close snps : goes through the list of allele position
-                    boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i]) # Check if the variant is identical to the reference ; return a boolean and the nucleotide of the reference
-                    if nucleoRefUp==None: #If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+                    boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp[i],posMutUp,posCentraleUp[i]) #Checks if the variant is identical to the reference ; returns a boolean and the nucleotide of the reference
+                    if nucleoRefUp==None: #If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                         nucleoRefUp=listnucleoUp[i] 
-                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] # Dictionnary for close snps to keep all the results gived by the different functions
+                    dicopolUp[listPos[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUp[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])] #Dictionnary for close snps to keep all the results given by the different functions
             elif reverseUp==-1:
                 i=0
                 for i in range(len(listPosR)):#In case of close snps with reverse mapping : goes through the list of reverse allele position
@@ -689,9 +687,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     if nucleoRefUp==None: 
                         nucleoRefUp=listnucleoUpR[i]
                     dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]                    
-        else: #SIMPLE SNPS
+        else: #SIMPLE SNP
             boolRefUp,nucleoRefUp=ReferenceChecker(shiftUp,posMutUp,posCentraleUp)
-            if nucleoRefUp==None and reverseUp==1:#If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+            if nucleoRefUp==None and reverseUp==1:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                 nucleoRefUp=dicoHeaderUp["P_1"][1]
             elif nucleoRefUp==None and reverseUp==-1:
                 nucleoRefUp=ReverseComplement(dicoHeaderUp["P_1"][1])
@@ -723,7 +721,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                     dicopolLow[listPosR[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
         else:
             boolRefLow,nucleoRefLow=ReferenceChecker(shiftLow,posMutLow,posCentraleLow)
-            if nucleoRefLow==None and reverseLow==1:#If there is no reference nucleotide gived by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
+            if nucleoRefLow==None and reverseLow==1:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                 nucleoRefLow=dicoHeaderUp["P_1"][2]
             elif nucleoRefLow==None and reverseLow==-1:
                 nucleoRefLow=ReverseComplement(dicoHeaderUp["P_1"][2])
@@ -753,12 +751,12 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 #Defines the mapping position 
 #---------------------------------------------------------------------------------------------------------------------------
-    #Variants (INDEL and SIMPLE SNPS) Positions : add the position of mapping gived by bwa to the variant position and for indel add ambiguity position
+    #Variants (INDEL and SIMPLE SNPS) Positions : adds the position of mapping given by bwa to the variant position and for indel add ambiguity position
     if int(nb_polUp)==1: #Checks if there is only one allele in the path
         if indel==True: #Case of indel 
-            nucleoLow="." # It will be define later
+            nucleoLow="." #It will be define later
             nucleoUp="."
-            nucleoRefUp="." # No nucleotide for the reference => we do not check the MD tag and the cigar for every nucleotide of the insertion
+            nucleoRefUp="." #No nucleotide for the reference
             nucleoRefLow="."
         if (int(snpUp[3])>0 and int(snpLow[3])>0): #Checks if both paths are mapped
             if indel==True: #In case of indel : defines which path will be considered as the reference in function of the mapping position
