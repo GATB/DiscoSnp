@@ -762,14 +762,14 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             if indel==True: #In case of indel : defines which path will be considered as the reference in function of the mapping position
                 posSNPUp=posCentraleUp+posRef-int(ambiguityPos) #taking into account the possible ambiguity for the indel position
                 posSNPLow=posCentraleLow+posRef-int(ambiguityPos)
-                if snpUp[9]<snpLow[9]: # Checks with path has the lefmost position to determine the reference
+                if snpUp[9]<snpLow[9]: #Checks with path has the lefmost position to determine the reference
                     boolRefUp=True
                     boolRefLow=False
                 else:
                     boolRefUp=False
                     boolRefLow=True
-            else: # In case of simple snps
-                posSNPUp=posCentraleUp+posRef #position of the variant on the path (+shift from the reference)+ mapping position given by bwa
+            else: #In case of simple snps
+                posSNPUp=posCentraleUp+posRef #Position of the variant on the path (+shift from the reference)+ mapping position given by bwa
                 posSNPLow=posCentraleLow+posRef
         elif int(snpUp[3])<=0 and int(snpLow[3])>0:
             if indel==True:
@@ -780,7 +780,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             else:
                 posSNPUp=None
                 posSNPLow=posCentraleLow+posRef
-        elif int(snpUp[3])>0 and int(snpLow[3])<=0: #upper mapped path  ; lower unmapped path 
+        elif int(snpUp[3])>0 and int(snpLow[3])<=0: #Upper mapped path  ; lower unmapped path 
             if indel==True:
                 boolRefUp=True
                 boolRefLow=False
@@ -789,11 +789,11 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             else:
                 posSNPLow=None
                 posSNPUp=posCentraleUp+posRef
-        elif (int(snpUp[3])<=0 and int(snpLow[3])<=0): #both unmapped paths
+        elif (int(snpUp[3])<=0 and int(snpLow[3])<=0): #Both unmapped paths
                 posSNPUp=dicoHeaderUp["P_1"][0]
                 posSNPLow=dicoHeaderUp["P_1"][0]
 #---------------------------------------------------------------------------------------------------------------------------        
-        ##Check the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
+        ##Checks the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
         if boolRefLow==True and reverseLow==-1 and reverseUp==1:
                nucleoUp=ReverseComplement(nucleoUp)
         elif boolRefLow==True and reverseLow==1 and reverseUp==-1:
@@ -803,7 +803,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
         elif boolRefUp==True and reverseUp==1 and reverseLow==-1:
                nucleoLow=ReverseComplement(nucleoLow)
 #---------------------------------------------------------------------------------------------------------------------------
-        ##Check which path chooses : if there are both different from the reference
+        ##Checks which path is chosen : if there are both different from the reference=> use the function MismatchChecker
         if boolRefUp==False and boolRefLow==False:
                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
         return(nucleoLow,posSNPLow,nucleoUp,posSNPUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow)
@@ -823,31 +823,31 @@ The Boolean allows to know the reference SNP ) """
     nmLow=None
     #Two paths mapped
     if int(snpUp[3])>0 and int(snpLow[3])>0:#Checks if both paths are mapped 
-        nmUp=posUp[int(snpUp[3])] #distance with the reference for the snpUp
-        nmLow=posLow[int(snpLow[3])] #distance with the reference for the snpLow
-        if nmUp<nmLow: #checks if the upper path has a distance with the reference smaller than the lower path
+        nmUp=posUp[int(snpUp[3])] #Distance with the reference for the snpUp
+        nmLow=posLow[int(snpLow[3])] #Distance with the reference for the snpLow
+        if nmUp<nmLow: #Checks if the upper path has a distance with the reference smaller than the lower path
             boolRefLow=False
             boolRefUp=True 
             nucleoRefLow=nucleoRefUp
             posRef=int(snpUp[3])
-        elif nmUp>nmLow :#checks if the lower path has a distance with the reference smaller than the upper path
+        elif nmUp>nmLow :#Checks if the lower path has a distance with the reference smaller than the upper path
             boolRefLow=True
             boolRefUp=False
             nucleoRefUp=nucleoRefLow
             posRef=int(snpLow[3])
-        elif nmUp==nmLow: #checks if both path have the same number of difference
-            if indel==False: # In case of simple snp
-                if nucleoUp<nucleoLow: #checks the lexicographical order
+        elif nmUp==nmLow: #Checks if both path have the same number of difference
+            if indel==False: #In case of simple snp
+                if nucleoUp<nucleoLow: #Checks the lexicographical order
                     boolRefLow=False
                     boolRefUp=True
                     nucleoRefLow=nucleoRefUp
                     posRef=int(snpUp[3])
-                elif nucleoUp>nucleoLow: #checks the lexicographical order
+                elif nucleoUp>nucleoLow: #Checks the lexicographical order
                     boolRefLow=True
                     boolRefUp=False
                     nucleoRefUp=nucleoRefLow
                     posRef=int(snpLow[3])
-                else : #if none of the alleles is lexicographically less : checks the mapping position and keeps the lefmost position
+                else : #If none of the alleles is lexicographically less : checks the mapping position and keeps the lefmost position
                     if int(snpUp[3])<int(snpLow[3]):
                         boolRefLow=False
                         boolRefUp=True
@@ -858,8 +858,8 @@ The Boolean allows to know the reference SNP ) """
                         boolRefUp=False
                         nucleoRefUp=nucleoRefLow
                         posRef=int(snpLow[3])
-            else: # in case of indel
-                if int(snpUp[3])<int(snpLow[3]): #checks the mapping position and keeps the lefmost position
+            else: #In case of indel
+                if int(snpUp[3])<int(snpLow[3]): #Checks the mapping position and keeps the lefmost position
                     boolRefLow=False
                     boolRefUp=True
                     nucleoRefLow=nucleoRefUp
