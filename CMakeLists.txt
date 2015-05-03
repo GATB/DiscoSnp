@@ -63,7 +63,7 @@ INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DE
 
 # For the source archive, we exclude some unwanted directories.
 # For creating the SOURCE package we should ignore some files
-SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} ".DS_Store" "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "my_local_data" "donot_release")
+SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} ".DS_Store" "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "doc/vcf_creator_user_guide.odt" "my_local_data" "donot_release")
 
 # To be done at the end. 
 INCLUDE (Delivery)

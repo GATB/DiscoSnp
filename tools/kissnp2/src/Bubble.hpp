@@ -208,7 +208,7 @@ protected:
 
     bool accept_low; // Option set: do we accept low complexity bubbles
    
-    std::queue<std::pair<Node,std::string>> breadth_first_queue;
+    std::queue<std::pair<Node,std::string> > breadth_first_queue;
     
     
     int max_recursion_depth;

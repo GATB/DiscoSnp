@@ -160,9 +160,9 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
 static int NT2int(char nt)  {  return (nt>>1)&3;  }
 
 
-void clear_queue_pair( std::queue<pair<Node, string>> &q )
+void clear_queue_pair( std::queue<pair<Node, string> > &q )
 {
-    std::queue<pair<Node, string>> empty;
+    std::queue<pair<Node, string> > empty;
     std::swap( q, empty );
 }
 
