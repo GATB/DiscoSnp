@@ -81,6 +81,7 @@ echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
+echo -e "\t\t -u: max number of threads (also limited by number of input files)\n"
 echo -e "\tVCF CREATION OPTIONS"
 echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
@@ -95,7 +96,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:u:" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -188,6 +189,11 @@ D=$OPTARG
        M=$OPTARG
        ;;
        
+       u)
+       echo "use u=$OPTARG" >&2
+       u=$OPTARG
+       ;;
+       
 \?)
 echo "Invalid option: -$OPTARG" >&2
 exit 1
@@ -274,6 +280,7 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
+echo -e "\t\t u="$u
 if [[ $paired == "-P" ]]
 then
 	echo -e "\t\t Reads are paired"
@@ -354,11 +361,18 @@ if (( $smallk>31))  ; then
   smallk=31
 fi
 
+if [ -z "$u" ] #Checks if the number of threads is provided
+then
+        echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
 
-echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
+
+        $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired
+else 
+        echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired -t $u"
 
 
-$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired
+        $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired -t $u
+fi
 if [ $? -ne 0 ]
 then
 echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
