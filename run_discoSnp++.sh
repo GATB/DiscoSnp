@@ -19,6 +19,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
 
+option_cores_gatb=""
+option_cores_post_analysis=""
 
 Ttot="$(date +%s)" 
 #### constant #####
@@ -81,6 +83,7 @@ echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
+echo -e "\t\t -u: max number of threads (also limited by number of input files)\n"
 echo -e "\tVCF CREATION OPTIONS"
 echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
@@ -95,7 +98,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:u:" opt; do
 case $opt in
 	t)
 	extend="-t"
@@ -186,6 +189,12 @@ D=$OPTARG
        M)
        echo "use M=$OPTARG" >&2
        M=$OPTARG
+       ;;
+       
+       u)
+       echo "use u=$OPTARG" >&2
+       option_cores_gatb="-nb-cores $OPTARG"
+       option_cores_post_analysis="-t $OPTARG"
        ;;
        
 \?)
@@ -297,11 +306,11 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo "$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max"
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max
+	echo "$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
-		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max"
+		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
 		exit
 	fi
 
@@ -317,12 +326,12 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend"
+    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb"
     exit
 fi
 
@@ -355,13 +364,13 @@ if (( $smallk>31))  ; then
 fi
 
 
-echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
+echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
 
 
-$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired
+$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
+echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
 exit
 fi
 
@@ -420,8 +429,8 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
        fi
 else # A Reference genome is provided, vcf creator mode 2
-       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I"
-       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I
+       echo "$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I $option_cores_post_analysis"
+       $EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf -n $M -I $option_cores_post_analysis
 
        if [ $? -ne 0 ]
        then

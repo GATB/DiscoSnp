@@ -358,7 +358,7 @@ int main(int argc, char **argv) {
         if(sam_out) printf("\t *(-m) Reads mapped results file: %s\n", samout_file_name);
         
         printf("\tMISC.\n");
-        printf("\t *(-t) Max %d threads.\n", max_threads);
+        printf("\t *(-t) Max %d thread%s.\n", max_threads,max_threads>1?"s":"");
     }
     
 	init_static_variables(size_seeds);
