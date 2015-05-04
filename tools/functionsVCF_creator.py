@@ -1282,7 +1282,10 @@ def PrintVCFGhost(table,numSNPUp,chrom,position,tp,valRankUp,unitigLeftUp,unitig
     table[3]=ntUp
     table[4]=ntLow
     table[7]="Ty="+str(tp)+";"+"Rk="+str(valRankUp)+";"+"UL="+str(unitigLeftUp)+";"+"UR="+str(unitigRightUp)+";"+"CL="+str(contigLeftUp)+";"+"CR="+str(contigRightUp)
-    table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno,cov)
+    if "higher" in chrom:
+        table=GetGenotype(geno,0,table,nbGeno,phased,listCovGeno,cov)
+    elif "lower" in chrom:
+        table=GetGenotype(geno,1,table,nbGeno,phased,listCovGeno,cov)
     table[7]=table[7].replace("None",".")
     table[7]=table[7].replace("none",".")
     printOneline(table,VCF)

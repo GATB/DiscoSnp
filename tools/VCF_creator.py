@@ -436,7 +436,12 @@ else:
                 ntUp=dicoHeaderUp["P_1"][1]
                 phased=False
                 pos=(int(dicoHeaderUp["P_1"][0])+int(posUnmappedUp))
-                PrintVCFGhost(table,numSNPUp,discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                #Chooses the REF field with the lexicographical order 
+                if ntLow<ntUp:
+                        PrintVCFGhost(table,numSNPLow,discoNameLow,pos,tp,valRankLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,ntLow,ntUp,genoLow,nbGeno,phased,listCovGeno,VCF)    
+                else:
+                        PrintVCFGhost(table,numSNPUp,discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                        
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -444,12 +449,17 @@ else:
 	    else:
                 phased=True
                 ID=1
+                ntLow1=dicoHeaderUp["P_1"][2]
+                ntUp1=dicoHeaderUp["P_1"][1]
                 for comptPol in range(0,len(listPolymorphismePos)):
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
                         pos=(int(dicoHeaderUp[key][0])+int(posUnmappedUp))
-                        PrintVCFGhost(table,str(numSNPUp)+"_"+str(ID),discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
+                        if ntLow1<ntUp1:
+                                PrintVCFGhost(table,str(numSNPLow)+"_"+str(ID),discoNameLow,pos,tp,valRankLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,ntLow,ntUp,genoLow,nbGeno,phased,listCovGeno,VCF)
+                        else : 
+                                PrintVCFGhost(table,str(numSNPUp)+"_"+str(ID),discoNameUp,pos,tp,valRankUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,ntUp,ntLow,genoUp,nbGeno,phased,listCovGeno,VCF)
                         ID+=1
                 continue
 #---------------------------------------------------------------------------------------------------------------------------
