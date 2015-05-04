@@ -89,7 +89,7 @@ void print_usage_and_exit(char * name){
 
 int main(int argc, char **argv) {
 #ifdef OMP
-    printf("Kissreads will use %d threads\n", omp_get_num_procs());
+    printf("openmp detected, kissreads may parallelize up to %d thread(s)\n", omp_get_num_procs());
 #endif
     
 #ifdef READ2INV
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
                 max_substitutions=atoi(optarg);
                 break;
             case 't':
-                max_threads=atoi(optarg);
+                max_threads=max_threads<atoi(optarg)?max_threads:atoi(optarg); // take the smallest between the user choice and the number of threads
                 break;
             case 'i':
                 index_stride=atoi(optarg);
