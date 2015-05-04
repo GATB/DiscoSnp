@@ -1,6 +1,6 @@
 %% BioMed_Central_Bib_Style_v1.01
 
-\begin{thebibliography}{18}
+\begin{thebibliography}{19}
 % BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
 \ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
 \ifx \binits  \undefined \def \binits#1{#1}\fi
@@ -340,6 +340,21 @@ doi:\doiurl{10.1038/nrg2986}
 \endbibitem
 
 %%% 15
+\bibitem{Chikhi2013}
+\begin{barticle}
+\bauthor{\bsnm{Chikhi}, \binits{R.}},
+\bauthor{\bsnm{Rizk}, \binits{G.}}:
+\batitle{{Space-efficient and exact de Bruijn graph representation based on a
+  Bloom filter.}}
+\bjtitle{Algorithms Mol Biol}
+\bvolume{8}(\bissue{1}),
+\bfpage{22}
+(\byear{2013}).
+doi:\doiurl{10.1186/1748-7188-8-22}
+\end{barticle}
+\endbibitem
+
+%%% 16
 \bibitem{luo2012soapdenovo2}
 \begin{barticle}
 \bauthor{\bsnm{Luo}, \binits{R.}},
@@ -361,7 +376,7 @@ doi:\doiurl{10.1038/nrg2986}
 \end{barticle}
 \endbibitem
 
-%%% 16
+%%% 17
 \bibitem{langmead2012fast}
 \begin{barticle}
 \bauthor{\bsnm{Langmead}, \binits{B.}},
@@ -374,7 +389,7 @@ doi:\doiurl{10.1038/nrg2986}
 \end{barticle}
 \endbibitem
 
-%%% 17
+%%% 18
 \bibitem{Kvitek2013}
 \begin{barticle}
 \bauthor{\bsnm{Kvitek}, \binits{D.J.}},
@@ -390,7 +405,7 @@ doi:\doiurl{10.1371/journal.pgen.1003972}
 \end{barticle}
 \endbibitem
 
-%%% 18
+%%% 19
 \bibitem{bwa}
 \begin{barticle}
 \bauthor{\bsnm{Li}, \binits{H.}},
@@ -727,6 +742,21 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
 </bibl>
 
 <bibl id="B15">
+  <title><p>{Space-efficient and exact de Bruijn graph representation based on
+  a Bloom filter.}</p></title>
+  <aug>
+    <au><snm>Chikhi</snm><fnm>R</fnm></au>
+    <au><snm>Rizk</snm><fnm>G</fnm></au>
+  </aug>
+  <source>Algorithms Mol Biol</source>
+  <pubdate>2013</pubdate>
+  <volume>8</volume>
+  <issue>1</issue>
+  <fpage>22</fpage>
+  <url>http://dx.doi.org/10.1186/1748-7188-8-22</url>
+</bibl>
+
+<bibl id="B16">
   <title><p>SOAPdenovo2: an empirically improved memory-efficient short-read de
   novo assembler</p></title>
   <aug>
@@ -750,7 +780,7 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <fpage>18</fpage>
 </bibl>
 
-<bibl id="B16">
+<bibl id="B17">
   <title><p>Fast gapped-read alignment with Bowtie 2</p></title>
   <aug>
     <au><snm>Langmead</snm><fnm>B</fnm></au>
@@ -765,7 +795,7 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <lpage>-359</lpage>
 </bibl>
 
-<bibl id="B17">
+<bibl id="B18">
   <title><p>{Whole genome, whole population sequencing reveals that loss of
   signaling networks is the major adaptive strategy in a constant
   environment.}</p></title>
@@ -781,7 +811,7 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3836717\&tool=pmcentrez\&rendertype=abstract</url>
 </bibl>
 
-<bibl id="B18">
+<bibl id="B19">
   <title><p>{Fast and accurate short read alignment with Burrows-Wheeler
   transform}</p></title>
   <aug>

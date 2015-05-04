@@ -1,27 +1,18 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012) (format=pdflatex 2012.6.30)  12 MAR 2015 16:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/MacPorts 2014_4) (preloaded format=pdflatex 2014.12.16)  9 APR 2015 15:09
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
 **discoSnppp_giga_science.tex
 (./discoSnppp_giga_science.tex
-LaTeX2e <2011/06/27>
-Babel <v3.8m> and hyphenation patterns for english, dumylang, nohyphenation, ge
-rman-x-2012-05-30, ngerman-x-2012-05-30, afrikaans, ancientgreek, ibycus, arabi
-c, armenian, basque, bulgarian, catalan, pinyin, coptic, croatian, czech, danis
-h, dutch, ukenglish, usenglishmax, esperanto, estonian, ethiopic, farsi, finnis
-h, french, friulan, galician, german, ngerman, swissgerman, monogreek, greek, h
-ungarian, icelandic, assamese, bengali, gujarati, hindi, kannada, malayalam, ma
-rathi, oriya, panjabi, tamil, telugu, indonesian, interlingua, irish, italian, 
-kurmanji, latin, latvian, lithuanian, mongolian, mongolianlmc, bokmal, nynorsk,
- polish, portuguese, romanian, romansh, russian, sanskrit, serbian, serbianc, s
-lovak, slovenian, spanish, swedish, turkish, turkmen, ukrainian, uppersorbian, 
-welsh, loaded.
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, lo
+aded.
 (./bmcart.cls
 Document Class: bmcart 2014/01/24BioMed Central class (VS)
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/article.cls
+(/opt/local/etc/texmf/tex/latex/base/article.cls
 Document Class: article 2007/10/19 v1.4h Standard LaTeX document class
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/size10.clo
+(/opt/local/etc/texmf/tex/latex/base/size10.clo
 File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
@@ -38,26 +29,26 @@ File: size10.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
 )
 \mathindent=\dimen103
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/keyval.sty
+(/opt/local/etc/texmf/tex/latex/graphics/keyval.sty
 Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
 \KV@toks@=\toks14
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/opt/local/etc/texmf/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2007/01/21 v2.11 LaTeX color extensions (UK)
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/color.cfg
+(/opt/local/etc/texmf/tex/latex/latexconfig/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package xcolor Info: Driver file: pdftex.def on input line 225.
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/pdftex-def/pdftex.def
+(/opt/local/etc/texmf/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/infwarerr.sty
-Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+(/opt/local/etc/texmf/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/message (HO)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
-Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+(/opt/local/etc/texmf/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/04/18 v1.20 LaTeX kernel commands for general use (HO)
 )
 \Gread@gobject=\count87
 )
@@ -71,8 +62,8 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1358.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1359.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1360.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/lastpage/lastpage.sty
-Package: lastpage 2011/09/01 v1.2k Refers to last page's name (HMM; JPG)
+(/opt/local/etc/texmf/tex/latex/lastpage/lastpage.sty
+Package: lastpage 2011/02/01 v1.2g Refers to last page's name (HMM; JPG)
 )
 \c@thanks=\count88
 \bmcfloat@box=\box26
@@ -86,19 +77,19 @@ Package: lastpage 2011/09/01 v1.2k Refers to last page's name (HMM; JPG)
 \authors@list=\toks15
 \keywords@list=\toks16
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/inputenc.sty
+(/opt/local/etc/texmf/tex/latex/base/inputenc.sty
 Package: inputenc 2008/03/30 v1.1d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/utf8.def
+(/opt/local/etc/texmf/tex/latex/base/utf8.def
 File: utf8.def 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OML ...
 ... no UTF-8 mapping file for font encoding OML
 Now handling font encoding T1 ...
 ... processing UTF-8 mapping file for font encoding T1
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/t1enc.dfu
+(/opt/local/etc/texmf/tex/latex/base/t1enc.dfu
 File: t1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
@@ -248,7 +239,7 @@ File: t1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OT1 ...
 ... processing UTF-8 mapping file for font encoding OT1
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/ot1enc.dfu
+(/opt/local/etc/texmf/tex/latex/base/ot1enc.dfu
 File: ot1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A1 (decimal 161)
    defining Unicode char U+00A3 (decimal 163)
@@ -279,7 +270,7 @@ File: ot1enc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
 Now handling font encoding OMS ...
 ... processing UTF-8 mapping file for font encoding OMS
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/base/omsenc.dfu
+(/opt/local/etc/texmf/tex/latex/base/omsenc.dfu
 File: omsenc.dfu 2008/04/05 v1.1m UTF-8 support for inputenc
    defining Unicode char U+00A7 (decimal 167)
    defining Unicode char U+00B6 (decimal 182)
@@ -303,19 +294,19 @@ Now handling font encoding U ...
    defining Unicode char U+2122 (decimal 8482)
    defining Unicode char U+2423 (decimal 9251)
 ))
-(/usr/local/texlive/2012/texmf-dist/tex/latex/tools/xspace.sty
-Package: xspace 2009/10/20 v1.13 Space after command names (DPC,MH)
+(/opt/local/etc/texmf/tex/latex/tools/xspace.sty
+Package: xspace 2006/05/08 v1.12 Space after command names (DPC,MH)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphicx.sty
+(/opt/local/etc/texmf/tex/latex/graphics/graphicx.sty
 Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/graphics.sty
+(/opt/local/etc/texmf/tex/latex/graphics/graphics.sty
 Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/graphics/trig.sty
+(/opt/local/etc/texmf/tex/latex/graphics/trig.sty
 Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/graphics.cfg
+(/opt/local/etc/texmf/tex/latex/latexconfig/graphics.cfg
 File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
 )
 Package graphics Info: Driver file: pdftex.def on input line 91.
@@ -323,11 +314,10 @@ Package graphics Info: Driver file: pdftex.def on input line 91.
 \Gin@req@height=\dimen105
 \Gin@req@width=\dimen106
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/url/url.sty
+(/opt/local/etc/texmf/tex/latex/url/url.sty
 \Urlmuskip=\muskip10
 Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
-)
-(./discoSnppp_giga_science.aux)
+) (./discoSnppp_giga_science.aux)
 \openout1 = `discoSnppp_giga_science.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 95.
@@ -343,7 +333,7 @@ LaTeX Font Info:    ... okay on input line 95.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 95.
 LaTeX Font Info:    ... okay on input line 95.
 
-(/usr/local/texlive/2012/texmf-dist/tex/context/base/supp-pdf.mkii
+(/opt/local/etc/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count92
 \scratchdimen=\dimen107
@@ -357,22 +347,21 @@ LaTeX Font Info:    ... okay on input line 95.
 \makeMPintoPDFobject=\count97
 \everyMPtoPDFconversion=\toks20
 )
-Package lastpage Info: Please have a look at the pageslts package at
+Package lastpage Info: Please have a look at the pagesLTS package at
 (lastpage)             http://www.ctan.org/tex-archive/ 
-(lastpage)             macros/latex/contrib/pageslts/ 
+(lastpage)             macros/latex/contrib/pagesLTS/ 
 (lastpage)             or
 (lastpage)             http://www.ctan.org/tex-archive/ 
-(lastpage)             install/macros/latex/contrib/pageslts.tds.zip
+(lastpage)             install/macros/latex/contrib/pagesLTS.tds.zip
 (lastpage)             ! on input line 95.
- (/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
-)
+ (/opt/local/etc/texmf/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/04/22 v0.16 Utilities of pdfTeX for LuaTeX (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+(/opt/local/etc/texmf/tex/generic/oberdiek/ifluatex.sty
 Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
 Package ifluatex Info: LuaTeX not detected.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+(/opt/local/etc/texmf/tex/generic/oberdiek/ifpdf.sty
 Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
 Package ifpdf Info: pdfTeX in PDF mode is detected.
 )
@@ -381,23 +370,23 @@ Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 )
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+(/opt/local/etc/texmf/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/grfext.sty
-Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+(/opt/local/etc/texmf/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Managing graphics extensions (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
-Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+(/opt/local/etc/texmf/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Defining keys (HO)
 ))
-(/usr/local/texlive/2012/texmf-dist/tex/latex/oberdiek/kvoptions.sty
-Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+(/opt/local/etc/texmf/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2010/12/23 v3.10 Keyval support for LaTeX options (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
-Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+(/opt/local/etc/texmf/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2011/04/07 v1.13 Key value parser (HO)
 
-(/usr/local/texlive/2012/texmf-dist/tex/generic/oberdiek/etexcmds.sty
-Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+(/opt/local/etc/texmf/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Prefix for e-TeX command names (HO)
 Package etexcmds Info: Could not find \expanded.
 (etexcmds)             That can mean that you are not using pdfTeX 1.50 or
 (etexcmds)             that some package has redefined \expanded.
@@ -408,7 +397,7 @@ Package grfext Info: Graphics extension search list:
 G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 452.
 
-(/usr/local/texlive/2012/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+(/opt/local/etc/texmf/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
@@ -428,30 +417,30 @@ LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <24> not available
 LaTeX Font Warning: Font shape `OT1/cmr/m/it' in size <24> not available
 (Font)              size <24.88> substituted on input line 109.
 
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 130.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 131.
 
 LaTeX Font Warning: Font shape `OT1/cmr/m/n' in size <5.5> not available
-(Font)              size <5> substituted on input line 130.
+(Font)              size <5> substituted on input line 131.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <5.5> not available
-(Font)              size <5> substituted on input line 130.
+(Font)              size <5> substituted on input line 131.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <5.5> not available
-(Font)              size <5> substituted on input line 130.
+(Font)              size <5> substituted on input line 131.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <11> on input line 130.
+(Font)              <11> on input line 131.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7.69997> on input line 130.
+(Font)              <7.69997> on input line 131.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5.5> on input line 130.
+(Font)              <5.5> on input line 131.
 \address@aff1=\toks21
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 182.
+(Font)              <7> on input line 185.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 182.
+(Font)              <5> on input line 185.
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <8> not available
 (Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 279.
@@ -462,27 +451,30 @@ Overfull \hbox (1.0pt too wide) has occurred while \output is active
  [] 
  []
 
-[1{/usr/local/texlive/2012/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
+[1{/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
 ]
-[2] [3] [4] [5]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 402.
 
- (/usr/local/texlive/2012/texmf-dist/tex/latex/base/omscmr.fd
+LaTeX Warning: Citation `DBGPAPERXXX(Pevzner2004?)' on page 2 undefined on inpu
+t line 298.
+
+[2] [3] [4] [5]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 438.
+
+ (/opt/local/etc/texmf/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 402.
-
-Overfull \hbox (3.40503pt too wide) in paragraph at lines 406--407
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 438.
+ [6]
+Overfull \hbox (3.40503pt too wide) in paragraph at lines 442--443
 []\OT1/cmr/bx/n/10 License\OT1/cmr/m/n/10 : GNU AF-FERO GEN-ERAL PUB-LIC LI-CEN
 SE $\OT1/cmtt/m/n/10 gnu . org / licenses /
  []
 
-[6]
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <7> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 441.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 477.
 
 
 (./discoSnppp_giga_science.bbl [7])
@@ -490,36 +482,36 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <7> not available
 File: figures/bubble_snp.png Graphic file (type png)
 
 <use figures/bubble_snp.png>
-Package pdftex.def Info: figures/bubble_snp.png used on input line 488.
+Package pdftex.def Info: figures/bubble_snp.png used on input line 524.
 (pdftex.def)             Requested size: 233.40543pt x 42.67912pt.
 
 <figures/bubble_close_snp.png, id=44, 313.6518pt x 42.85611pt>
 File: figures/bubble_close_snp.png Graphic file (type png)
 
 <use figures/bubble_close_snp.png>
-Package pdftex.def Info: figures/bubble_close_snp.png used on input line 495.
+Package pdftex.def Info: figures/bubble_close_snp.png used on input line 531.
 (pdftex.def)             Requested size: 312.35881pt x 42.67912pt.
 
 <figures/bubble_indel.png, id=45, 276.14368pt x 42.92838pt>
 File: figures/bubble_indel.png Graphic file (type png)
 
 <use figures/bubble_indel.png>
-Package pdftex.def Info: figures/bubble_indel.png used on input line 503.
+Package pdftex.def Info: figures/bubble_indel.png used on input line 539.
 (pdftex.def)             Requested size: 274.55446pt x 42.67912pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 507.
+(Font)              <8> on input line 543.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 507.
+(Font)              <6> on input line 543.
 
 <../tests_n_coli_NAR/n_coli.png, id=46, 828.09375pt x 648.4225pt>
 File: ../tests_n_coli_NAR/n_coli.png Graphic file (type png)
 
 <use ../tests_n_coli_NAR/n_coli.png>
-Package pdftex.def Info: ../tests_n_coli_NAR/n_coli.png used on input line 512.
+Package pdftex.def Info: ../tests_n_coli_NAR/n_coli.png used on input line 548.
 
 (pdftex.def)             Requested size: 361.0pt x 282.67494pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 512--513
+Overfull \hbox (12.5pt too wide) in paragraph at lines 548--549
  [][] 
  []
 
@@ -531,10 +523,25 @@ File: ../tests_n_coli_NAR/perf_bact_article.png Graphic file (type png)
 
 <use ../tests_n_coli_NAR/perf_bact_article.png>
 Package pdftex.def Info: ../tests_n_coli_NAR/perf_bact_article.png used on inpu
-t line 518.
+t line 554.
 (pdftex.def)             Requested size: 361.0pt x 299.66159pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 518--519
+Overfull \hbox (12.5pt too wide) in paragraph at lines 554--555
+ [][] 
+ []
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<../tests_human/results/roc_human.png, id=48, 578.16pt x 469.755pt>
+File: ../tests_human/results/roc_human.png Graphic file (type png)
+
+<use ../tests_human/results/roc_human.png>
+Package pdftex.def Info: ../tests_human/results/roc_human.png used on input lin
+e 559.
+(pdftex.def)             Requested size: 361.0pt x 293.30943pt.
+
+Overfull \hbox (12.5pt too wide) in paragraph at lines 559--561
  [][] 
  []
 
@@ -542,25 +549,15 @@ Overfull \hbox (12.5pt too wide) in paragraph at lines 518--519
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-LaTeX Warning: File `../tests_human/results/roc_human.png' not found on input l
-ine 523.
+<../tests_human/results/perf_human_article.png, id=49, 1027.84pt x 853.1875pt>
+File: ../tests_human/results/perf_human_article.png Graphic file (type png)
 
+<use ../tests_human/results/perf_human_article.png>
+Package pdftex.def Info: ../tests_human/results/perf_human_article.png used on 
+input line 565.
+(pdftex.def)             Requested size: 361.0pt x 299.66159pt.
 
-./discoSnppp_giga_science.tex:523: Package pdftex.def Error: File `../tests_hum
-an/results/roc_human.png' not found.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.523 ...th]{../tests_human/results/roc_human.png}
-                                                  
-Using draft setting for this image.
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 523--525
+Overfull \hbox (12.5pt too wide) in paragraph at lines 565--566
  [][] 
  []
 
@@ -568,75 +565,57 @@ Overfull \hbox (12.5pt too wide) in paragraph at lines 523--525
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
-LaTeX Warning: File `../tests_human/results/perf_human_article.png' not found o
-n input line 529.
-
-
-./discoSnppp_giga_science.tex:529: Package pdftex.def Error: File `../tests_hum
-an/results/perf_human_article.png' not found.
-
-See the pdftex.def package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.529 ...sts_human/results/perf_human_article.png}
-                                                  
-Using draft setting for this image.
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 529--530
- [][] 
- []
+LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+AED: lastpage setting LastPage 
 
-AED: lastpage setting LastPage
-[8 <./figures/bubble_snp.png> <./figures/bubble_close_snp.png> <./figures/bubbl
-e_indel.png>] [9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/per
-f_bact_article.png>] [11] [12] (./discoSnppp_giga_science.aux)
+Underfull \vbox (badness 3138) has occurred while \output is active []
+
+ [8 <./figures/bubble_snp.png> <./figures/bubble_close_snp.png> <./figures/bubb
+le_indel.png>] [9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/pe
+rf_bact_article.png>] [11 <../tests_human/results/roc_human.png>] [12 <../tests
+_human/results/perf_human_article.png>] (./discoSnppp_giga_science.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
+
+LaTeX Warning: There were undefined references.
+
  ) 
 Here is how much of TeX's memory you used:
- 3025 strings out of 493488
- 40628 string characters out of 3141326
- 108346 words of memory out of 3000000
- 6270 multiletter control sequences out of 15000+200000
- 16127 words of font info for 55 fonts, out of 3000000 for 9000
- 957 hyphenation exceptions out of 8191
- 37i,14n,37p,1124b,398s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
-></usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><
-/usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></
-usr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></u
-sr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr
-/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/l
-ocal/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></u
-sr/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
-/local/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/lo
-cal/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local
-/texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/
-texlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></usr/local/t
-exlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/local/tex
-live/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/te
-xlive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi8.pfb></usr/local/tex
-live/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texl
-ive/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texli
-ve/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texliv
-e/2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/
-2012/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/20
-12/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/201
-2/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on discoSnppp_giga_science.pdf (12 pages, 625160 bytes).
+ 2995 strings out of 495060
+ 39405 string characters out of 6182466
+ 110185 words of memory out of 5000000
+ 6116 multiletter control sequences out of 15000+600000
+ 16127 words of font info for 55 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 37i,14n,37p,1027b,400s stack positions out of 5000i,500n,10000p,200000b,80000s
+</opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/local/e
+tc/texmf/fonts/type1/public/amsfonts/cm/cmbx8.pfb></opt/local/etc/texmf/fonts/t
+ype1/public/amsfonts/cm/cmex10.pfb></opt/local/etc/texmf/fonts/type1/public/ams
+fonts/cm/cmmi10.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmmi7.
+pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmmi8.pfb></opt/local/
+etc/texmf/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></opt/local/etc/texmf/
+fonts/type1/public/amsfonts/cm/cmr10.pfb></opt/local/etc/texmf/fonts/type1/publ
+ic/amsfonts/cm/cmr5.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cm
+r8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmss10.pfb></opt/lo
+cal/etc/texmf/fonts/type1/public/amsfonts/cm/cmss17.pfb></opt/local/etc/texmf/f
+onts/type1/public/amsfonts/cm/cmss8.pfb></opt/local/etc/texmf/fonts/type1/publi
+c/amsfonts/cm/cmssbx10.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm
+/cmssi8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmsy10.pfb></o
+pt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmti10.pfb></opt/local/etc/te
+xmf/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/local/etc/texmf/fonts/type1
+/public/amsfonts/cm/cmti7.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts
+/cm/cmti8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb><
+/opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on discoSnppp_giga_science.pdf (12 pages, 723891 bytes).
 PDF statistics:
- 142 PDF objects out of 1000 (max. 8388607)
+ 146 PDF objects out of 1000 (max. 8388607)
  95 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 26 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

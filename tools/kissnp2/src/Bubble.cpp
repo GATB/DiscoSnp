@@ -21,26 +21,13 @@
 #include <Bubble.hpp>
 #include <Filter.hpp>
 
+#include <string>
 using namespace std;
 
 #define DEBUG(a)  //a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 
-
-
-/**************************** avoid the sdt to_string bug with some compilers ***********************/
-#include <sstream>
-
-namespace patch
-{
-    template < typename T > std::string to_string( const T& n )
-    {
-        std::ostringstream stm ;
-        stm << n ;
-        return stm.str() ;
-    }
-}
 
 
 
@@ -237,7 +224,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             }
             if (end_insertion  == graph.toString(current)[sizeKmer-1] ){
                 DEBUG((cout<<"start an INDEL detection  "<<endl));
-                bubble.polymorphism_type="INDEL";//+std::to_string(insert_size);
+                bubble.polymorphism_type="INDEL";//+(insert_size);
                 
                 /** try to close the bubble from the two initial (with one extended) node */
                 if(extended_path_id==0?
@@ -577,7 +564,7 @@ void BubbleFinder::finish (Bubble& bubble)
                 if (polymorphism_id>1) {
                     comment << ",";
                 }
-                comment<<"P_" << std::to_string(polymorphism_id) << ":" << std::to_string(i) << "_" << path_0[i] << "/" << path_1[i];
+                comment<<"P_" << polymorphism_id << ":" << i << "_" << path_0[i] << "/" << path_1[i];
                 polymorphism_id++;
             }
         }
@@ -585,7 +572,7 @@ void BubbleFinder::finish (Bubble& bubble)
     if ( bubble.polymorphism_type=="INDEL" ){
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
         const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
-        comment << "P_1:" << std::to_string(sizeKmer-1) << "_" << std::to_string(insert_size) << "_" << std::to_string(size_repeat);
+        comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
     }
     
     

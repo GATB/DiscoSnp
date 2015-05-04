@@ -193,8 +193,12 @@ D=$OPTARG
        
        u)
        echo "use u=$OPTARG" >&2
+<<<<<<< HEAD
        option_cores_gatb="-nb-cores $OPTARG"
        option_cores_post_analysis="-t $OPTARG"
+=======
+       u=$OPTARG
+>>>>>>> 66991f318b008514ce7ce57352e321a61feb7667
        ;;
        
 \?)
@@ -283,6 +287,7 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
+echo -e "\t\t u="$u
 if [[ $paired == "-P" ]]
 then
 	echo -e "\t\t Reads are paired"
@@ -363,11 +368,26 @@ if (( $smallk>31))  ; then
   smallk=31
 fi
 
+if [ -z "$u" ] #Checks if the number of threads is provided
+then
+        echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired"
 
+<<<<<<< HEAD
 echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
+=======
+>>>>>>> 66991f318b008514ce7ce57352e321a61feb7667
 
+        $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired
+else 
+        echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired -t $u"
 
+<<<<<<< HEAD
 $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis
+=======
+
+        $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired -t $u
+fi
+>>>>>>> 66991f318b008514ce7ce57352e321a61feb7667
 if [ $? -ne 0 ]
 then
 echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
