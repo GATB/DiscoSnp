@@ -27,6 +27,24 @@ using namespace std;
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 
+
+
+/**************************** avoid the sdt to_string bug with some compilers ***********************/
+#include <sstream>
+
+namespace patch
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
+
+
+
+
 /*********************************************************************
  ** METHOD  :
  ** PURPOSE :
