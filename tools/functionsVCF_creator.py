@@ -242,7 +242,7 @@ def GetCouple(snpUp,snpLow):
     listerreurUp=set([(int(snpUp[3])-1),(int(snpUp[3])+1),(int(snpUp[3])+2),(int(snpUp[3])+3),(int(snpUp[3])-3),(int(snpUp[3])-2),int(snpUp[3])])
     listerreurLow=set([(int(snpLow[3])-1),(int(snpLow[3])+1),(int(snpLow[3])+2),(int(snpLow[3])+3),(int(snpLow[3])-3),(int(snpLow[3])-2),int(snpLow[3])])
     #Creation of a dict with mapping position associate with number of mismatch
-    if 'XA' in ''.join(snpUp): # XA: tag for multiple mapping : Check if the upper path is multiple mapped 
+    if 'XA:Z' in ''.join(snpUp): # XA: tag for multiple mapping : Check if the upper path is multiple mapped
         i=0
         #Parsing XA tag
         listXA=snpUp[19].split(';')
@@ -255,7 +255,7 @@ def GetCouple(snpUp,snpLow):
                 boolXAUp=True
                 posUp[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionary
             i+=4
-    if 'XA' in ''.join(snpLow):#XA: tag for multiple mapping : Checks if the lower path is multiple mapped 
+    if 'XA:Z' in ''.join(snpLow):#XA: tag for multiple mapping : Checks if the lower path is multiple mapped 
         i=0
         listXA=snpLow[19].split(';')
         strXA = ','.join(listXA)
@@ -269,10 +269,10 @@ def GetCouple(snpUp,snpLow):
             i+=4
     #Adds first position give by BWA to the dictionary if the path is mapped
     if abs(int(snpUp[3]))>0:
-        garbage,garbage,nbMismatchUp=snpUp[12].split(":")
+        posMutUp,nbMismatchUp=GetTag(snpUp)
         posUp[abs(int(snpUp[3]))]=int(nbMismatchUp)
     if abs(int(snpLow[3]))>0:
-        garbage,garbage,nbMismatchLow=snpLow[12].split(":")
+        posMutLow,nbMismatchLow=GetTag(snpLow)    
         posLow[abs(int(snpLow[3]))]=int(nbMismatchLow)
     return(posUp,posLow,boolXAUp,boolXALow)
     ##posUp/posLow : dictionary with all the position associated with their mismatch number
@@ -671,7 +671,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
     ####Upper Case : Checks for all the variants if there are identical to the reference 
     if int(snpUp[3])>0:
-        MD,Z,posMutUp = snpUp[18].split(":") #MD tag parsing
+        posMutUp,nbMismatchUp=GetTag(snpUp) #MD tag parsing
         if len(listPos)>1: #CLOSE SNPS
             if reverseUp==1:
                 i=0
@@ -703,7 +703,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
     ####Lower Case 
     if int(snpLow[3])>0:
         #Extraction tag MD
-        MD,Z,posMutLow = snpLow[18].split(":")
+        posMutLow,nbMismatchLow=GetTag(snpLow)
         if len(listPos)>1:
             if reverseLow==1:
                 i=0
@@ -1375,8 +1375,19 @@ def CheckContigUnitig(unitig,contig):
         else:
                 return 0
 
-
-
+##############################################################
+##############################################################
+def GetTag(snp):
+        if isinstance(snp,str):#Converts the line of the samfile into a list
+                snp=snp.rstrip('\r')
+                snp=snp.rstrip('\n')
+                snp=snp.split('\t')        
+        for field in snp:
+                if "MD" in field:
+                     MD,Z,posMut = field.split(":") #MD tag parsing
+                if "NM" in field:
+                     garbage,garbage,nbMismatch=field.split(":")
+        return(posMut,nbMismatch)
 
 
 
