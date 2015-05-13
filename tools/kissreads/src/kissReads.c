@@ -42,7 +42,7 @@
 #endif
 
 char * getVersion(){
-    return  "kissreads module 2.0.0 - Copyright INRIA - CeCILL License";
+    return  "kissreads module - Copyright INRIA - CeCILL License";
 }
 
 

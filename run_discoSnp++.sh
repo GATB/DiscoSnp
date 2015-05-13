@@ -29,7 +29,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.1.2"
+version="2.1.6"
 read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -83,7 +83,7 @@ echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (
 echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
-echo -e "\t\t -u: max number of threads (also limited by number of input files)\n"
+echo -e "\t\t -u: max number of used threads\n"
 echo -e "\tVCF CREATION OPTIONS"
 echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"

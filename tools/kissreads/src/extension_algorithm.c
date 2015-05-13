@@ -461,6 +461,7 @@ void map_all_reads_from_a_file(gzFile read_file,
     free(line);
     listint_free(tested_starters);
     
+    
 }
 
 /**
