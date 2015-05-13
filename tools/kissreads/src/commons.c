@@ -39,7 +39,7 @@
 
 //#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in upper case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
 
-#define MAX_SIZE_LINE 1048576
+
 //char line[MAX_SIZE_LINE];
 
 extern kmer_type mask_code_seed;

@@ -287,9 +287,9 @@ void map_all_reads_from_a_file(gzFile read_file,
     
 	
     
-    char * line =  (char *)malloc(sizeof(char)*1048576); // 1048576
-	char * read = (char *)malloc(sizeof(char)*16384); //
-	char * quality = (char *)malloc(sizeof(char)*16384);//
+    char * line =  (char *)malloc(sizeof(char)*MAX_SIZE_LINE); // 1048576
+	char * read = (char *)malloc(sizeof(char)*MAX_SIZE_LINE); //
+	char * quality = (char *)malloc(sizeof(char)*MAX_SIZE_LINE);//
     
     test_alloc(line);
 	test_alloc(read);

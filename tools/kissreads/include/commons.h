@@ -32,6 +32,7 @@
 #include<stdio.h>
 #include <stdint.h>
 #include<zlib.h>
+#define MAX_SIZE_LINE 16777215
 typedef  uint64_t kmer_type;
 //int artificial_overlap;
 char comp ['t'+1];
