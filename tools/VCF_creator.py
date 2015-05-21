@@ -354,7 +354,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                 else:
                     nucleoRefUp="."
                     tp="DEL"
-                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPUp,snpUp[2],int(positionSnpUp)-1,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)
             ##Fills the VCF if the lower path is considered as the reference
             elif boolRefLow==True:
                 if len(nucleoLow)==len(insert):
@@ -363,7 +363,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                 else:
                     nucleoRefLow="."
                     tp="DEL"
-                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,snpLow[10],filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
+                table=FillVCF(table,numSNPLow,snpLow[2],int(positionSnpLow)-1,nucleoLow,nucleoUp,".",filterField,tp,valRankLow,ok,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,covLow,nucleoRefLow,reverseLow,genoLow,nbGeno,phased,listCovGeno,boolRefLow)
             else:
                   if len(nucleoLow)==len(insert):
                     nucleoRefLow="."
@@ -374,7 +374,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                     nucleoRefUp="."
                     tp="INS"
                     nucleoRefLow="."  
-                  table=FillVCF(table,numSNPUp,discoNameUp,int(positionSnpUp)-1,nucleoUp,nucleoLow,snpUp[10],filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)      
+                  table=FillVCF(table,numSNPUp,discoNameUp,int(positionSnpUp)-1,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,genoUp,nbGeno,phased,listCovGeno,boolRefLow)      
             printOneline(table,VCF)
             continue
             
