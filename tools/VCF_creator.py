@@ -160,7 +160,7 @@ listnucleoUpR=None #list of all the allele for the path in reverse direction
 listnucleoUp=None #list of all the allele for the path in forward direction
 dicoUp=None #dictionnary with all the informations for close snps : boolean to know if the allele is identical to the reference,position on the variant, reverse nucleotide for the allele, if the path is reverse or not, mapping position
 #dicoUp=dicopolUp[listPosR[i]]=[boolRefUp,nucleoRefUp,posCentraleUp[i],listnucleoUpR[i],reverseUp,(int(snpUp[3])+posCentraleUp[i])]
-listPolymorphismePosUp=None # list of the position of the allele on the upper path
+listPolymorphismPosUp=None # list of the position of the allele on the upper path
 nucleoUp=None #allele of the upper path in the samfile
 positionSnpUp=None #mapping postion of the snp on the upper path
 reverseUp=None #"boolean" to know if the path is mapped in forward (1) or reverse (-1) direction 
@@ -188,7 +188,7 @@ covLow=None
 listnucleoLowR=None
 listnucleoLow=None
 dicoLow=None
-listPolymorphismePosLow=None
+listPolymorphismPosLow=None
 nucleoLow=None
 positionSnpLow=None
 reverseLow=None
@@ -201,7 +201,7 @@ NM=0 #distance with the reference
 rupture=0 #distance with the reference for which the validation algorithm stopped
 filterfield=None #string with the result for the filter field of the VCF
 listCovGeno=None #list with all the sum of the coverage by sample 
-listPolymorphismePos=None #list with all the position for a path
+listPolymorphismPos=None #list with all the position for a path
 listPosR=None #list with all the reverse position for a path
 insert=None #sequence of the insertion + the nucleotide just before
 ntStart=None #nucleotide just before the insertion
@@ -259,7 +259,7 @@ if ".sam" in fileName: #Checks if it's a samfile
         rupture=0
         for NM in range(0,int(nbMismatchBWA)+1): 
             couple=ValidationSNP(snpLow,posLow,snpUp,posUp,NM) 
-            if couple== "ok" or couple == "multiple" or couple=="unmapped":
+            if couple== "ok" or couple == "multiple" or couple=="unmapped":#unmmaped : 
                 rupture=NM
                 break
         #VCF champs Filter
@@ -274,7 +274,7 @@ if ".sam" in fileName: #Checks if it's a samfile
             filterField="MULTIPLE"
             ok=str(NM)
         else : 
-            filterField="bug"
+            filterField="unmapped"
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -282,8 +282,7 @@ if ".sam" in fileName: #Checks if it's a samfile
         if "SNP" in snpUp[0] :
 #---------------------------------------------------------------------------------------------------------------------------
             indel=False
-            listPolymorphismePos=[]
-            listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,snpUp[9],indel,False)
+            listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphism(dicoHeaderUp,snpUp[9],indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##one SNP
@@ -303,9 +302,9 @@ if ".sam" in fileName: #Checks if it's a samfile
                 indel=False
                 dicoUp={}
                 dicoLow={}
-                dicoUp,dicoLow,listPolymorphismePosUp,listPolymorphismePosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
+                dicoUp,dicoLow,listPolymorphismPosUp,listPolymorphismPosLow=RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #This function comptutes the VCF and prints it!!
-                printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismePosUp,listPolymorphismePosLow,listPolymorphismePos,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF,posUp,posLow) 
+                printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorphismPosUp,listPolymorphismPosLow,ok,covUp,covLow,listnucleoUp,listnucleoLow,genoUp,nbGeno,listCovGeno,VCF,posUp,posLow) 
                 continue # 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -324,7 +323,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                 seq=seqUp
 #---------------------------------------------------------------------------------------------------------------------------
             #Gets from the dicoHeader[key]=[posD,ind,amb]: Position of the insertion ; the insertion with the nucleotide just before ; the nucleotide just before ; the possible ambiguity for the position of the insertion 
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,False)
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphism(dicoHeaderUp,seq,indel,False)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             #Gets the positons of the variant by taking into account the shift of mapping
@@ -426,12 +425,12 @@ else:
         if "SNP" in line1:
             tp="SNP"
             indel=False
-            listPolymorphismePos=[]
+            listPolymorphismPos=[]
             #Gets the position and the nucleotide of the variants by header parsing
             if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
-                listPolymorphismePos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphisme(dicoHeaderUp,seq1,indel,False)
+                listPolymorphismPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphism(dicoHeaderUp,seq1,indel,False)
 	#dicoHeader[key]=[posD,ntUp,ntLow]
-	    if len(listPolymorphismePos)==0:
+	    if len(listPolymorphismPos)==0:
                 ntLow=dicoHeaderUp["P_1"][2]
                 ntUp=dicoHeaderUp["P_1"][1]
                 phased=False
@@ -451,7 +450,7 @@ else:
                 ID=1
                 ntLow1=dicoHeaderUp["P_1"][2]
                 ntUp1=dicoHeaderUp["P_1"][1]
-                for comptPol in range(0,len(listPolymorphismePos)):
+                for comptPol in range(0,len(listPolymorphismPos)):
                         key="P_"+str(comptPol+1)
                         ntLow=dicoHeaderUp[key][2]
                         ntUp=dicoHeaderUp[key][1]
@@ -472,7 +471,7 @@ else:
                 seq=seq1
             else:
                 seq=seq2
-            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphisme(dicoHeaderUp,seq,indel,False)             
+            listPos,listPosR,insert,ntStart,ambiguity=GetPolymorphism(dicoHeaderUp,seq,indel,False)             
             if seq==seq1:
                 ntLow=ntStart
                 ntUp=insert
