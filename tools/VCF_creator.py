@@ -427,7 +427,7 @@ else:
             indel=False
             listPolymorphismPos=[]
             #Gets the position and the nucleotide of the variants by header parsing
-            if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
+	    if (int(nb_polLow)>=2) or (int(nb_polUp)>=2):
                 listPolymorphismPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR=GetPolymorphism(dicoHeaderUp,seq1,indel,False)
 	#dicoHeader[key]=[posD,ntUp,ntLow]
 	    if len(listPolymorphismPos)==0:

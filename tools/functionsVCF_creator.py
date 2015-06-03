@@ -891,7 +891,7 @@ def GetPolymorphism(dicoHeader,seq,indel,boolSmallest):
     if indel==False:##Case of simple snp
         for key,(posD,ntUp,ntLow) in dicoHeader.items(): #Goes through the dictionary of parsed header
             listPos.append(int(posD)) #Adds the position of the variant
-            listPosR.append(tailleSeq-int(posD)+1) #Adds the reverse position of the variant
+            listPosR.append(tailleSeq-int(posD)) #Adds the reverse position of the variant
             listnucleoUp.append(ntUp) #Adds the allele of the upper path
             listnucleoUpR.append(ReverseComplement(ntUp))#Adds the reverse allele of the upper path
             listnucleoLow.append(ntLow)#Adds the allele of the lower path
@@ -899,7 +899,7 @@ def GetPolymorphism(dicoHeader,seq,indel,boolSmallest):
         return(listPos,listnucleoUp,listnucleoLow,listPosR,listnucleoUpR,listnucleoLowR)
     else:##Case of indel
         for key,(posD,ind,amb) in dicoHeader.items():#Goes through the dictionary of parsed header
-            listPos.append(posD)#Adds the position of the variant
+            listPos.append(posD+1)#Adds the position of the variant
             listPosR.append(tailleSeq-int(posD)+1)#Adds the reverse position of the variant
             if boolSmallest==False: #If we have teh sequence of the longest path : gets the insert
                 insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
@@ -1103,8 +1103,10 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             nucleoLow1=dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][3]
             if nucleoUp1<nucleoLow1:
                 indexSmallestPos=indexSmallestPosUp
+                listPolymorphismPos=listPolymorphismPosUp
             else:
                 indexSmallestPos=indexSmallestPosLow
+                listPolymorphismPos=listPolymorphismPosLow
         #Remembers the values for the first snps ==> the others snps will depend on these parameters
         boolRefUp=dicoUp[listPolymorphismPosUp[indexSmallestPos]][0]
         boolRefLow=dicoLow[listPolymorphismPosLow[indexSmallestPos]][0]
