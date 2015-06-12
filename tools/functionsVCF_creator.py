@@ -395,7 +395,7 @@ def ValidationSNPBestHits (posUp,posLow):
                 return "MULTIPLE"
 
     for position,nbMismatch in posLow.items():
-        if nbMismatch == best_up:
+        if nbMismatch == best_low:
             position_set.add(position)
             if len(position_set) > 1: 
                 return "MULTIPLE"
