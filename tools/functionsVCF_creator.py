@@ -8,7 +8,6 @@ import subprocess
 import re
 import time
 
-from sets import Set # Added by pierre (12/06/2015)
 #FUNCTIONS_________________________________________________________________________________________________________
 #INDEX_____________________________________________________________________________________________________________
 #       Counting : """Function that counts the number of SNPs and the number of genotype"""
@@ -384,11 +383,11 @@ def ValidationSNPBestHits (posUp,posLow):
     # get the best mapping distance for lower path 
     best_low=1024
     for position,nbMismatch in posLow.items(): 
-        if nbMismatch<best_Low:
-            best_Low=nbMismatch
+        if nbMismatch<best_low:
+            best_low=nbMismatch
     
     # get the union of the mapping position at the best mapping positions
-    position_set = Set([])
+    position_set = set()
     for position,nbMismatch in posUp.items():
         if nbMismatch == best_up:
             position_set.add(position)
