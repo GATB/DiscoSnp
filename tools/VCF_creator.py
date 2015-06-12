@@ -255,26 +255,34 @@ if ".sam" in fileName: #Checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                    
         #Validation of a couple of SNPs SEE DOC.
-        NM=0
-        rupture=0
-        for NM in range(0,int(nbMismatchBWA)+1): 
-            couple=ValidationSNP(snpLow,posLow,snpUp,posUp,NM) 
-            if couple== "ok" or couple == "multiple" or couple=="unmapped":#unmmaped : 
-                rupture=NM
-                break
-        #VCF champs Filter
-        if couple=="ok":
-            filterField="PASS"            
-            ok=str(NM)
+        best_hit=True # COMMENT THIS LINE FOR COMING BACK TO THE ORIGINAL PREDICTION VALIDATION.
+        if best_hit==True: # Validation using the best hit only (Pierre update)
+            ok="-1" # THIS FIELD SHOULD BE REMOVED WITH THIS STRATEGY
+            filterField=ValidationSNPBestHits(posUp,posLow)
+            
+        else: # Intial validation scheme
+            NM=0
+            rupture=0
+            for NM in range(0,int(nbMismatchBWA)+1): 
+                couple=ValidationSNP(snpLow,posLow,snpUp,posUp,NM) 
+                if couple== "ok" or couple == "multiple" or couple=="unmapped":#unmmaped : 
+                    rupture=NM
+                    break
+            #VCF champs Filter
+            if couple=="ok":
+                filterField="PASS"            
+                ok=str(NM)
         
-        elif couple == "unmapped":
-            filterField="."
-            ok="."
-        elif couple == "multiple":
-            filterField="MULTIPLE"
-            ok=str(NM)
-        else : 
-            filterField="unmapped"
+            elif couple == "unmapped":
+                filterField="."
+                ok="."
+            elif couple == "multiple":
+                filterField="MULTIPLE"
+                ok=str(NM)
+            else : 
+                filterField="unmapped"
+            
+
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------

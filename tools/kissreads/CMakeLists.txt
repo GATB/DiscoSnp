@@ -22,6 +22,7 @@ file (GLOB_RECURSE  ProjectFiles  src/*)
 include_directories (src  "include")
 
 
+
 add_definitions ("-Wall -O3")
 
 # we may have extra flags
@@ -42,3 +43,5 @@ add_executable  (${PROJECT_NAME}  ${ProjectFiles})
 target_link_libraries (${PROJECT_NAME}  "-lm -lz")
 
 
+# We copy the project binary to the 'bin' directory
+INSTALL (TARGETS ${PROJECT_NAME} DESTINATION bin)

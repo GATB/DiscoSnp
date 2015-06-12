@@ -7,6 +7,8 @@ import sys
 import subprocess
 import re
 import time
+
+from sets import Set # Added by pierre (12/06/2015)
 #FUNCTIONS_________________________________________________________________________________________________________
 #INDEX_____________________________________________________________________________________________________________
 #       Counting : """Function that counts the number of SNPs and the number of genotype"""
@@ -15,6 +17,7 @@ import time
 #       GetCoverage :"""Takes as input lists list  """
 #       AddPosition :"""Add a position to a set of positions only if the difference between the two is greater than delta"""
 #       ValidationSNP :"""Main function of the snp validation : check if the couple is validated with only one mapping position at the number of mismatch tested"""
+#       ValidationSNPBestHits :"""Main function of the snp validation : check if the couple is validated with only one mapping position """
 #       ReverseComplement 
 #       CigarCodeChecker :"""Function which allows to recover the position of the SNPs according to the position of the deletions or insertions relative to the reference sequence (CigarCode Parsing : checks for insertion deletion or soft clipping"""
 #       ReferenceChecker : """Function which allows to get the MD tag parsing; checks if path nucleotide is identical to the reference nucleotide"""
@@ -359,6 +362,50 @@ def ValidationSNP(snpLow,posLow,snpUp,posUp,NM):
             couple="ok"
             return(couple)
     return(couple)
+##############################################################
+##############################################################
+##############################################################
+# posUp/posLow : dictionary with all the position associated with their mismatch number example : posUp[5687884684]=2
+# returns 
+#  * "." if the union of the positions of the best hit of the two sequences is of size 0 (if none of the two sequences is mapped)
+#  * "PASS" if the union of the positions of the best hit of the two sequences is of size 1 (or zero, meaning that the best hit of one of the two sequences is higher than the authorized limit)
+#  * "MULTIPLE" else (if the union of the positions of the best hit of the two sequences is of size >1)
+##############################################################
+def ValidationSNPBestHits (posUp,posLow):
+    """Prediction validation : check if the couple is validated with only one mapping position """
+  
+
+    # get the best mapping distance for upper path 
+    best_up=1024
+    for position,nbMismatch in posUp.items(): 
+        if nbMismatch<best_up:
+            best_up=nbMismatch
+
+    # get the best mapping distance for lower path 
+    best_low=1024
+    for position,nbMismatch in posLow.items(): 
+        if nbMismatch<best_Low:
+            best_Low=nbMismatch
+    
+    # get the union of the mapping position at the best mapping positions
+    position_set = Set([])
+    for position,nbMismatch in posUp.items():
+        if nbMismatch == best_up:
+            position_set.add(position)
+            if len(position_set) > 1: 
+                return "MULTIPLE"
+
+    for position,nbMismatch in posLow.items():
+        if nbMismatch == best_up:
+            position_set.add(position)
+            if len(position_set) > 1: 
+                return "MULTIPLE"
+    
+    if len(position_set) == 1: 
+        return "PASS"
+    
+    return "."
+    
 ##############################################################
 ##############################################################
 def ReverseComplement(nucleotide):

@@ -2,14 +2,6 @@ project(DiscoSNP++)
 
 cmake_minimum_required(VERSION 2.6)
 
-################################################################################
-# Define cmake modules directory
-################################################################################
-#FOREACH (path "cmake" "../cmake"  "thirdparty/gatb-core/cmake"  "../../thirdparty/gatb-core/gatb-core/cmake")
-#IF (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/")
-#SET (CMAKE_MODULE_PATH  "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/${path}")
-#ENDIF()
-#ENDFOREACH(path)
 
 ################################################################################
 # Define cmake modules directory
@@ -26,7 +18,6 @@ ENDFOREACH(path)
 ################################################################################
 
 # We don't want to install some GATB-CORE artifacts
-#SET (GATB_CORE_EXCLUDE_TOOLS     1)
 SET (GATB_CORE_EXCLUDE_TESTS     1)
 SET (GATB_CORE_EXCLUDE_EXAMPLES  1)
 
@@ -36,6 +27,8 @@ include (GatbCore)
 ################################################################################
 #  TOOLS GENERATION 
 ################################################################################
+set(PROJECT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
 ADD_SUBDIRECTORY(tools)
 
 
@@ -47,6 +40,8 @@ ADD_SUBDIRECTORY(tools)
 # We chose the kind of archive we want to generate
 SET (CPACK_GENERATOR            "TGZ")
 SET (CPACK_SOURCE_GENERATOR     "TGZ")
+
+
 
 # We copy other stuff 
 # For creating the BINARY package we include the files we want

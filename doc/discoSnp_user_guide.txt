@@ -1,7 +1,7 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.0.7
-User's guide – March 2015
+v2.1.6
+User's guide – May 2015
 
 contact: pierre.peterlongo@inria.fr
 Table of contents
@@ -47,7 +47,7 @@ Compile all three tools (graph creation, kissnp2, kissreads)
 
 Running discoSnp++
 The main script run_discoSnp++.sh automatically runs the two modules (SNP detection and read coverage and quality computations). You will provide the following information:
--r (read_sets) “read1.fasta   reads.fastq.gz ...”: localization of the read files. Note that these files may be in fastq, or fasta, gzipped or not. If there are more than one read file, then they must be surrounded by the " character and they are separated by space. 
+-r (read_sets) “readref.fasta   readsnp.fastq.gz”: localization of the read files. Note that these files may be in fastq, or fasta, gzipped or not. If there are more than one read file, then they must be surrounded by the " character and they are separated by space. 
 This is the only mandatory parameter.
 -m: indicates that read sets are paired. Each couple of read sets is considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) 
 In this case, during the coverage and quality computations, two consecutive input read files are consider as a unique read set. For instance in the above description, set1_1.fa and set1_2.fa will be considered as a unique file. 
@@ -68,7 +68,7 @@ In this case, during the coverage and quality computations, two consecutive inpu
 -d error_threshold: max number of errors per read (used by kissreads only). 
 Default 1
 -n: do not compute the genotypes
--h: show help.
+-u: max number of used threads
 Additionally you may change some kissnp2 / kissreads options. In this case you may change the two corresponding lines in the run_discoSnp++.sh file. To know the possible options, run .kissnp2 and/or kissreads without options. Note that usually, changing these options is not necessary. 
 
 Sample example:
