@@ -148,6 +148,9 @@ Node get_successors (const Graph& graph, const Node& node, const int depth){
 
 
 void BubbleFinder::start_snp_prediction(Bubble& bubble){
+    if (max_polymorphism<1) { // if the parameter P is set to 0, do not output any SNP
+        return;
+    }
     bubble.polymorphism_type="SNP";
     bubble.type=0;
     bubble.extended_string[0]="";

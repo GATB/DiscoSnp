@@ -255,7 +255,7 @@ if ".sam" in fileName: #Checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                    
         #Validation of a couple of SNPs SEE DOC.
-        best_hit=True # COMMENT THIS LINE FOR COMING BACK TO THE ORIGINAL PREDICTION VALIDATION.
+        best_hit=True # SET TO FALSE FOR COMING BACK TO THE ORIGINAL PREDICTION VALIDATION (lowest_distance).
         if best_hit==True: # Validation using the best hit only (Pierre update)
             ok="-1" # THIS FIELD SHOULD BE REMOVED WITH THIS STRATEGY
             filterField=ValidationSNPBestHits(posUp,posLow)
