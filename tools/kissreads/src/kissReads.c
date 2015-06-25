@@ -430,11 +430,12 @@ int main(int argc, char **argv) {
         
         if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
         
-        
+        printf("set %d\n", i);
         read_mapping(reads_file_names, i, size_seeds,  min_coverage, results_against_set,  quality, sam_out, max_substitutions, minimal_read_overlap);
        
     }
     
+    printf("Mapping done, analyzing results\n");
     const int increment=paired?2:1;
     
 //#ifdef OMP
@@ -445,6 +446,7 @@ int main(int argc, char **argv) {
     }
     
     if (silented) silent=0;
+    
     
     if(number_paths_per_event==2)
         print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes, paired);
