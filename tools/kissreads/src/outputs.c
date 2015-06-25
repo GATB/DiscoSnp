@@ -575,7 +575,7 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 	
     
 	for(i=0;i<nb_events_per_set*2;i+=2){
-        printf("%d ",i): //DEBUG
+        printf("%d ",i); //DEBUG
 		if(one_coherent(results_against_set,i,number_of_read_sets) && one_coherent(results_against_set,i+1,number_of_read_sets))
 		{
 			nb_read_coherent++;
