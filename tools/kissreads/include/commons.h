@@ -53,8 +53,8 @@ int number_of_read_sets;
 int size_before_reads_starting; // see fragment_info.h
 char * anykmer;
 char **  sort_strings (char ** strings, int number);
-void * mymalloc(const int size);
-void * mycalloc(const int size, const int size_2);
+//void * mymalloc(const int size);
+//void * mycalloc(const int size, const int size_2);
 char * mystrdup (const char *s1);
 void print_rev_comp(char s[], FILE* out);
 void revcomp(char s[], int len);
@@ -71,10 +71,10 @@ int get_next_sequence_for_fastq (gzFile file, char * read, char * quality, char 
 int number_of_sequences_in_file(gzFile file, char * line);
 gzFile file;
 
-uint64_t sum_memory;
-uint64_t sum_memory_strdup;
+//uint64_t sum_memory;
+//uint64_t sum_memory_strdup;
 
-uint64_t  mask_nbseed ;
+uint64_t  mask_nbseed;
 uint64_t  mask_offset_seed; 
 unsigned int nbits_nbseeds;
 

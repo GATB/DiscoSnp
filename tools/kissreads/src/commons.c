@@ -64,24 +64,24 @@ char ** sort_strings (char ** strings, int number)
 }
 
 
-char * mystrdup (const char *s1)
-{
-    sum_memory_strdup+=strlen(s1);
-    //printf("Strdup %i \n", strlen(s1));
-
-    return strdup(s1);
-}
-void * mymalloc(const int size){
-  sum_memory+=size;
- // printf("Allocate %d, sum=%lli  = %lli Mo\n", size, sum_memory, sum_memory /1024LL/1024LL);
-  return malloc(size);
-}
-
-void * mycalloc(const int size, const int size_2){
-  sum_memory+=size*size_2;
-  //printf("Allocate %d, sum=%lli  = %lli Mo\n", size*size_2, sum_memory, sum_memory /1024LL/1024LL);
-  return calloc(size,size_2);
-}
+//char * mystrdup (const char *s1)
+//{
+//    sum_memory_strdup+=strlen(s1);
+//    //printf("Strdup %i \n", strlen(s1));
+//
+//    return strdup(s1);
+//}
+//void * mymalloc(const int size){
+//  sum_memory+=size;
+// // printf("Allocate %d, sum=%lli  = %lli Mo\n", size, sum_memory, sum_memory /1024LL/1024LL);
+//  return malloc(size);
+//}
+//
+//void * mycalloc(const int size, const int size_2){
+//  sum_memory+=size*size_2;
+//  //printf("Allocate %d, sum=%lli  = %lli Mo\n", size*size_2, sum_memory, sum_memory /1024LL/1024LL);
+//  return calloc(size,size_2);
+//}
 
 
 void init_static_variables(const int k){

@@ -436,9 +436,10 @@ int main(int argc, char **argv) {
     }
     
     const int increment=paired?2:1;
-#ifdef OMP
-#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
-#endif
+    
+//#ifdef OMP
+//#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
+//#endif
     for (i=0;i<number_of_read_sets;i+=increment){
         set_read_coherency(results_against_set, nb_events_per_set, number_paths_per_event, paired, min_coverage, i);
     }

@@ -25,10 +25,6 @@ include_directories (src  "include")
 
 add_definitions ("-Wall -O3")
 
-# we may have extra flags
-if (LIVIUS_TESTS)
-    add_definitions ("-DLIVIUS_TESTS")
-endif()
 
 if (CLASSICAL_SPANNING)
     add_definitions ("-DCLASSICAL_SPANNING")
@@ -39,7 +35,6 @@ endif()
 add_executable  (${PROJECT_NAME}  ${ProjectFiles})
 
 # we define which libraries to be linked with project binary
-#target_link_libraries (${PROJECT_NAME}  "-lm -lz -fopenmp")
 target_link_libraries (${PROJECT_NAME}  "-lm -lz")
 
 
