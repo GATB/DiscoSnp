@@ -122,12 +122,12 @@ char prefix(const char *pre, const char *str)
 p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per_set, const int nb_fragment_per_event, const char input_only_upper, const int index_stride){
 	char * temp_fragment = (char *) calloc (sizeof(char)*1048576,1); // fragment used for reading line by line
 	test_alloc(temp_fragment);
-	char * temp_fragment2 = (char *) malloc (sizeof(char)*131072); // fragment used for reading line by line
+	char * temp_fragment2 = (char *) malloc (sizeof(char)*1048576); // fragment used for reading line by line
 	test_alloc(temp_fragment2);
 	int witness;                                              // is a fragment was read ?
 	kmer_type coded_seed;
 	int i,z,stop;
-    char * line = malloc(sizeof(char)*1048576);
+    char * line = malloc(sizeof(char)*1048576); test_alloc(line);
     
     uint64_t total_seeds = 0 ;
     seeds = hash_create(100000);  	test_alloc(seeds);
@@ -165,20 +165,21 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
         else {
             //#else
             all_starters[fragment_id]->w = strdup(temp_fragment);  // the fragment is stored
+            test_alloc(all_starters[fragment_id]->w);
             //        printf("center = %s\n", all_starters[fragment_id]->w); // DEB
         }
         
         
         //#endif
-        all_starters[fragment_id]->mapped_with_current_read = (char *)malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->mapped_with_current_read);
+        all_starters[fragment_id]->mapped_with_current_read = (char *)malloc(sizeof(char)*number_of_read_sets);
         test_alloc(all_starters[fragment_id]->mapped_with_current_read);
-        all_starters[fragment_id]->tested_pwis_with_current_read = (listint **)malloc(sizeof(listint *)*number_of_read_sets); test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read);
-        test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read)
-		all_starters[fragment_id]->read_coherent = (char*) malloc(sizeof(char)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent);
+        all_starters[fragment_id]->tested_pwis_with_current_read = (listint **)malloc(sizeof(listint *)*number_of_read_sets);
+        test_alloc(all_starters[fragment_id]->tested_pwis_with_current_read);
+		all_starters[fragment_id]->read_coherent = (char*) malloc(sizeof(char)*number_of_read_sets);
         test_alloc(all_starters[fragment_id]->read_coherent);
-		all_starters[fragment_id]->number_mapped_reads = (int*) malloc(sizeof(int)*number_of_read_sets);test_alloc(all_starters[fragment_id]->number_mapped_reads);
+		all_starters[fragment_id]->number_mapped_reads = (int*) malloc(sizeof(int)*number_of_read_sets);
         test_alloc(all_starters[fragment_id]->number_mapped_reads);
-		all_starters[fragment_id]->read_coherent_positions = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);test_alloc(all_starters[fragment_id]->read_coherent_positions);
+		all_starters[fragment_id]->read_coherent_positions = (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);
         test_alloc(all_starters[fragment_id]->read_coherent_positions);
 		all_starters[fragment_id]->sum_qualities = (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);
         test_alloc(all_starters[fragment_id]->sum_qualities);
@@ -194,10 +195,9 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
 		{
             all_starters[fragment_id]->mapped_with_current_read[i] = 0;
             all_starters[fragment_id]->tested_pwis_with_current_read[i] = listint_create();
-			all_starters[fragment_id]->read_coherent_positions[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char)); test_alloc(all_starters[fragment_id]->read_coherent_positions[i]);
-            test_alloc(all_starters[fragment_id]->read_coherent_positions[i])
+			all_starters[fragment_id]->read_coherent_positions[i] = (unsigned char *) malloc (strlen(all_starters[fragment_id]->w)*sizeof(unsigned char));
+            test_alloc(all_starters[fragment_id]->read_coherent_positions[i]);
 
-			for(z=0;z<strlen(all_starters[fragment_id]->w); z++) all_starters[fragment_id]->read_coherent_positions[i][z]=0;
 			for(z=0;z<strlen(all_starters[fragment_id]->w); z++) all_starters[fragment_id]->read_coherent_positions[i][z]=0;
             
             
@@ -239,8 +239,7 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
     
     
     seed_table  = calloc(total_seeds,sizeof(couple));
-    
-    
+    test_alloc(seed_table);
     iterate_and_fill_offsets(seeds_count);
     
     
@@ -315,7 +314,7 @@ p_fragment_info * index_starters_from_input_file (const int k, int nb_events_per
     
     
 	free(temp_fragment);
-    
+	free(temp_fragment2);
     free(line);
     return all_starters;
 }

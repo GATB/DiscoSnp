@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 	// find the number of read sets
 	number_of_read_sets=0;
 	while(number_of_read_sets+2<argc && argv[number_of_read_sets+2][0]!='-') number_of_read_sets++;
-	char ** reads_file_names = (char **) malloc(sizeof(char *)*number_of_read_sets);
+	char ** reads_file_names = (char **) malloc(sizeof(char *)*number_of_read_sets); test_alloc(reads_file_names);
     char * coherent_file_name="";
     char * uncoherent_file_name="";
     char * samout_file_name="";
@@ -445,8 +445,11 @@ int main(int argc, char **argv) {
 //#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 //#endif
     for (i=0;i<number_of_read_sets;i+=increment){
+        printf("read set coherency %d\n",i); //DEBUG
         set_read_coherency(results_against_set, nb_events_per_set, number_paths_per_event, paired, min_coverage, i);
     }
+    
+    printf("Results analysis done, Print results\n");
     
     if (silented) silent=0;
     
@@ -460,6 +463,7 @@ int main(int argc, char **argv) {
     else
         print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, print_quality);
     
+    printf("printing done, free memory, and finish\n");
     free(seed_table);
     FreeHashTable((struct HashTable*)seeds_count);
     for (i=0;i<nb_events_per_set;i++)
