@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
     char map_invs=0; // input is an intl (read2sv) output.
     char split_contigs=0; // input is an assembly, we split configs into read coherent ones
     int min_contig_size=50;
-    only_print=0; // if "only_print" == 1 do not separate between coherent and uncoherent.
+    char only_print=0; // if "only_print" == 1 do not separate between coherent and uncoherent.
     
     char input_only_upper=0; // By default: all characters (upper or lower) are read
     int number_paths_per_event=1; // By default (generic usage) each event is composed by a unique sequence.
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 #ifdef OMP
      max_threads =  omp_get_num_procs();
 #endif
-    //	size_before_reads_starting=16384;
+
 	int min_coverage=2; // minimal number of reads per positions extending the initial fragment
     
 	if(argc<2){
@@ -367,18 +367,18 @@ int main(int argc, char **argv) {
     
 	char found;
 	// test if all formats are in fastq
-	quality=1;
+	char print_quality=1;
 	for (i=0;i<number_of_read_sets;i++){
-        quality &= strstr(reads_file_names[i],"fastq") || strstr(reads_file_names[i],"fq") || strstr(reads_file_names[i],"txt");
+        print_quality &= strstr(reads_file_names[i],"fastq") || strstr(reads_file_names[i],"fq") || strstr(reads_file_names[i],"txt");
 	}
-	if(quality) quality=1;
+	if(print_quality) print_quality=1;
     
     
     
 	for (i=0;i<number_of_read_sets;i++){
-        if (quality){
+        if (print_quality){
             found = strstr(reads_file_names[i],"fastq") || strstr(reads_file_names[i],"fq") || strstr(reads_file_names[i],"txt");
-            if (!found) quality=0;
+            if (!found) print_quality=0;
         }
         else
 	    {
@@ -387,14 +387,14 @@ int main(int argc, char **argv) {
 	    }
 	}
 	
-	file=gzopen(toCheck_file,"r");
-	if(file == NULL){
+	predictionFile=gzopen(toCheck_file,"r");
+	if(predictionFile == NULL){
         fprintf(stderr,"cannot open file %s, exit\n",toCheck_file);
         exit(1);
 	}
 	// how many fragments do we have (fragments are in fastq format)?
     char * line =  (char *)malloc(sizeof(char)*1048576); // 1048576
-	number_of_starters = number_of_sequences_in_file(file,line);
+	number_of_starters = number_of_sequences_in_file(predictionFile,line);
     free(line);
     
     nb_events_per_set = (number_of_starters/number_paths_per_event);
@@ -405,9 +405,12 @@ int main(int argc, char **argv) {
     }
     
     results_against_set = index_starters_from_input_file (size_seeds, nb_events_per_set, number_paths_per_event, input_only_upper, index_stride);
+	gzclose(predictionFile);
     
-     int nbthreads = number_of_read_sets;
-     if (nbthreads > max_threads) nbthreads = max_threads;
+    
+    
+    int nbthreads = number_of_read_sets;
+    if (nbthreads > max_threads) nbthreads = max_threads;
     
     if(!silent){
         printf("Mapping.\n");
@@ -431,7 +434,7 @@ int main(int argc, char **argv) {
         if(!silent) printf("\nCheck read coherence... vs reads from %s (set %d)\n", reads_file_names[i], i);
         
         printf("set %d\n", i);
-        read_mapping(reads_file_names, i, size_seeds,  min_coverage, results_against_set,  quality, sam_out, max_substitutions, minimal_read_overlap);
+        read_mapping(reads_file_names, i, size_seeds,  min_coverage, results_against_set,  print_quality, sam_out, max_substitutions, minimal_read_overlap);
        
     }
     
@@ -449,13 +452,13 @@ int main(int argc, char **argv) {
     
     
     if(number_paths_per_event==2)
-        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality,compute_genotypes, paired);
+        print_results_2_paths_per_event(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, print_quality,compute_genotypes, paired);
     else if(map_invs)
-        print_results_invs(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
+        print_results_invs(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, print_quality);
     else if(split_contigs)
         split_and_print_all_contigs(results_against_set, coherent_out, min_coverage, min_contig_size, nb_events_per_set); 
     else
-        print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, quality);
+        print_generic_results(coherent_out, uncoherent_out, results_against_set, number_of_read_sets, nb_events_per_set, print_quality);
     
     free(seed_table);
     FreeHashTable((struct HashTable*)seeds_count);
@@ -476,7 +479,6 @@ int main(int argc, char **argv) {
     free(results_against_set);
 
     
-	gzclose(file);
 	fclose(coherent_out);
 	if (!only_print) fclose(uncoherent_out);
 	if(sam_out) fclose(sam_out);

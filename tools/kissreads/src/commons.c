@@ -101,7 +101,6 @@ void init_static_variables(const int k){
 	nuc[2]='G';
 	nuc[3]='T';
 
-	anykmer = (char *) malloc(k+1); test_alloc(anykmer);
     
     
     mask_code_seed=1; // don't know why but 1<<(2*k)  does not work with k>32. This is why I made this stupid loop/
@@ -184,12 +183,12 @@ int get_next_sequence_and_comments_for_starters_fasta (char * sequence, char * c
 	char *rv;
 	char *p;
 	int nextchar=0;
-	rv=gzgets(file,(char *)comment,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
+	rv=gzgets(predictionFile,(char *)comment,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
 	
 
 	if(rv == NULL) return 0;
 	do{
-	  rv=gzgets(file,(char *)sequence,MAX_SIZE_LINE); //
+	  rv=gzgets(predictionFile,(char *)sequence,MAX_SIZE_LINE); //
 	}while(sequence[0]=='>');
 
 
@@ -198,12 +197,12 @@ int get_next_sequence_and_comments_for_starters_fasta (char * sequence, char * c
 	p = (char *)strchr((char*)sequence, '\r');
 	if (p) *p = '\0';
 
-	nextchar=gzgetc(file); // cheat, reads the next '>' character in order to induce EOF
+	nextchar=gzgetc(predictionFile); // cheat, reads the next '>' character in order to induce EOF
 
-	while (nextchar!='>' && !gzeof(file))
+	while (nextchar!='>' && !gzeof(predictionFile))
 	{
-		gzseek(file, -1, SEEK_CUR);
-		rv=gzgets(file,(char *)line,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
+		gzseek(predictionFile, -1, SEEK_CUR);
+		rv=gzgets(predictionFile,(char *)line,MAX_SIZE_LINE);// read comment ('>read00xxxx...\n')
 		rv = strchr(line, '\n'); // find the last \n char
 		if(rv) *rv = '\0';       // change it into \0
 		rv = strchr(line, '\r'); // find the last \r char
@@ -211,9 +210,9 @@ int get_next_sequence_and_comments_for_starters_fasta (char * sequence, char * c
 
 		strcat(sequence, line); // concat the restult in the sequence
 
-		nextchar=gzgetc(file); // cheat, reads the next '>' character in order to induce EOF
+		nextchar=gzgetc(predictionFile); // cheat, reads the next '>' character in order to induce EOF
 	}
-	gzseek(file, -1, SEEK_CUR); // Go back to previous read character
+	gzseek(predictionFile, -1, SEEK_CUR); // Go back to previous read character
     
 //#ifndef GET_ONLY_UPPER_CHARS
     if(!input_only_upper)
@@ -233,23 +232,23 @@ int get_next_sequence_and_comments_for_starters_fastq (char * sequence, char * c
 	//does not work if the sequence is written on several lines
 //	char * line = malloc(sizeof(char)*1048576);
 
-	rv=gzgets(file,(char *)comment,MAX_SIZE_LINE);// read comment1 ('@read00xxxx...\n')
+	rv=gzgets(predictionFile,(char *)comment,MAX_SIZE_LINE);// read comment1 ('@read00xxxx...\n')
 
 	if(rv == NULL) return 0;
 	do{
-	  rv=gzgets(file, (char *)sequence,MAX_SIZE_LINE); //
+	  rv=gzgets(predictionFile, (char *)sequence,MAX_SIZE_LINE); //
 	}while(sequence[0]=='@');
 
-	qv=gzgets(file, (char *)line,MAX_SIZE_LINE);// read comment2 ('+read00xxxx...\n')
+	qv=gzgets(predictionFile, (char *)line,MAX_SIZE_LINE);// read comment2 ('+read00xxxx...\n')
 	if(qv == NULL) return 0;
-	qv=gzgets(file, (char *)quality,MAX_SIZE_LINE); //
+	qv=gzgets(predictionFile, (char *)quality,MAX_SIZE_LINE); //
 
 	p = (char *)strchr((char*)sequence, '\n');
 	if (p) *p = '\0';
 	p = (char *)strchr((char*)sequence, '\r');
 	if (p) *p = '\0';
 
-	//nextchar=gzgetc(file); // cheat, reads the next '>' character in order to induce EOF
+	//nextchar=gzgetc(predictionFile); // cheat, reads the next '>' character in order to induce EOF
 //#ifndef GET_ONLY_UPPER_CHARS
     if(!input_only_upper)
         to_upper(sequence);
@@ -260,11 +259,11 @@ int get_next_sequence_and_comments_for_starters_fastq (char * sequence, char * c
 }
 
 int get_next_sequence_and_comments_for_starters (char * sequence, char * comment, const char input_only_upper, char * line){
-  char nextchar=gzgetc(file);
-  gzseek(file, -1, SEEK_CUR); // Go back to previous read character
+  char nextchar=gzgetc(predictionFile);
+  gzseek(predictionFile, -1, SEEK_CUR); // Go back to previous read character
   if(nextchar=='@') return  get_next_sequence_and_comments_for_starters_fastq(sequence, comment, input_only_upper,line);
   if(nextchar=='>') return  get_next_sequence_and_comments_for_starters_fasta(sequence, comment, input_only_upper,line);
-  gzgets(file, sequence,MAX_SIZE_LINE);
+  gzgets(predictionFile, sequence,MAX_SIZE_LINE);
   fprintf(stderr,"could not determine if the file is fasta or fastq in line %s, exit\n", sequence);
   exit(1);
 }

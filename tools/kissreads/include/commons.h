@@ -33,28 +33,26 @@
 #include <stdint.h>
 #include<zlib.h>
 #define MAX_SIZE_LINE 16777215
+// KMERS ARE LIMITED TO 32 Nucleotides
 typedef  uint64_t kmer_type;
-//int artificial_overlap;
+
+// ARRAYS
 char comp ['t'+1];
 char nuc [4];
+
+// OPTIONS
 char standard_fasta;
 char silent;
-char quality;
-char only_print;
-int kmer_size;
+
+// BINARY ALPHABET
 int size_seeds;
 int minimal_read_overlap;
 kmer_type mask_code_seed;
 
 int valid_character(const char c);
-int average_size_reads;
-int nb_event_sets;
 int number_of_read_sets;
-int size_before_reads_starting; // see fragment_info.h
-char * anykmer;
+
 char **  sort_strings (char ** strings, int number);
-//void * mymalloc(const int size);
-//void * mycalloc(const int size, const int size_2);
 char * mystrdup (const char *s1);
 void print_rev_comp(char s[], FILE* out);
 void revcomp(char s[], int len);
@@ -69,7 +67,7 @@ int get_next_fasta_sequence (gzFile file, char * read, char * line);
 int get_next_sequence_and_comments_for_fastq (gzFile file, char * sequence, char * comment, char * quality, char * line);
 int get_next_sequence_for_fastq (gzFile file, char * read, char * quality, char * line);
 int number_of_sequences_in_file(gzFile file, char * line);
-gzFile file;
+gzFile predictionFile;
 
 //uint64_t sum_memory;
 //uint64_t sum_memory_strdup;

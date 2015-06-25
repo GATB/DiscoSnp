@@ -56,14 +56,6 @@ void index_one_seed(const char * seed, const int fragment_id, const int position
 
 
 
-////void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int fragment_id, const int position_on_fragment){
-//void index_one_seed_using_nodes(const char * seed, const p_node fragment_node, const int position_on_fragment){
-//	node_couple * seed_info = create_node_couple(fragment_node, position_on_fragment);
-//	hash_add_something_to_list(seeds,(char *)seed,seed_info);
-//}
-
-
-
 
 
 char *  strdup_upper_case(char * in){

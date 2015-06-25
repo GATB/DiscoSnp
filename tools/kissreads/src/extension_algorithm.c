@@ -42,7 +42,6 @@
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
-int number_of_reads;
 
 //
 //// checks if, for a fragment, a tuple read/position mapped already (return 1) or none (return 0)
