@@ -214,6 +214,7 @@ void set_read_coherent_paired(p_fragment_info the_starter, const int min_coverag
             the_starter->read_coherent[read_file_id+1]=0;
             return;}
     the_starter->read_coherent[read_file_id]=1;
+    the_starter->read_coherent[read_file_id+1]=1;
 }
 
 
