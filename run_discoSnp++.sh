@@ -400,7 +400,7 @@ echo "there was a problem with the result sorting, command line: sort -rg $kissp
 exit
 fi
 
-rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
+#rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
 
 
 #######################################################################

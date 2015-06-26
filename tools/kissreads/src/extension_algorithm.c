@@ -513,13 +513,11 @@ void set_read_coherency(p_fragment_info * all_starters, const int nb_events_per_
     
     int starter_id;
 	for (starter_id=0;starter_id < nb_events_per_set*nb_fragment_per_event;starter_id++){
-        printf("%d ", starter_id); //DEBUG
         if (!paired)
             set_read_coherent(all_starters[starter_id], min_coverage, read_set_id);
         else
             set_read_coherent_paired(all_starters[starter_id], min_coverage, read_set_id);
 	} // end all fragments
-    printf("\n"); //DEBUG
 	
 	
     

@@ -445,7 +445,6 @@ int main(int argc, char **argv) {
 //#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(i)
 //#endif
     for (i=0;i<number_of_read_sets;i+=increment){
-        printf("read set coherency %d\n",i); //DEBUG
         set_read_coherency(results_against_set, nb_events_per_set, number_paths_per_event, paired, min_coverage, i);
     }
     

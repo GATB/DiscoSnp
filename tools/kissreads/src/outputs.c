@@ -298,20 +298,16 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
 	int sum_lo[number_of_read_sets];
 	int avg_lo[number_of_read_sets];
     
-    printf("A\n"); //DEB
     
 	int read_set_id;
     
    	if( qual ){
         
-        printf("B\n"); //DEB
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
             avg_up[read_set_id] = 0;
             avg_lo[read_set_id] = 0;
             
-            printf("C %d ", read_set_id); //DEB
             if(!paired){
-                printf(" C1 "); //DEB
                 if (results_against_set[cycle_id ]->nb_mapped_qualities[read_set_id]>0)
                     avg_up[read_set_id] += results_against_set[cycle_id  ]->sum_qualities[read_set_id] / results_against_set[cycle_id  ]->nb_mapped_qualities[read_set_id];
                 if (results_against_set[cycle_id+1]->nb_mapped_qualities[read_set_id]>0)
@@ -319,8 +315,6 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
             }
             else{ // PAIRED
                 
-                // TODO !!! JUNE 2015: pourquoi *2 ici !? à tester.
-                printf(" C2 "); //DEB
                 
                 if(results_against_set[cycle_id  ]->nb_mapped_qualities[read_set_id*2  ] + results_against_set[cycle_id  ]->nb_mapped_qualities[(read_set_id*2)+1] >0)
                     avg_up[read_set_id] += (results_against_set[cycle_id  ]->sum_qualities[read_set_id*2    ] + results_against_set[cycle_id  ]->sum_qualities[(read_set_id*2)+1] )
@@ -334,14 +328,10 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
             }
         }
     }
-    printf("\nD\n"); //DEB
 
 	//	float sum=0;
 	for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
-        printf("D %d (%d) ", read_set_id, number_of_read_sets); //DEB
         if (paired){
-            printf(" Dp ");
-             // TODO !!! JUNE 2015: pourquoi *2 ici !? à tester.
             sum_up[read_set_id]=results_against_set[cycle_id]->number_mapped_reads[read_set_id*2];
             sum_lo[read_set_id]=results_against_set[cycle_id+1]->number_mapped_reads[read_set_id*2];
             sum_up[read_set_id]+=results_against_set[cycle_id]->number_mapped_reads[read_set_id*2+1];
@@ -355,13 +345,10 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
 	}
     const float err = 0.01;
     const float prior_het = 1/(float)3;
-    printf("\nE\n"); //DEB
     float rank = rank_phi_N(sum_up,sum_lo,number_of_read_sets);
-    printf("\nF\n"); //DEB
     char genotypes[819200]; genotypes[0]='\0';
     char append[160000];
     
-    printf("\nG\n"); //DEB
     if(compute_genotype){
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
@@ -371,7 +358,6 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
             strcat(genotypes,append);
         }
     }
-     printf("\nH\n"); //DEB
     // DEAL WITH STANDARD FASTA OR ONE LINE PER COUPLE (STARTING WITH THE RANK)
     char sep;
     if (standard_fasta) {
@@ -385,45 +371,37 @@ void print_couple_i(char * comment, FILE* out, const p_fragment_info * results_a
     
     
     // UPPER PATH
-     printf("\nI\n"); //DEB
     fprintf(out, ">%s%s|",comment,results_against_set[cycle_id]->comment);
     for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
         fprintf(out, "C%d_%d|",read_set_id+1,sum_up[read_set_id]);
     }
     fprintf(out, "%s",genotypes);
-     printf("\nJ\n"); //DEB
     if (qual)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
             fprintf(out, "Q%d_%d|",read_set_id+1,avg_up[read_set_id]);
         }
-     printf("\nK\n"); //DEB
     fprintf(out, "rank_%.5f",rank);
-     printf("\nL\n"); //DEB
     
     if(map_snps)
         fprintf(out, "%c%s%s%s%c", sep, results_against_set[cycle_id]->left_extension, results_against_set[cycle_id]->w, results_against_set[cycle_id]->right_extension, sep);
     else
         fprintf(out, "%c%s%c", sep, results_against_set[cycle_id]->w, sep);
-     printf("\nM\n"); //DEB
     
     // LOWER PATH
     fprintf(out, ">%s%s|",comment,results_against_set[cycle_id+1]->comment);
     for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
         fprintf(out, "C%d_%d|",read_set_id+1,sum_lo[read_set_id]);
     }
-     printf("\nN\n"); //DEB
     fprintf(out, "%s",genotypes);
     if (qual)
         for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
             fprintf(out, "Q%d_%d|",read_set_id+1,avg_lo[read_set_id]);
         }
-     printf("\nO\n"); //DEB
     fprintf(out, "rank_%.5f",rank);
     if(map_snps)
         fprintf(out, "%c%s%s%s\n", sep,results_against_set[cycle_id+1]->left_extension, results_against_set[cycle_id+1]->w, results_against_set[cycle_id+1]->right_extension);
     else
         fprintf(out, "%c%s\n", sep,results_against_set[cycle_id+1]->w);
-     printf("\nP\n"); //DEB
 }
 
 
@@ -597,15 +575,12 @@ void print_results_2_paths_per_event(FILE * coherent_out, FILE * uncoherent_out,
 	
     
 	for(i=0;i<nb_events_per_set*2;i+=2){
-        printf("%d ",i); //DEBUG
 		if(one_coherent(results_against_set,i,number_of_read_sets) && one_coherent(results_against_set,i+1,number_of_read_sets))
 		{
-            printf("co ");
 			nb_read_coherent++;
 			print_couple_i("",coherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
 		}
 		else{
-            printf("unco ");
 			nb_unread_coherent++;
 			print_couple_i("", uncoherent_out, results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
 		}
