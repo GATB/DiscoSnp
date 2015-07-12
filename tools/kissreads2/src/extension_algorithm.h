@@ -53,9 +53,10 @@ public:
         this->read_set_id=read_set_id;
     };
 
-    void map_all_reads_from_a_file (
-                                GlobalValues & gv,
-                                FragmentIndex & index
+    u_int64_t map_all_reads_from_a_file (
+                                         GlobalValues & gv,
+                                         FragmentIndex & index,
+                                         IteratorListener _progress
                                 );
     
     

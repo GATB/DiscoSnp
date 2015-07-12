@@ -47,6 +47,7 @@ public:
     
     /** Implementation of Tool::execute method. */
     void execute ();
+    
 };
 
 #endif /* defined(__discoSnp_GATB__Kissreads2__) */

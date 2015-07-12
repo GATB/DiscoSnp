@@ -205,30 +205,28 @@ int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValu
  *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
  *    3) store this extending reads in the structure of the fragments (fragment_info)
  
- * returns the average read length
+ * returns the number of mapped reads
  */
-void ReadMapper::map_all_reads_from_a_file (
-                                GlobalValues & gv,
-                                FragmentIndex& index
+u_int64_t ReadMapper::map_all_reads_from_a_file (
+                                                 GlobalValues & gv,
+                                                 FragmentIndex& index,
+                                                 IteratorListener _progress
                                 ){
-
-    
-    
     //////////////////////////////////////////////////////////////////////////
 	/////////////// read all reads - storing those coherent with reads ///////
 	//////////////////////////////////////////////////////////////////////////
 	char * starter;
     uint64_t offset_seed;
     uint64_t nb_occurrences;
+    u_int64_t number_of_mapped_reads = 0;
     
 	// working variables
 	int read_len, i, ii,  pwi, stop, read_coherence;
     long int  read_number=0;
     
 	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
-	// book space for the read that going to be read.
     
-	   
+    
     listint * tested_starters = listint_create(); // given a read, stores all starter ids on which a seed was seen. Enables to free quickly list of tested pwis of each tested starters.
 	
     
@@ -236,10 +234,13 @@ void ReadMapper::map_all_reads_from_a_file (
     // We create an iterator over this bank.
     Iterator<Sequence>* it = inputBank->iterator();
     LOCAL (it);
+    
     // We loop over sequences.
     for (it->first(); !it->isDone(); it->next())
     {
         read_number++;
+        _progress.inc(1);
+        _progress.finish();
         // Shortcut
         Sequence& seq = it->item();
         char *read = strdup(seq.toString().c_str());
@@ -332,9 +333,8 @@ void ReadMapper::map_all_reads_from_a_file (
                         read_coherence = constrained_read_coherent(pwi, starter, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
 
                         if(read_coherence == 1){ // tuple read starter position is read coherent
-                            
+                            number_of_mapped_reads++;
                             index.all_predictions[value->a]->mapped_with_current_read[read_set_id]=true;
-                            
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
@@ -363,18 +363,13 @@ void ReadMapper::map_all_reads_from_a_file (
             
             
         } // end both directions
-        
         free(read);
         free(quality);
 	}// end all reads of the file
     
-    if(!gv.silent) printf("\r %ld reads treated\n", read_number);  // print progress
-    
-  
     listint_free(tested_starters);
     
-    
-
+    return number_of_mapped_reads;
 }
 
 

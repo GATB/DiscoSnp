@@ -62,11 +62,10 @@ echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and
 echo "Version "$version
 echo "Usage: ./run_discoSnp++.sh -r \"list of reads files separated by space\" [OPTIONS]"
 echo -e "\tMANDATORY:"
-echo -e "\t\t -r list of reads files separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
+echo -e "\t\t -r bank of reads" #list of reads files separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
 echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
 
 echo -e "\tDISCOSNP++ OPTIONS:"
-echo -e "\t\t -m: indicates that read sets are paired. Each couple of read sets is considered as paired (set1_1.fa set1_2.fa set2_1.fa set2_2.fa ...) "
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
@@ -112,9 +111,6 @@ case $opt in
 	remove=0
 	;;
 	
-	m)
-	paired="-P"
-	;;
 	
 	n)
 	genotyping=""
@@ -230,17 +226,6 @@ echo "Please indicate (option -B) the location of the discoSnp++ build directory
 exit 1  # fail
 fi
 
-######### CHECK THE number of readsets parity if the -P option is requiered ###########
-if [[ $paired == "-P" ]]
-then
-	nb_read_sets=`echo $read_sets | wc -w`
-	rest=$(( $nb_read_sets % 2 ))
-	if [ $rest -eq 1 ]
-	then
-	echo "[ERROR] You cannot ask for paired read sets with an odd number of read files ($nb_read_sets)"
-	exit
-	fi
-fi
 
 ######### CHECK THE k PARITY ##########
 rest=$(( $k % 2 ))
@@ -306,11 +291,11 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo "$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
+	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
-		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in `echo $read_sets | tr " " ","` -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
+		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
 		exit
 	fi
 
@@ -364,13 +349,15 @@ if (( $smallk>31))  ; then
 fi
 
 
-echo "$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
+echo "
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d"
 
-
-$DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d
+# $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis"
+echo "there was a problem with kissnp2, command line: 
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d"
 exit
 fi
 

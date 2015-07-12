@@ -58,19 +58,6 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
 }
 
 
-// We define a functor that will be cloned by the dispatcher
-struct Functor { void operator() (ReadMapper rm)
-    {
-//        rm.map_all_reads_from_a_file(gv,index);
-//        rm.set_read_coherency(gv,index);
-//        map_all_reads_from_a_file (banks_of_queries[read_set_id],
-//                                   read_set_id,
-//                                   gv,
-//                                   index
-//                                   );
-        // In this instruction block, we are executing in one of the nbCores threads
-        // created by the dispatcher. Note that 'i' is one value of our range
-    }};
 
 
 /*********************************************************************
@@ -88,6 +75,7 @@ void Kissreads2::execute ()
     IProperties* props= getInput();
     
     
+   
     
     
    
@@ -98,6 +86,7 @@ void Kissreads2::execute ()
     // We declare a Bank instance.
     BankAlbum banks (props->getStr(STR_URI_READS_INPUT));
     const std::vector<IBank*>& banks_of_queries = banks.getBanks();
+    u_int64_t nbReads = banks.estimateNbItems();
     
     GlobalValues gv;
     gv.silent=                  false; //TODO add an option
@@ -117,6 +106,8 @@ void Kissreads2::execute ()
     
     
     
+    
+    
     ofstream coherent_out;
     coherent_out.open(props->getStr(STR_URI_OUTPUT_COHERENT));
     
@@ -128,36 +119,61 @@ void Kissreads2::execute ()
     
     FragmentIndex index(predictions_bank.estimateNbItems());
     
-    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<" -- "<< gv.number_of_read_sets<< " read set(s)"<<endl;
+    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<" -- "<< gv.number_of_read_sets<< " read set(s) "<<nbReads<<" reads"<<endl;
     index.index_predictions (predictions_bank, gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
     
     
     cout<<"Mapping "<< gv.number_of_read_sets<< " read set(s) on prediction(s)"<<endl;
     
-#ifdef OMP
-#pragma omp parallel for if(nbthreads>1 && sam_out==NULL) num_threads(nbthreads) private(read_set_id)
-#endif
-    // We create an iterator over an integer range
-    vector<ReadMapper> vector;
-    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++) vector.push_back(ReadMapper(banks_of_queries[read_set_id],read_set_id));
     
     
-//    Dispatcher::Status status = getDispatcher()->iterate (*(vector.begin()), Functor());
     
-    for(std::vector<ReadMapper>::iterator it = vector.begin(); it != vector.end(); ++it) {
-        it->map_all_reads_from_a_file(gv,index);
-        it->set_read_coherency(gv,index);
-    }
+    Progress _progress (nbReads, "voyons le progres");
+    
+
+    
+    vector<ReadMapper> RMvector;
+    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++) RMvector.push_back(ReadMapper(banks_of_queries[read_set_id],read_set_id));
+    // Our job is to compute some dummy information from integers in an range.
+    // This range is configured with our two command line arguments.
+    // Here, we see how to retrieve the arguments values through the 'getInput' method
+    Range<u_int64_t> range (
+                            0,gv.number_of_read_sets-1
+                            );
+    
+    // We create an iterator over our integer range.
+    // Note how we use the Tool::createIterator method. According to the value of the "-verbose" argument,
+    // this method will add some progression bar if needed.
+    Iterator<u_int64_t>* iter = createIterator<u_int64_t> (range, "Dummy Message");
+    LOCAL (iter);
+    
+
+    // Total number of mapped reads
+    u_int64_t totalNumberOfMappedReads = 0;
+    // We want to get execution time. We use the Tool::getTimeInfo() method for this.
+    getTimeInfo().start ("mapping reads");
+    // We iterate the range through the Dispatcher we got from our Tool parent class.
+    // The dispatcher is configured with the number of cores provided by the "-nb-cores" command line argument.
+    IDispatcher::Status status = getDispatcher()->iterate (iter, [&] (const u_int64_t& i)
+                                                           {
+                                                              // MAP ALL READS OF THE READ SET i
+                                                               __sync_fetch_and_add (&totalNumberOfMappedReads, RMvector[i].map_all_reads_from_a_file(gv,index,_progress));
+                                                               // SET THE READ COHERENCY OF THIS READ SET.
+                                                               RMvector[i].set_read_coherency(gv,index);
+                                                           });
     
     
-//    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
-//        
-//        cout<<"map read set "<<read_set_id<<endl;
-//        ReadMapper rm (banks_of_queries[read_set_id],read_set_id);
-//        rm.map_all_reads_from_a_file(gv,index);
-//        rm.set_read_coherency(index,gv);
-//        
-//    }
+    _progress.finish();
+    getTimeInfo().stop ("mapping reads");
+    
+    
+    // We gather some statistics. Note how we use the getInfo() method from the parent class Tool
+    // If the verbosity is not 0, all this information will be dumped in the console at the end
+    // of the tool execution
+//    getInfo()->add (1, "output");
+    getInfo()->add (2, "Total Number of Mapped reads",     "%ld",  totalNumberOfMappedReads);
+    getInfo()->add (1, getTimeInfo().getProperties("Time"));
+   
     
     
     
@@ -167,38 +183,5 @@ void Kissreads2::execute ()
     coherent_out.close();
     uncoherent_out.close();
     
-    printf("printing done, free memory, and finish\n");
-   
-    
-//    free(seed_table);
-//    FreeHashTable((struct HashTable*)seeds_count);
-//    for (i=0;i<nb_events_per_set;i++)
-//    {
-//        free(results_against_set[i]->read_coherent);
-//        free(results_against_set[i]->number_mapped_reads);
-//        int read_set_id;
-//        for (read_set_id=0;read_set_id<number_of_read_sets;read_set_id++)
-//        {
-//            free(results_against_set[i]->read_coherent_positions[read_set_id]);
-//        }
-//        free(results_against_set[i]->read_coherent_positions);
-//        free(results_against_set[i]->sum_qualities);
-//        free(results_against_set[i]->nb_mapped_qualities);
-//        free(results_against_set[i]);
-//    }
-//    free(results_against_set);
-//    
-//    
-//    fclose(coherent_out);
-//    if (!only_print) fclose(uncoherent_out);
-//    if(sam_out) fclose(sam_out);
-//    if(!silent) {
-//        if(only_print) printf("Results are in %s", coherent_file_name);
-//        else printf("Results are in %s and %s", coherent_file_name, uncoherent_file_name);
-//        if(sam_out) printf(" (mapped reads are in %s)", samout_file_name);
-//        printf(".\n");
-//        after_all = time(NULL);
-//        printf("Total time: %.0lf secs\n",  difftime(after_all, before_all));
-//    }
-//    return 0;
+  
 }
