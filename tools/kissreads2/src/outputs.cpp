@@ -93,33 +93,6 @@ float rank_phi(const int *sum_up, const int *sum_lo, const int number_of_read_se
     return phimax;
 }
 
-//const char * genotype_simple_model(const int c1, const int c2, const float err){ // WITH PRIOR HET = 0.33
-//    const float lik0 = c1*log10(1-err)+c2*log10(err)+log10(Cnp(c1,c1+c2));
-//    const float lik1 = c2*log10(1-err)+c1*log10(err)+log10(Cnp(c1,c1+c2));
-//    const float lik2 = (c1+c2)*log10(0.5)+log10(Cnp(c1,c1+c2));
-//
-//
-////    revoyer les trois avec la plus petite du moins 1à comme reference de genotype.a
-//
-//
-//
-//    pow(1-err,c1)*pow(err,c2); // homozygous higher (0/0)
-//    const float lik1 = pow(1-err,c2)*pow(err,c1); // homozygous higher (1/1)
-//    const float lik2 = pow(0.5,c1+c2);            // heterozygous (0/1)
-//
-//    //    printf("%d %d LIKE %f %f %f \n", c1, c2, lik0, lik1, lik2);
-//
-//    const float prob0 = lik0*(1-prior_het)/2;
-//    const float prob1 = lik1*(1-prior_het)/2;
-//    const float prob2 = lik2*prior_het;
-//    //    printf("PROB %f %f %f \n", prob0, prob1, prob2);
-//
-//    if ( prob0>=prob1 &&  prob0>=prob2) return "0/0";
-//    if ( prob1>=prob0 &&  prob1>=prob2) return "1/1";
-//    return "0/1";
-//}
-
-
 /**
  * Computes the log10(Cnk)
  */
@@ -291,8 +264,8 @@ inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets){
 
 
 void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoherent_out,  FragmentIndex &index, GlobalValues & gv){
-    int nb_read_coherent=0;
-    int nb_unread_coherent=0;
+     index.nb_coherent=0;
+     index.nb_uncoherent=0;
     //printf("number ofread sets = %d\n", number_of_read_sets);
     
     //
@@ -309,18 +282,16 @@ void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoheren
         //        cout<<"HEY "<<one_coherent(index.all_predictions[i],gv.number_of_read_sets)<<" -- "<<one_coherent(index.all_predictions[i+1],gv.number_of_read_sets)<<endl; //DEB
         if(one_coherent(index.all_predictions[i],gv.number_of_read_sets) && one_coherent(index.all_predictions[i+1],gv.number_of_read_sets))
         {
-            nb_read_coherent++;
+            index.nb_coherent++;
             print_couple_i(coherent_out, index, i, gv);
             //                           results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
         }
         else{
-            nb_unread_coherent++;
+            index.nb_uncoherent++;
             print_couple_i(uncoherent_out, index, i, gv);
             //            , results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
         }
     }
-    
-    printf("Among %d bubble(s): %d read coherent bubble(s)\n", index.all_predictions.size()/2, nb_read_coherent);
 }
 
 

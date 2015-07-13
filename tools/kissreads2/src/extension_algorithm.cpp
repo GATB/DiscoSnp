@@ -49,7 +49,7 @@ void feed_coherent_positions(vector<FragmentInfo*> starters, const int starter_i
     
     
 	the_starter->number_mapped_reads[read_set_id]++;
-
+    
     if ( quality.length()>0 ){
         if (the_reference_starter->nbOfSnps>0) {
             //            printf("there are %d SNPs\n", the_reference_starter->nbOfSnps);
@@ -109,9 +109,8 @@ void feed_coherent_positions(vector<FragmentInfo*> starters, const int starter_i
  * Thus in this function, we return 0 if any substitution occurs on this central position, whatever the number of substitution_seen
  *  returns 1 if true between read and fragment, 0 else
  */
-char constrained_read_coherent(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions){
+bool constrained_read_coherent(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions){
 	int substitution_seen=0; // number of seen substitutions for now
-    
 	int pos_on_read, pos_on_fragment; // where to start
     
     //    print_mapping(pwi,fragment,read); //DEB
@@ -157,15 +156,15 @@ char constrained_read_coherent(const int pwi, const char * fragment, const char 
             fragment[pos_on_fragment]!='?' &&
             fragment[pos_on_fragment]!='N'){ // one subsitution
 			substitution_seen++;
-			if(substitution_seen>subst_allowed) return 0; // too much subsitutions
+			if(substitution_seen>subst_allowed) return false; // too much subsitutions
             if(pos_on_fragment==snp_pos) {
-                return 0; // substition should not be on the snp
+                return false; // substition should not be on the snp
             }
 		}
 		pos_on_fragment++;
 		pos_on_read++;
 	}
-	return 1;
+	return true;
 }
 
 
@@ -209,45 +208,34 @@ int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValu
  */
 u_int64_t ReadMapper::map_all_reads_from_a_file (
                                                  GlobalValues & gv,
-                                                 FragmentIndex& index,
-                                                 IteratorListener _progress
-                                ){
+                                                 FragmentIndex& index
+                                                 ){
     //////////////////////////////////////////////////////////////////////////
 	/////////////// read all reads - storing those coherent with reads ///////
 	//////////////////////////////////////////////////////////////////////////
-	char * starter;
-    uint64_t offset_seed;
-    uint64_t nb_occurrences;
-    u_int64_t number_of_mapped_reads = 0;
     
-	// working variables
-	int read_len, i, ii,  pwi, stop, read_coherence;
-    long int  read_number=0;
+    u_int64_t number_of_mapped_reads = 0;
     
 	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
     
+    // We create a sequence iterator for the bank with progress information
+    ProgressIterator<Sequence> iter (*inputBank, "Mapping read set");
     
-    listint * tested_starters = listint_create(); // given a read, stores all starter ids on which a seed was seen. Enables to free quickly list of tested pwis of each tested starters.
 	
-    
-	// read all the reads
-    // We create an iterator over this bank.
-    Iterator<Sequence>* it = inputBank->iterator();
-    LOCAL (it);
-    
-    // We loop over sequences.
-    for (it->first(); !it->isDone(); it->next())
-    {
-        read_number++;
-        _progress.inc(1);
-        _progress.finish();
+    // We loop over readss.
+    Dispatcher(nbCores,1).iterate (iter, [&] (Sequence& seq) {
+        map<u_int64_t, listint *>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
+        set<u_int64_t> mapped_prediction;                               // stores for this read, the succesfully mapped predictions
+        
         // Shortcut
-        Sequence& seq = it->item();
         char *read = strdup(seq.toString().c_str());
-        read_len = strlen(read);
+        const uint64_t read_len = strlen(read);
         char * quality = strdup(seq.getQuality().c_str());
         
         const int minimal_pwi = gv.minimal_read_overlap - seq.getDataSize();
+        uint64_t offset_seed;
+        uint64_t nb_occurrences;
+        
         
         // The read must overlap the fragment with at least minimal_read_overlap positions.
         // here is the first position on which the read may map :
@@ -262,44 +250,58 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         // minimal_pwi = minimal_read_overlap-|read|
         
         
-		stop = read_len-gv.size_seeds+1;
+		const int stop = read_len-gv.size_seeds+1;
 		// read all seeds present on the read:
         int direction;
         kmer_type coded_seed;
-        char toinit=1;
+        bool toinit=true;
         //        char validSeed;
         for(direction=0;direction<2;direction++){ // try the two possible directions of the read
-            toinit=1; // we have to init a new seed
-            for (i=0;i<stop;i++){ // for all possible seed on the read
+            toinit=true; // we have to init a new seed
+            for (int seed_position=0;seed_position<stop;seed_position++){ // for all possible seed on the read
                 if(toinit) {
-                    coded_seed=gv.codeSeed(read+i); // init the seed
-                    toinit=0;
+                    coded_seed=gv.codeSeed(read+seed_position); // init the seed
+                    toinit=false;
                 }
                 else { // previous seed was correct, we extend it.
-                    coded_seed=gv.updateCodeSeed(read+i,&coded_seed); // utpdate the previous seed with a
+                    coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the starter:
-                    for (ii=offset_seed; ii<offset_seed+nb_occurrences; ii++) {
-                        couple * value = &(index.seed_table[ii]);
+                    for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
+                        couple * value = &(index.seed_table[occurrence_id]);
+                        
+                        if (mapped_prediction.count(value->a)!=0) {
+                            continue; // This starter was already mapped with this read.
+                        }
+                        
+                        listint * tested_positions;
+                        if(tested_prediction_and_pwis[value->a]==0){
+                            tested_positions = listint_create();
+                            tested_prediction_and_pwis[value->a] = tested_positions;
+                        }
+                        else
+                            tested_positions = tested_prediction_and_pwis[value->a];
+                        
+                        
+                        
+                        
+                        
                         const char * starter = index.all_predictions[value->a]->upperCaseSequence.c_str();
                         
 #ifdef DEBUG_MAPPING
-                        cout<<"seed = "<<read+i<<"in "<<starter<<" pos "<<value->b<<starter+value->b<<endl;//DEB
+                        cout<<"seed = "<<read+seed_position<<"in "<<starter<<" pos "<<value->b<<starter+value->b<<endl;//DEB
 #endif
                         
+                        
 
-                        if(index.all_predictions[value->a]->mapped_with_current_read[read_set_id]) {
-                            continue; // a mach was already found with this starter, we consider only one match per couple (starter/read)
-                        }
-                        pwi = value->b-i; // starting position of the read on the starter.
-                        if (listint_contains(index.all_predictions[value->a]->tested_pwis_with_current_read[read_set_id],pwi)) {
+                        const int pwi = value->b-seed_position; // starting position of the read on the starter.
+                        
+                        if(listint_contains(tested_positions,pwi))
                             continue; // this reads was already (unsuccessfuly) tested with this starter at this position. No need to try it again.
-                        }
-                        if (numberInListint (index.all_predictions[value->a]->tested_pwis_with_current_read[read_set_id])==0){ // this is the first time we meet this starter with this read, we add it in the list of met starters (in order to free the pwis lists of each encounted starters for this read)
-                            listint_add(tested_starters,value->a);
-                        }
-                        listint_add(index.all_predictions[value->a]->tested_pwis_with_current_read[read_set_id],pwi); // We store the fact that this read was already tested at this position on this starter.
+                        listint_add(tested_positions,pwi); // We store the fact that this read was already tested at this position on this starter.
+                        
+                        
                         
                         
                         
@@ -314,7 +316,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         
                         const int maximal_pwi = strlen(starter)-gv.minimal_read_overlap;
                         
-//                        cout<<minimal_pwi<<"<"<<pwi<<"<"<<maximal_pwi<<"???"<< endl; //DEB
                         
                         if (pwi<minimal_pwi) {
                             continue; // this read to not overlap enough with the starter.
@@ -329,45 +330,41 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         //        <---> pwi (5)
                         // |starter| <= pwi+minimal_read_overlap
                         
-                        read_coherence=0;
-                        read_coherence = constrained_read_coherent(pwi, starter, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
-
-                        if(read_coherence == 1){ // tuple read starter position is read coherent
-                            number_of_mapped_reads++;
-                            index.all_predictions[value->a]->mapped_with_current_read[read_set_id]=true;
-                            
+                        bool read_coherent = constrained_read_coherent(pwi, starter, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
+                        
+                        
+                        
+                        if(read_coherent){ // tuple read starter position is read coherent
+                            __sync_fetch_and_add (&number_of_mapped_reads, 1);
+                            mapped_prediction.insert(value->a); // This starter whould not be mapped again with the same read
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
-                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, i, read_set_id, gv);
+                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
                             
                         } // end tuple read starter position is read coherent
                     }
                 } // end all infos for the current seed
             } // end all seeds of the read
             gv.revcomp(read);
-            
             gv.rev (quality);
             
-            // free the lists of tested positions:
-            cellint * tested_starter=tested_starters->first;
-            while (tested_starter != NULL)
-            {
-                listint_empty(index.all_predictions[tested_starter->val]->tested_pwis_with_current_read[read_set_id]);
-                index.all_predictions[tested_starter->val]->mapped_with_current_read[read_set_id] = false;
-                //                printf("freeing starter %d\n", *(int *)tested_starter->val); //DEB
-                tested_starter=tested_starter->prox;
+            
+            // show content:
+            for (std::map<u_int64_t, listint *> ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
+                listint_empty(it->second);
             }
-            listint_empty(tested_starters);
+            tested_prediction_and_pwis.clear();
+            mapped_prediction.clear();
             
             
         } // end both directions
         free(read);
         free(quality);
-	}// end all reads of the file
+	});// end all reads of the file
     
-    listint_free(tested_starters);
+    
     
     return number_of_mapped_reads;
 }
@@ -393,7 +390,7 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
 
 
 
-    
+
 
 
 

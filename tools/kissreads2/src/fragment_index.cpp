@@ -129,7 +129,8 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     Iterator<Sequence>* it = inputBank.iterator();
     LOCAL (it);
     
-
+   
+    
     
     // We loop over sequences.
     for (it->first(); !it->isDone(); it->next())
@@ -137,8 +138,6 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         
         FragmentInfo * currentFragment = new FragmentInfo(it->item());
 
-        currentFragment->mapped_with_current_read =      (bool *)malloc(sizeof(bool)*gv.number_of_read_sets);                          test_alloc(currentFragment->mapped_with_current_read);
-        currentFragment->tested_pwis_with_current_read = (listint **)malloc(sizeof(listint *)*gv.number_of_read_sets);                 test_alloc(currentFragment->tested_pwis_with_current_read);
 		currentFragment->read_coherent =                 (bool*) malloc(sizeof(bool)*gv.number_of_read_sets);                          test_alloc(currentFragment->read_coherent);
 		currentFragment->number_mapped_reads =           (int*) malloc(sizeof(int)*gv.number_of_read_sets);                            test_alloc(currentFragment->number_mapped_reads);
 		currentFragment->local_coverage =                (unsigned char**) malloc(sizeof(unsigned char*)*gv.number_of_read_sets);      test_alloc(currentFragment->local_coverage);
@@ -155,9 +154,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         
 		for (i=0; i<gv.number_of_read_sets; i++)
 		{
-            currentFragment->mapped_with_current_read[i] = false;
             currentFragment->read_coherent[i]=false;
-            currentFragment->tested_pwis_with_current_read[i] = listint_create();
             
             
 			currentFragment->local_coverage[i] = (unsigned char *) malloc(currentFragment->upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(currentFragment->local_coverage[i]);

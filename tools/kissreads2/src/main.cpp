@@ -23,7 +23,16 @@
 
 #include <Kissreads2.h>
 
+
 using namespace std;
+
+using namespace gatb::core;
+using namespace gatb::core::tools;
+using namespace gatb::core::bank;
+using namespace gatb::core::kmer::impl;
+
+using namespace gatb::core::system;
+using namespace gatb::core::system::impl;
 
 /********************************************************************************/
 
@@ -38,29 +47,22 @@ using namespace std;
 
 int main (int argc, char* argv[])
 {
+    u_int64_t a=17;
+    u_int64_t b=32;
+    u_int64_t nbcreated ;
     
-//    // We get the number of cores to be used.  If we don't give any number,
-//    // we set to 0 which implies the usage of all available cores
-//    size_t nbCores = (0);
-//    // We create an iterator over an integer range
-//    Range<int>::Iterator it (1,1000);
-//    // We create a dispatcher configured for 'nbCores' cores.
-//    Dispatcher dispatcher (nbCores);
-//    // We dispatch the range iteration with the dispatcher.
-//    // This will create nbCores threads and each thread will be fed with
-//    // one value of the defined range
-//    // NOTE: we could also use lambda expression (easing the code readability)
-//    IDispatcher::Status status = dispatcher.iterate (it, Functor());
-//    // We dump some information about the dispatching
-//    cout << "nbCores=" << status.nbCores << "  time=" << status.time << endl;
-//    // IMPORTANT: usage of Dispatcher has sense only if the iterated items
-//    // can be processed independently from each other.
-//    // The point to understand with the Dispatcher is that it can
-//    // iterate any instance of Iterator class. If you have any set of items
-//    // that can be enumerated through an Iterator implementation, then you
-//    // can parallelize the iteration with a Dispatcher instance
     
-    cout<<"TODO: / TESTS FASTQ / Standart fasta option"<<endl;    
+//    Hash16<u_int64_t, u_int64_t> * tested_starters_and_pwis = new Hash16<u_int64_t, u_int64_t>( 65 , &nbcreated );
+//    cout<<"nbcreated = "<<nbcreated;
+////    
+//    if (tested_starters_and_pwis->get(a, &b) == 0){
+//        cout<<"yé pas"<<endl;
+//        tested_starters_and_pwis->insert(a, b);
+//    }
+//    cout<<tested_starters_and_pwis->get(a, &b)<<endl;
+//    return 1;
+    
+    cout<<"TODO: / TESTS FASTQ / SEUIL PAR JEUX DE DONNEES"<<endl;
     
     
     // We define a try/catch block in case some method fails (bad filename for instance)

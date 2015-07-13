@@ -46,11 +46,8 @@ class FragmentInfo{
 public:
     Sequence sequence;
     string upperCaseSequence;
-//    char * comment;
 	// fixed once at the beggining:
     char * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
-    bool * mapped_with_current_read; // For every read set (because of parrallelization): in run time, set to 1 if a match was seen with a current read. Avoid multiple matches of the same read on this starter.
-    listint ** tested_pwis_with_current_read; // For every read set (because of parrallelization): in run time, all tested positions of the current read on this starter are stored. Avoids the computation redundances.
     int nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
 	bool * read_coherent;          // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
 	unsigned char ** local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
@@ -66,14 +63,12 @@ public:
     }
     
     FragmentInfo(FragmentInfo* ref){
-//        cout<<"recopie "<<ref->upperCaseSequence<<endl;
         sequence=ref->sequence;
         upperCaseSequence=ref->upperCaseSequence;
     }
     
     ~FragmentInfo(){
         
-//        cout<< " libere "<< upperCaseSequence<<endl; //DEB
     }
     
     void set_read_coherent(int read_file_id, GlobalValues gv){

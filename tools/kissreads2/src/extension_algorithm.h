@@ -47,16 +47,16 @@ class ReadMapper{
 public:
     IBank* inputBank;
     int read_set_id;
-    
-    ReadMapper(IBank* inputBank, int read_set_id){
+    size_t  nbCores;
+    ReadMapper(IBank* inputBank, int read_set_id, size_t  nbCores){
         this->inputBank=inputBank;
         this->read_set_id=read_set_id;
+        this->nbCores=nbCores;
     };
 
     u_int64_t map_all_reads_from_a_file (
                                          GlobalValues & gv,
-                                         FragmentIndex & index,
-                                         IteratorListener _progress
+                                         FragmentIndex & index
                                 );
     
     

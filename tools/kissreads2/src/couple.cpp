@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <commons.h>
-p_couple create_couple(int a,int b){
+p_couple create_couple(uint64_t a,uint64_t b){
 	p_couple cpl = (p_couple)malloc(sizeof(couple));
 	test_alloc(cpl);
 	cpl->a=a;
@@ -40,39 +40,6 @@ p_couple create_couple(int a,int b){
 
 void free_couple (const void * v_c){
 	couple * c = (couple *) v_c;
-	if(c != NULL){
-		free(c);
-	}
-}
-
-
-p_charint_couple create_charint_couple(char* a,int b){
-	p_charint_couple cpl = (p_charint_couple)malloc(sizeof(charint_couple));
-	test_alloc(cpl);
-	cpl->a=a;
-	cpl->b=b;
-	return cpl;
-}
-
-
-void free_charint_couple (const void * v_c){
-	charint_couple * c = (charint_couple *) v_c;
-	if(c != NULL){
-		free(c);
-	}
-}
-
-
-p_pointers_couple create_pointers_couple(void* a, void * b){
-	p_pointers_couple cpl = (p_pointers_couple)malloc(sizeof(pointers_couple));
-	test_alloc(cpl);
-	cpl->a=a;
-	cpl->b=b;
-	return cpl;
-}
-
-void free_pointers_couple (const void * v_c){
-	pointers_couple * c = (pointers_couple *) v_c;
 	if(c != NULL){
 		free(c);
 	}

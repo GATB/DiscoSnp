@@ -44,6 +44,9 @@ public:
     hash_t seeds; // hash table seed -> (fragment id, position)
     hash_t seeds_count;
     couple * seed_table;
+    u_int64_t nb_coherent;
+    u_int64_t nb_uncoherent;
+    
     
     vector<FragmentInfo*> all_predictions;
     

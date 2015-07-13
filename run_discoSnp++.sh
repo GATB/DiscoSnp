@@ -350,14 +350,13 @@ fi
 
 
 echo "
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d"
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d -abundance-min $c -genotype $option_cores_gatb"
 
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d
-# $DISCO_BUILD_PATH/tools/kissreads/kissreads $kissprefix.fa $read_sets -k $smallk -i $i -O $k -c $c -d $d -n $genotyping -o $kissprefix\_coherent -u $kissprefix\_uncoherent $paired $option_cores_post_analysis
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d -abundance-min $c -genotype $option_cores_gatb
+
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissnp2, command line: 
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d"
+echo "there was a problem with kissreads2": 
 exit
 fi
 

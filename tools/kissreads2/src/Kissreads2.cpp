@@ -115,28 +115,29 @@ void Kissreads2::execute ()
     uncoherent_out.open(props->getStr(STR_URI_OUTPUT_UNCOHERENT));
       
      
-    
+    getTimeInfo().start ("indexing");
     
     FragmentIndex index(predictions_bank.estimateNbItems());
     
     cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<" -- "<< gv.number_of_read_sets<< " read set(s) "<<nbReads<<" reads"<<endl;
     index.index_predictions (predictions_bank, gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
     
-    
-    cout<<"Mapping "<< gv.number_of_read_sets<< " read set(s) on prediction(s)"<<endl;
-    
+    getTimeInfo().stop ("indexing");
     
     
     
-    Progress _progress (nbReads, "voyons le progres");
+    
+    
     
 
     
     vector<ReadMapper> RMvector;
-    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++) RMvector.push_back(ReadMapper(banks_of_queries[read_set_id],read_set_id));
-    // Our job is to compute some dummy information from integers in an range.
-    // This range is configured with our two command line arguments.
-    // Here, we see how to retrieve the arguments values through the 'getInput' method
+    size_t  nb_cores = getDispatcher()->getExecutionUnitsNumber ();
+    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++) {
+        RMvector.push_back(ReadMapper(banks_of_queries[read_set_id],read_set_id,nb_cores));
+    }
+    
+    
     Range<u_int64_t> range (
                             0,gv.number_of_read_sets-1
                             );
@@ -144,7 +145,7 @@ void Kissreads2::execute ()
     // We create an iterator over our integer range.
     // Note how we use the Tool::createIterator method. According to the value of the "-verbose" argument,
     // this method will add some progression bar if needed.
-    Iterator<u_int64_t>* iter = createIterator<u_int64_t> (range, "Dummy Message");
+    Iterator<u_int64_t>* iter = createIterator<u_int64_t> (range, "");
     LOCAL (iter);
     
 
@@ -154,34 +155,40 @@ void Kissreads2::execute ()
     getTimeInfo().start ("mapping reads");
     // We iterate the range through the Dispatcher we got from our Tool parent class.
     // The dispatcher is configured with the number of cores provided by the "-nb-cores" command line argument.
-    IDispatcher::Status status = getDispatcher()->iterate (iter, [&] (const u_int64_t& i)
+    for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++)
                                                            {
-                                                              // MAP ALL READS OF THE READ SET i
-                                                               __sync_fetch_and_add (&totalNumberOfMappedReads, RMvector[i].map_all_reads_from_a_file(gv,index,_progress));
+                                                               // MAP ALL READS OF THE READ SET read_set_id
+                                                               totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index);
                                                                // SET THE READ COHERENCY OF THIS READ SET.
-                                                               RMvector[i].set_read_coherency(gv,index);
-                                                           });
+                                                               RMvector[read_set_id].set_read_coherency(gv,index);
+                                                           }
     
     
-    _progress.finish();
+    
+    
+    
+    
     getTimeInfo().stop ("mapping reads");
     
     
-    // We gather some statistics. Note how we use the getInfo() method from the parent class Tool
-    // If the verbosity is not 0, all this information will be dumped in the console at the end
-    // of the tool execution
-//    getInfo()->add (1, "output");
-    getInfo()->add (2, "Total Number of Mapped reads",     "%ld",  totalNumberOfMappedReads);
-    getInfo()->add (1, getTimeInfo().getProperties("Time"));
    
     
     
-    
-    printf("Results analysis done, Print results\n");
+    getTimeInfo().start ("print results");
     print_results_2_paths_per_event(coherent_out, uncoherent_out, index, gv);
+    getTimeInfo().stop ("print results");
     
     coherent_out.close();
     uncoherent_out.close();
     
-  
+    // We gather some statistics. Note how we use the getInfo() method from the parent class Tool
+    // If the verbosity is not 0, all this information will be dumped in the console at the end
+    // of the tool execution
+    getInfo()->add (1, "Stats");
+    getInfo()->add (2, "Total Number of Mapped reads",     "%ld",  totalNumberOfMappedReads);
+    getInfo()->add (1, "Outputs");
+    getInfo()->add (2, "Number of read coherent predictions",     "%ld",  index.nb_coherent);
+    getInfo()->add (2, "Number of read uncoherent predictions",     "%ld",  index.nb_uncoherent);
+    
+    getInfo()->add (1, getTimeInfo().getProperties("Time"));
 }
