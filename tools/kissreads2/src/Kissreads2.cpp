@@ -47,7 +47,7 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_INDEX_STRIDE,        "Index Stride", false, "2"));
     
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_SIZE_K,              "Size of k, used as minial overlap and kmer spanning read coherence",  false, "31"));
-    getParser()->push_front (new OptionOneParam (STR_KISSREADS_MIN_COVERAGE,        "Minimal coverage", false, "2"));
+//    getParser()->push_front (new OptionOneParam (STR_KISSREADS_MIN_COVERAGE,        "Minimal coverage", false, "2"));
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_MAX_HAMMING,         "Maximal hamming distance authorized while maping",     false, "1"));
     
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_COHERENT,           "Output coherent file name",                      true));
@@ -97,7 +97,22 @@ void Kissreads2::execute ()
     
     gv.number_of_read_sets=     banks_of_queries.size();
     gv.subst_allowed=           props->getInt (STR_KISSREADS_MAX_HAMMING);
-    gv.min_coverage=            props->getInt (STR_KISSREADS_MIN_COVERAGE);
+//    gv.min_coverage=            props->getInt (STR_KISSREADS_MIN_COVERAGE);
+    // We load a Storage product "foo" in HDF5 format
+    // It must have been created with the storage1 snippet
+    Storage* storage = StorageFactory(STORAGE_HDF5).load ("_removemeplease");
+    LOCAL (storage);
+    // Shortcut: we get the root of this Storage object
+    Group& root = storage->root();
+    // We get a collection of native integer from the storage.
+    Collection<NativeInt64>& myIntegers = root.getCollection<NativeInt64> ("cutoffs");
+    // We create an iterator for our collection.
+    Iterator<NativeInt64>* iterInt = myIntegers.iterator();
+    LOCAL (iterInt);
+    // Now we can iterate the collection through this iterator.
+    stringstream sstring_cutoffs;
+    for (iterInt->first(); !iterInt->isDone(); iterInt->next())  {  gv.min_coverage.push_back(iterInt->item().toInt());  sstring_cutoffs<<iterInt->item().toInt()<<" ";}
+    
     
     gv.compute_genotypes=       props->get    (STR_KISSREADS_GENOTYPE) != 0;
     gv.standard_fasta=          props->get    (STR_KISSREADS_OUTPUT_FASTA) != 0;
@@ -158,7 +173,7 @@ void Kissreads2::execute ()
     for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++)
                                                            {
                                                                // MAP ALL READS OF THE READ SET read_set_id
-                                                               totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index);
+                                                               totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
                                                                // SET THE READ COHERENCY OF THIS READ SET.
                                                                RMvector[read_set_id].set_read_coherency(gv,index);
                                                            }
@@ -186,6 +201,7 @@ void Kissreads2::execute ()
     // of the tool execution
     getInfo()->add (1, "Stats");
     getInfo()->add (2, "Total Number of Mapped reads",     "%ld",  totalNumberOfMappedReads);
+    getInfo()->add (2, "Minimal coveage per read set",      sstring_cutoffs.str());
     getInfo()->add (1, "Outputs");
     getInfo()->add (2, "Number of read coherent predictions",     "%ld",  index.nb_coherent);
     getInfo()->add (2, "Number of read uncoherent predictions",     "%ld",  index.nb_uncoherent);

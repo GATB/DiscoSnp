@@ -56,7 +56,8 @@ public:
 
     u_int64_t map_all_reads_from_a_file (
                                          GlobalValues & gv,
-                                         FragmentIndex & index
+                                         FragmentIndex & index,
+                                         const int read_set_id
                                 );
     
     
@@ -64,5 +65,4 @@ public:
 };
 
 
-//void set_read_coherency(FragmentInfo * all_starters, const int nb_events_per_set, const int nb_fragment_per_event, const int min_coverage, const int read_set_id);
 #endif /* EXTENSION_ALGORITHM_H_ */

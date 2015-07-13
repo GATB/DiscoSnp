@@ -1,6 +1,0 @@
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/thirdparty/kissreads/include)
-ADD_EXECUTABLE(kissreads commons.c extension_algorithm.c interface_libchash.c libchash.c outputs.c coherent_algorithm.c couple.c fragment_index.c kissReads.c list.c tree.c)
-IF(UNIX)
-  TARGET_LINK_LIBRARIES(kissreads m)
-ENDIF(UNIX)
-install(TARGETS kissreads DESTINATION bin)

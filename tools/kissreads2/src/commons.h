@@ -62,7 +62,7 @@ public:
     kmer_type mask_code_seed;
     int number_of_read_sets;
     int subst_allowed;
-    int min_coverage;
+    vector<int> min_coverage; //minimal coverage per read set
     
     uint64_t  mask_nbseed;
     uint64_t  mask_offset_seed;

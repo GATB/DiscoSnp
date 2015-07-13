@@ -350,9 +350,9 @@ fi
 
 
 echo "
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d -abundance-min $c -genotype $option_cores_gatb"
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  -genotype $option_cores_gatb"
 
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d -abundance-min $c -genotype $option_cores_gatb
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  -genotype $option_cores_gatb
 
 if [ $? -ne 0 ]
 then
@@ -361,7 +361,7 @@ exit
 fi
 
 T="$(($(date +%s)-T))"
-echo "Kissreads (mapping reads on bubbles) time in seconds: ${T}"
+# echo "Kissreads (mapping reads on bubbles) time in seconds: ${T}"
 
 
 echo -e "\t###############################################################"
@@ -386,7 +386,7 @@ echo "there was a problem with the result sorting, command line: sort -rg $kissp
 exit
 fi
 
-#rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
+rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
 
 
 #######################################################################

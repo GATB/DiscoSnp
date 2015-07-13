@@ -84,14 +84,14 @@ public:
         const int stop=upperCaseSequence.size()-gv.minimal_read_overlap;
 //        cout<<"YYYY stop "<<stop<<" rfid "<<read_file_id<<endl; //DEB
         if(stop<=0){
-            if(local_coverage[read_file_id][0]<gv.min_coverage) {read_coherent[read_file_id]=false; return;}
+            if(local_coverage[read_file_id][0]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
             read_coherent[read_file_id]=true; return;
         }
 #else
         const int stop=strlen(upperCaseSequence);
 #endif
 //        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<<endl; //DEB
-        for(i=0;i<stop;i++) if((unsigned int)local_coverage[read_file_id][i]<gv.min_coverage) {read_coherent[read_file_id]=false; return;}
+        for(i=0;i<stop;i++) if((unsigned int)local_coverage[read_file_id][i]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
         read_coherent[read_file_id]=true;
     }
 

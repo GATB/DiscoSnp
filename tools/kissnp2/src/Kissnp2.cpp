@@ -85,6 +85,28 @@ void Kissnp2::execute ()
     /** We load the graph from the provided uri. */
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
     
+    istringstream iss(graph.getInfo().getStr("thresholds"));
+    vector<string> tokens{istream_iterator<string>{iss},
+        istream_iterator<string>{}};
+
+    /** We store in a _removemeplease.txt file the used coverages */
+    // We create a Storage product "_removemeplease.h5" in HDF5 format
+    Storage* storage = StorageFactory(STORAGE_HDF5).create ("_removemeplease", true, false);
+    LOCAL (storage);
+    Group& root = storage->root();
+    Collection<NativeInt64>& myIntegers = root.getCollection<NativeInt64> ("cutoffs");
+    
+    for (std::vector<string>::iterator it=tokens.begin(); it!=tokens.end(); ++it)
+//        std::cout << ' ' << *it;
+        myIntegers.insert (atoi(it->c_str()));
+    
+    myIntegers.flush();
+    
+    
+    
+
+    
+    
     /** We want to get some statistics about the execution. */
     BubbleFinder::Stats stats;
     

@@ -208,7 +208,8 @@ int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValu
  */
 u_int64_t ReadMapper::map_all_reads_from_a_file (
                                                  GlobalValues & gv,
-                                                 FragmentIndex& index
+                                                 FragmentIndex& index,
+                                                 const int read_set_id
                                                  ){
     //////////////////////////////////////////////////////////////////////////
 	/////////////// read all reads - storing those coherent with reads ///////
@@ -219,13 +220,14 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
     
     // We create a sequence iterator for the bank with progress information
-    ProgressIterator<Sequence> iter (*inputBank, "Mapping read set");
+    ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
     
 	
     // We loop over readss.
     Dispatcher(nbCores,1).iterate (iter, [&] (Sequence& seq) {
         map<u_int64_t, listint *>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
         set<u_int64_t> mapped_prediction;                               // stores for this read, the succesfully mapped predictions
+
         
         // Shortcut
         char *read = strdup(seq.toString().c_str());
