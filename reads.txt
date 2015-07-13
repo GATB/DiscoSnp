@@ -1,0 +1,2 @@
+data_sample/reads_sequence1.fasta.gz
+data_sample/reads_sequence2.fasta.gz
