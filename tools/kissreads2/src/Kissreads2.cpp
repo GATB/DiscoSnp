@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Pierre Peterlongo. All rights reserved.
 //
 
-#include "kissreads2.h"
+#include <Kissreads2.h>
 
 
 
