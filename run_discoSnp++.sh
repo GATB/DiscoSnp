@@ -291,8 +291,8 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb
+	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind one $option_cores_gatb
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind one $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"

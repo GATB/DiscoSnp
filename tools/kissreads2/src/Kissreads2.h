@@ -27,6 +27,7 @@
 #define STR_KISSREADS_SIZE_SEEDS           "-size_seeds"
 #define STR_KISSREADS_INDEX_STRIDE         "-index_stride"
 #define STR_KISSREADS_SIZE_K               "-k"
+#define STR_KISSREADS_COVERAGE_FILE_NAME   "-coverage_file"
 //#define STR_KISSREADS_MIN_COVERAGE         "-abundance-min"
 #define STR_URI_OUTPUT_COHERENT            "-co"
 #define STR_URI_OUTPUT_UNCOHERENT          "-unco"
