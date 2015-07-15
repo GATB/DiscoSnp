@@ -49,7 +49,7 @@ remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
 
-useref=false
+useref=""
 genome="" 
 bwa_path_option=""
 bwa_distance=4
@@ -102,7 +102,7 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 while getopts ":r:p:k:c:C:d:D:b:P:htTlRmgnG:B:M:u:" opt; do
 case $opt in
        R)
-       useref=true
+       useref="true"
        output_coverage_option="-dont_output_first_coverage"
        ;;
        
@@ -222,21 +222,22 @@ exit
 fi
 
 
-if [ -z "$genome" ]; then
-       if [ "$useref" ]; then
+c_dbgh5=$c
+rm -f ${read_sets}_removemeplease
+if [[ "$useref" == "true" ]]; then
+
+       if [ -z "$genome" ]; then
               echo "You can't use option -R without providing a reference genome (-G)"
               help
               exit
        fi
-fi
-
-if [ "$useref" ]; then
+              
        echo $genome > ${read_sets}_removemeplease
        c_dbgh5="1,"$c
        echo $c_dbgh5
 fi
 cat $read_sets >> ${read_sets}_removemeplease
-c_dbgh5 = $c
+
 
 if [ -d "$DISCO_BUILD_PATH" ] ; then
 echo "Binaries in $DISCO_BUILD_PATH"
