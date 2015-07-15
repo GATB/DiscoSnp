@@ -234,7 +234,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     // LOWER PATH
     fasta_out<<">"<<index.all_predictions[fragment_id+1]->sequence.getComment()<<"|";
     for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
-        fasta_out<<"C"<<read_set_id+1<<"_"<<sum_up[read_set_id]<<"|";
+        fasta_out<<"C"<<read_set_id+1<<"_"<<sum_lo[read_set_id]<<"|";
     }
     for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
         fasta_out<<"Q"<<read_set_id+1<<"_"<<avg_lo[read_set_id]<<"|";
