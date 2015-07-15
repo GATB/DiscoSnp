@@ -53,7 +53,6 @@ public:
     unsigned char *nuc; //[4];
     // OPTIONS
     bool standard_fasta;
-    bool silent;
     // BINARY ALPHABET
     int size_seeds;
     int index_stride;

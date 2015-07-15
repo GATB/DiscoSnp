@@ -32,6 +32,7 @@
 #define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
 #define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
 #define STR_KISSNP2_COVERAGE_FILE_NAME     "-coverage_file"
+#define STR_KISSNP2_DONT_OUTPUT_FIRST_COV  "-dont_output_first_coverage"
 
 #define STR_MAX_DEL_SIZE                   "-D"
 #define STR_MAX_POLYMORPHISM               "-P"

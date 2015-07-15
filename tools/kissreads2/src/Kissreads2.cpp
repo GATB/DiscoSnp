@@ -90,7 +90,6 @@ void Kissreads2::execute ()
     u_int64_t nbReads = banks.estimateNbItems();
     
     GlobalValues gv;
-    gv.silent=                  false; //TODO add an option
     gv.size_seeds=              props->getInt (STR_KISSREADS_SIZE_SEEDS);
     gv.index_stride=            props->getInt (STR_KISSREADS_INDEX_STRIDE);
     gv.minimal_read_overlap=    props->getInt (STR_KISSREADS_SIZE_K);
@@ -98,7 +97,6 @@ void Kissreads2::execute ()
     
     gv.number_of_read_sets=     banks_of_queries.size();
     gv.subst_allowed=           props->getInt (STR_KISSREADS_MAX_HAMMING);
-//    gv.min_coverage=            props->getInt (STR_KISSREADS_MIN_COVERAGE);
     // We load a Storage product "foo" in HDF5 format
     // It must have been created with the storage1 snippet
     Storage* storage = StorageFactory(STORAGE_HDF5).load (props->getStr (STR_KISSREADS_COVERAGE_FILE_NAME));

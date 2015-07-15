@@ -34,7 +34,7 @@ read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
-c=4 # minimal coverage
+c=auto # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
@@ -42,13 +42,14 @@ D=0 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble
 l="-l"
 extend=""
-genotyping="-g"
+output_coverage_option=""
+genotyping="-genotype"
 paired=""
 remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
 
-
+useref=false
 genome="" 
 bwa_path_option=""
 bwa_distance=4
@@ -60,10 +61,10 @@ bwa_distance=4
 function help {
 echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
 echo "Version "$version
-echo "Usage: ./run_discoSnp++.sh -r \"list of reads files separated by space\" [OPTIONS]"
+echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
 echo -e "\tMANDATORY:"
-echo -e "\t\t -r bank of reads" #list of reads files separated by space, surrounded by the '\"' character. Note that reads may be in fasta or fastq format, gzipped or not."
-echo -e "\t\t    Example: -r \"data_sample/reads_sequence1.fasta   data_sample/reads_sequence2.fasta.gz\"."
+echo -e "\t\t -r read_file_of_files" 
+echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz" 
 
 echo -e "\tDISCOSNP++ OPTIONS:"
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
@@ -78,13 +79,14 @@ echo -e "\t\t -l: remove low complexity bubbles"
 echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
 echo -e "\t\t -t: extend found polymorphisms with unitigs"
 echo -e "\t\t -T: extend found polymorphisms with contigs"
-echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). Default=4"
-echo -e "\t\t -C value. Set the maximal coverage per read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
+echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
+echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
 echo -e "\t\t -u: max number of used threads\n"
 echo -e "\tVCF CREATION OPTIONS"
 echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
+echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
 echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
 echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
@@ -97,8 +99,13 @@ echo "Any further question: read the readme file or contact us: pierre.peterlong
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlmgnG:B:M:u:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlRmgnG:B:M:u:" opt; do
 case $opt in
+       R)
+       useref=true
+       output_coverage_option="-dont_output_first_coverage"
+       ;;
+       
 	t)
 	extend="-t"
 	;;
@@ -215,7 +222,21 @@ exit
 fi
 
 
-	
+if [ -z "$genome" ]; then
+       if [ "$useref" ]; then
+              echo "You can't use option -R without providing a reference genome (-G)"
+              help
+              exit
+       fi
+fi
+
+if [ "$useref" ]; then
+       echo $genome > ${read_sets}_removemeplease
+       c_dbgh5="1,"$c
+       echo $c_dbgh5
+fi
+cat $read_sets >> ${read_sets}_removemeplease
+c_dbgh5 = $c
 
 if [ -d "$DISCO_BUILD_PATH" ] ; then
 echo "Binaries in $DISCO_BUILD_PATH"
@@ -268,10 +289,7 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
-if [[ $paired == "-P" ]]
-then
-	echo -e "\t\t Reads are paired"
-fi
+
 echo -e -n "\t starting date="
 date
 echo
@@ -291,8 +309,8 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind one $option_cores_gatb
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind one $option_cores_gatb
+	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
@@ -311,12 +329,12 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2, command line: $DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb"
+    echo "there was a problem with kissnp2"
     exit
 fi
 
@@ -350,9 +368,9 @@ fi
 
 
 echo "
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  -genotype $option_cores_gatb"
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  $genotyping $option_cores_gatb"
 
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  -genotype $option_cores_gatb
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  $genotyping $option_cores_gatb
 
 if [ $? -ne 0 ]
 then
