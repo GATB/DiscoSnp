@@ -34,21 +34,21 @@
 
 #include <outputs.h>
 
-/*Calculates the phi coefficient of 2*2 contingency table. Value close to 1 indicates an association between the alleles and the conditions.*/
-/*Note that this value is valid if at least 3 out of the 4 values are non 0, or if the .Otherwise it output -1*/
-float phi(int a,int b, int c,int d) {
-    //  int denom=(a+b)*(c+d)*(a+c)*(b+d);
-    //  if (denom==0)
-    //    return 0;
-    //  float Phi = (a*d-b*c)/sqrt(denom);
-    //  return Phi;
-    if((a+b)==0) return 0;
-    if((c+d)==0) return 0;
-    if((a+c)==0) return 0;
-    if((b+d)==0) return 0;
-    // avoid the computation of denom, possibly bigger than an int or an unsigned long long int...
-    return (a*d-b*c)/(sqrt((float)(a+b))*sqrt((float)(c+d))*sqrt((float)(a+c))*sqrt((float)(b+d)));
-}
+///*Calculates the phi coefficient of 2*2 contingency table. Value close to 1 indicates an association between the alleles and the conditions.*/
+///*Note that this value is valid if at least 3 out of the 4 values are non 0, or if the .Otherwise it output -1*/
+//float phi(int a,int b, int c,int d) {
+//    //  int denom=(a+b)*(c+d)*(a+c)*(b+d);
+//    //  if (denom==0)
+//    //    return 0;
+//    //  float Phi = (a*d-b*c)/sqrt(denom);
+//    //  return Phi;
+//    if((a+b)==0) return 0;
+//    if((c+d)==0) return 0;
+//    if((a+c)==0) return 0;
+//    if((b+d)==0) return 0;
+//    // avoid the computation of denom, possibly bigger than an int or an unsigned long long int...
+//    return (a*d-b*c)/(sqrt((float)(a+b))*sqrt((float)(c+d))*sqrt((float)(a+c))*sqrt((float)(b+d)));
+//}
 
 /*Computes the chi2 value of the matrix 2*number_of_read_sets */
 float rank_phi_N (const int *sum_up, const int *sum_lo, const int number_of_read_sets) {
@@ -74,24 +74,24 @@ float rank_phi_N (const int *sum_up, const int *sum_lo, const int number_of_read
     return sqrt(som/n);
 }
 
-/*Computes all pairwise phi values for all pairs of conditions and returns the max*/
-float rank_phi(const int *sum_up, const int *sum_lo, const int number_of_read_sets) {
-    float phimax=0;
-    if (number_of_read_sets==1)
-        return 0;
-    else
-    {
-        int i,j;
-        float phicur=0;
-        for (i=0;i<number_of_read_sets;i++)
-            for (j=i+1;j<number_of_read_sets;j++)
-            {
-                phicur=phi(sum_up[i],sum_up[j],sum_lo[i],sum_lo[j]);
-                phimax=MAX(phimax,ABS(phicur));
-            }
-    }
-    return phimax;
-}
+///*Computes all pairwise phi values for all pairs of conditions and returns the max*/
+//float rank_phi(const int *sum_up, const int *sum_lo, const int number_of_read_sets) {
+//    float phimax=0;
+//    if (number_of_read_sets==1)
+//        return 0;
+//    else
+//    {
+//        int i,j;
+//        float phicur=0;
+//        for (i=0;i<number_of_read_sets;i++)
+//            for (j=i+1;j<number_of_read_sets;j++)
+//            {
+//                phicur=phi(sum_up[i],sum_up[j],sum_lo[i],sum_lo[j]);
+//                phimax=MAX(phimax,ABS(phicur));
+//            }
+//    }
+//    return phimax;
+//}
 
 /**
  * Computes the log10(Cnk)

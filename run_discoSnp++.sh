@@ -38,7 +38,7 @@ c=auto # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
-D=0 # maximal size of searched deletions
+D=100 # maximal size of searched deletions
 P=1 # number of polymorphsim per bubble
 l="-l"
 extend=""
@@ -72,7 +72,7 @@ echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=0"
+echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
 echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
 echo -e "\t\t -l: remove low complexity bubbles"
@@ -83,16 +83,19 @@ echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (
 echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
-echo -e "\t\t -u: max number of used threads\n"
-echo -e "\tVCF CREATION OPTIONS"
-echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the create VCF won't contain mapping related results."
+echo -e "\t\t -u: max number of used threads"
+
+
+echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
+
+echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
 echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
 echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
 echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
 echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
 echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
 echo -e "\t\t -h: Prints this message and exist"
-echo "Any further question: read the readme file or contact us: pierre.peterlongo@inria.fr"
+echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
 
@@ -223,7 +226,7 @@ fi
 
 
 c_dbgh5=$c
-rm -f ${read_sets}_removemeplease
+rm -f _removemeplease*
 if [[ "$useref" == "true" ]]; then
 
        if [ -z "$genome" ]; then
@@ -266,10 +269,7 @@ else
 fi
 kissprefix=$h5prefix\_D_$D\_P_$P\_b_$b
 
-if [[ $l == "-l" ]]
-then
-	kissprefix=$kissprefix\_withlow
-fi
+
 
 
 #######################################################################
@@ -407,6 +407,7 @@ fi
 
 rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
 
+rm -f *_removemeplease*
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
