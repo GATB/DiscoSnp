@@ -226,7 +226,7 @@ fi
 
 
 c_dbgh5=$c
-rm -f _removemeplease*
+rm -f *_removemeplease*
 if [[ "$useref" == "true" ]]; then
 
        if [ -z "$genome" ]; then
@@ -314,7 +314,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
-		echo "there was a problem with graph construction, command line: $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $read_sets -out $h5prefix -kmer-size $k -abundance-min $c -abundance-max $C -solidity-kind max $option_cores_gatb"
+		echo "there was a problem with graph construction"
 		exit
 	fi
 
