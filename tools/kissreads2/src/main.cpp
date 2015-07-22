@@ -62,7 +62,6 @@ int main (int argc, char* argv[])
 //    cout<<tested_starters_and_pwis->get(a, &b)<<endl;
 //    return 1;
     
-    cout<<"TODO: / TESTS FASTQ / SEUIL PAR JEUX DE DONNEES"<<endl;
     
     
     // We define a try/catch block in case some method fails (bad filename for instance)

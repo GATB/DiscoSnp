@@ -46,6 +46,7 @@
 class ReadMapper{
 public:
     IBank* inputBank;
+    
     int read_set_id;
     size_t  nbCores;
     ReadMapper(IBank* inputBank, int read_set_id, size_t  nbCores){
