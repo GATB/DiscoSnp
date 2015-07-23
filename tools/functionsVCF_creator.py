@@ -533,14 +533,14 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                                         i+=1
                 else:
                         pos+=1
-                if pos==posCentraleRef: # Checks if the current position pos is identical to the position of the variant 
+                if pos==posCentraleRef+1: # Checks if the current position pos is identical to the position of the variant 
                         if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is different in the variant and in the reference
                                 boolEgalRef=False
                                 nucleoRef=parsingPosMut[i]
-                        else: #If the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
+                        else: #If the last item of the list of the MD tag is an integer => it means that the nucleotide of the allele is identical to the reference
                                 boolEgalRef=True
                         break
-                if pos>posCentraleRef: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
+                if pos>posCentraleRef+1: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
                         boolEgalRef=True
                         break
                 i+=1
@@ -1120,6 +1120,13 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
+    print discoNameUp
+    print dicoUp
+    print dicoLow
+    print listPolymorphismPosUp
+    print listPolymorphismPosLow
+    print snpUp
+    print snpLow
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -1133,6 +1140,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         indexSmallestPosLow=listPolymorphismPosLow.index(listSortedPosLow[0])
         boolRefUp=dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][0]
         boolRefLow=dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][0]
+        
         #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
         if boolRefUp==True and boolRefLow==True:
             #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
