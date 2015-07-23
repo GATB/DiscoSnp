@@ -221,8 +221,6 @@ if ".sam" in fileName: #Checks if it's a samfile
         
         discoNameUp,snpUp,numSNPUp,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,valRankUp,listCoverageUp,listCUp,nb_polUp,posDUp,ntUp,ntLow,genoUp,dicoHeaderUp=ParsingDiscoSNP(line1,0)
         discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow,listCoverageLow,listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(line2,0)
-        print snpUp
-        print snpLow
         #Verifies that the samfile is formatted
         if 0 in [c in "ACGT" for c in snpUp[9]] or len(snpUp)<11:#Checks if it is really a sequence at the 9th place in the line
                 print "WARNING wrong format for the variant : "+str(discoNameUp)
