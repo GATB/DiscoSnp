@@ -194,31 +194,45 @@ int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValu
     return val_min;
 }
 
-// We define a functor that will be cloned by the dispatcher
-struct Functor
-{
+
+/**
+ * Performs the first extension of the algorithm:
+ * For each starter:
+ *  - verify which reads maps on it with at most subst_allowed substitutions
+ *  - for fragments that are fully covered by reads (each position is covered at least once):
+ *    1) add their id in a list (that is returned by the function)
+ *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
+ *    3) store this extending reads in the structure of the fragments (fragment_info)
+ 
+ * returns the number of mapped reads
+ */
+u_int64_t ReadMapper::map_all_reads_from_a_file (
+                                                 GlobalValues & gv,
+                                                 FragmentIndex& index,
+                                                 const int read_set_id
+                                                 ){
+    //////////////////////////////////////////////////////////////////////////
+	/////////////// read all reads - storing those coherent with reads ///////
+	//////////////////////////////////////////////////////////////////////////
     
-    map<u_int64_t, listint *>  tested_prediction_and_pwis;          // stores for each read, the pwi positions tested for each prediction.
-    set<u_int64_t> mapped_prediction;                               // stores for each read, the succesfully mapped predictions
+    u_int64_t number_of_mapped_reads = 0;
     
-    GlobalValues & gv;                                              // provides commoin information
-    FragmentIndex& index;                                           // shared index (read only)
-    const int read_set_id;                                          // wich read set is being treated currently
+	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
     
+    // We create a sequence iterator for the bank with progress information
+    ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
     
-    u_int64_t& number_of_mapped_reads;                              // shared ressource. Need a syncro for eahc thread.
-    
-    
-    
-    Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t& number_of_mapped_reads)  : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads) {}
-    
-    void operator() (Sequence& seq)                                 // for each read: map it!
-    {
+	
+    // We loop over reads
+    Dispatcher(nbCores,1).iterate (iter, [&] (Sequence& seq) {
+        map<u_int64_t, listint *>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
+        set<u_int64_t> mapped_prediction;                               // stores for this read, the succesfully mapped predictions
+
         
         // Shortcut
         char *read = strdup(seq.toString().c_str());
+        const uint64_t read_len = strlen(read);
         char * quality = strdup(seq.getQuality().c_str());
-        
         
         const int minimal_pwi = gv.minimal_read_overlap - seq.getDataSize();
         uint64_t offset_seed;
@@ -238,7 +252,7 @@ struct Functor
         // minimal_pwi = minimal_read_overlap-|read|
         
         
-		const int stop = strlen(read)-gv.size_seeds+1;
+		const int stop = read_len-gv.size_seeds+1;
 		// read all seeds present on the read:
         int direction;
         kmer_type coded_seed;
@@ -282,12 +296,11 @@ struct Functor
 #endif
                         
                         
-                        
+
                         const int pwi = value->b-seed_position; // starting position of the read on the starter.
                         
                         if(listint_contains(tested_positions,pwi))
                             continue; // this reads was already (unsuccessfuly) tested with this starter at this position. No need to try it again.
-                        
                         listint_add(tested_positions,pwi); // We store the fact that this read was already tested at this position on this starter.
                         
                         
@@ -351,39 +364,9 @@ struct Functor
         } // end both directions
         free(read);
         free(quality);
-    }
-};
-
-
-/**
- * Performs the first extension of the algorithm:
- * For each starter:
- *  - verify which reads maps on it with at most subst_allowed substitutions
- *  - for fragments that are fully covered by reads (each position is covered at least once):
- *    1) add their id in a list (that is returned by the function)
- *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
- *    3) store this extending reads in the structure of the fragments (fragment_info)
- 
- * returns the number of mapped reads
- */
-u_int64_t ReadMapper::map_all_reads_from_a_file (
-                                                 GlobalValues & gv,
-                                                 FragmentIndex& index,
-                                                 const int read_set_id
-                                                 ){
-    //////////////////////////////////////////////////////////////////////////
-	/////////////// read all reads - storing those coherent with reads ///////
-	//////////////////////////////////////////////////////////////////////////
+	});// end all reads of the file
     
-    u_int64_t number_of_mapped_reads = 0;
-	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
     
-    // We create a sequence iterator for the bank with progress information
-    ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
-    
-	// We loop over reads
-    Dispatcher(nbCores,1).iterate (iter, Functor(gv, index, read_set_id, number_of_mapped_reads));
-   
     
     return number_of_mapped_reads;
 }

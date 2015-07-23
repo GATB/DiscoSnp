@@ -63,7 +63,7 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
     getParser()->push_front (new OptionNoParam (STR_KISSNP2_DONT_OUTPUT_FIRST_COV, "Don't output the first coverage threshold. Use this option whent the refernece file is used for finding the variants",  false));
     
     
-    getParser()->push_front (new OptionOneParam (STR_MAX_DEL_SIZE,                  "maximal size of a deletion", false, "0"));
+    getParser()->push_front (new OptionOneParam (STR_MAX_INDEL_SIZE,                "maximal size of a predicted indel", false, "0"));
     getParser()->push_front (new OptionOneParam (STR_MAX_POLYMORPHISM,              "maximal number of polymorphism per bubble", false, "1"));
     
     
