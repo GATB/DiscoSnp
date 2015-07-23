@@ -28,10 +28,10 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 igvfiletemp=$(basename $vcffile .vcf)"_for_IGV.vcf.tmp"
 igvfile=$(basename $vcffile .vcf)"_for_IGV.vcf"
 cat $vcffile|grep "#">$igvfile
-cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "^SNP"|grep -v "^INDEL">>$igvfiletemp
-python $DIR/tools/one2zeroBased_vcf.py $igvfiletemp 
-cat VCFone2zeroBAsed.vcf >> $igvfile
-rm -f $igvfiletemp VCFone2zeroBAsed.vcf
+cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "^SNP"|grep -v "^INDEL">>$igvfile
+#python $DIR/tools/one2zeroBased_vcf.py $igvfiletemp 
+#cat VCFone2zeroBAsed.vcf >> $igvfile
+#rm -f $igvfiletemp VCFone2zeroBAsed.vcf
 echo -e "... Creation of the vcf file for IGV: done ...==> $igvfile"
 
 

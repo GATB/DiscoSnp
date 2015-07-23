@@ -157,7 +157,7 @@ def ParsingDiscoSNP(snp,boolNum):
                         chaine=j.split(":")
                         key=chaine[0]
                         chaine1=chaine[1].split('_')
-                        posD=chaine1[0]
+                        posD=int(chaine1[0])
                         chaine2=chaine1[1].split('/')
                         ntUp=chaine2[0]
                         ntLow=chaine2[1]
@@ -173,7 +173,7 @@ def ParsingDiscoSNP(snp,boolNum):
                         posD=int(chaine1[0])
                         ind=int(chaine1[1])
                         amb=int(chaine1[2])
-                        dicoHeader[key]=[posD,ind,amb] ##### !!! Essential in case of indel 
+                        dicoHeader[key]=[posD,ind,amb] ##### !!! Essential in case of indel
         elif "INDEL" in i: #Gets the ID of an indel
             INDEL=True
             ID= i.split('_')
@@ -533,14 +533,14 @@ def ReferenceChecker(shift,posMut,posCentraleRef):
                                         i+=1
                 else:
                         pos+=1
-                if pos==posCentraleRef+1: # Checks if the current position pos is identical to the position of the variant 
+                if pos==posCentraleRef: # Checks if the current position pos is identical to the position of the variant 
                         if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is different in the variant and in the reference
                                 boolEgalRef=False
                                 nucleoRef=parsingPosMut[i]
                         else: #If the last item of the list of the MD tag is an integer => it means that the nucleotide of the allele is identical to the reference
                                 boolEgalRef=True
                         break
-                if pos>posCentraleRef+1: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
+                if pos>posCentraleRef: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
                         boolEgalRef=True
                         break
                 i+=1
@@ -931,12 +931,12 @@ def GetPolymorphism(dicoHeader,seq,indel,boolSmallest):
     listPosR=[]
     listnucleoUpR=[]
     listnucleoLowR=[]
-    tailleSeq=len(seq)-1#0-based
+    tailleSeq=len(seq)
     insert=None
     ntStart=None
     if indel==False:##Case of simple snp
         for key,(posD,ntUp,ntLow) in dicoHeader.items(): #Goes through the dictionary of parsed header
-            listPos.append(int(posD)) #Adds the position of the variant
+            listPos.append(int(posD)+1) #Adds the position of the variant
             listPosR.append(tailleSeq-int(posD)) #Adds the reverse position of the variant
             listnucleoUp.append(ntUp) #Adds the allele of the upper path
             listnucleoUpR.append(ReverseComplement(ntUp))#Adds the reverse allele of the upper path
@@ -1120,13 +1120,6 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
-    print discoNameUp
-    print dicoUp
-    print dicoLow
-    print listPolymorphismPosUp
-    print listPolymorphismPosLow
-    print snpUp
-    print snpLow
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
