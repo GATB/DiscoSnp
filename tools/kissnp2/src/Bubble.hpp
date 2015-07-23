@@ -34,7 +34,7 @@
 #define STR_KISSNP2_COVERAGE_FILE_NAME     "-coverage_file"
 #define STR_KISSNP2_DONT_OUTPUT_FIRST_COV  "-dont_output_first_coverage"
 
-#define STR_MAX_DEL_SIZE                   "-D"
+#define STR_MAX_INDEL_SIZE                   "-D"
 #define STR_MAX_POLYMORPHISM               "-P"
 
 
@@ -88,6 +88,14 @@ struct Bubble
     
     // is this bubble of high complexity.
     bool high_complexity;
+    
+    /** indicates if the bubble passes the complexity filter (high complexity or don't care about complexity) */
+    bool acceptable_complexity;
+    
+    
+    
+    /** indicates when a predicted bubble is finished,  if it is canonical */
+    bool isCanonical;
     
     int type; // 0 = isolated SNP, 1 = isolated insertion, ... other to come
     
@@ -206,9 +214,10 @@ protected:
     int max_polymorphism;
     
     /** Max deletion size **/
-    int max_del_size;
+    int max_indel_size;
 
     bool accept_low; // Option set: do we accept low complexity bubbles
+    
    
     std::queue<std::pair<Node,std::string> > breadth_first_queue;
     
@@ -306,8 +315,8 @@ protected:
     /** Check whether the first kmer of the first path is smaller than the first kmer
      * of the revcomp(first path), this should avoid repeated SNPs
      * \param[in] path : branch of a bubble.
-     * \return true if first path is lower than last reverse path. */
-    bool checkPath (Bubble& bubble) const;
+     * \return set isCanonical to true if first path is lower than last reverse path. */
+    void checkPath (Bubble& bubble) const;
 
     /** Check bubble according to user choice for branching.
      * \param[in] node 1 : bubble branch last node
@@ -318,9 +327,9 @@ protected:
     /** Check complexity for a bubble.
      * \param[in] path1 : branch of the bubble
      * \param[in] path2 : branch of the bubble
-     * \return true if the complexity is ok or if we accept low complexity bubbles.
+     * set acceptable_complexity to  true if the complexity is ok or if we accept low complexity bubbles.
      */
-    bool checkLowComplexity (Bubble& bubble) const;
+    void checkLowComplexity (Bubble& bubble) const;
 
     /** Fill a Sequence object for a given branch of a bubble.
      * \param[in] path : branch of the bubble.

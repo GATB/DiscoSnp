@@ -29,8 +29,8 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.1.6"
-read_sets="" # FOR instance: "read_set1.fa.gz read_set2.fq.gz"
+version="2.2.1"
+read_sets="" # A file of file(s)
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
