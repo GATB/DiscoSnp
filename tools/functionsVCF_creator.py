@@ -948,8 +948,8 @@ def GetPolymorphism(dicoHeader,seq,indel,boolSmallest):
             listPos.append(posD+1)#Adds the position of the variant
             listPosR.append(tailleSeq-int(posD))#Adds the reverse position of the variant
             if boolSmallest==False: #If we have teh sequence of the longest path : gets the insert
-                insert=seq[(int(posD-1)-1):(int(posD-1)+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
-                ntStart=seq[(int(posD-1)-1)] #Get the nucleotide just before the insertion
+                insert=seq[(int(posD)):(int(posD)+1+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
+                ntStart=seq[(int(posD))] #Get the nucleotide just before the insertion
             ambiguityPos=amb #Gets the possible ambiguity for the insertion
         return(listPos,listPosR,insert,ntStart,ambiguityPos)
 ##############################################################
