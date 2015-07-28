@@ -805,15 +805,9 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
             nucleoRefUp="." #No nucleotide for the reference
             nucleoRefLow="."
         if (int(snpUp[3])>0 and int(snpLow[3])>0): #Checks if both paths are mapped
-            if indel==True: #In case of indel : defines which path will be considered as the reference in function of the mapping position
+            if indel==True : #In case of indel : defines which path will be considered as the reference in function of the mapping position
                 posSNPUp=posCentraleUp+posRef-int(ambiguityPos) #taking into account the possible ambiguity for the indel position
                 posSNPLow=posCentraleLow+posRef-int(ambiguityPos)
-                if snpUp[9]<snpLow[9]: #Checks with path has the lefmost position to determine the reference
-                    boolRefUp=True
-                    boolRefLow=False
-                else:
-                    boolRefUp=False
-                    boolRefLow=True
             else: #In case of simple snps
                 posSNPUp=posCentraleUp+posRef #Position of the variant on the path (+shift from the reference)+ mapping position given by bwa
                 posSNPLow=posCentraleLow+posRef
@@ -948,7 +942,7 @@ def GetPolymorphism(dicoHeader,seq,indel,boolSmallest):
             listPos.append(posD+1)#Adds the position of the variant
             listPosR.append(tailleSeq-int(posD))#Adds the reverse position of the variant
             if boolSmallest==False: #If we have teh sequence of the longest path : gets the insert
-                insert=seq[(int(posD)):(int(posD)+1+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
+                insert=seq[(int(posD)+1):(int(posD)+1+int(ind))] #Gets the insert with the position on the variant (just on forward sequence)
                 ntStart=seq[(int(posD))] #Get the nucleotide just before the insertion
             ambiguityPos=amb #Gets the possible ambiguity for the insertion
         return(listPos,listPosR,insert,ntStart,ambiguityPos)

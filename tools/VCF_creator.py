@@ -300,6 +300,15 @@ if ".sam" in fileName: #Checks if it's a samfile
                 #Creation VCF
                 table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterField,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
                 printOneline(table,VCF)
+                print "Which is the ref ?"
+                print snpUp
+                print boolRefUp
+                print snpLow
+                print boolRefLow                
+                print "NucleoUp"
+                print nucleoUp  
+                print "NucleoLow"
+                print nucleoLow                  
                 continue
     
             else:
@@ -336,6 +345,11 @@ if ".sam" in fileName: #Checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
             #Gets the positons of the variant by taking into account the shift of mapping
             nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow= RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
+            print "Which is the ref ?"
+            print snpUp
+            print boolRefUp
+            print snpLow
+            print boolRefLow
             #Checks the strand (forward or reverse) to have the right sequence of insert
             if boolRefUp==True and reverseUp==-1:
                 insert=ReverseSeq(insert)
@@ -350,6 +364,10 @@ if ".sam" in fileName: #Checks if it's a samfile
             else:
                 nucleoUp=insert
                 nucleoLow=ntStart
+            print "NucleoUp"
+            print nucleoUp  
+            print "NucleoLow"
+            print nucleoLow      
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##Fills the VCF if the upper path is considered as the reference
