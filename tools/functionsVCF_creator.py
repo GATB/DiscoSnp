@@ -834,14 +834,15 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 posSNPLow=dicoHeaderUp["P_1"][0]
 #---------------------------------------------------------------------------------------------------------------------------        
         ##Checks the strand : if the alternative nucleotide is not on the same strand as the reference : reverse it
-        if boolRefLow==True and reverseLow==-1 and reverseUp==1:
-               nucleoUp=ReverseComplement(nucleoUp)
-        elif boolRefLow==True and reverseLow==1 and reverseUp==-1:
-               nucleoUp=ReverseComplement(nucleoUp)
-        if boolRefUp==True and reverseUp==-1 and reverseLow==1:
-               nucleoLow=ReverseComplement(nucleoLow)
-        elif boolRefUp==True and reverseUp==1 and reverseLow==-1:
-               nucleoLow=ReverseComplement(nucleoLow)
+        if int(nb_polUp)==1 and indel==False:
+                if boolRefLow==True and reverseLow==-1 and reverseUp==1:
+                       nucleoUp=ReverseComplement(nucleoUp)
+                elif boolRefLow==True and reverseLow==1 and reverseUp==-1:
+                       nucleoUp=ReverseComplement(nucleoUp)
+                if boolRefUp==True and reverseUp==-1 and reverseLow==1:
+                       nucleoLow=ReverseComplement(nucleoLow)
+                elif boolRefUp==True and reverseUp==1 and reverseLow==-1:
+                       nucleoLow=ReverseComplement(nucleoLow)
 #---------------------------------------------------------------------------------------------------------------------------
         ##Checks which path is chosen : if there are both different from the reference=> use the function MismatchChecker
         if boolRefUp==False and boolRefLow==False:

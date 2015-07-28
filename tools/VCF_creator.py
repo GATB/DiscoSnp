@@ -328,12 +328,12 @@ if ".sam" in fileName: #Checks if it's a samfile
         ##Case of INDEL                   
         if "INDEL" in snpUp[0] :
             indel=True
+            strand=None
             seqInsert=0
             seqUp=snpUp[9]
             seqLow=snpLow[9]
             #To know in which sequence the insertion is and to get it
             #Reverse the sequence to get the good mapped insert if it needs to
-            seqUp,seqLow=GetSequence(snpUp,snpLow)
             if len(seqUp)<len(seqLow):
                 seq=seqLow
             else:
@@ -345,29 +345,23 @@ if ".sam" in fileName: #Checks if it's a samfile
 #---------------------------------------------------------------------------------------------------------------------------
             #Gets the positons of the variant by taking into account the shift of mapping
             nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow= RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
-            print "Which is the ref ?"
-            print snpUp
-            print boolRefUp
-            print snpLow
-            print boolRefLow
-            #Checks the strand (forward or reverse) to have the right sequence of insert
-            if boolRefUp==True and reverseUp==-1:
-                insert=ReverseSeq(insert)
-                ntStart=ReverseComplement(ntStart)
-            elif boolRefLow==True and reverseLow==-1:
-                insert=ReverseSeq(insert)
-                ntStart=ReverseComplement(ntStart)
             #Checks if the insert correpond to the upper path or to the lower path
             if len(seqUp)<len(seqLow):
                 nucleoLow=insert
                 nucleoUp=ntStart
-            else:
+                strand=reverseLow
+            else:               
                 nucleoUp=insert
                 nucleoLow=ntStart
-            print "NucleoUp"
-            print nucleoUp  
-            print "NucleoLow"
-            print nucleoLow      
+                strand=reverseUp               
+            #Checks the strand (forward or reverse) to have the right sequence of insert
+            if boolRefUp==True and reverseUp!=strand:
+                insert=ReverseSeq(insert)
+                ntStart=ReverseComplement(ntStart)
+            elif boolRefLow==True and reverseLow!=strand:
+                insert=ReverseSeq(insert)
+                ntStart=ReverseComplement(ntStart)
+  
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
             ##Fills the VCF if the upper path is considered as the reference
