@@ -325,13 +325,13 @@ else
 	echo -e "File $h5prefix.h5 exists. We use it as input graph"
 fi
 	
-
+# LIMIT THE NUMBER OF CORE TO 2 FOR KISSNP2: IT'S FAST WHILE EACH CORE DUPLICATES THE MEMORY USAGE.
 T="$(date +%s)"      
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option
+echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend -nb-cores 2 $output_coverage_option"
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend -nb-cores 2 $output_coverage_option
 
 if [ $? -ne 0 ]
 then
