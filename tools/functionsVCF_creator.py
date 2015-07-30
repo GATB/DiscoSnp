@@ -1105,10 +1105,6 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
     oldGeno=geno.copy()
-    print"******"
-    print snpUp
-    print "oldgeno"
-    print oldGeno
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -1266,7 +1262,6 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
     coverage=None
     #cov="C1=53425,22;C2=1,2;C3=30,94832;C4=3,2;C5=19,65370"
     listcov=cov.split(";") #['C1=53425,22', 'C2=1,2', 'C3=30,94832', 'C4=3,2', 'C5=19,65370']
-    print geno
     if int(nbGeno)==0:
         return table
     else:
