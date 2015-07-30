@@ -34,44 +34,44 @@
 
 
 
-void feed_coherent_positions(vector<FragmentInfo*> starters, const int starter_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
+void feed_coherent_positions(vector<FragmentInfo*> predictions, const int prediction_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
     
     
-    int i, start_on_starter, stop_on_starter;
-	if(start<0) start_on_starter=0;
-    else start_on_starter=start;
+    int i, start_on_prediction, stop_on_prediction;
+	if(start<0) start_on_prediction=0;
+    else start_on_prediction=start;
     
-    FragmentInfo* the_starter=starters[starter_id];
-    FragmentInfo* the_reference_starter = starters[2*(starter_id/2)]; // In case of snps, only the upper path starter contains informations such as the positions of the SNPs. This is the reference?
+    FragmentInfo* the_prediction=predictions[prediction_id];
+    FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference?
 	
-    if(start+length_read<the_starter->upperCaseSequence.size()) stop_on_starter=start+length_read;
-    else stop_on_starter=the_starter->upperCaseSequence.size();
+    if(start+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=start+length_read;
+    else stop_on_prediction=the_prediction->upperCaseSequence.size();
     
     
-	the_starter->number_mapped_reads[read_set_id]++;
+	the_prediction->number_mapped_reads[read_set_id]++;
     
     if ( quality.length()>0 ){
-        if (the_reference_starter->nbOfSnps>0) {
-            //            printf("there are %d SNPs\n", the_reference_starter->nbOfSnps);
+        if (the_reference_prediction->nbOfSnps>0) {
+            //            printf("there are %d SNPs\n", the_reference_prediction->nbOfSnps);
             int snp_id;
-            for(snp_id=0;snp_id<the_reference_starter->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
-                //                printf("the_reference_starter->SNP_positions[%d]=%d \n", snp_id, the_reference_starter->SNP_positions[snp_id]); //DEB
-                i=the_reference_starter->SNP_positions[snp_id];
-                //                printf(" %d \n", start_on_read + i - start_on_starter); //DEB
-                the_starter->sum_qualities[read_set_id] += (unsigned int) quality[start_on_read + i - start_on_starter];
-                the_starter->nb_mapped_qualities[read_set_id] += 1;
+            for(snp_id=0;snp_id<the_reference_prediction->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
+                //                printf("the_reference_prediction->SNP_positions[%d]=%d \n", snp_id, the_reference_prediction->SNP_positions[snp_id]); //DEB
+                i=the_reference_prediction->SNP_positions[snp_id];
+                //                printf(" %d \n", start_on_read + i - start_on_prediction); //DEB
+                the_prediction->sum_qualities[read_set_id] += (unsigned int) quality[start_on_read + i - start_on_prediction];
+                the_prediction->nb_mapped_qualities[read_set_id] += 1;
             }
         }
         else{ // we sum all qualities and divide by the number of positions
             int sum_temp=0;
             int denom=0;
-            for(i=start_on_starter;i<stop_on_starter;i++) { // to avoid to increase too much the the_starter->sum_qualities array, we add the average quality of the whole read.
+            for(i=start_on_prediction;i<stop_on_prediction;i++) { // to avoid to increase too much the the_prediction->sum_qualities array, we add the average quality of the whole read.
                 denom+=1;
-                sum_temp+=(unsigned int) quality[start_on_read + i - start_on_starter];
+                sum_temp+=(unsigned int) quality[start_on_read + i - start_on_prediction];
             }
             if(denom>0){
-                the_starter->sum_qualities[read_set_id] += (unsigned int)sum_temp/denom;
-                the_starter->nb_mapped_qualities[read_set_id] += 1;
+                the_prediction->sum_qualities[read_set_id] += (unsigned int)sum_temp/denom;
+                the_prediction->nb_mapped_qualities[read_set_id] += 1;
             }
         }
     }
@@ -82,15 +82,15 @@ void feed_coherent_positions(vector<FragmentInfo*> starters, const int starter_i
     // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
     // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped
 	
-    //  -------------------------------------------------------------- starter
+    //  -------------------------------------------------------------- prediction
     //            ************************
     //                       <-----k----->
-    //  00000000001111111111110000000000000000000000000000000000000000 the_starter->local_coverage[read_file_id]
-	if(start+length_read-gv.minimal_read_overlap<the_starter->upperCaseSequence.size()) stop_on_starter=start+length_read-gv.minimal_read_overlap;
-    else stop_on_starter=the_starter->upperCaseSequence.size();
+    //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage[read_file_id]
+	if(start+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=start+length_read-gv.minimal_read_overlap;
+    else stop_on_prediction=the_prediction->upperCaseSequence.size();
 #endif
     
-	for(i=start_on_starter;i<stop_on_starter;i++) Sinc8(the_starter->local_coverage[read_set_id][i]);
+	for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[read_set_id][i]);
 	
     
     
@@ -168,10 +168,10 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 }
 
 
-// For each position in the starter:
+// For each position in the prediction:
 // find the kmer supported by the smallest number of reads, e.g.:
 //                                i
-//  ------------------------------X------------------------------- starter
+//  ------------------------------X------------------------------- prediction
 // a         ************************
 // b         **************************
 // c                    *******************
@@ -184,12 +184,12 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 //                            ...
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
-int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValues& gv){
+int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
     
     int i, val_min=INT_MAX;
-    const  int stopi=the_starter.upperCaseSequence.size();
+    const  int stopi=the_prediction.upperCaseSequence.size();
     for(i=0;i<stopi;i++){ // for each position on the read
-        val_min=min(val_min, the_starter.local_coverage[read_file_id][i]);
+        val_min=min(val_min, the_prediction.local_coverage[read_file_id][i]);
     }
     return val_min;
 }
@@ -197,13 +197,9 @@ int minimal_kmer_coverage(FragmentInfo the_starter, int read_file_id, GlobalValu
 
 /**
  * Performs the first extension of the algorithm:
- * For each starter:
- *  - verify which reads maps on it with at most subst_allowed substitutions
- *  - for fragments that are fully covered by reads (each position is covered at least once):
- *    1) add their id in a list (that is returned by the function)
- *    2) detect the extending reads (at least "min_extension_coverage_depth" reads) that enable to extend right the starter
- *    3) store this extending reads in the structure of the fragments (fragment_info)
- 
+ * For each read:
+ *  - map it on prediction(s)
+ *  - add information to mapped predictions
  * returns the number of mapped reads
  */
 u_int64_t ReadMapper::map_all_reads_from_a_file (
@@ -215,9 +211,12 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 	/////////////// read all reads - storing those coherent with reads ///////
 	//////////////////////////////////////////////////////////////////////////
     
-    u_int64_t number_of_mapped_reads = 0;
     
-	// map of starter -> position (for each read and direction, stores the starter and position already tested.)
+    
+    
+    
+    u_int64_t number_of_mapped_reads = 0;
+
     
     // We create a sequence iterator for the bank with progress information
     ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
@@ -225,10 +224,9 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 	
     // We loop over reads
     Dispatcher(nbCores,1).iterate (iter, [&] (Sequence& seq) {
-        map<u_int64_t, listint *>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
+        map<u_int64_t, set<u_int64_t>>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
         set<u_int64_t> mapped_prediction;                               // stores for this read, the succesfully mapped predictions
 
-        
         // Shortcut
         char *read = strdup(seq.toString().c_str());
         const uint64_t read_len = strlen(read);
@@ -241,7 +239,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         
         // The read must overlap the fragment with at least minimal_read_overlap positions.
         // here is the first position on which the read may map :
-        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  starter
+        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  prediction
         //     **********       read (10)
         //        <-----> minimal_read_overlap (7)
         //     <-> -pwi (-3)
@@ -253,13 +251,15 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         
         
 		const int stop = read_len-gv.size_seeds+1;
-		// read all seeds present on the read:
+		
         int direction;
         kmer_type coded_seed;
+        
         bool toinit=true;
-        //        char validSeed;
+        // for both dirrections of the read
         for(direction=0;direction<2;direction++){ // try the two possible directions of the read
             toinit=true; // we have to init a new seed
+            // read all seeds present on the read:
             for (int seed_position=0;seed_position<stop;seed_position++){ // for all possible seed on the read
                 if(toinit) {
                     coded_seed=gv.codeSeed(read+seed_position); // init the seed
@@ -269,39 +269,33 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
-                    // for each occurrence of this seed on the starter:
+                    // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
                         couple * value = &(index.seed_table[occurrence_id]);
-                        
                         if (mapped_prediction.count(value->a)!=0) {
-                            continue; // This starter was already mapped with this read.
+                            continue; // This prediction was already mapped with this read.
                         }
                         
-                        listint * tested_positions;
-                        if(tested_prediction_and_pwis[value->a]==0){
-                            tested_positions = listint_create();
-                            tested_prediction_and_pwis[value->a] = tested_positions;
-                        }
-                        else
-                            tested_positions = tested_prediction_and_pwis[value->a];
                         
+                    
                         
+                        // shortcut
+                        set<u_int64_t> tested_positions = tested_prediction_and_pwis[value->a];
                         
-                        
-                        
-                        const char * starter = index.all_predictions[value->a]->upperCaseSequence.c_str();
+                        // get the corresponding prediction sequence
+                        const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
                         
 #ifdef DEBUG_MAPPING
-                        cout<<"seed = "<<read+seed_position<<"in "<<starter<<" pos "<<value->b<<starter+value->b<<endl;//DEB
+                        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
 #endif
                         
                         
 
-                        const int pwi = value->b-seed_position; // starting position of the read on the starter.
+                        const u_int64_t pwi = value->b-seed_position; // starting position of the read on the prediction.
                         
-                        if(listint_contains(tested_positions,pwi))
-                            continue; // this reads was already (unsuccessfuly) tested with this starter at this position. No need to try it again.
-                        listint_add(tested_positions,pwi); // We store the fact that this read was already tested at this position on this starter.
+                        if (tested_positions.count(pwi) == 0) continue; // this reads was already (unsuccessfuly) tested with this prediction at this position. No need to try it again.
+                     
+                        tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
                         
                         
                         
@@ -309,53 +303,54 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         
                         // overview general situation:
                         
-                        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  starter
+                        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  prediction
                         //        <---------> b
                         //                   [--------]                     seed
                         //             ******************************       read
                         //             <----> i
                         //        <---> pwi
                         
-                        const int maximal_pwi = strlen(starter)-gv.minimal_read_overlap;
+                        const int maximal_pwi = strlen(prediction)-gv.minimal_read_overlap;
                         
                         
                         if (pwi<minimal_pwi) {
-                            continue; // this read to not overlap enough with the starter.
+                            continue; // this read to not overlap enough with the prediction.
                         }
                         if (pwi > maximal_pwi) {
-                            continue; // this read to not overlap enough with the starter.
+                            continue; // this read to not overlap enough with the prediction.
                         }
                         
-                        //        ;;;;;;;;;;;  starter (11)
+                        //        ;;;;;;;;;;;  prediction (11)
                         //             ******************************       read
                         //             <----> minimal_read_overlap (6)
                         //        <---> pwi (5)
-                        // |starter| <= pwi+minimal_read_overlap
+                        // |prediction| <= pwi+minimal_read_overlap
                         
-                        bool read_coherent = constrained_read_coherent(pwi, starter, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
+                        bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
                         
                         
                         
-                        if(read_coherent){ // tuple read starter position is read coherent
+                        if(read_coherent){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (&number_of_mapped_reads, 1);
-                            mapped_prediction.insert(value->a); // This starter whould not be mapped again with the same read
+                            mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
                             feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
                             
-                        } // end tuple read starter position is read coherent
+                        } // end tuple read prediction position is read coherent
                     }
                 } // end all infos for the current seed
             } // end all seeds of the read
             gv.revcomp(read);
             gv.rev (quality);
             
-            
-            // show content:
-            for (std::map<u_int64_t, listint *> ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
-                listint_empty(it->second);
+
+            // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+            for (std::map<u_int64_t, set<u_int64_t>> ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
+                
+                it->second.clear();
             }
             tested_prediction_and_pwis.clear();
             mapped_prediction.clear();
@@ -364,7 +359,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         } // end both directions
         free(read);
         free(quality);
-	});// end all reads of the file
+	});// end all reads
     
     
     
@@ -377,12 +372,12 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 
 void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////// for each starter: check those fully coherent and store left and right reads covering them ///////
+	/////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    int starter_id;
-	for (starter_id=0;starter_id < index.all_predictions.size();starter_id++){
-        index.all_predictions[starter_id]->set_read_coherent(read_set_id,gv);
+    int prediction_id;
+	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
+        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
 	} // end all fragments
 	
 	

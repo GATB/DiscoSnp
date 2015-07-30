@@ -56,31 +56,7 @@ void list_of_generic_empty(const void * v_list);
 
 int numberInList (mylist *l);
 
-/////////////////////////////////////////////////////////////////////////////////
-///////// For speed purpose, here is a list dedicated to int only ///////////////
-/////////////////////////////////////////////////////////////////////////////////
 
-typedef struct CELLINT {
-    int val;
-    struct CELLINT *prox;
-} cellint, * p_cellint;
-
-typedef struct {
-	int size;
-	p_cellint first;
-} listint;
-
-listint *listint_create(void);
-void listint_add(listint *l, int val);
-
-
-bool listint_contains(listint *l, int val);
-
-void listint_free(const void *v_list);
-void listint_empty(const void * v_list);
-
-
-int numberInListint (listint *l);
 
 
 #endif /* LIST_H_ */

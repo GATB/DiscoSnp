@@ -54,7 +54,7 @@ public:
     
     void index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment);
     
-    void  free_seeds_index ();
+  
     
     
     FragmentIndex(const int numberOfIndexedSequences){

@@ -281,8 +281,3 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
     
 }
-
-
-void FragmentIndex::free_seeds_index (){
-	hash_delete(seeds, list_of_generic_free);
-}
