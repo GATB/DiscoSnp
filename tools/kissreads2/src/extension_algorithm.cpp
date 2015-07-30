@@ -28,7 +28,7 @@
 #include <extension_algorithm.h>
 
 
-//#define DEBUG_MAPPING
+//*#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -291,10 +291,8 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         
                         
 
-                        const u_int64_t pwi = value->b-seed_position; // starting position of the read on the prediction.
-                        
-                        if (tested_positions.count(pwi) == 0) continue; // this reads was already (unsuccessfuly) tested with this prediction at this position. No need to try it again.
-                     
+                        const int pwi = value->b-seed_position; // starting position of the read on the prediction.
+                        if (tested_positions.count(pwi) != 0) continue; // this reads was already (unsuccessfuly) tested with this prediction at this position. No need to try it again.
                         tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
                         
                         
@@ -311,7 +309,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         //        <---> pwi
                         
                         const int maximal_pwi = strlen(prediction)-gv.minimal_read_overlap;
-                        
+
                         
                         if (pwi<minimal_pwi) {
                             continue; // this read to not overlap enough with the prediction.
@@ -319,7 +317,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                         if (pwi > maximal_pwi) {
                             continue; // this read to not overlap enough with the prediction.
                         }
-                        
                         //        ;;;;;;;;;;;  prediction (11)
                         //             ******************************       read
                         //             <----> minimal_read_overlap (6)
