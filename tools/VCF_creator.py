@@ -104,7 +104,6 @@ VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or
 VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
 VCF.write('##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">\n')
 VCF.write('##INFO=<ID=MULTI,Number=1,Type=String,Description="State of the mapping in BWA : path multiply mapped : True ; else : False">\n')
-VCF.write('##INFO=<ID=DT,Number=1,Type=Integer,Description="Mapping distance with reference">\n')
 VCF.write('##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig left">\n')
 VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
 VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
@@ -299,16 +298,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                 nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,reverseUp,reverseLow,nucleoRefUp,nucleoRefLow = RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
                 #Creation VCF
                 table=fillVCFSimpleSnp(snpUp,snpLow,nucleoLow,positionSnpLow,nucleoUp,positionSnpUp,boolRefLow,boolRefUp,table,nbSnp,filterField,ok,tp,phased,listCovGeno,nucleoRefUp,nucleoRefLow,reverseUp,reverseLow,genoUp,nbGeno,covUp,covLow)
-                printOneline(table,VCF)
-                print "Which is the ref ?"
-                print snpUp
-                print boolRefUp
-                print snpLow
-                print boolRefLow                
-                print "NucleoUp"
-                print nucleoUp  
-                print "NucleoLow"
-                print nucleoLow                  
+                printOneline(table,VCF)                
                 continue
     
             else:

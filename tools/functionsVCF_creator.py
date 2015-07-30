@@ -782,18 +782,7 @@ def RecupPosSNP(snpUp,snpLow,posUp,posLow,nb_polUp,nb_polLow,dicoHeaderUp,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 ####Two paths mapped at different main position (first given by bwa) : test which path will be the reference with the function mismatchChecker
     if ((int(snpUp[3])>0 and int(snpLow[3])>0) and (int(snpUp[3])!=int(snpLow[3]))) or (int(snpUp[3])>0 and int(snpLow[3])>0 and boolRefUp==True and boolRefLow==True):
-        if len(listPos)>1:
-            i=0
-            for i in range(len(listPos)):
-                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicopolUp[listPolymorphismPosUp[i]][1],dicopolLow[listPolymorphismPosLow[i]][1],dicopolUp[listPolymorphismPosUp[0]][3],dicopolLow[listPolymorphismPosLow[0]][3],dicopolUp[listPolymorphismPosUp[i]][0],dicopolLow[listPolymorphismPosLow[i]][0],indel)
-                dicopolUp[listPolymorphismPosUp[i]][0]=boolRefUp
-                dicopolUp[listPolymorphismPosUp[i]][1]=nucleoRefUp
-                dicopolLow[listPolymorphismPosLow[i]][0]=boolRefLow
-                dicopolLow[listPolymorphismPosLow[i]][1]=nucleoRefLow
-                dicopolLow[listPolymorphismPosLow[i]][5]=int(dicopolLow[listPolymorphismPosLow[i]][2])+int(posRef)
-                dicopolUp[listPolymorphismPosUp[i]][5]=int(dicopolUp[listPolymorphismPosUp[i]][2])+int(posRef)
-        else:
-                boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
+        boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
 #---------------------------------------------------------------------------------------------------------------------------
 #Defines the mapping position 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1115,6 +1104,11 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
     discoNameLow,snpLow,numSNPLow,unitigLeftLow,unitigRightLow,contigLeftLow,contigRightLow,valRankLow, listCoverageLow, listCLow,nb_polLow,posDLow,ntUp,ntLow,genoLow,dicoHeaderLow=ParsingDiscoSNP(snpLow,0)
     posUnmappedUp=CheckContigUnitig(unitigLeftUp,contigLeftUp)
     posUnmappedLow=CheckContigUnitig(unitigLeftLow,contigLeftLow)
+    oldGeno=geno.copy()
+    print"******"
+    print snpUp
+    print "oldgeno"
+    print oldGeno
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
     if int(snpUp[3])>0 and int(snpLow[3])>0:
@@ -1128,12 +1122,11 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         indexSmallestPosLow=listPolymorphismPosLow.index(listSortedPosLow[0])
         boolRefUp=dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][0]
         boolRefLow=dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][0]
-        
         #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
-        if boolRefUp==True and boolRefLow==True:
+        if boolRefUp==True and boolRefLow==True or boolRefUp==False and boolRefLow==False:
             #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
             #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
-            boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][1],dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][1],dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][3],dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][3],boolRefUp,boolRefLow,False)    
+            boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][1],dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][1],dicoUp[listPolymorphismPosUp[indexSmallestPosUp]][3],dicoLow[listPolymorphismPosLow[indexSmallestPosLow]][3],boolRefUp,boolRefLow,False) 
         if boolRefUp==True and boolRefLow==False: #The smallest position identical to the reference is on the upper path
             indexSmallestPos=indexSmallestPosUp
             listPolymorphismPos=listPolymorphismPosUp
@@ -1149,14 +1142,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             else:
                 indexSmallestPos=indexSmallestPosLow
                 listPolymorphismPos=listPolymorphismPosLow
-        #Remembers the values for the first snps ==> the others snps will depend on these parameters
-        boolRefUp=dicoUp[listPolymorphismPosUp[indexSmallestPos]][0]
-        boolRefLow=dicoLow[listPolymorphismPosLow[indexSmallestPos]][0]
         #Checks if both allele are different of the reference => decides which variant to choose as reference 
-        if boolRefUp==True and boolRefLow==True:
-            #dicopolLow[listPos[i]]=[boolRefLow,nucleoRefLow,posCentraleLow[i],listnucleoLowR[i],reverseLow,(int(snpLow[3])+posCentraleLow[i])]
-            #boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,nucleoRefUp,nucleoRefLow,nucleoUp,nucleoLow,boolRefUp,boolRefLow,indel)
-            boolRefLow,boolRefUp,nucleoRefUp,nucleoRefLow,posRef=MismatchChecker(snpUp,posUp,snpLow,posLow,dicoUp[listPolymorphismPosUp[indexSmallestPos]][1],dicoLow[listPolymorphismPosLow[indexSmallestPos]][1],dicoUp[listPolymorphismPosUp[indexSmallestPos]][3],dicoLow[listPolymorphismPosLow[indexSmallestPos]][3],boolRefUp,boolRefLow,False)  
         nucleoUp1=dicoUp[listPolymorphismPosUp[indexSmallestPos]][3]
         nucleoLow1=dicoLow[listPolymorphismPosLow[indexSmallestPos]][3]
         positionSnpUp1=dicoUp[listPolymorphismPosUp[indexSmallestPos]][5]
@@ -1164,6 +1150,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
         reverseLow=dicoLow[listPolymorphismPosLow[indexSmallestPos]][4]
         reverseUp=dicoUp[listPolymorphismPosUp[indexSmallestPos]][4]
         for comptPol in range(len(listPolymorphismPos)): #Goes through the list of the variant position starting with the smallest
+            geno=oldGeno.copy()
             positionSnpUp=dicoUp[listPolymorphismPosUp[comptPol]][5]
             positionSnpLow=dicoLow[listPolymorphismPosLow[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismPosUp[comptPol]][3]
@@ -1210,7 +1197,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             nucleoRefUp="."
             nucleoLow=listnucleoLow[i]
             nucleoRefLow="."
-            table=FillVCF(table,numSNPUp,discoNameUp,positionSnpUp,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPUp,discoNameUp,positionSnpUp,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,False)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1233,7 +1220,7 @@ def printVCFSNPclose(dicoUp,dicoLow,table,filterField,snpUp,snpLow,listPolymorph
             positionSnpUp=dicoUp[listPolymorphismPosUp[comptPol]][5]
             nucleoUp=dicoUp[listPolymorphismPosUp[comptPol]][3]
             nucleoRefUp=dicoUp[listPolymorphismPosUp[comptPol]][1]
-            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,0)
+            table=FillVCF(table,numSNPUp,snpUp[2],positionSnpUp,nucleoUp,nucleoLow,".",filterField,tp,valRankUp,ok,unitigLeftUp,unitigRightUp,contigLeftUp,contigRightUp,covUp,nucleoRefUp,reverseUp,geno,nbGeno,phased,listCovGeno,False)
             tablebis.append(list(table))
         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
         l=0
@@ -1279,6 +1266,7 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
     coverage=None
     #cov="C1=53425,22;C2=1,2;C3=30,94832;C4=3,2;C5=19,65370"
     listcov=cov.split(";") #['C1=53425,22', 'C2=1,2', 'C3=30,94832', 'C4=3,2', 'C5=19,65370']
+    print geno
     if int(nbGeno)==0:
         return table
     else:
@@ -1287,14 +1275,15 @@ def GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov):
                 current_genotype = geno[key]
                 likelihood=current_genotype[1]
                 if boolRefLow==True: #Checks if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 exchanges the likelihood to have the good one for each genotypes)
-                    likelihoodStart=likelihood[2]
-                    likelihoodEnd=likelihood[0]
-                    likelihood[0]=likelihoodStart
-                    likelihood[2]=likelihoodEnd
-                    if "1/1" in current_genotype[0]:
-                        current_genotype[0]=current_genotype[0].replace("1/1","0/0")
-                    elif "0/0" in current_genotype[0]:
-                        current_genotype[0]=current_genotype[0].replace("0/0","1/1")
+                    if "|" not in current_genotype[0]: 
+                            likelihoodStart=likelihood[2]
+                            likelihoodEnd=likelihood[0]
+                            likelihood[0]=likelihoodStart
+                            likelihood[2]=likelihoodEnd
+                            if "1/1" in current_genotype[0]:
+                                current_genotype[0]=current_genotype[0].replace("1/1","0/0")
+                            elif "0/0" in current_genotype[0]:
+                                current_genotype[0]=current_genotype[0].replace("0/0","1/1")
                 
                 if phased==True: #In case of phasing we change the "/" symbol
                     current_genotype[0]=current_genotype[0].replace("/","|")
@@ -1351,7 +1340,7 @@ def FillVCF(table,numSNP,chrom,pos,ref,alt,qual,filterfield,tp,valRank,ok,unitig
     else:
         table[5]=qual
     table[6]=filterfield
-    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"DT="+str(ok)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
+    table[7]="Ty="+str(tp)+";"+"Rk="+str(valRank)+";"+"UL="+str(unitigLeft)+";"+"UR="+str(unitigRight)+";"+"CL="+str(contigLeft)+";"+"CR="+str(contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(reverse)
     table[7]=table[7].replace("None",".")
     table[7]=table[7].replace("none",".")
     table=GetGenotype(geno,boolRefLow,table,nbGeno,phased,listCovGeno,cov)
