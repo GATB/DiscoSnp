@@ -252,8 +252,8 @@ protected:
     void setSynchronizer (ISynchronizer* synchronizer)  { SP_SETATTR(synchronizer); }
 
     /** Terminator for marking branching nodes (used by the Traversal instance) */
-    Terminator* _terminator;
-    void setTerminator (Terminator* terminator)  { SP_SETATTR(terminator); }
+    BranchingTerminator* _terminator;
+    void setTerminator (BranchingTerminator* terminator)  { SP_SETATTR(terminator); }
 
     /** Used for computing unitigs or contigs (according to traversal kind choice) at the left
      * and right of the bubble. */

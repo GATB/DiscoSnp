@@ -48,10 +48,6 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We retrieve the kmer size. */
     sizeKmer = graph.getKmerSize();
     
-    
-    
-    
-    
     /** We set attributes according to user choice. */
     accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
@@ -79,6 +75,12 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We need a synchronizer for dumping high/low sequences into the output bank in an atomic way
      * (ie avoids potential issues with interleaved high/low sequences in multithread execution). */
     setSynchronizer (System::thread().newSynchronizer());
+
+    /** We set a terminator here. Note that the construction will set up its inner map
+     * with the branching nodes as keys. Then, these keys can be shared with other instances
+     * of BranchingTerminator, which leads to less memory usage since this branching nodes keys
+     * is not supposed to changed. */
+    setTerminator (new BranchingTerminator(graph));
 }
 
 /*********************************************************************
@@ -107,7 +109,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     
     /** NOT A TRUE COPY: each instance created by this constructor will have its own
      *  Traversal/Terminator instances. */
-    setTerminator (new BranchingTerminator(graph));
+    setTerminator (new BranchingTerminator(*(bf._terminator)));
     setTraversal  (Traversal::create (traversalKind, graph, *_terminator, 0, bf.max_depth, bf.max_breadth));
 }
 
