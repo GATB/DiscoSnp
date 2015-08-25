@@ -359,7 +359,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 	});// end all reads
     
     
-    
     return number_of_mapped_reads;
 }
 
@@ -374,6 +373,7 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
     
     int prediction_id;
 	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
+        
         index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
 	} // end all fragments
 	

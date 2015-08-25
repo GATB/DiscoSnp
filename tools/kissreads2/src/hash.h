@@ -101,7 +101,7 @@ void hash_set_int_to_key(hash_t map, char * key, int value);
 
 extern ssize_t hash_search_key_int_value(hash_t map, const char *key, const int value_to_search);
 
-void hash_add_int_to_list(hash_t map, char * key, int value);
+//void hash_add_int_to_list(hash_t map, char * key, int value);
 
 void hash_add_something_to_list(hash_t map, const char * key, void *something);
 

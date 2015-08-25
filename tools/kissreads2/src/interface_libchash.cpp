@@ -289,16 +289,16 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	 	}
  }
 
- /*
-  * requirement: the hash table cells are lists
-  * these functions add elements to the lists
-  * not sure whether it really belongs to this file.. more like to a hash_common.c file
-  */
-void hash_add_int_to_list(hash_t map, char * key, int value){
-	int * p_value = (int *)malloc(sizeof(int));
-	*p_value = value;
-	hash_add_something_to_list(map, key, p_value);
-}
+// /*
+//  * requirement: the hash table cells are lists
+//  * these functions add elements to the lists
+//  * not sure whether it really belongs to this file.. more like to a hash_common.c file
+//  */
+//void hash_add_int_to_list(hash_t map, char * key, int value){
+//	int * p_value = (int *)malloc(sizeof(int));
+//	*p_value = value;
+//	hash_add_something_to_list(map, key, p_value);
+//}
 
 inline void get_offset_and_nb_from_sinfo(hash_val  sinfo, uint64_t * offset_seed,uint64_t * nb_seeds, GlobalValues &gv )
 {

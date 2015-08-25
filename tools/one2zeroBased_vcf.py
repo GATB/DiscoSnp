@@ -18,7 +18,7 @@ for line in file:
     
     # decrease the position value if it is a number:
     if str.isdigit(splitted_line[1].strip()):
-        splitted_line[1]=int(splitted_line[1])-1
+        splitted_line[1]=int(splitted_line[1])#-1
 
     # prints the line
     printOneline(splitted_line,VCFfile)

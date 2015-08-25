@@ -78,7 +78,6 @@ char * strdup_first_lower(char * in){
     temp[j]='\0';
     return temp;
 }
-#include<assert.h>
 
 char * strdup_last_lower(char * in){
     // count number of first lower case letters in "in"
@@ -101,10 +100,6 @@ char * strdup_last_lower(char * in){
     return temp;
 }
 
-char prefix(const char *pre, const char *str)
-{
-    return strncmp(pre, str, strlen(pre)) == 0;
-}
 
 
 
@@ -135,46 +130,20 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     // We loop over sequences.
     for (it->first(); !it->isDone(); it->next())
     {
+        FragmentInfo * currentFragment = new FragmentInfo(it->item(), gv.number_of_read_sets);
+#ifdef DEBUG_INDEXING
+        cout<<"allocating for "<<currentFragment<<endl;
+#endif
         
-        FragmentInfo * currentFragment = new FragmentInfo(it->item());
-
-		currentFragment->read_coherent =                 (bool*) malloc(sizeof(bool)*gv.number_of_read_sets);                          test_alloc(currentFragment->read_coherent);
-		currentFragment->number_mapped_reads =           (int*) malloc(sizeof(int)*gv.number_of_read_sets);                            test_alloc(currentFragment->number_mapped_reads);
-		currentFragment->local_coverage =                (unsigned char**) malloc(sizeof(unsigned char*)*gv.number_of_read_sets);      test_alloc(currentFragment->local_coverage);
-		currentFragment->sum_qualities =                 (unsigned int*) malloc(sizeof(unsigned int)*gv.number_of_read_sets);          test_alloc(currentFragment->sum_qualities);
-        currentFragment->nb_mapped_qualities =           (unsigned int*) malloc(sizeof(unsigned int)*gv.number_of_read_sets);          test_alloc(currentFragment->nb_mapped_qualities);
-
-
-        currentFragment->nbOfSnps = 0;
-
-        if (prefix("SNP",currentFragment->sequence.getComment().c_str())) {
-            currentFragment->nbOfSnps=1; // We don't know yep how many, at least one.
-        }
-
         
-		for (i=0; i<gv.number_of_read_sets; i++)
-		{
-            currentFragment->read_coherent[i]=false;
-            
-            
-			currentFragment->local_coverage[i] = (unsigned char *) malloc(currentFragment->upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(currentFragment->local_coverage[i]);
-			for(z=0;z<currentFragment->upperCaseSequence.size(); z++) currentFragment->local_coverage[i][z]=(unsigned char)0;
-            
-            
-            
-            currentFragment->nb_mapped_qualities[i]=0;
-            currentFragment->sum_qualities[i]=0;
-			currentFragment->number_mapped_reads[i]=0;
-            
-            
-            
-		}
+		
 #ifdef DEBUG_INDEXING
 		printf("counting in %s\n", currentFragment->upperCaseSequence.c_str());
 #endif
 		// read all the seeds present on the fragment
-		stop=currentFragment->upperCaseSequence.size()-gv.size_seeds+1;
+		
         const char * w = currentFragment->upperCaseSequence.c_str();
+        stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
 
                 coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives

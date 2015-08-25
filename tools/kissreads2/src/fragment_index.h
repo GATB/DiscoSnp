@@ -37,6 +37,7 @@
 #include<couple.h>
 #include<hash.h>
 #include <stdint.h>
+#include<assert.h>
 
 
 class FragmentIndex{

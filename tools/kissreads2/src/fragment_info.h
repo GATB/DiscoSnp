@@ -41,6 +41,10 @@
 #define KMER_SPANNING // ask more than only all position covered by at least min_coverage reads. Each kmer spanning each position should be covered by at least min_coverage reads.
 #endif
 
+//char prefix(const char *pre, const char *str)
+//{
+//    return strncmp(pre, str, strlen(pre)) == 0;
+//}
 
 class FragmentInfo{
 public:
@@ -57,15 +61,52 @@ public:
     unsigned int * nb_mapped_qualities; // number of quality mapped for each read set. If there is a unique read, this is the number of mapped reads. In case of close SNPs, as a unique read may cover several SNPs, this can be bigger.
     
 	int * number_mapped_reads;      //for every set of reads, number of reads starting (REPLACE reads_starting)
-    FragmentInfo(Sequence& seq){
+    
+    
+    
+    FragmentInfo(Sequence& seq, const int number_of_read_sets){
         sequence=seq;
         upperCaseSequence=getUpperCaseOnly();
+        read_coherent =                 (bool*) malloc(sizeof(bool)*number_of_read_sets);                          test_alloc(read_coherent);
+		number_mapped_reads =           (int*) malloc(sizeof(int)*number_of_read_sets);                            test_alloc(number_mapped_reads);
+		local_coverage =                (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);      test_alloc(local_coverage);
+		sum_qualities =                 (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(sum_qualities);
+        nb_mapped_qualities =           (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(nb_mapped_qualities);
+        
+        
+        nbOfSnps = 0;
+        
+        if (strncmp("SNP", sequence.getComment().c_str(), strlen("SNP")) == 0)
+        {
+//        if (prefix("SNP",sequence.getComment().c_str())) {
+            nbOfSnps=1; // We don't know yep how many, at least one.
+        }
+        
+        
+		for (int i=0; i<number_of_read_sets; i++)
+		{
+            read_coherent[i]=false;
+            
+            
+			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
+			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
+            
+            
+            
+            nb_mapped_qualities[i]=0;
+            sum_qualities[i]=0;
+			number_mapped_reads[i]=0;
+            
+            
+            
+		}
     }
     
-    FragmentInfo(FragmentInfo* ref){
-        sequence=ref->sequence;
-        upperCaseSequence=ref->upperCaseSequence;
-    }
+//    FragmentInfo(FragmentInfo* ref){
+//        sequence=ref->sequence;
+//        upperCaseSequence=ref->upperCaseSequence;
+//        exit(0);
+//    }
     
     ~FragmentInfo(){
         
@@ -82,15 +123,17 @@ public:
         //         °°°°°°°°°°°° read
 #ifdef KMER_SPANNING
         const int stop=upperCaseSequence.size()-gv.minimal_read_overlap;
+
 //        cout<<"YYYY stop "<<stop<<" rfid "<<read_file_id<<endl; //DEB
         if(stop<=0){
             if(local_coverage[read_file_id][0]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
             read_coherent[read_file_id]=true; return;
         }
+
 #else
         const int stop=strlen(upperCaseSequence);
 #endif
-//        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<<endl; //DEB
+//        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<< " "<<gv.min_coverage[read_file_id]<<endl; //DEB
         for(i=0;i<stop;i++) if((unsigned int)local_coverage[read_file_id][i]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
         read_coherent[read_file_id]=true;
     }
