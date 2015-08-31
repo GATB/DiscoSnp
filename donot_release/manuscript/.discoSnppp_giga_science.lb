@@ -1,7 +1,7 @@
 (dp0
 S'engine'
 p1
-Vpdflatex
+S'pdflatex'
 p2
 sS'packages'
 p3
