@@ -39,7 +39,6 @@
 #include <stdint.h>
 #include<assert.h>
 
-
 class FragmentIndex{
 public:
     hash_t seeds; // hash table seed -> (fragment id, position)

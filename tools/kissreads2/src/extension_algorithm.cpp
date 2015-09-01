@@ -253,6 +253,7 @@ struct Functor
                 else { // previous seed was correct, we extend it.
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
+                
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
@@ -371,143 +372,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     // We create a sequence iterator for the bank with progress information
     ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
     
-    Dispatcher(nbCores,1).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads));
-	
-    // We loop over reads
-//    Dispatcher(nbCores,1).iterate (iter, [&] (Sequence& seq) {
-//        map<u_int64_t, set<u_int64_t>>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
-//        set<u_int64_t> mapped_prediction;                                    // stores for this read, the succesfully mapped predictions
-
-//        // Shortcut
-//        char *read = strdup(seq.toString().c_str());
-//        const uint64_t read_len = strlen(read);
-//        char * quality = strdup(seq.getQuality().c_str());
-//        
-//        const int minimal_pwi = gv.minimal_read_overlap - seq.getDataSize();
-//        uint64_t offset_seed;
-//        uint64_t nb_occurrences;
-//        
-//        
-//        // The read must overlap the fragment with at least minimal_read_overlap positions.
-//        // here is the first position on which the read may map :
-//        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  prediction
-//        //     **********       read (10)
-//        //        <-----> minimal_read_overlap (7)
-//        //     <-> -pwi (-3)
-//        // -pwi+minimal_read_overlap <= |read|
-//        // -pwi <= |read|-minimal_read_overlap
-//        // pwi >= minimal_read_overlap-|read|
-//        // pwi >= 7-10 = -3
-//        // minimal_pwi = minimal_read_overlap-|read|
-//        
-//        
-//		const int stop = read_len-gv.size_seeds+1;
-//		
-//        int direction;
-//        kmer_type coded_seed;
-//        
-//        bool toinit=true;
-//        // for both dirrections of the read
-//        for(direction=0;direction<2;direction++){ // try the two possible directions of the read
-//            toinit=true; // we have to init a new seed
-//            // read all seeds present on the read:
-//            for (int seed_position=0;seed_position<stop;seed_position++){ // for all possible seed on the read
-//                if(toinit) {
-//                    coded_seed=gv.codeSeed(read+seed_position); // init the seed
-//                    toinit=false;
-//                }
-//                else { // previous seed was correct, we extend it.
-//                    coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
-//                }
-//                if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
-//                    // for each occurrence of this seed on the prediction:
-//                    for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
-//                        couple * value = &(index.seed_table[occurrence_id]);
-//                        if (mapped_prediction.count(value->a)!=0) {
-//                            continue; // This prediction was already mapped with this read.
-//                        }
-//                        
-//                        
-//                    
-//                        
-//                        // shortcut
-//                        set<u_int64_t> tested_positions = tested_prediction_and_pwis[value->a];
-//                        
-//                        // get the corresponding prediction sequence
-//                        const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
-//                        
-//#ifdef DEBUG_MAPPING
-//                        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
-//#endif
-//                        
-//                        
-//
-//                        const int pwi = value->b-seed_position; // starting position of the read on the prediction.
-//                        if (tested_positions.count(pwi) != 0) continue; // this reads was already (unsuccessfuly) tested with this prediction at this position. No need to try it again.
-//                        tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
-//                        
-//                        
-//                        
-//                        
-//                        
-//                        // overview general situation:
-//                        
-//                        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  prediction
-//                        //        <---------> b
-//                        //                   [--------]                     seed
-//                        //             ******************************       read
-//                        //             <----> i
-//                        //        <---> pwi
-//                        
-//                        const int maximal_pwi = strlen(prediction)-gv.minimal_read_overlap;
-//
-//                        
-//                        if (pwi<minimal_pwi) {
-//                            continue; // this read to not overlap enough with the prediction.
-//                        }
-//                        if (pwi > maximal_pwi) {
-//                            continue; // this read to not overlap enough with the prediction.
-//                        }
-//                        //        ;;;;;;;;;;;  prediction (11)
-//                        //             ******************************       read
-//                        //             <----> minimal_read_overlap (6)
-//                        //        <---> pwi (5)
-//                        // |prediction| <= pwi+minimal_read_overlap
-//                        
-//                        bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
-//                        
-//                        
-//                        
-//                        if(read_coherent){ // tuple read prediction position is read coherent
-//                            __sync_fetch_and_add (&number_of_mapped_reads, 1);
-//                            mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
-//#ifdef DEBUG_MAPPING
-//                            printf("SUCCESS %d %d \n", pwi, value->a);
-//                            cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
-//#endif
-//                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
-//                            
-//                        } // end tuple read prediction position is read coherent
-//                    }
-//                } // end all infos for the current seed
-//            } // end all seeds of the read
-//            gv.revcomp(read);
-//            gv.rev (quality);
-//            
-//
-//            // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
-//            for (std::map<u_int64_t, set<u_int64_t>> ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
-//                
-//                it->second.clear();
-//            }
-//            tested_prediction_and_pwis.clear();
-//            mapped_prediction.clear();
-//            
-//            
-//        } // end both directions
-//        free(read);
-//        free(quality);
-//	});// end all reads
+    Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads));
     
     
     return number_of_mapped_reads;
