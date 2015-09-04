@@ -125,7 +125,7 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
                 variant_object, vcf_field_object=InitVariant(line1,line2)
                 if variant_object.CheckCoupleVariantID()==1:
                         sys.exit(1) 
-                table=UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)                      
+                table=UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 
 

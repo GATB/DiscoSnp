@@ -586,6 +586,7 @@ class PATH():
                                                                                                                                                                                                           
                 elif int(self.mappingPosition)<=0:#Case of unmapped path                     
                         listCorrectedPos=self.listPosForward#We keep the forward position for every snps/indel on the path
+                        self.listPosVariantOnPathToKeep=self.listPosForward
                         shift=None#There is no shift with the reference
                         self.boolReverse="."
                         self.nucleoRef="."
@@ -814,7 +815,6 @@ class SNPSCLOSE(VARIANT):
                 posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft)
                 listPositionPolymorphismeOnPathUp=self.upper_path.listPosVariantOnPathToKeep
                 listPositionPolymorphismeOnPathLow=self.lower_path.listPosVariantOnPathToKeep
-                
                 VCFObject.nucleoRef=[]
 ##Case : two mapped paths
                 if int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)>0:
@@ -883,17 +883,17 @@ class SNPSCLOSE(VARIANT):
                         self.upper_path.boolReverse="."
                         i=0
                         for i in range(len(listPositionPolymorphismeOnPathUp)):
-                                VCFObject.chrom=self.upper_path.listSam[2]
+                                VCFObject.chrom=self.upper_path.discoName.split("|")[0]
                                 positionSnpUp=int(listPositionPolymorphismeOnPathUp[i])+int(posUnmapped)
                                 positionSnpLow=int(listPositionPolymorphismeOnPathUp[i])+int(posUnmapped)
-                                nucleoUp=listnucleoUp[i]
+                                nucleoUp=self.upper_path.listNucleotideForward[i]
                                 nucleoRefUp="."
-                                nucleoLow=listnucleoLow[i]
+                                nucleoLow=self.lower_path.listNucleotideForward[i]
                                 nucleoRefLow="."
                                 VCFObject.reverse="."
                                 table[1]=positionSnpUp
                                 table[3]=nucleoUp
-                                table[4]=self.ReverseChecker(nucleoLow)
+                                table[4]=nucleoLow
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
                                 tablebis.append(list(table))
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
@@ -976,6 +976,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][9]=VCFObject.genotypes
                         ID+=1
                         i+=1
+                        
                 for l in range(len(table)):
                         VCFObject.PrintOneLine(table[l],VCFfile)        
         
