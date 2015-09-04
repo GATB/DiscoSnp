@@ -287,7 +287,7 @@ Note that in the case of real datasets, the $precision$ is meaningless as the re
 
 \subsection*{Two to $n$ E. Coli datasets: simulations and experiments}
 \subsubsection*{Simulations}
-We propose an experiment simulating more than two haploid bacterial individuals. For doing this, we created 30 copies (that we call individuals) of the E. coli K-12 MG1655 strain. We then simulated SNPs with a uniform distribution such that $\approx$4200 SNPs ($\approx$0.1\% of the genome length) are common to any pair of individuals, half this number is common to any trio of individuals, a third to any quadruplet, and so on. With this strategy, while considering all the 30 individuals together, 69 600 SNP sites were generated, covering $\approx$1.5\% of the genome. We also simulated indels following exactly the same process, with a ratio of one indel for ten SNPs. 
+We propose an experiment simulating more than two haploid bacterial individuals. For doing this, we created 30 copies (that we call individuals) of the E. coli K-12 MG1655 strain. We then simulated SNPs with a uniform distribution such that $\approx$ 4200 SNPs ($\approx$0.1\% of the genome length) are common to any pair of individuals, half this number is common to any trio of individuals, a third to any quadruplet, and so on. With this strategy, while considering all the 30 individuals together, 69 600 SNP sites were generated, covering $\approx$1.5\% of the genome. We also simulated indels following exactly the same process, with a ratio of one indel for ten SNPs. 
 
 We simulated a 40x sequencing of each of the 30 individuals, with 100-bp reads and 0.1\% error rate. Thus, 1,855,870 reads were generated per read set. 
 
@@ -483,8 +483,16 @@ Depending on the user choice and the availability of a reference genome, \discop
  \begin{algorithmic}[1]
  \State Map \discopp output on the reference genome, authorizing at most $t$ errors (indels and mismatches)
  \For{each \discopp prediction $p$ (couple of sequence \{$S_A$,$S_B$\})}
- \For{$d$ (distance) in range 0:$t$}
- \State Compute $U=\{$genomic positions  where $S_A$ and/or $S_B$ mapped at distance $<=d\}$
+ \For{each position of the prediction}
+ \If{$d$ (mapping distance) $<=D$ (best mapping distance)}
+ \State Keep the mapping distance as best mapping distance
+ \EndIf
+ \EndFor 
+ \For{each position of the prediction}
+ \If{$d==D$}
+ \State Compute $U=\{$genomic positions  where $S_A$ and/or $S_B$ mapped at distance $==D\}$
+ \EndIf
+ \EndFor
  \If{$|U|==1$}
  \State Set prediction $p$ as Mapped at this unique position (within distance $d$)
  \State Break
@@ -502,8 +510,8 @@ Depending on the user choice and the availability of a reference genome, \discop
  \caption{Mapping and validation of mapped variants}
  \label{alg:mapping}
 \end{algorithm}
-The reference genome and the predictions may present differences due to distinct individuals, bad assembly of the reference or reference species distant from analyzed reads. Thus, errors (indel and mismatches) are authorized during the mapping. By default we use BWA authorizing at most $t=3$ errors and using a seed of length $10$.
-Each prediction (each couple of sequence \{$S_A$,$S_B$\}) is considered as mapped at a unique genomic position if there exists a minimal distance $d\leq t$ for which either $S_A$ and $S_B$ have a unique match on the reference genome. In this case, the position of this match is indicated in the VCF file. Algorithm~\ref{alg:mapping}, presents how this unique position, if exists, is detected for each predicted variant.
+The reference genome and the predictions may present differences due to distinct individuals, bad assembly of the reference or reference species distant from analyzed reads. Thus, errors (indel and mismatches) are authorized during the mapping. By default we use BWA authorizing at most $t=4$ errors and using a seed of length $10$.
+Each prediction (each couple of sequence \{$S_A$,$S_B$\}) is considered as mapped at a unique genomic position (and therefor validated) if there exists a minimal distance $d\leq t$ for which $S_A$ and/or $S_B$ have a unique match on the reference genome. In this case, the position of this match is indicated in the VCF file. Algorithm~\ref{alg:mapping}, presents how this unique position, if exists, is detected for each predicted variant.
 
 
 \subsection{Detailed VCF content}
@@ -512,9 +520,9 @@ The proposed VCF file contains the following fields:
 	\item \textbf{CHROM}: Chromosome id where the prediction is mapped, or `.' if no reference genome provided or if no (unique) mapping of the variant
 	\item \textbf{POS}: 
 	\begin{itemize}
-		\item If a reference genome is provided and if the couple is mapped on a unique position: position of the variant
+		\item If a reference genome is provided and if the couple is mapped on a unique position: position of the variant (with the first base having the position 1)
 		\item If a reference genome is provided and if the couple is not uniquely mapped: one of the positions of the variant (the first reported by BWA)
-		\item Else (no reference genome provided or couple unmapped): `.'
+		\item Else (no reference genome provided or couple unmapped):position on the local assembly predict by \discopp (path, unitig or contig)
 		%position of the variant from the beginning of the upper case \discopp prediction (excluding the eventual left local assembly)
 	\end{itemize}
 	\item \textbf{ID}: identification of the SNP or the indel. 
@@ -523,6 +531,7 @@ The proposed VCF file contains the following fields:
 	\begin{itemize}
 		\item If one of the two predictions is mapped on the genome: the nucleotide present on the reference genome at the variant position.
 		\item Else, or if no reference genome provided: the lexicographically smallest of the two variants
+		\item In case of close SNPs : the first is defined as previously described. The following SNPs are those located on the same path 
 	\end{itemize}
 	For Indels: one of the two predictions is longer than the other.% We call \emph{insert} the sequence which differentiates the two sequences.
 	\begin{itemize}
@@ -532,7 +541,7 @@ The proposed VCF file contains the following fields:
 	\end{itemize}
 	Remark: the REF (and ALT) sequences are extracted from the reference genome is forward strand. If the reverse complement of the prediction is mapped, the reported REF and ALT sequences correspond to the reverse complement of the \discopp predictions.
 	\item \textbf{ALT}: The variant non reported as the ``REF'' variant
-	\item \textbf{QUAL}: `*'
+	\item \textbf{QUAL}: `.'
 	\item \textbf{FILTER}: 
 	\begin{itemize}
 		\item PASS if the variant is mapped on a unique position
@@ -541,22 +550,25 @@ The proposed VCF file contains the following fields:
 	\end{itemize}
 	\item \textbf{INFO}:
 	\begin{itemize}
-		\item \textbf{Ty}: Type of variant: `INDEL' or `SNP' XXX
+		\item \textbf{Ty}: Type of variant: `SNP', `INS' or `DEL'
 		\item \textbf{Rk}: Rank of the prediction computed by \discopp
-		\item \textbf{DT}: 
-			If the variant is mapped on a unique position: distance of the mapping (see Algorithm~\ref{alg:mapping}). If the variant is unmapped or mapped on multiple positions: `-1'
-		\item \textbf{GT}: Genotype: TODO XXX
 		\item \textbf{UL}: Length of the left unitig (`None' if not computed)
 		\item \textbf{UR}: Length of the right unitig (`None' if not computed)
 		\item \textbf{CL}: Length of the left contig (`None' if not computed)
 		\item \textbf{CR}: Length of the right contig (`None' if not computed)
-		\item \textbf{DP}: Combined depth across all samples (average)
-		\item \textbf{Genome}: Applies only for SNPs when a reference genome is provided (`$<$INS$>$' or `$<$DEL$>$' for indels and `.'when no reference genome provided). Nucleotide on the reference genome at the variant position.   \textbf{Important Remark}: This is equal to the ``REF'' field only if one of the two prediction matches the reference.
+		\item \textbf{Genome}: Applies only for SNPs when a reference genome is provided (`.' for indels and when no reference genome provided). Nucleotide on the reference genome at the variant position.   \textbf{Important Remark}: This is equal to the ``REF'' field only if one of the two prediction matches the reference.
 		\item \textbf{Sd}: Applies only when a reference genome is provided (`.' if no reference genome provided or if the variant was not mapped). Strand of the prediction mapping. `1': Forward, `-1': Reverse. \textbf{Important Remark}: Fields ``REF'', ``ALT'' and ``AR'' are based on the mapped predictions. %If Sd is `1' then these fields correspond to the \discopp prediction, else if Sd is `-1', then they correspond to the reverse complement of the \discopp predictions. 
 		
 	\end{itemize}
-		
-	
+			
+	\item \textbf{FORMAT}: specificying the data type and the order of this data.
+		\begin{itemize}
+			\item \textbf{GT}:Genotype for the REF prediction (given by discoSnp++). The allele are separated by `|' in case of snp and indel (genotype unphased) or by `/' for close snps (genotype phased)
+			\item \textbf{DP}:Cumulated depth accross samples (sum)
+			\item \textbf{PL}:Phred-scaled Genotype Likelihoods
+			\item \textbf{AD}:Depth of each allele by sample
+		\end{itemize}
+	\item \textbf{GENOTYPE}:all informations of the format field by sample
 \end{itemize}
 
 \section{Genotyping} % (fold)
