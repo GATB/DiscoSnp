@@ -28,7 +28,7 @@
 #include <extension_algorithm.h>
 
 
-//*#define DEBUG_MAPPING
+//#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -113,7 +113,7 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 	int substitution_seen=0; // number of seen substitutions for now
 	int pos_on_read, pos_on_fragment; // where to start
     
-    //    print_mapping(pwi,fragment,read); //DEB
+//       print_mapping(pwi,fragment,read); //DEB
     
 	/*
 	 *  | pwi (negative)
@@ -145,13 +145,12 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 	// walk the read and the fragment together, detecting substitutions.
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
-        
         if (pos_on_fragment>snp_pos)
         {
             id_array_SNP_position++;
             snp_pos = SNP_positions[id_array_SNP_position];
         }
-		if (fragment[pos_on_fragment]!=read[pos_on_read] &&
+		if (fragment[pos_on_fragment]!=toupper(read[pos_on_read]) &&
             fragment[pos_on_fragment]!='*' &&
             fragment[pos_on_fragment]!='?' &&
             fragment[pos_on_fragment]!='N'){ // one subsitution
@@ -309,7 +308,8 @@ struct Functor
                         //        <---> pwi (5)
                         // |prediction| <= pwi+minimal_read_overlap
                         
-                        bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
+                        
+                        const bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
                         
                         
                         

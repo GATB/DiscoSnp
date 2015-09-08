@@ -465,13 +465,13 @@ bool BubbleFinder::expand (
         return true;
     }
     
+    /** NON DUMPED BUBBLE */
+    
     /** For avoiding redundancies, we must check if the bubble was not finished because of an non canonical representation of the predicted bubble. */
     /** Else we may look for multiple SNPs predictions and then generating redundancies while latter finding the canonical representation of the SNP */
-    else{
-        if(successors[i].first==successors[i].second && !bubble.isCanonical && bubble.acceptable_complexity){
+    if(successors[i].first==successors[i].second && !bubble.isCanonical && bubble.acceptable_complexity){
             DEBUG((cout<<"The bubble was finished but is not canonical, so it will be dumped latter, we don't look for close SNPs"<<endl));
             return false;
-        }
     }
     
     /** Maybe we can search for a close SNP */
