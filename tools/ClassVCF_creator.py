@@ -299,20 +299,24 @@ class VARIANT():
                """Defines the mapping position for the couple of variant by checking boolRef"""
                #for INDEL and simple snp
                if self.upper_path.boolRef==True:
-                       self.mappingPositionCouple=int(self.upper_path.mappingPosition)+int(self.upper_path.correctedPos[0])+int(self.mappingPositionCouple)                       
+                       self.mappingPositionCouple=int(self.upper_path.mappingPosition)+int(self.upper_path.correctedPos[0])+int(self.mappingPositionCouple)-1                       
                else:
-                       self.mappingPositionCouple=int(self.lower_path.mappingPosition)+int(self.lower_path.correctedPos[0])+int(self.mappingPositionCouple)
+                       self.mappingPositionCouple=int(self.lower_path.mappingPosition)+int(self.lower_path.correctedPos[0])+int(self.mappingPositionCouple)-1
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         def CheckStrandAndReverseNucleotide(self,nucleo):
                 """Reverse the alt nucleotide if it is needed"""
                 if self.upper_path.boolRef==True:#Checks if the upper path is the reference
-                        if self.upper_path.boolReverse==self.lower_path.boolReverse:#if the mapping strand is the same on both path => returns the nucleotide
+                        if self.upper_path.boolReverse==self.lower_path.boolReverse :#if the mapping strand is the same on both path => returns the nucleotide
                                 return nucleo
+                        elif int(self.upper_path.boolReverse)==1 and self.lower_path.boolReverse==".":
+                                return nucleo 
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return self.ReverseComplement(nucleo)
                 elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
-                        if self.upper_path.boolReverse==self.lower_path.boolReverse:#if the mapping strand is the same on both path => returns the nucleotide
+                        if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
+                                return nucleo
+                        elif int(self.lower_path.boolReverse)==1 and self.upper_path.boolReverse==".":
                                 return nucleo
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return self.ReverseComplement(nucleo)
@@ -861,16 +865,17 @@ class SNPSCLOSE(VARIANT):
                             #table[1]=self.mappingPositionCouple
                             #table[3]=self.ref
                             #table[4]=self.alt
+                               
                                 VCFObject.chrom=self.lower_path.listSam[2]
                                 table[1]=positionSnpLow
                                 table[3]=nucleoLow
-                                table[4]=nucleoUp
+                                table[4]=self.CheckStrandAndReverseNucleotide(nucleoUp)
                                 VCFObject.nucleoRef.append([nucleoRefLow,positionSnpLow])
                                 VCFObject.reverse=self.lower_path.boolReverse   
                             elif self.upper_path.boolRef==True and self.lower_path.boolRef==False:#The upper path is defined as REF
                                 table[1]=positionSnpUp
                                 table[3]=nucleoUp
-                                table[4]=nucleoLow
+                                table[4]=self.CheckStrandAndReverseNucleotide(nucleoLow)
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
                                 VCFObject.chrom=self.upper_path.listSam[2]
                                 VCFObject.reverse=self.upper_path.boolReverse                                
