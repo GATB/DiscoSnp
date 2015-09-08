@@ -903,17 +903,16 @@ class SNPSCLOSE(VARIANT):
                 elif int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)<=0:
                         comptPol=0
                         VCFObject.chrom=self.upper_path.listSam[2]
-                        VCFObject.ref=self.upper_path.nucleo
-                        VCFObject.alt=self.lower_path.nucleo
                         VCFObject.reverse=self.upper_path.boolReverse
                         for comptPol in range(len(listPositionPolymorphismeOnPathUp)):
                                 if (int(self.upper_path.boolReverse)==-1):
                                         nucleoLow=self.ReverseComplement(self.lower_path.listNucleotideForward[comptPol])
+                                        nucleoUp=self.upper_path.listNucleotideReverse[comptPol]
                                 elif int(self.upper_path.boolReverse)==1:
                                         nucleoLow=self.lower_path.listNucleotideForward[comptPol]
+                                        nucleoUp=self.upper_path.listNucleotideForward[comptPol]
                                 nucleoRefLow="."
                                 positionSnpUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][5]
-                                nucleoUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][3]
                                 nucleoRefUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][1]
                                 table[1]=positionSnpUp
                                 table[3]=nucleoUp
@@ -926,17 +925,16 @@ class SNPSCLOSE(VARIANT):
 ##Case : Lower path mapped and upper path unmapped            
                 elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)>0:
                         VCFObject.chrom=self.lower_path.listSam[2]
-                        VCFObject.ref=self.lower_path.nucleo
-                        VCFObject.alt=self.upper_path.nucleo
                         VCFObject.reverse=self.lower_path.boolReverse
                         for comptPol in range(len(listPositionPolymorphismeOnPathLow)):
                                 if (int(self.lower_path.boolReverse)==-1):
                                         nucleoUp=self.ReverseComplement(self.upper_path.listNucleotideForward[comptPol])
+                                        nucleoLow=self.lower_path.listNucleotideReverse[comptPol]
                                 elif int(self.lower_path.boolReverse)==1:
                                         nucleoUp=self.upper_path.listNucleotideForward[comptPol]
+                                        nucleoLow=self.lower_path.listNucleotideForward[comptPol]
                                 nucleoRefUp="."
                                 positionSnpLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][5]
-                                nucleoLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][3]
                                 nucleoRefLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][1]
                                 table[1]=positionSnpLow
                                 table[3]=nucleoLow
@@ -962,10 +960,7 @@ class SNPSCLOSE(VARIANT):
                                 table[line][0]=self.listSam[0].split("_")[0]
                         else:
                                 table[line][0]=VCFObject.chrom
-                        #table[1]=self.mappingPositionCouple
                         table[line][2]=str(self.variantID)+"_"+str(ID)
-                        #table[3]=self.ref
-                        table[line][4]=self.CheckStrandAndReverseNucleotide(table[line][4])
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
                         table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
