@@ -128,7 +128,7 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------                                           
         def ReverseComplement(self,nucleotide):
                 """Take a sequence or a nucleotide and reverse it"""
-                if len(nucleotide)==1:
+                if len(nucleotide)==1:#nucleotide 
                         if nucleotide=="A": return "T"
                         if nucleotide=="T": return "A"
                         if nucleotide=="C": return "G"
@@ -148,9 +148,9 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         def CheckContigUnitig(self,unitig,contig):
                 """Checks if there is an extension in form of contig or unitig to take into account in the position of the variant on the path"""
-                if contig:
+                if contig:#we keep the length of the contig to add it in the event of unmapped path
                         return(int(contig))#return the contig length
-                elif unitig:
+                elif unitig:# if there is not a contig we keep the length of the unitig
                         return(int(unitig))#return the unitig length
                 else:
                         return 0
@@ -708,8 +708,8 @@ class INDEL(VARIANT):
                 for key,(posD,ind,amb) in self.dicoAllele.items():#Goes through the dictionary of parsed header
                         self.upper_path.listPosForward.append(int(posD)+1)
                         self.lower_path.listPosForward.append(int(posD)+1)
-                        self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD)+1)
-                        self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD)+1)
+                        self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
+                        self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.insert=self.longestSequence[int(posD)-1:(int(posD)+int(ind))]
                         self.ntStart=self.longestSequence[(int(posD)-1)]
                         self.ambiguityPos=amb
@@ -867,13 +867,13 @@ class SNPSCLOSE(VARIANT):
                             #table[4]=self.alt
                                
                                 VCFObject.chrom=self.lower_path.listSam[2]
-                                table[1]=positionSnpLow
+                                table[1]=int(positionSnpLow)-1
                                 table[3]=nucleoLow
                                 table[4]=self.CheckStrandAndReverseNucleotide(nucleoUp)
                                 VCFObject.nucleoRef.append([nucleoRefLow,positionSnpLow])
                                 VCFObject.reverse=self.lower_path.boolReverse   
                             elif self.upper_path.boolRef==True and self.lower_path.boolRef==False:#The upper path is defined as REF
-                                table[1]=positionSnpUp
+                                table[1]=int(positionSnpUp)-1
                                 table[3]=nucleoUp
                                 table[4]=self.CheckStrandAndReverseNucleotide(nucleoLow)
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
@@ -917,7 +917,7 @@ class SNPSCLOSE(VARIANT):
                                         nucleoLow=self.lower_path.listNucleotideForward[comptPol]
                                         nucleoUp=self.upper_path.listNucleotideForward[comptPol]
                                 nucleoRefLow="."
-                                positionSnpUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][5]
+                                positionSnpUp=int(self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][5])-1
                                 nucleoRefUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][1]
                                 table[1]=positionSnpUp
                                 table[3]=nucleoUp
@@ -939,7 +939,7 @@ class SNPSCLOSE(VARIANT):
                                         nucleoUp=self.upper_path.listNucleotideForward[comptPol]
                                         nucleoLow=self.lower_path.listNucleotideForward[comptPol]
                                 nucleoRefUp="."
-                                positionSnpLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][5]
+                                positionSnpLow=int(self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][5])-1
                                 nucleoRefLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][1]
                                 table[1]=positionSnpLow
                                 table[3]=nucleoLow
