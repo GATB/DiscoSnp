@@ -47,10 +47,12 @@ def index_reference_vcf(ref_vcf_file):
     
 
 def get_index_entry (pos, index, wantedtype):
+    
     if wantedtype=="SNP":
+        if pos-1 in index: return index[pos-1]
         if pos in index: return index[pos]
-        else:
-            return None
+        if pos+1 in index: return index[pos+1]
+        return None
     # this is an indel we check for previous and next entries:
     span=20
     for  i in range(pos,pos-span,-1):
