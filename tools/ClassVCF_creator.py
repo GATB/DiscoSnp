@@ -323,16 +323,27 @@ class VARIANT():
                 else :
                         return nucleo 
 #---------------------------------------------------------------------------------------------------------------------------
+#Example of supplementary alignment
+#INDEL_higher_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_12|C2_1|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	0	gi|224384768|gb|CM000663.1|	191102952	60	52M	*	0	0	AAGAAAAAAGAAATAAAAAAAGAAAAAAAAACGAAATAGCCAGAAGGAATGA	*	NM:i:2	MD:Z:1G9C40	AS:i:45	XS:i:23
+#INDEL_lower_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_20|C2_43|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	0	gi|224384768|gb|CM000663.1|	191102966	123S8M1I30M	*	0	0	AAGAAAAAAGAAATAAAAAAAGAAAAAAAAGAAAAAAAAAACGAAATAGCCAGAAGGAATGA	*	NM:i:1	MD:Z:38	AS:i:31	XS:i:29	SA:Z:gi|224384768|gb|CM000663.1|,3668552,-,24S29M1D9M,1,2;
+#INDEL_lower_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_20|C2_43|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	2064	gi|224384768|gb|CM000663.1|	3668552	1	24H29M1D9M	*	0	0	TTTTTTTCTTTTTTTTCTTTTTTTATTTCTTTTTTCTT	*	NM:i:2	MD:Z:12C16^T9	AS:i:30	XS:i:26	SA:Z:gi|224384768|gb|CM000663.1|,191102966,+,23S8M1I30M,1,1;	XA:Z:gi|224384768|gb|CM000663.1|,-197957308,27S26M9S,0;
 #---------------------------------------------------------------------------------------------------------------------------
         def  CheckCoupleVariantID(self):
                 """Test if the couple of paths has the same ID"""
                 IDVariantUp=self.upper_path.listSam[0].split("_")[3]
                 IDVariantLow= self.lower_path.listSam[0].split("_")[3]
+                bitwiseFlag=int(self.upper_path.listSam[1])                
                 if IDVariantUp != IDVariantLow:
-                        print "WARNING two consecutive lines do not store the same variant id: "
-                        print self.upper_path.listSam
-                        print self.lower_path.listSam
-                        return 1
+                        if bitwiseFlag & 2048 : #Checks if it's a supplementary alignment
+                                print "Supplementary alignment:"
+                                print self.upper_path.listSam
+                                return 2 
+                        else :
+                                print "WARNING two consecutive lines do not store the same variant id: "
+                                print self.upper_path.listSam
+                                print self.lower_path.listSam
+                                return 1
+                
                 else:
                         return 0                                                                           
 #############################################################################################
@@ -403,40 +414,34 @@ class PATH():
                       posMut,nbMismatch=self.GetTag()
                       self.dicoMappingPos[abs(int(variant[3]))]=int(nbMismatch)
 #---------------------------------------------------------------------------------------------------------------------------
-#data=str(bin(int(FLAG SAM)))[::-1]
-#bit = field to test
-#0   read paired
-#1   read mapped in proper pair
-#2   read unmapped
-#3   mate unmapped
-#4   read reverse strand
-#5   mate reverse strand
-#6   first in pair
-#7   second in pair
-#8   not primary alignment
-#9   read fails platform/vendor quality checks
-#10  read is PCR or optical duplicate
-#11  supplementary alignment
+#
+#FLAG = field to test
+#1   read paired
+#2   read mapped in proper pair
+#4   read unmapped
+#8   mate unmapped
+#16   read reverse strand
+#32   mate reverse strand
+#64   first in pair
+#128   second in pair
+#256   not primary alignment
+#512   read fails platform/vendor quality checks
+#1024  read is PCR or optical duplicate
+#2048  supplementary alignment
 #
 #---------------------------------------------------------------------------------------------------------------------------                                                                   
                                                                                                                   
         def CheckBitwiseFlag(self):
                 """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
-                try:
-                        data=str(bin(int(self.listSam[1])))[::-1]
-                except ValueError:
-                        self.listPosVariantOnPathToKeep=self.listPosForward
-                        self.boolReverse="1"
-                        return 
-                try:
-                        if (data[4]=='1'):
-                            self.boolReverse="-1"
-                            self.listPosVariantOnPathToKeep=self.listPosReverse
-                            return
-                except IndexError:
-                        self.listPosVariantOnPathToKeep=self.listPosForward
-                        self.boolReverse="1"
-                        return         
+                if int(self.listSam[1]) & 16:
+                     self.boolReverse="-1"
+                     self.listPosVariantOnPathToKeep=self.listPosReverse
+                elif int(self.listSam[1]) & 4:
+                     self.listPosVariantOnPathToKeep=self.listPosForward
+                     self.boolReverse="."  
+                else:                      
+                     self.listPosVariantOnPathToKeep=self.listPosForward
+                     self.boolReverse="1"        
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------          
         def CigarcodeChecker(self):
@@ -491,13 +496,24 @@ class PATH():
                                                 return(listPosRef,listShift)
                         i+=2                
 #---------------------------------------------------------------------------------------------------------------------------
+#Example of unmmaped variant : soft clipping of the variant
+#['SNP_higher_path_146392|P_1:30_A/G,P_2:45_C/T,P_3:48_T/G|high|nb_pol_3|left_unitig_length_157|right_unitig_length_564|C1_13|C2_1|G1_0/1:389,20,170|G2_1/1:828,117,10|rank_0.43053', '0', 'gi|224384768|gb|CM000663.1|', '229146041', '52', '79M', '*', '0', '0', 'CTTTCTATCTCAAAAGCAGCCACAGACCACATGTAAACAAATAAGCGGTGCCATGTTCCAATAAAACTTTATTTACAGA', '*', 'NM:i:5', 'MD:Z:15T23G1G4T23G8', 'AS:i:54', 'XS:i:30']
+#['SNP_lower_path_146392|P_1:30_A/G,P_2:45_C/T,P_3:48_T/G|high|nb_pol_3|left_unitig_length_157|right_unitig_length_564|C1_24|C2_42|G1_0/1:389,20,170|G2_1/1:828,117,10|rank_0.43053', '16', 'gi|224384768|gb|CM000663.1|', '15779841', '25', '30M49S', '*', '0', '0', 'TCTGTAAATAAAGTTTTATTGGAACATGGCCCCACTTATTTGTTTACACGTGGTCTGTGGCTGCTTTTGAGATAGAAAG', '*', 'NM:i:0', 'MD:Z:30', 'AS:i:30', 'XS:i:25', 'XA:Z:gi|224384768|gb|CM000663.1|,+7370519,52S27M,1;gi|224384768|gb|CM000663.1|,-95561814,27M52S,1;']
+
+
+#SNP_higher_path_215581|P_1:30_C/G|low|nb_pol_1|left_unitig_length_8|right_unitig_length_1|C1_7|C2_17|G1_0/1:554,48,75|G2_0/1:268,13,248|rank_0.32064	0	gi|224384768|gb|CM000663.1|	232979913	7	31S30M	*	0	0	TCAAGACCAGCCTAGGCAACATAGAGATACCATGTCTCTACAAAAAATTAAAAAAAAAAAA	*	NM:i:0	MD:Z:30	AS:i:30	XS:i:28	XA:Z:gi|224384768|gb|CM000663.1|,-241321283,29M32S,1;gi|224384768|gb|CM000663.1|,-114672467,28M33S,0;
+#SNP_lower_path_215581|P_1:30_C/G|low|nb_pol_1|left_unitig_length_8|right_unitig_length_1|C1_31|C2_18|G1_0/1:554,48,75|G2_0/1:268,13,248|rank_0.32064	16	gi|224384768|gb|CM000663.1|	65214684	37	59M2S	*	0	0	TTTTTTTTTTTTAATTTTTTGTAGAGACATCGTATCTCTATGTTGCCTAGGCTGGTCTTGA	*	NM:i:3	MD:Z:16A23A5A12	AS:i:44	XS:i:30
 #---------------------------------------------------------------------------------------------------------------------------                               
-        def ReferenceChecker(self,shift,posCentraleRef,VCFObject):
+        def ReferenceChecker(self,shift,posCentraleRef,VCFObject,PosVariant):
                 """Function which allows to get the MD tag parsing; checks if path nucleotide is identical to the reference nucleotide"""
                 i=0
                 posMut,nbMismatch=self.GetTag()
                 boolDel=True
                 pos=shift
+                #Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
+                if shift<=-(int(PosVariant)):
+                      self.boolRef=False
+                      return  
                 nucleoRef=None
                 boolEgalRef=None
                 matchInt=None
@@ -527,9 +543,10 @@ class PATH():
                                 if isinstance(parsingPosMut[i],str): #=> it means that the nucleotide is different in the variant and in the reference
                                         self.boolRef=False
                                         self.nucleoRef=parsingPosMut[i]
-                                else: #If the last item of the list of the MD tag is an intger => it means that the nucleotide of the allele is identical to the reference
+                                        break
+                                else: #If the last item of the list of the MD tag is an integer => it means that the nucleotide of the allele is identical to the reference
                                         self.boolRef=True
-                                break
+                                        break
                         if pos>posCentraleRef: #If the current position is bigger than the variant position it means that the nucleotide of the variant is identical to the reference
                                 self.boolRef=True
                                 break
@@ -572,7 +589,7 @@ class PATH():
                         self.correctedPos=listCorrectedPos
                         #Defines if the path is identical to the reference and what is the nucleotide on the reference
                         for i in range(len(listCorrectedPos)):#Loops on the list of corrected positions
-                                self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject)#Checks if the path is identical to the reference genome
+                                self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject,self.listPosVariantOnPathToKeep[i])#Checks if the path is identical to the reference genome
                                 if int(self.boolReverse)==1 and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideForward[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
@@ -820,6 +837,7 @@ class SNPSCLOSE(VARIANT):
                 listPositionPolymorphismeOnPathUp=self.upper_path.listPosVariantOnPathToKeep
                 listPositionPolymorphismeOnPathLow=self.lower_path.listPosVariantOnPathToKeep
                 VCFObject.nucleoRef=[]
+                listPolymorphismPos=[]
 ##Case : two mapped paths
                 if int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)>0:
                         
@@ -833,6 +851,7 @@ class SNPSCLOSE(VARIANT):
                         indexSmallestPosLow=listPositionPolymorphismeOnPathLow.index(listSortedPosLow[0])
                         self.upper_path.boolRef=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[indexSmallestPosUp]][0]
                         self.lower_path.boolRef=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[indexSmallestPosLow]][0]
+                        
                         #self.upper_path.boolRef=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[indexSmallestPosUp]][0]
                         #self.lower_path.boolRef=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[indexSmallestPosLow]][0]
                         #Decides what is the smallest position according to the reference path (useful if the paths are not aligned on the same strand)
@@ -976,7 +995,6 @@ class SNPSCLOSE(VARIANT):
                         table[line][9]=VCFObject.genotypes
                         ID+=1
                         i+=1
-                        
                 for l in range(len(table)):
                         VCFObject.PrintOneLine(table[l],VCFfile)        
         

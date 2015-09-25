@@ -30,7 +30,7 @@ from ClassVCF_creator import *
 
 
 #Default value
-nbMismatchBWA=3 #number of mismatch allowed for the alignment in BWA
+#nbMismatchBWA=3 #number of mismatch allowed for the alignment in BWA
 listName=[] #List from the file name used to create the VCF
 nbSnp=0 #number of SNP in the input file
 nbGeno=0 #number of genotype for every path
@@ -43,10 +43,11 @@ def usage():
     
     -h --help : print this message
     -s --sam_file : <file>.sam of the alignment
-    -n --mismatch : number of differences allowed in the mapper (BWA)
+
     -o --output : vcf file 
     
     """
+#    -n --mismatch : number of differences allowed in the mapper (BWA)
     print usage
 ###OPTIONS 
 try:
@@ -75,8 +76,8 @@ for opt, arg in opts :
         else : 
               print "!! No file :" +str(arg)+"!!"
               sys.exit(2)  
-    elif opt in ("-n","--mismatch"):
-         nbMismatchBWA= arg
+    #elif opt in ("-n","--mismatch"):
+    #     nbMismatchBWA= arg
     elif opt in ("-o","--output"):
         if arg!=None:
         #if ".vcf" in arg: (we don't care the out file name, user is free to call it foo.hey)
@@ -98,17 +99,26 @@ nbGeno=Counting(fileName)
 #Start to read the file two lines by two lines
 if ".sam" in fileName: #Checks if it's a samfile
         while True:
-                line1=samfile.readline()
+                line1=samfile.readline()   
                 if not line1: break #End of file
-                if line1.startswith('@'): continue #We do not read headers
+                if line1.startswith('@'): continue #We do not read headers                
+                while True:
+                        listline1=line1.split("\t")  
+                        if int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
+                                line1=samfile.readline()
+                        else:break
                 line2=samfile.readline() #Read couple of lines
+                while True:
+                        listline2=line2.split("\t") 
+                        if int(listline2[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
+                                line2=samfile.readline()
+                        else:break       
                 #Initializes variant object with the samline
                 variant_object, vcf_field_object=InitVariant(line1,line2) #Fills the object with the line of the samfile        
                 if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                         sys.exit(1)
                 #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
                 table=MappingTreatement(variant_object,vcf_field_object,nbGeno)
-                #Fills the VCF file
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
                   
 
