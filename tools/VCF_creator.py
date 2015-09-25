@@ -34,6 +34,8 @@ from ClassVCF_creator import *
 listName=[] #List from the file name used to create the VCF
 nbSnp=0 #number of SNP in the input file
 nbGeno=0 #number of genotype for every path
+filtered_sam=False
+filtered_sam_file=""
 #Help
 def usage():
     usage= """
@@ -45,13 +47,14 @@ def usage():
     -s --sam_file : <file>.sam of the alignment
 
     -o --output : vcf file 
+    -f --output_filtered_SAM : if provided, a SAM file in which uncorrectly mapped prediction (corresponding to filter '.' in the provided VCF) are removed is output in this file.
     
     """
 #    -n --mismatch : number of differences allowed in the mapper (BWA)
     print usage
 ###OPTIONS 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"h:s:n:o:",["help","disco_file","mismatch","output="])
+    opts, args = getopt.getopt(sys.argv[1:],"h:s:n:o:f:",["help","disco_file","mismatch","output=","output_filtered_SAM"])
     if not opts:
         usage()
         sys.exit(2)
@@ -85,6 +88,13 @@ for opt, arg in opts :
         else :
                 print "!! No output !!"
                 sys.exit(2)      
+    elif opt in ("-f","--output_filtered_SAM"):
+        if arg!=None:
+            filtered_sam = True
+            filtered_sam_file = open(arg,'w')
+        else:
+            print "!! No filtered sam output !!"
+            sys.exit(2)      
     else:
         print("Unkwnown option {} ".format(opt))
         usage()
@@ -101,7 +111,10 @@ if ".sam" in fileName: #Checks if it's a samfile
         while True:
                 line1=samfile.readline()   
                 if not line1: break #End of file
-                if line1.startswith('@'): continue #We do not read headers                
+                if line1.startswith('@'):
+                        if filtered_sam:
+                                filtered_sam_file.write(line1) 
+                        continue #We do not read headers                
                 while True:
                         listline1=line1.split("\t")  
                         if int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
@@ -119,6 +132,12 @@ if ".sam" in fileName: #Checks if it's a samfile
                         sys.exit(1)
                 #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
                 table=MappingTreatement(variant_object,vcf_field_object,nbGeno)
+                #Added by Pierre Peterlongo, Sept 2015. Outputs a new SAM file corresponding to mapped sequences (PASS or MULTIPLE)
+                if(filtered_sam and vcf_field_object.filterField!="."):
+                    filtered_sam_file.write(line1)
+                    filtered_sam_file.write(line2)
+                
+                #Fills the VCF file
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
                   
 
@@ -140,7 +159,9 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
 
 
 VCFFile.close()
-samfile.close()    
+samfile.close()
+if filtered_sam:
+    filtered_sam_file.close()
 
 
 

@@ -47,10 +47,14 @@ def index_reference_vcf(ref_vcf_file):
     
 
 def get_index_entry (pos, index, wantedtype):
-    span=10
+    
     if wantedtype=="SNP":
+        if pos-1 in index: return index[pos-1]
         if pos in index: return index[pos]
+        if pos+1 in index: return index[pos+1]
+        return None
     # this is an indel we check for previous and next entries:
+    span=20
     for  i in range(pos,pos-span,-1):
         if i in index: return index[i]
         
@@ -131,8 +135,8 @@ def analyse_predicted_vcf(prediction_vcf_file,index,wantedtype,nb_ref, roc_file_
     print "Total simulated", nb_ref
     print "Total predicted", nb_TP+nb_FP
     print "Total TP", nb_TP
-    print "Precision =", nb_TP/float(nb_FP+nb_TP)
-    print "recall =", nb_TP/float(nb_ref)
+    print "Precision =", 100*nb_TP/float(nb_FP+nb_TP)
+    print "recall =", 100*nb_TP/float(nb_ref)
     
     
     print "good Genotypes (of TP)", nb_genotype_TP
