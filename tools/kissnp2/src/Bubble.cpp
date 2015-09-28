@@ -285,7 +285,7 @@ template<>
 void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 {
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
-    DEBUG ((cout << "[BubbleSNPFinder::start] bubble.isCanonical " << bubble.isCanonical << endl));
+    DEBUG ((cout << "[BubbleSNPFinder::start] bubble.wasCanonical " << bubble.wasCanonical << endl));
     /** We compute the successors of the node. */
     Graph::Vector<Node> successors = graph.successors<Node> (node);
     DEBUG((cout << "successor size"<<successors.size()<<endl));
@@ -309,7 +309,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         for (size_t j=i+1; j<successors.size(); j++)
         {
             bubble.begin[1] = successors[j];
-            bubble.isCanonical=false;
+            bubble.wasCanonical=false;
             /*************************************************/
             /** Try a SNP                         **/
             /*************************************************/
@@ -319,6 +319,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /*************************************************/
             /** Try an isolated insertion                   **/
             /*************************************************/
+            bubble.wasCanonical=false;
             DEBUG ((cout << " start indel detection with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
             start_indel_prediction(bubble);
         }
@@ -371,7 +372,7 @@ bool BubbleFinder::expand_heart(
         checkPath(bubble);
         checkLowComplexity(bubble);
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
-        if (bubble.isCanonical && bubble.acceptable_complexity)
+        if (bubble.wasCanonical && bubble.acceptable_complexity)
         {
             /** We extend the bubble on the left and right (unitigs or contigs). */
             extend (bubble);
@@ -421,10 +422,10 @@ bool BubbleFinder::expand_heart(
 bool BubbleFinder::expand (
                            const int nb_polymorphism,
                            Bubble& bubble,
-                           const Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
-                           const Node& node2, // In case of indels, this node is not extended (depth 1)
-                           const Node& previousNode1,
-                           const Node& previousNode2,
+                           const Node& node1, // Node currently tested
+                           const Node& node2, // Node currently tested
+                           const Node& previousNode1, // node before the one tested
+                           const Node& previousNode2, // node before the one tested
                            string local_extended_string1,
                            string local_extended_string2
                            )
@@ -444,7 +445,7 @@ bool BubbleFinder::expand (
     Graph::Vector < pair<Node,Node> > successors = graph.successors<Node> (node1, node2);
     DEBUG((cout<<"successors size "<<successors.size()<<endl));
     /** We should not have several extensions possible unless authorised_branching==2 */
-    assert(authorised_branching==2 || successors.size==1);
+    assert(authorised_branching==2 || successors.size<2);
     
     bool dumped_bubble=false;
     /** We loop over the successors of the two nodes. */
@@ -455,9 +456,15 @@ bool BubbleFinder::expand (
         /** extend the bubble with the couple of nodes */
         dumped_bubble |= expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
         
+        /******************************************************************************************* **/
+        /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
         /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
         /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
-        if(dumped_bubble && successors[i].first==successors[i].second) break;
+        /** if(dumped_bubble && successors[i].first==successors[i].second) break; **/
+        /******************************************************************************************* **/
+
+        /** Stop as soon as a bubble is dumped */
+        if(dumped_bubble) break;
     }
     
     DEBUG((cout<<"stop try"<<endl));
@@ -469,11 +476,13 @@ bool BubbleFinder::expand (
     
     /** For avoiding redundancies, we must check if the bubble was not finished because of an non canonical representation of the predicted bubble. */
     /** Else we may look for multiple SNPs predictions and then generating redundancies while latter finding the canonical representation of the SNP */
-    if(successors[i].first==successors[i].second && !bubble.isCanonical && bubble.acceptable_complexity){
+    if(!bubble.wasCanonical && bubble.acceptable_complexity){
             DEBUG((cout<<"The bubble was finished but is not canonical, so it will be dumped latter, we don't look for close SNPs"<<endl));
             return false;
     }
     
+    /** We set back wasCanonical to true for next tests */
+    bubble.wasCanonical=true;
     /** Maybe we can search for a close SNP */
     if (nb_polymorphism < max_polymorphism && bubble.type==0) {
         DEBUG((cout<<"try with a new polymorphism ("<<nb_polymorphism<<") with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
@@ -487,10 +496,15 @@ bool BubbleFinder::expand (
                         continue; // This has already been tested in previous loop
                 DEBUG((cout<<"TRYING"<<endl));
                 dumped_bubble |= expand_heart(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+                /******************************************************************************************* **/
+                /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
                 /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
                 /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
-                if(dumped_bubble && successors1[i1]==successors2[i2]) break;
+                /** if(dumped_bubble && successors1[i1]==successors2[i2]) break; **/
+                /******************************************************************************************* **/
+                if(dumped_bubble) break;
             }
+            if(dumped_bubble) break;
         }
     }
     return dumped_bubble;
@@ -770,9 +784,9 @@ void BubbleFinder::checkPath (Bubble& bubble) const
     DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
     
     if(graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0])))
-        bubble.isCanonical=true;
+        bubble.wasCanonical=true;
     else
-        bubble.isCanonical=false;
+        bubble.wasCanonical=false;
     
     return ;
 }
