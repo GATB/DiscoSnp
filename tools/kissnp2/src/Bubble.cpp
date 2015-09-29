@@ -285,7 +285,7 @@ template<>
 void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 {
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
-    DEBUG ((cout << "[BubbleSNPFinder::start] bubble.wasCanonical " << bubble.wasCanonical << endl));
+    DEBUG ((cout << "[BubbleSNPFinder::start] bubble.isCanonical " << bubble.isCanonical << endl));
     /** We compute the successors of the node. */
     Graph::Vector<Node> successors = graph.successors<Node> (node);
     DEBUG((cout << "successor size"<<successors.size()<<endl));
@@ -309,7 +309,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         for (size_t j=i+1; j<successors.size(); j++)
         {
             bubble.begin[1] = successors[j];
-            bubble.wasCanonical=false;
+            bubble.isCanonical=false;
             /*************************************************/
             /** Try a SNP                         **/
             /*************************************************/
@@ -319,7 +319,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /*************************************************/
             /** Try an isolated insertion                   **/
             /*************************************************/
-            bubble.wasCanonical=false;
+            bubble.isCanonical=false;
             DEBUG ((cout << " start indel detection with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
             start_indel_prediction(bubble);
         }
@@ -372,7 +372,7 @@ bool BubbleFinder::expand_heart(
         checkPath(bubble);
         checkLowComplexity(bubble);
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
-        if (bubble.wasCanonical && bubble.acceptable_complexity)
+        if (bubble.isCanonical && bubble.acceptable_complexity)
         {
             /** We extend the bubble on the left and right (unitigs or contigs). */
             extend (bubble);
@@ -395,7 +395,7 @@ bool BubbleFinder::expand_heart(
         const Nucleotide added_nucleotide2 = graph.getNT(nextNode2,sizeKmer-1);
         DEBUG((cout<<"continue with nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
         /** We call recursively the method (recursion on 'pos'). */
-        dumped_bubble |= expand (nb_polymorphism,
+        dumped_bubble = expand (nb_polymorphism,
                                    bubble,
                                    nextNode1,
                                    nextNode2,
@@ -454,7 +454,7 @@ bool BubbleFinder::expand (
     {
         
         /** extend the bubble with the couple of nodes */
-        dumped_bubble |= expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+        dumped_bubble = expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
         
         /******************************************************************************************* **/
         /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
@@ -472,17 +472,8 @@ bool BubbleFinder::expand (
         return true;
     }
     
-    /** NON DUMPED BUBBLE */
+    /** NON DUMPED BUBBLE */    
     
-    /** For avoiding redundancies, we must check if the bubble was not finished because of an non canonical representation of the predicted bubble. */
-    /** Else we may look for multiple SNPs predictions and then generating redundancies while latter finding the canonical representation of the SNP */
-    if(!bubble.wasCanonical && bubble.acceptable_complexity){
-            DEBUG((cout<<"The bubble was finished but is not canonical, so it will be dumped latter, we don't look for close SNPs"<<endl));
-            return false;
-    }
-    
-    /** We set back wasCanonical to true for next tests */
-    bubble.wasCanonical=true;
     /** Maybe we can search for a close SNP */
     if (nb_polymorphism < max_polymorphism && bubble.type==0) {
         DEBUG((cout<<"try with a new polymorphism ("<<nb_polymorphism<<") with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
@@ -784,9 +775,9 @@ void BubbleFinder::checkPath (Bubble& bubble) const
     DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
     
     if(graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0])))
-        bubble.wasCanonical=true;
+        bubble.isCanonical=true;
     else
-        bubble.wasCanonical=false;
+        bubble.isCanonical=false;
     
     return ;
 }
