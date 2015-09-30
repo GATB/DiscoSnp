@@ -97,6 +97,9 @@ struct Bubble
     /** indicates when a predicted bubble is finished,  if it is canonical */
     bool isCanonical;
     
+    /** indicates that a bubble had been closed. Maybe it was not dumped if the bubble was not canonical */
+    bool closed_bubble;
+    
     int type; // 0 = isolated SNP, 1 = isolated insertion, ... other to come
     
     

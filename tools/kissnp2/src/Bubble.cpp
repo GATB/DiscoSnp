@@ -310,6 +310,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         {
             bubble.begin[1] = successors[j];
             bubble.isCanonical=false;
+            bubble.closed_bubble=false;
             /*************************************************/
             /** Try a SNP                         **/
             /*************************************************/
@@ -320,6 +321,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /** Try an isolated insertion                   **/
             /*************************************************/
             bubble.isCanonical=false;
+            bubble.closed_bubble=false;
             DEBUG ((cout << " start indel detection with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
             start_indel_prediction(bubble);
         }
@@ -360,6 +362,8 @@ bool BubbleFinder::expand_heart(
     /************************************************************/
     if(nextNode1 == nextNode2)
     {
+        
+        bubble.closed_bubble=true;
         DEBUG((cout<<"last  node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
         /** We check the branching properties of the next kmers. */
         
@@ -472,7 +476,11 @@ bool BubbleFinder::expand (
         return true;
     }
     
-    /** NON DUMPED BUBBLE */    
+    /** NON DUMPED BUBBLE */
+    /** if the bubble was closed and was not dumped, it means that it was not canonical. It will be find latter thus we should not find close SNPs from this bubble. */
+    if(bubble.closed_bubble){
+        return true;
+    }
     
     /** Maybe we can search for a close SNP */
     if (nb_polymorphism < max_polymorphism && bubble.type==0) {
@@ -493,12 +501,12 @@ bool BubbleFinder::expand (
                 /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
                 /** if(dumped_bubble && successors1[i1]==successors2[i2]) break; **/
                 /******************************************************************************************* **/
-                if(dumped_bubble) break;
+                if(dumped_bubble || bubble.closed_bubble) break;
             }
-            if(dumped_bubble) break;
+            if(dumped_bubble || bubble.closed_bubble) break;
         }
     }
-    return dumped_bubble;
+    return dumped_bubble || bubble.closed_bubble;
 }
 
 
