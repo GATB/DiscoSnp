@@ -95,7 +95,7 @@ struct Bubble
     
     
     /** indicates when a predicted bubble is finished,  if it is canonical */
-    bool wasCanonical;
+    bool isCanonical;
     
     int type; // 0 = isolated SNP, 1 = isolated insertion, ... other to come
     
@@ -315,7 +315,7 @@ protected:
     /** Check whether the first kmer of the first path is smaller than the first kmer
      * of the revcomp(first path), this avoids repeated SNPs
      * \param[in] path : branch of a bubble.
-     * \return set wasCanonical to true if first path is lower than last reverse path. */
+     * \return set isCanonical to true if first path is lower than last reverse path. */
     void checkPath (Bubble& bubble) const;
 
     /** Check bubble according to user choice for branching.
