@@ -199,7 +199,7 @@ if [ -z "$samfile" ];then
                 else
                         n=3
                         
-                        python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -n $n -o $vcffile
+                        python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
 		        echo -e "... Creation of the vcf file : done ...==> $vcffile" 
 		        exit 
                 fi    
@@ -276,24 +276,15 @@ if [ -z "$samfile" ];then
 	if [ -e $saifile ]; then
 		echo -e "...Alignment : Using the existing file : $saifile"
 	else
-		$PATH_BWA/bwa aln -N -k $s -n $n -l $l $genome $discoSNPsbis > $saifile
+		$PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
 	fi
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
-	##Creation of the samfile
-       ## Pierre : commented, else we may align the disco output and then say to user: ok sam exists we don't use it. 
-	# if [ -e $samfile ]; then
-#               echo -e "...Samfile already exists. Skipped to vcf creation..."
-#        else
-		$PATH_BWA/bwa samse -n 1000 $genome $saifile $discoSNPsbis > $samfile
-       # fi 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Creation of the vcf file
 	# if [ -e $vcffile ]; then
 #               echo -e "...VCF file for this alignment already exists...==> $vcf"
 #        else
-		python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -o $vcffile
+		python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
 		echo -e "... Creation of the vcf file : done ...==> $vcffile"
        # fi       
 #---------------------------------------------------------------------------------------------------------------------------
@@ -318,7 +309,7 @@ else
 	fi
 	##Creation of the vcf file
        
-	python $PATH_VCF_creator/VCF_creator.py -s $samfile -n $n -o $vcffile
+	python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
 	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
 
@@ -330,7 +321,7 @@ fi
 if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
-	rm -f $saifile $discoSNPsbis tmp.vcf
+	rm -f $saifile tmp.vcf #rm -f $saifile $discoSNPsbis tmp.vcf
 fi	
 
 

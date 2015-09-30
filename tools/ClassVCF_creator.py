@@ -510,9 +510,11 @@ class PATH():
                 posMut,nbMismatch=self.GetTag()
                 boolDel=True
                 pos=shift
-                #Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
-                if shift<=-(int(PosVariant)):
+                
+                if shift<=-(int(PosVariant)):#Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
+                #if shift<=-2:#we allow 2 soft clip (for bwa mem)
                       self.boolRef=False
+                      self.mappingPosition=0#It is considered that the path is unmapped
                       return  
                 nucleoRef=None
                 boolEgalRef=None
@@ -604,8 +606,10 @@ class PATH():
                                       nucleoRef=self.nucleoRef
                                       nucleo=self.nucleo
                                 self.nucleoRef=None#Resets the reference nucleotide for the next snp (case of close snps)
+                                if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping
+                                        break
                                                                                                                                                                                                           
-                elif int(self.mappingPosition)<=0:#Case of unmapped path                     
+                if int(self.mappingPosition)<=0:#Case of unmapped path                     
                         listCorrectedPos=self.listPosForward#We keep the forward position for every snps/indel on the path
                         self.listPosVariantOnPathToKeep=self.listPosForward
                         shift=None#There is no shift with the reference
@@ -759,9 +763,9 @@ class INDEL(VARIANT):
                         else:
                                 self.upper_path.nucleoRef="."
                                 VCFObject.variantType="DEL"
-                        try:
+                        if self.upper_path.mappingPosition>0:
                                 VCFObject.chrom=self.upper_path.listSam[2]
-                        except IndexError:
+                        else:
                                 VCFObject.chrom=self.upper_path.listSam[0].split("|")[0]    
                         VCFObject.ref=self.upper_path.nucleo
                         VCFObject.alt=self.lower_path.nucleo
@@ -774,9 +778,9 @@ class INDEL(VARIANT):
                         else:
                                 self.lower_path.nucleoRef="."
                                 VCFObject.variantType="DEL"
-                        try:
+                        if self.lower_path.mappingPosition>0:
                                 VCFObject.chrom=self.lower_path.listSam[2]
-                        except IndexError:
+                        else:
                                 VCFObject.chrom=self.lower_path.listSam[0].split("|")[0]  
                         VCFObject.ref=self.lower_path.nucleo
                         VCFObject.alt=self.upper_path.nucleo
@@ -976,14 +980,13 @@ class SNPSCLOSE(VARIANT):
                 ID=1
                 i=0
                 nucleoRef=None
+                if VCFObject.chrom=="*":
+                        table[line][0]=self.listSam[0].split("_")[0]
                 for line in range(len(table)):
                         for i in range(len(VCFObject.nucleoRef)):
                                 if table[line][1] in VCFObject.nucleoRef[i]:
                                         nucleoRef=VCFObject.nucleoRef[i][0]   
-                        if VCFObject.chrom=="*":
-                                table[line][0]=self.listSam[0].split("_")[0]
-                        else:
-                                table[line][0]=VCFObject.chrom
+                        table[line][0]=VCFObject.chrom
                         table[line][2]=str(self.variantID)+"_"+str(ID)
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
@@ -1015,6 +1018,12 @@ class VCFFIELD():
                 self.qual=""
                 self.nucleoRef=None
                 self.reverse=""
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------    
+        def GetFilterField(self,filterField):
+                self.filterField=filterField
+        
+        
         def PrintOneLine(self,table,VCF):
                 """Prints the line of the current SNP in the VCF file."""
                 if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] or (table[0]==0 and table[1]==0 and table[3]==0 and table[4]==0):

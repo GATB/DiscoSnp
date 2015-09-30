@@ -23,7 +23,7 @@ def InitVariant(line1,line2):
         #Object Creation
         if "SNP" in line1 and "nb_pol_1" in line1:
                 variant_object=SNP(line1,line2)
-        elif "SNP" in line1 and "nb_pol_1" not in line1:
+        elif "P_2" in line1:
                 variant_object=SNPSCLOSE(line1,line2)
         elif "INDEL" in line1:
                 variant_object=INDEL(line1,line2)
@@ -43,8 +43,6 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         table = [0] * 10 #Creates a 10 cols array
         #Fills information of the variant object with the informations of the discosnp++ header
         variant_object.GetPolymorphismFromHeader() 
-        #Checks if the couple is validated with only one mapping position        
-        vcf_field_object.filterField=CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path)
         #Gets the coverage for each path
         variant_object.upper_path.GetCoverage()
         variant_object.lower_path.GetCoverage()
@@ -59,6 +57,8 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
                 variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File  
         #Defines the mapping position for the couple
         variant_object.GetMappingPositionCouple()
+        #Checks if the couple is validated with only one mapping position       
+        vcf_field_object.GetFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
         #Defines the genotype for the couple
         variant_object.GetGenotypes(nbGeno,vcf_field_object)
         return table
@@ -127,11 +127,13 @@ def AddPosition(position,setPositions,delta):
 #############################################################################################
 def CheckAtDistanceXBestHits(upper_path,lower_path):
         """Prediction validation : checks if the couple is validated with only one mapping position """
-  
+        
         posUp=upper_path.dicoMappingPos
         posLow=lower_path.dicoMappingPos
         # get the best mapping distance for upper path 
         best_up=1024
+        if int(upper_path.mappingPosition)==0 and int(lower_path.mappingPosition)==0:#Checks if paths are unmappped
+                return "."
         for position,nbMismatch in posUp.items(): 
                 if nbMismatch<best_up:
                         best_up=nbMismatch
