@@ -23,7 +23,7 @@ def InitVariant(line1,line2):
         #Object Creation
         if "SNP" in line1 and "nb_pol_1" in line1:
                 variant_object=SNP(line1,line2)
-        elif "P_2" in line1:
+        elif "SNP" in line1 and "nb_pol_1" not in line1:
                 variant_object=SNPSCLOSE(line1,line2)
         elif "INDEL" in line1:
                 variant_object=INDEL(line1,line2)
