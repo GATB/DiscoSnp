@@ -510,9 +510,9 @@ class PATH():
                 posMut,nbMismatch=self.GetTag()
                 boolDel=True
                 pos=shift
-                
-                if shift<=-(int(PosVariant)):#Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
-                #if shift<=-2:#we allow 2 soft clip (for bwa mem)
+                #Allows or disallows soft clip in BWA
+                #if int(shift)<=-(int(PosVariant)):#Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
+                if int(shift)<=-2:#we allow 2 soft clip (for bwa mem)
                       self.boolRef=False
                       self.mappingPosition=0#It is considered that the path is unmapped
                       return  
@@ -553,7 +553,9 @@ class PATH():
                                 self.boolRef=True
                                 break
                         i+=1
-                
+                if pos<posCentraleRef:#Case of large soft clip
+                        self.boolRef=False
+                        self.nucleoRef="." 
                 VCFObject.nucleoRef=nucleoRef  
     # boolEgalRef : boolean if TRUE the nucleotide in the variant is equal to the reference
     # nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
@@ -590,8 +592,11 @@ class PATH():
                         listCorrectedPos,listShift=self.CigarcodeChecker()
                         self.correctedPos=listCorrectedPos
                         #Defines if the path is identical to the reference and what is the nucleotide on the reference
+                        i=0
                         for i in range(len(listCorrectedPos)):#Loops on the list of corrected positions
                                 self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject,self.listPosVariantOnPathToKeep[i])#Checks if the path is identical to the reference genome
+                                if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping
+                                        break
                                 if int(self.boolReverse)==1 and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideForward[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
@@ -606,23 +611,25 @@ class PATH():
                                       nucleoRef=self.nucleoRef
                                       nucleo=self.nucleo
                                 self.nucleoRef=None#Resets the reference nucleotide for the next snp (case of close snps)
-                                if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping
-                                        break
+                                
                                                                                                                                                                                                           
-                if int(self.mappingPosition)<=0:#Case of unmapped path                     
+                if int(self.mappingPosition)<=0:#Case of unmapped path
                         listCorrectedPos=self.listPosForward#We keep the forward position for every snps/indel on the path
                         self.listPosVariantOnPathToKeep=self.listPosForward
-                        shift=None#There is no shift with the reference
+                        shift=0#There is no shift with the reference
                         self.boolReverse="."
                         self.nucleoRef="."
                         self.boolRef=False
+                        boolRef=False
+                        nucleoRef='.'
                         self.correctedPos=listCorrectedPos
                         if self.listNucleotideForward!=[]:
                                 self.nucleo=self.listNucleotideForward[0]
+                                i=0
                                 for i in range(len(self.listNucleotideForward)):#Loops on the list of position to fill the dictionary for close snps
-                                        dicoClose[self.listPosForward[i]]=[(self.boolRef),(self.nucleoRef),(listCorrectedPos[i]),(self.listNucleotideForward[i]),self.boolReverse,(int(listCorrectedPos[i])+int(self.mappingPosition))]
+                                        dicoClose[self.listPosForward[i]]=[(False),(self.nucleoRef),(listCorrectedPos[i]),(self.listNucleotideForward[i]),self.boolReverse,(int(listCorrectedPos[i])+int(self.mappingPosition))]
                                         if i==0:
-                                                boolRef=self.boolRef
+                                                boolRef=False
                                                 nucleoRef=self.nucleoRef
                                                 nucleo=self.nucleo
                 
@@ -630,6 +637,7 @@ class PATH():
                 self.boolRef=boolRef
                 self.nucleoRef=nucleoRef
                 self.nucleo=nucleo
+                
                 return(dicoClose)                                                                           
 #############################################################################################
 #############################################################################################
@@ -901,7 +909,7 @@ class SNPSCLOSE(VARIANT):
                                 table[4]=self.CheckStrandAndReverseNucleotide(nucleoLow)
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
                                 VCFObject.chrom=self.upper_path.listSam[2]
-                                VCFObject.reverse=self.upper_path.boolReverse                                
+                                VCFObject.reverse=self.upper_path.boolReverse                             
                             tablebis.append(list(table))#Stocks the variable with all the vcf fields for each close snp to sort it and print it in the vcf
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
                         return tablebis
