@@ -34,7 +34,7 @@
 
 
 
-void feed_coherent_positions(vector<FragmentInfo*> predictions, const int prediction_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
+void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
     
     
     int i, start_on_prediction, stop_on_prediction;
@@ -265,7 +265,7 @@ struct Functor
                         
                         
                         // shortcut
-                        set<u_int64_t> tested_positions = tested_prediction_and_pwis[value->a];
+                        set<u_int64_t> & tested_positions = tested_prediction_and_pwis[value->a];
                         
                         // get the corresponding prediction sequence
                         const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
