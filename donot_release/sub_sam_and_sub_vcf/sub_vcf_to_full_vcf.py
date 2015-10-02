@@ -21,8 +21,8 @@ for line in filein:
         continue
     values=line.split()
     start=int(values[0].split(':')[1].split('.')[0])
-    position=int(values[1])+start
-    print values[0].split(':')[0]+"\t"+str(position),
+    position=int(values[1])+start-1
+    print values[0].split(':')[0]+"\t"+str(position)+"\t",
     for i in xrange(2,len(values)):
         print values[i]+"\t",
     print
