@@ -1,21 +1,20 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.2.0
-User's guide – July 2015
+v2.2.1
+User's guide – October 2015
 
 contact: pierre.peterlongo@inria.fr
 Table of contents
 GNU AFFERO GENERAL PUBLIC LICENSE 	1
-Publications	1
+Publication	1
 discoSnp++ features at a glance	1
-Quick starting	2
+Quick starting	1
 Download and install	2
 Running discoSnp++	2
-Output	4
-Extensions: differences between unitig and contigs 	6
-Second created file from VCF_Creator:	6
-Output Analyze	7
-Exemples of close SNPs and indels	7
+Output	3
+Extensions: differences between unitig and contigs 	5
+Output Analyze	5
+Exemples of close SNPs and indels	5
 
 GNU AFFERO GENERAL PUBLIC LICENSE 
 Copyright INRIA
@@ -60,7 +59,7 @@ See the dedicated section describing the file of file format.
 0: variants for which any of the two paths is branching are discarded (high precision, lowers the recall in complex genomes). Default value
 1: (smart branching) forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position 
 2: No limitation on branching (lowers the precision, high recall)"
--D value. If specified, discoSnp++ will search for deletions of size from 1 to D included. Default=100
+-D value. If specified, discoSnp++ will search for deletions of size from 1 to D included. Default=0
 -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1. 
 -p prefix_name: All out files will start with this prefix. Default="discoRes"
 -l: remove low complexity bubbles
