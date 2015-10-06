@@ -405,7 +405,7 @@ class PATH():
                                         strXA = ','.join(listXA)
                                         listXA = strXA.split(',')
                                         listXA.pop()
-                                        position=listXA #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]
+                                        position=listXA[1:] #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]
                         while i<len(position): #Runs through the list 4 by 4 to get all the positions 
                                 if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
                                         self.dicoMappingPos[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionary
