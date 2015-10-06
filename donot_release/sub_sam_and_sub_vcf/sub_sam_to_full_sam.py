@@ -29,10 +29,10 @@ for line in filein:
         continue
         
     start=int(values[2].split(':')[1].split('.')[0])
-    position=int(values[3])+start
+    position=int(values[3])+start-1
     for i in xrange(2):
         print values[i]+"\t",
-    print values[2].split(':')[0]+"\t"+str(position),
+    print values[2].split(':')[0]+"\t"+str(position)+"\t",
     for i in xrange(4,len(values)):
         print values[i]+"\t",
     print
