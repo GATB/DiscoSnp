@@ -54,7 +54,7 @@ def usage():
     print usage
 ###OPTIONS 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"h:s:n:o:f:",["help","disco_file","mismatch","output=","output_filtered_SAM"])
+    opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file","output=","output_filtered_SAM"])
     if not opts:
         usage()
         sys.exit(2)
@@ -127,6 +127,8 @@ if ".sam" in fileName: #Checks if it's a samfile
                                 line2=samfile.readline()
                         else:break       
                 #Initializes variant object with the samline
+                #if InitVariant(line1,line2)[0]==1:
+                #        continue
                 variant_object, vcf_field_object=InitVariant(line1,line2) #Fills the object with the line of the samfile        
                 if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                         sys.exit(1)

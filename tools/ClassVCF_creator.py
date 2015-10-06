@@ -396,7 +396,7 @@ class PATH():
                 #Error list with mapping positions very close to the first position given by bwa
                 listerreur=set([(int(variant[3])-1),(int(variant[3])+1),(int(variant[3])+2),(int(variant[3])+3),(int(variant[3])-3),(int(variant[3])-2),int(variant[3])])
                 #Creation of a dict with mapping position associated with number of mismatch
-                if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped
+                if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
                         for item in variant:
                                 if "XA" in item:
                                         i=0
@@ -405,7 +405,7 @@ class PATH():
                                         strXA = ','.join(listXA)
                                         listXA = strXA.split(',')
                                         listXA.pop()
-                                        position=listXA[1:] #position=[pos1,cigarcode1,number of mismatch1 , pos2,cigarcode2,number of mismatch2,...]
+                                        position=listXA #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]
                         while i<len(position): #Runs through the list 4 by 4 to get all the positions 
                                 if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
                                         self.dicoMappingPos[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionary
