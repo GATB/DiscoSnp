@@ -283,6 +283,7 @@ class VARIANT():
                 table[7]=table[7].replace("=;","=.;")
                 table[8]=VCFObject.formatField
                 table[9]=VCFObject.genotypes
+                error=VCFObject.CheckOutputConsistency(table,self)
                 VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1006,6 +1007,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][9]=VCFObject.genotypes
                         ID+=1
                         i+=1
+                error=VCFObject.CheckOutputConsistency(table,self)
                 for l in range(len(table)):
                         VCFObject.PrintOneLine(table[l],VCFfile)        
         
@@ -1031,6 +1033,8 @@ class VCFFIELD():
         def GetFilterField(self,filterField):
                 self.filterField=filterField
         
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------    
         
         def PrintOneLine(self,table,VCF):
                 """Prints the line of the current SNP in the VCF file."""
@@ -1041,5 +1045,58 @@ class VCFFIELD():
                         element=str(element).replace("None",".")
                         VCF.write((str(element)).strip())
                         if i<len(table)-1: VCF.write("\t")
-                VCF.write('\n') 
+                VCF.write('\n')
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------    
+                
+        def CheckOutputConsistency(self,table,VARIANT):
+                """Checks if an error occured during variant treatement"""
+                current_position=None
+                previous_position=None
+                error=0
+                try:#Case of SNPs CLOSE
+                        for line in len(table):
+                                # Test if position are continuous
+                                current_position=int(table[line][1])
+                                if previous_position:
+                                        if previous_position<current_position:
+                                                error+=0
+                                        else:
+                                                print "!!! an error occurred in determining the position of close snps !!!"
+                                                error+=1
+                                previous_position=current_position
+                        if "SNP" in table[0][1] and table[0][6]=="PASS":
+                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 error+=1
+                        if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
+                                print "!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!"
+                                error+=1
+                except TypeError or IndexError: # Case of SNP and INDEL
+                        if "SNP" in table[0] and table[6]=="PASS":
+                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 error+=1
+                        if "INDEL" in table[0] and table[6]=="PASS":
+                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 error+=1
+                        if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
+                                print "!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!"
+                                error+=1
+                if error>0:
+                        print " !!! Line where the error occured !!!"
+                        print VARIANT.upper_path.listSam
+                        print VARIANT.lower_path.listSam
+                        sys.exit(2)
+                else : return error                                   
+                                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                 
                                
