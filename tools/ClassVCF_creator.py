@@ -231,6 +231,8 @@ class VARIANT():
                 listcovUp=self.upper_path.listCoverage
                 listcovLow=self.lower_path.listCoverage
                 if int(nbGeno)==0:
+                        VCFObject.formatField=""
+                        VCFObject.genotypes=""
                         return
                 else:
                         for i in range(0,nbGeno): #for each genotype
@@ -260,8 +262,8 @@ class VARIANT():
                                 if i<nbGeno-1 :
                                         genotypes+="\t" #Adds a \t except if this is the last genotype
                 #Write results in VCF object
-                VCFObject.formatField="GT:DP:PL:AD"
-                VCFObject.genotypes=genotypes                                                                                                               
+                        VCFObject.formatField="GT:DP:PL:AD"
+                        VCFObject.genotypes=genotypes                                                                                                               
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                                 
@@ -1038,7 +1040,7 @@ class VCFFIELD():
         
         def PrintOneLine(self,table,VCF):
                 """Prints the line of the current SNP in the VCF file."""
-                if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0] or (table[0]==0 and table[1]==0 and table[3]==0 and table[4]==0):
+                if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
                         return
                 for i in range(len(table)):
                         element=table[i]

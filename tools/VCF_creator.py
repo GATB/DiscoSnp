@@ -54,7 +54,7 @@ def usage():
     print usage
 ###OPTIONS 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file","output=","output_filtered_SAM"])
+    opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file=","output=","output_filtered_SAM="])
     if not opts:
         usage()
         sys.exit(2)
@@ -68,8 +68,8 @@ for opt, arg in opts :
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
         boolmyname=False
-        if os.path.isfile(arg):#checks if the file exists
-               fileName = arg
+        fileName=arg
+        if os.path.isfile(fileName):#checks if the file exists
                listNameFile=fileName.split(".")
                if "BWA_OPT" in listNameFile[0]: #When the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
                        boolmyname=True #Boolean to know if the file name contains the option of BWA

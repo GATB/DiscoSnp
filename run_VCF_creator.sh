@@ -37,11 +37,11 @@ echo "   Run VCF_creator pipeline     "
 echo " ##############################"
 echo "Usage : ./run_VCF_creator.sh OPT"
 echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:" 
-echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w]"
+echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-w]"
 echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
-echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-l <seed_size>] [-n <mismatch_number>] [-s <bwa_errors_in_seed>] [-w] "
+echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-w] "
 echo -e "##MODE 3: USING A HOME MADE ALIGNMENT. Samfile from bwa already exists: "
-echo -e "\t\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+echo -e "\t\t./run_VCF_creator.sh -f <sam_file> [-w]"
 echo
 echo -e "\t-h: print this message"
 echo -e "\t-p: discosnp++ output file (foo_coherent.fa)"
@@ -61,11 +61,11 @@ echo -e "\t\t Optional"
 echo -e "\t-f: <file>.sam: skip the alignment phases to create the vcf file"
 echo -e "\t\t Optional unless MODE 3: you want the mapping positions of the predicted variants in the VCF file without remapping on a reference genome. -f option must be used together with -n"
 
-echo -e "\t-s: bwa option: seed distance"
-echo -e "\t\t Optional, default 0"
-echo -e "\t-l: bwa option: length of the seed for alignment"
-echo -e "\t\t Optional, default 10"
-echo -e "\t-n: bwa option: maximal bwa mapping distance"
+#echo -e "\t-s: bwa option: seed distance"
+#echo -e "\t\t Optional, default 0"
+#echo -e "\t-l: bwa option: length of the seed for alignment"
+#echo -e "\t\t Optional, default 10"
+#echo -e "\t-n: bwa option: maximal bwa mapping distance"
 echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running time highly depends on this parameter."
 echo -e "\t\t Mandatory in MODE 3. "
 
@@ -77,7 +77,7 @@ echo -e "\t\t Optional"
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hB:c:G:p:l:n:s:wIf:o:t:" opt; do
+while getopts "hB:c:G:p:wIf:o:t:" opt; do
 case $opt in
        
        t)
@@ -113,20 +113,20 @@ case $opt in
 	discoSNPs=$OPTARG
 	;;
 
-	s)
-	echo -e "\t##use distance with the seed : $OPTARG" >&2
-	s=$OPTARG
-	;;
+#	s)
+#	echo -e "\t##use distance with the seed : $OPTARG" >&2
+#	s=$OPTARG
+#	;;
 
-	n)
-	echo -e "\t##use number of mismatches : $OPTARG" >&2
-	n=$OPTARG
-	;;
+#	n)
+#	echo -e "\t##use number of mismatches : $OPTARG" >&2
+#	n=$OPTARG
+#	;;
 
-	l)
-	echo -e "\t##use seed length : $OPTARG" >&2
-	l=$OPTARG
-	;;
+#	l)
+#	echo -e "\t##use seed length : $OPTARG" >&2
+#	l=$OPTARG
+#	;;
 
 	f)
 	echo -e "\t##use directly samfile : $OPTARG" >&2
@@ -197,7 +197,6 @@ if [ -z "$samfile" ];then
                        echo -e "...And the file disco : option -p..."
                        exit 1 
                 else
-                        n=3
                         
                         python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
 		        echo -e "... Creation of the vcf file : done ...==> $vcffile" 
@@ -245,10 +244,10 @@ if [ -z "$samfile" ];then
 			fi
 		fi
 	fi
-	if [ -z "$n" ];then
-		echo -e "\t##Default value for the number of mismatches allowed in alignment : 3 (to change it -n)"
-		n=3
-	fi
+#	if [ -z "$n" ];then
+#		echo -e "\t##Default value for the number of mismatches allowed in alignment : 3 (to change it -n)"
+#		n=3
+#	fi
 ###BWA 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
@@ -294,19 +293,19 @@ else
        ####Skip alignment phase to create a vcf file
 ##Test to execute VCF_creator
         echo -e "...Skipping alignment phase..."
-        if [ -z "$n" ];then
-                echo -e " ...To do it you must provide the number of mismatch of the alignment..."
-                echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
-                exit 1
-        fi
+#        if [ -z "$n" ];then
+#                echo -e " ...To do it you must provide the number of mismatch of the alignment..."
+#                echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+#                exit 1
+#        fi
 	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
 		echo -e "...You must provide an output <file>..."
 		exit 1
 	fi
-	if [ -z "$n" ]; then
-		echo -e "...You must provide the number of mismatch allowed during the alignment phase.."
-		exit 1
-	fi
+#	if [ -z "$n" ]; then
+#		echo -e "...You must provide the number of mismatch allowed during the alignment phase.."
+#		exit 1
+#	fi
 	##Creation of the vcf file
        
 	python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
@@ -321,7 +320,7 @@ fi
 if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
-	rm -f $saifile tmp.vcf #rm -f $saifile $discoSNPsbis tmp.vcf
+	rm -f $saifile tmp.vcf $saifile $discoSNPsbis tmp.vcf
 fi	
 
 

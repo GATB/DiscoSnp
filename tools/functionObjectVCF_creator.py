@@ -192,18 +192,18 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
         VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is "." ">\n')
-        VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
-        VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
-        VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
-        VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
-        VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
+        VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
 
 
         ##Creates the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
         if nbGeno==0: # Without genotypes
-            VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
+            VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n')
         else:
             i=0
+            VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
+            VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
+            VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
+            VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
             VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t')
             for i in range(0,int(nbGeno)):
                 nomCol="G"+str(i+1)
