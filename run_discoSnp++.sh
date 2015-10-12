@@ -226,7 +226,6 @@ fi
 
 
 c_dbgh5=$c
-rm -f *_removemeplease*
 if [[ "$useref" == "true" ]]; then
 
        if [ -z "$genome" ]; then
@@ -409,8 +408,6 @@ exit
 fi
 
 rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
-
-rm -f *_removemeplease*
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
