@@ -332,7 +332,7 @@ class VARIANT():
 #INDEL_lower_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_20|C2_43|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	2064	gi|224384768|gb|CM000663.1|	3668552	1	24H29M1D9M	*	0	0	TTTTTTTCTTTTTTTTCTTTTTTTATTTCTTTTTTCTT	*	NM:i:2	MD:Z:12C16^T9	AS:i:30	XS:i:26	SA:Z:gi|224384768|gb|CM000663.1|,191102966,+,23S8M1I30M,1,1;	XA:Z:gi|224384768|gb|CM000663.1|,-197957308,27S26M9S,0;
 #---------------------------------------------------------------------------------------------------------------------------
         def  CheckCoupleVariantID(self):
-                """Test if the couple of paths has the same ID"""
+                """Test if the couple of paths has the same ID"""                
                 IDVariantUp=self.upper_path.listSam[0].split("_")[3]
                 IDVariantLow= self.lower_path.listSam[0].split("_")[3]
                 bitwiseFlag=int(self.upper_path.listSam[1])                
