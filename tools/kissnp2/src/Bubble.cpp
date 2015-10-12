@@ -52,7 +52,8 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
     
-    max_indel_size         = props->getInt (STR_MAX_INDEL_SIZE);
+    max_indel_size       = props->getInt (STR_MAX_INDEL_SIZE);
+    max_indel_ambiguity  = props->getInt (STR_MAX_AMBIGOUS_INDELS);
     max_polymorphism     = props->getInt (STR_MAX_POLYMORPHISM);
     
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
@@ -375,6 +376,7 @@ bool BubbleFinder::expand_heart(
         
         checkPath(bubble);
         checkLowComplexity(bubble);
+        checkRepeatSize(bubble);
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
         if (bubble.isCanonical && bubble.acceptable_complexity)
         {
@@ -562,7 +564,6 @@ void BubbleFinder::extend (Bubble& bubble)
     bubble.closureRight = closureRight;
     
 }
-
 /*********************************************************************
  ** METHOD  :
  ** PURPOSE :
@@ -789,6 +790,32 @@ void BubbleFinder::checkPath (Bubble& bubble) const
     
     return ;
 }
+
+
+
+/*********************************************************************
+ ** METHOD  :
+ ** PURPOSE :
+ ** INPUT   :
+ ** OUTPUT  :
+ ** RETURN  :
+ ** REMARKS :
+ *********************************************************************/
+bool BubbleFinder::checkRepeatSize (Bubble& bubble) const
+{
+    
+    if ( bubble.polymorphism_type=="SNP" ) return true;
+    /** compute the bubble paths */
+    string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
+    string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
+    const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
+    if (size_repeat>max_indel_ambiguity) {
+        return false;
+    }
+    return true;
+    
+}
+
 
 /*********************************************************************
  ** METHOD  : BubbleFinder::checkBranching
