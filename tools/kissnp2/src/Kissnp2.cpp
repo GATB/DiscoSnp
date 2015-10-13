@@ -51,6 +51,7 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 {
     /** We add options known by kissnp2. */
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
+    getParser()->push_front (new OptionOneParam (STR_MAX_AMBIGOUS_INDELS,           "Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output", false, "20"));
     getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "branching mode\n"
                                                  "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
                                                  "\t1: forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position (default value)\n"
@@ -132,7 +133,6 @@ void Kissnp2::execute ()
     nbNodes = it.size();
     
     /** We loop the nodes. */
-    
     status = getDispatcher()->iterate (it, bubbleFinder);
     
 

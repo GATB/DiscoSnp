@@ -27,15 +27,16 @@
 /********************************************************************************/
 
 /** We define string constants for command line options. */
-#define STR_DISCOSNP_LOW_COMPLEXITY        "-l"
-#define STR_DISCOSNP_AUTHORISED_BRANCHING  "-b"
-#define STR_DISCOSNP_TRAVERSAL_UNITIG      "-t"
-#define STR_DISCOSNP_TRAVERSAL_CONTIG      "-T"
-#define STR_KISSNP2_COVERAGE_FILE_NAME     "-coverage_file"
-#define STR_KISSNP2_DONT_OUTPUT_FIRST_COV  "-dont_output_first_coverage"
+#define STR_MAX_AMBIGOUS_INDELS             "-max_ambigous_indel"
+#define STR_DISCOSNP_LOW_COMPLEXITY         "-l"
+#define STR_DISCOSNP_AUTHORISED_BRANCHING   "-b"
+#define STR_DISCOSNP_TRAVERSAL_UNITIG       "-t"
+#define STR_DISCOSNP_TRAVERSAL_CONTIG       "-T"
+#define STR_KISSNP2_COVERAGE_FILE_NAME      "-coverage_file"
+#define STR_KISSNP2_DONT_OUTPUT_FIRST_COV   "-dont_output_first_coverage"
 
-#define STR_MAX_INDEL_SIZE                   "-D"
-#define STR_MAX_POLYMORPHISM               "-P"
+#define STR_MAX_INDEL_SIZE                  "-D"
+#define STR_MAX_POLYMORPHISM                "-P"
 
 
 /********************************************************************************/
@@ -218,6 +219,9 @@ protected:
     
     /** Max deletion size **/
     int max_indel_size;
+    
+    /** Max indel size **/
+    int max_indel_ambiguity;
 
     bool accept_low; // Option set: do we accept low complexity bubbles
     
@@ -326,6 +330,9 @@ protected:
      * \param[in] node 2 : bubble branch last node
      * \return true if bubble is ok */
     bool checkBranching (const Node& node1, const Node& node2) const;
+    
+    /** Check that indel bubbles respect the maximal size of the position ambiguity */
+    bool checkRepeatSize (Bubble& bubble) const;
 
     /** Check complexity for a bubble.
      * \param[in] path1 : branch of the bubble
