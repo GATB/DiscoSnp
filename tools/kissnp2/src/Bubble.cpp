@@ -376,9 +376,8 @@ bool BubbleFinder::expand_heart(
         
         checkPath(bubble);
         checkLowComplexity(bubble);
-        checkRepeatSize(bubble);
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
-        if (bubble.isCanonical && bubble.acceptable_complexity)
+        if (bubble.isCanonical && bubble.acceptable_complexity && checkRepeatSize(bubble))
         {
             /** We extend the bubble on the left and right (unitigs or contigs). */
             extend (bubble);
