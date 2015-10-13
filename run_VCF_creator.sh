@@ -320,7 +320,7 @@ fi
 if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
-	rm -f $saifile tmp.vcf $saifile $discoSNPsbis tmp.vcf
+	rm -f $saifile tmp.vcf $discoSNPsbis
 fi	
 
 
