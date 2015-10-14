@@ -199,7 +199,7 @@ struct Functor
 {
 //    ISynchronizer* synchro;    fstream& file;
     
-    map<u_int64_t, set<u_int64_t>>  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
+    map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
     set<u_int64_t> mapped_prediction;                                    // stores for this read, the succesfully mapped predictions
     
     GlobalValues & gv;
@@ -331,7 +331,7 @@ struct Functor
             
             
             // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
-            for (std::map<u_int64_t, set<u_int64_t>> ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
+            for (std::map<u_int64_t, set<u_int64_t> > ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
                 
                 it->second.clear();
             }

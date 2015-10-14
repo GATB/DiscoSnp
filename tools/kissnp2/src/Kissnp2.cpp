@@ -90,8 +90,7 @@ void Kissnp2::execute ()
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
     
     istringstream iss(graph.getInfo().getStr("thresholds"));
-    vector<string> tokens{istream_iterator<string>{iss},
-        istream_iterator<string>{}};
+    vector<string> tokens{istream_iterator<string>{iss}, istream_iterator<string>{}};
 
     /** We store in a _removemeplease.txt file the used coverages */
     // We create a Storage product "_removemeplease.h5" in HDF5 format
