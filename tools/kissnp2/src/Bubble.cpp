@@ -103,6 +103,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     max_polymorphism     = bf.max_polymorphism;
     max_recursion_depth  = bf.max_recursion_depth;
     breadth_first_queue  = bf.breadth_first_queue;
+    max_indel_size       = bf.max_indel_size;
     
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
