@@ -103,7 +103,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     max_polymorphism     = bf.max_polymorphism;
     max_recursion_depth  = bf.max_recursion_depth;
     breadth_first_queue  = bf.breadth_first_queue;
-    max_indel_size       = bf.max_indel_size;
+    max_indel_ambiguity  = bf.max_indel_ambiguity;
     
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
@@ -809,6 +809,7 @@ bool BubbleFinder::checkRepeatSize (Bubble& bubble) const
     string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
     string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
     const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
+    cout <<size_repeat << max_indel_ambiguity<<endl; //DEB
     if (size_repeat>max_indel_ambiguity) {
         return false;
     }

@@ -8,7 +8,7 @@ Binaries in /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build
 		 b=2
 		 d=1
 		 D=100
-	 starting date=Fri Sep  4 17:59:12 CEST 2015
+	 starting date=Sun Oct  4 20:36:37 CEST 2015
 
 	############################################################
 	#################### GRAPH CREATION  #######################
@@ -18,17 +18,17 @@ graph
     gatb-core-library                       
         version                                  : 1.1.1
         git_sha1                                 : notset
-        build_date                               : 2015-08-25 11:53:50
+        build_date                               : 2015-09-16 10:32:17
         build_system                             : Darwin-13.0.0
         build_compiler                           : /usr/bin/cc  (5.0.0)
         build_kmer_size                          : 32 64 96 128
     host                                    
-        name                                     : cruxy.irisa.fr
+        name                                     : cruxy.local
         nb_cores                                 : 8
         memory                                   : 8.0
-        disk_current_dir                         : 4913.0
+        disk_current_dir                         : 3300.5
         max_file_nb                              : 256
-        pid                                      : 32834
+        pid                                      : 24119
     configuration                           
         config                                  
             kmer_size                                : 31
@@ -36,12 +36,12 @@ graph
             solidity_kind                            : one
             abundance_min                            : 1
             abundance_max                            : 2147483647
-            available_space                          : 5030887
+            available_space                          : 3379706
             sequence_number                          : 4
             sequence_volume                          : 0
             kmers_number                             : 596
             kmers_volume                             : 1
-            max_disk_space                           : 5028887
+            max_disk_space                           : 3377706
             max_memory                               : 2000
             nb_passes                                : 1
             nb_partitions                            : 32
@@ -96,11 +96,11 @@ graph
                 1.read                                   : 0.000
                 2.sort                                   : 0.000
                 3.dump                                   : 0.000
-        time                                     : 0.076
-            fill_partitions                          : 0.045
-            fill_solid_kmers                         : 0.031
+        time                                     : 0.108
+            fill_partitions                          : 0.054
+            fill_solid_kmers                         : 0.054
         system                                  
-            cpu                                      : 163.6
+            cpu                                      : 178.6
     bloom                                   
         stats                                   
             kind                                     : neighbor
@@ -123,19 +123,19 @@ graph
                 bloom4                                   : 6
                 set                                      : 0
                 nb                                       : 7
-        time                                     : 0.189
-            cascading                                : 0.026
-            fill_debloom_file                        : 0.134
-            finalize_debloom_file                    : 0.029
+        time                                     : 0.101
+            cascading                                : 0.030
+            fill_debloom_file                        : 0.039
+            finalize_debloom_file                    : 0.032
         system                                  
-            cpu                                      : 131.6
+            cpu                                      : 108.3
     branching                               
         stats                                   
             nb_branching                             : 8
             percentage                               : 3.6
             checksum_branching                       : a1aa54dfe1f3e806
         time                                    
-            build                                    : 0.028
+            build                                    : 0.027
         system                                  
             cpu                                      : 133.3
 
@@ -143,7 +143,7 @@ Graph creation time in seconds: 1
 	############################################################
 	#################### KISSNP2 MODULE  #######################
 	############################################################
-/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build//tools/kissnp2/kissnp2 -in test_fof4_k_31_c_1.h5 -out test_fof4_k_31_c_1_D_100_P_2_b_2  -b 2 -l -P 2  -D 100   
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build//tools/kissnp2/kissnp2 -in test_fof4_k_31_c_1.h5 -out test_fof4_k_31_c_1_D_100_P_2_b_2  -b 2 -l -P 2  -D 100    -coverage_file test_fof4_k_31_c_1_cov.h5
 Kissnp2                                 
     config                                  
         kmer_size                                : 31
@@ -155,11 +155,11 @@ Kissnp2
     nodes                                   
         nb                                       : 8
     SNP bubbles                             
-        nb                                       : 4
-        nb_high                                  : 4
+        nb                                       : 2
+        nb_high                                  : 2
         nb_low                                   : 0
         extensions                              
-            none                                     : 4
+            none                                     : 2
             left                                     : 0
             right                                    : 0
             left|right                               : 0
@@ -173,25 +173,25 @@ Kissnp2
             right                                    : 0
             left|right                               : 0
     time                                    
-        find                                     : 20
+        find                                     : 21
 Bubble detection time in seconds: 0
 
 	#############################################################
 	#################### KISSREADS MODULE #######################
 	#############################################################
 
-/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build//tools/kissreads2/kissreads2 -predictions test_fof4_k_31_c_1_D_100_P_2_b_2.fa -reads  fof4.txt -co test_fof4_k_31_c_1_D_100_P_2_b_2\_coherent -unco test_fof4_k_31_c_1_D_100_P_2_b_2\_uncoherent -k 31 -size_seeds 26 -index_stride 4 -hamming 1  -genotype 
+/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build//tools/kissreads2/kissreads2 -predictions test_fof4_k_31_c_1_D_100_P_2_b_2.fa -reads  fof4.txt -co test_fof4_k_31_c_1_D_100_P_2_b_2\_coherent -unco test_fof4_k_31_c_1_D_100_P_2_b_2\_uncoherent -k 31 -size_seeds 26 -index_stride 4 -hamming 1  -genotype -coverage_file test_fof4_k_31_c_1_cov.h5 
 Indexing bank test_fof4_k_31_c_1_D_100_P_2_b_2.fa -- 1 read set(s) 4 reads
 Kissreads2                              
     Stats                                   
-        Total Number of Mapped reads             : 16
+        Total Number of Mapped reads             : 8
         Minimal coveage per read set             : 1 
     Outputs                                 
-        Number of read coherent predictions      : 4
+        Number of read coherent predictions      : 2
         Number of read uncoherent predictions    : 0
     Time                                     : 0.026
-        indexing                                 : 0.001
-        mapping reads                            : 0.025
+        indexing                                 : 0.000
+        mapping reads                            : 0.026
         print results                            : 0.000
 	###############################################################
 	#################### SORT AND FORMAT  RESULTS #################
