@@ -39,6 +39,7 @@ C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
 D=100 # maximal size of searched deletions
+max_ambigous_indel=20
 P=1 # number of polymorphsim per bubble
 l="-l"
 extend=""
@@ -73,6 +74,7 @@ echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
 echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
 echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
 echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
 echo -e "\t\t -l: remove low complexity bubbles"
@@ -102,11 +104,15 @@ echo "Any further question: read the readme file or contact us via the Biostar f
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlRmgnG:B:M:u:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:P:htTlRmgnG:B:M:u:a:" opt; do
 case $opt in
        R)
        useref="true"
        output_coverage_option="-dont_output_first_coverage"
+       ;;
+       
+       a)
+       max_ambigous_indel=$OPTARG
        ;;
        
 	t)
@@ -225,20 +231,7 @@ exit
 fi
 
 
-c_dbgh5=$c
-if [[ "$useref" == "true" ]]; then
 
-       if [ -z "$genome" ]; then
-              echo "You can't use option -R without providing a reference genome (-G)"
-              help
-              exit
-       fi
-              
-       echo $genome > ${read_sets}_removemeplease
-       c_dbgh5="1,"$c
-       echo $c_dbgh5
-fi
-cat $read_sets >> ${read_sets}_removemeplease
 
 
 if [ -d "$DISCO_BUILD_PATH" ] ; then
@@ -258,6 +251,8 @@ then
 echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
 k=$(($k-1))
 fi
+
+
 #######################################
 if [ $C -ne $max_C ]
 then
@@ -269,7 +264,21 @@ fi
 kissprefix=$h5prefix\_D_$D\_P_$P\_b_$b
 
 
+#######################################
+c_dbgh5=$c
+if [[ "$useref" == "true" ]]; then
 
+       if [ -z "$genome" ]; then
+              echo "You can't use option -R without providing a reference genome (-G)"
+              help
+              exit
+       fi
+              
+       echo $genome > ${read_sets}_${kissprefix}_removemeplease
+       c_dbgh5="1,"$c
+       echo $c_dbgh5
+fi
+cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 
 
 
@@ -311,8 +320,8 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
-	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
+	echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in $${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
+	$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction"
@@ -332,7 +341,7 @@ echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
 echo "$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5"
-$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5
+$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel}
 
 if [ $? -ne 0 ]
 then
