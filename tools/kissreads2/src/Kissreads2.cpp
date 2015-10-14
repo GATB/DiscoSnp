@@ -75,7 +75,6 @@ void Kissreads2::execute ()
     
     IProperties* props= getInput();
     
-    
    
     
     

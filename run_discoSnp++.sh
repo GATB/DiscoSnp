@@ -277,8 +277,9 @@ if [[ "$useref" == "true" ]]; then
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
        echo $c_dbgh5
+       cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 fi
-cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
+cat $read_sets > ${read_sets}_${kissprefix}_removemeplease
 
 
 

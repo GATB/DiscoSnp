@@ -219,6 +219,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
             current = element.first;
             tried_extension=element.second;
             int insert_size = tried_extension.length();
+            DEBUG((cout<<"insert size   "<<insert_size<<endl));
             /** if we already found an indel bubble: we need to check to other possible bubbles of the same size (indels of the same size) */
             /** however, if we reach a node at depth lower than the succesfull bubble, as no other bubbles are stored in the queue with */
             /** a higher length (property of the queue), then we can safelly stop the breadth first search */
@@ -438,7 +439,7 @@ bool BubbleFinder::expand (
 {
 
     DEBUG((cout<<"expand with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
-    
+    DEBUG((cout<<"expand with local_extended_string1 "<<local_extended_string1<<" local_extended_string2 "<<local_extended_string2<<endl));
     
     DEBUG((cout<<"check branching"<<endl));
     /** We may have to stop the extension according to the branching mode. */
