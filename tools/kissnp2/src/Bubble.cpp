@@ -809,7 +809,6 @@ bool BubbleFinder::checkRepeatSize (Bubble& bubble) const
     string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
     string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
     const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
-    cout <<size_repeat << max_indel_ambiguity<<endl; //DEB
     if (size_repeat>max_indel_ambiguity) {
         return false;
     }
