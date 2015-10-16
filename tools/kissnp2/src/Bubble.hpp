@@ -332,7 +332,7 @@ protected:
     bool checkBranching (const Node& node1, const Node& node2) const;
     
     /** Check that indel bubbles respect the maximal size of the position ambiguity */
-    bool checkRepeatSize (Bubble& bubble) const;
+    bool checkRepeatSize (string &extension1, string &extension2) const;
 
     /** Check complexity for a bubble.
      * \param[in] path1 : branch of the bubble

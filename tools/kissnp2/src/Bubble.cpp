@@ -379,8 +379,9 @@ bool BubbleFinder::expand_heart(
         checkPath(bubble);
         checkLowComplexity(bubble);
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
-        if (bubble.isCanonical && bubble.acceptable_complexity && checkRepeatSize(bubble))
+        if (bubble.isCanonical && bubble.acceptable_complexity && checkRepeatSize(local_extended_string1, local_extended_string2))
         {
+            
             /** We extend the bubble on the left and right (unitigs or contigs). */
             extend (bubble);
             /** We got all the information about the bubble, we finish it. */
@@ -581,9 +582,6 @@ void BubbleFinder::finish (Bubble& bubble)
     
     /** We set the bubble index. NOTE: We have to make sure it is protected against concurrent
      * accesses since we may be called here from different threads. */
-//    if (bubble.type==0) bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles_snp), 1);
-//    if (bubble.type==1) bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles_del), 1);
-    
     if (bubble.type==0) __sync_add_and_fetch (&(stats.nb_bubbles_snp), 1);
     if (bubble.type==1) __sync_add_and_fetch (&(stats.nb_bubbles_del), 1);
     bubble.index = __sync_add_and_fetch (&(stats.nb_bubbles), 1);
@@ -592,7 +590,6 @@ void BubbleFinder::finish (Bubble& bubble)
     string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
     string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
     stringstream comment;
-//    string comment="";
     if ( bubble.polymorphism_type=="SNP" ){
         int polymorphism_id=1;
         for (int i=0;i<path_0.length();i++){
@@ -607,7 +604,11 @@ void BubbleFinder::finish (Bubble& bubble)
     }
     if ( bubble.polymorphism_type=="INDEL" ){
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
-        const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
+        const int size_repeat = sizeKmer-1-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
+        
+        cout << "path1 = "<<bubble.extended_string[0]<<endl; //DEB
+        cout << "path2 = "<<bubble.extended_string[1]<<endl; //DEB
+        
         comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
     }
     
@@ -802,14 +803,30 @@ void BubbleFinder::checkPath (Bubble& bubble) const
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-bool BubbleFinder::checkRepeatSize (Bubble& bubble) const
+bool BubbleFinder::checkRepeatSize (string &extension1, string &extension2) const
 {
     
-    if ( bubble.polymorphism_type=="SNP" ) return true;
+    if (extension1.length() == extension2.length()) return true; // This is a SNP
     /** compute the bubble paths */
-    string path_0 = graph.toString (bubble.begin[0])+bubble.extended_string[0];
-    string path_1 = graph.toString (bubble.begin[1])+bubble.extended_string[1];
-    const int size_repeat = 2*sizeKmer-2-min(path_0.length(),path_1.length());
+    /** Expected size of a path = 2k-2 (without first and last kmer common to both alleles
+     * This can be smaller un case of repeat position ambiguity
+     * k-1-size_of_smallest_extension (without the first kmer thus provides the size of the ambiguity
+     * In this code we only compute the length of the extension, expected to be k-1 (see bellow)
+     * ACCTGGGA
+     * ACCTXXGGGA
+     * ACCT -> CCTG -> CTGG -> TGGG -> GGGA  ---------------------> extended string is GGG (size k-1)
+     * ACCT -> CCTX -> CTXX -> TXXG -> XXGG -> XGGG -> GGGA ------> extended string is XXGGG (size k-1+size insert
+     *
+     * Extreme case: 
+     * ACCTGGGA
+     * ACCT|GGGA|GGGA
+     * 
+     * ACCT->CCTG->CTGG->TGGG->GGGA->GGAX ------------------------------> extended string is empty (size 0 = k-1-ambiguity => ambiguity=k-1)
+     * ACCT->CCTG->CTGG->TGGG->GGGA->GGAG->GAGG->AGGG->GGGA->GAAX ------> extended string is AGGG (size k = k-1-ambiguity+size_ins = k-1-(k-1)+k => insertion of length k
+     **/
+    
+    
+    const int size_repeat = sizeKmer-1-min(extension1.length(), extension2.length());
     if (size_repeat>max_indel_ambiguity) {
         return false;
     }
