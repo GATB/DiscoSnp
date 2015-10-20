@@ -75,7 +75,6 @@ void Kissreads2::execute ()
     
     IProperties* props= getInput();
     
-    
    
     
     
@@ -123,10 +122,10 @@ void Kissreads2::execute ()
     
     
     ofstream coherent_out;
-    coherent_out.open(props->getStr(STR_URI_OUTPUT_COHERENT));
+    coherent_out.open(props->getStr(STR_URI_OUTPUT_COHERENT).c_str(),std::ofstream::out);
     
     ofstream uncoherent_out;
-    uncoherent_out.open(props->getStr(STR_URI_OUTPUT_UNCOHERENT));
+    uncoherent_out.open(props->getStr(STR_URI_OUTPUT_UNCOHERENT).c_str(), std::ofstream::out);
       
      
     getTimeInfo().start ("indexing");
