@@ -291,7 +291,7 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------
                                 
         def WhichPathIsTheRef(self,VCFObject):
-                """Finds which path is identical to the reference genome and defines it as the ref : specific method for each type of variant"""       
+                """Finds which path is identical to the reference genome (with boolRef) and defines it as the ref : specific method for each type of variant"""       
                 #Checks the exception : different mapping position or both paths identical to the reference 
                 if ((int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)>0) and int(self.upper_path.mappingPosition)!=int(self.lower_path.mappingPosition)>0) or (self.upper_path.boolRef==False and self.lower_path.boolRef==False) or (self.upper_path.boolRef==True and self.lower_path.boolRef==True):
                         self.MismatchChecker()
@@ -338,13 +338,13 @@ class VARIANT():
                 bitwiseFlag=int(self.upper_path.listSam[1])                
                 if IDVariantUp != IDVariantLow:
                         if bitwiseFlag & 2048 : #Checks if it's a supplementary alignment
-                                print "Supplementary alignment:"
-                                print self.upper_path.listSam
+                                print("Supplementary alignment:")
+                                print(self.upper_path.listSam)
                                 return 2 
                         else :
-                                print "WARNING two consecutive lines do not store the same variant id: "
-                                print self.upper_path.listSam
-                                print self.lower_path.listSam
+                                print("WARNING two consecutive lines do not store the same variant id: ")
+                                print(self.upper_path.listSam)
+                                print(self.lower_path.listSam)
                                 return 1
                 
                 else:
@@ -436,13 +436,13 @@ class PATH():
                                                                                                                   
         def CheckBitwiseFlag(self):
                 """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
-                if int(self.listSam[1]) & 16:
+                if int(self.listSam[1]) & 16:#Reverse strand
                      self.boolReverse="-1"
                      self.listPosVariantOnPathToKeep=self.listPosReverse
-                elif int(self.listSam[1]) & 4:
+                elif int(self.listSam[1]) & 4: #Unmapped
                      self.listPosVariantOnPathToKeep=self.listPosForward
                      self.boolReverse="."  
-                else:                      
+                else:  #Forward strand                   
                      self.listPosVariantOnPathToKeep=self.listPosForward
                      self.boolReverse="1"        
 #---------------------------------------------------------------------------------------------------------------------------
@@ -598,7 +598,7 @@ class PATH():
                         i=0
                         for i in range(len(listCorrectedPos)):#Loops on the list of corrected positions
                                 self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject,self.listPosVariantOnPathToKeep[i])#Checks if the path is identical to the reference genome
-                                if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping
+                                if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping so we have to check again if the mapping position
                                         break
                                 if int(self.boolReverse)==1 and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideForward[i]
@@ -650,6 +650,7 @@ class SNP(VARIANT):
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
         def WhichPathIsTheRef(self,VCFObject):
+                """Finds which path is identical to the reference genome (with boolRef) and defines it as the ref : specific method for each type of variant"""  
                 VARIANT.WhichPathIsTheRef(self,VCFObject)                
                 posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1058,35 +1059,35 @@ class VCFFIELD():
                 error=0
                 try:#Case of SNPs CLOSE
                         for line in len(table):
-                                # Test if position are continuous
+                                # Test if positions follow each other
                                 current_position=int(table[line][1])
                                 if previous_position:
                                         if previous_position<current_position:
                                                 error+=0
                                         else:
-                                                print "!!! an error occurred in determining the position of close snps !!!"
+                                                print("!!! an error occurred in determining the position of close snps !!!")
                                                 error+=1
                                 previous_position=current_position
                         if "SNP" in table[0][1] and table[0][6]=="PASS":
-                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
                                  error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
-                                print "!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!"
+                                print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
                                 error+=1
                 except TypeError or IndexError: # Case of SNP and INDEL
                         if "SNP" in table[0] and table[6]=="PASS":
-                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
                                  error+=1
                         if "INDEL" in table[0] and table[6]=="PASS":
-                                 print "!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!"
+                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
                                  error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
-                                print "!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!"
+                                print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
                                 error+=1
                 if error>0:
-                        print " !!! Line where the error occured !!!"
-                        print VARIANT.upper_path.listSam
-                        print VARIANT.lower_path.listSam
+                        print(" !!! Line where the error occured !!!")
+                        print(VARIANT.upper_path.listSam)
+                        print(VARIANT.lower_path.listSam)
                         sys.exit(2)
                 else : return error                                   
                                 

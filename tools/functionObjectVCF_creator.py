@@ -12,14 +12,14 @@ from ClassVCF_creator import *
 #INDEX_____________________________________________________________________________________________________________
 #      InitVariant(line1,line2):"""Initialization of the variant by taking into accoutn its type"""
 #      MappingTreatement(variant_object,vcf_field_object,nbGeno):
-#      UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):"""Fills VCFfile in ghost mode (from a fasta file)"""
-#      Counting(fileToRead)
+#      UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):"""Fills VCFfile in ghost mode (from a fasta file)"""
+#      CounterGenotype(fileToRead)
 #      AddPosition(position,setPositions,delta)
 #      CheckAtDistanceXBestHits(upper_path,lower_path):"""Prediction validation : check if the couple is validated with only one mapping position """
 #      PrintVCFHeader(VCF,listName,fileName,boolmyname):    
 #############################################################################################
 def InitVariant(line1,line2):
-        """Initialization of the variant by taking into accoutn its type"""
+        """Initialization of the variant by taking into account its type"""
         #Object Creation
         if "SNP" in line1 and "nb_pol_1" in line1:
                 variant_object=SNP(line1,line2)
@@ -31,7 +31,7 @@ def InitVariant(line1,line2):
                 #        return 1,1
                 variant_object=INDEL(line1,line2)
         else :
-                print "!!!!Undefined Variant!!!!"
+                print("!!!!Undefined Variant!!!!")
                 return 1,1                
                         
         #VCF object Creation and filling variant's attribut   
@@ -67,7 +67,7 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         return table
 #############################################################################################
 #############################################################################################
-def UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
+def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         """Treatement of the couple of path without alignment"""
         table = [0] * 10 #Creates a 10 cols array
         seq1=seq1.rstrip('\n')
@@ -95,7 +95,7 @@ def UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         return table         
 #############################################################################################
 #############################################################################################
-def Counting(fileName):
+def CounterGenotype(fileName):
         samfile=open(fileName,'r')
         nbGeno=0
         while True:
@@ -117,7 +117,7 @@ def Counting(fileName):
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions
 #############################################################################################
-def AddPosition(position,setPositions,delta):
+def AddPosition(position,setPositions,delta):#Not used
         """Add a position to a set of positions only if the difference between the two is greater than delta"""
         if len(setPositions)==0: #Case : it's the first position add to the set
                 setPositions.append(position)
@@ -177,7 +177,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##source=VCF_creator\n')
         nbGeno=0
         nbSnp=0
-        nbGeno = Counting(fileName)
+        nbGeno = CounterGenotype(fileName)
         if boolmyname:
                 VCF.write('##BWA_Options='+str(listName[1])+'\n')
                 VCF.write('##SAMPLE=file://'+str(listName[0])+".fa"+'\n')
