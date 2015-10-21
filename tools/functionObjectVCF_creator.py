@@ -32,7 +32,7 @@ def InitVariant(line1,line2):
                 variant_object=INDEL(line1,line2)
         else :
                 print("!!!!Undefined Variant!!!!")
-                return 1,1                
+                return (1,1)                
                         
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
@@ -64,7 +64,7 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         vcf_field_object.GetFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
         #Defines the genotype for the couple
         variant_object.GetGenotypes(nbGeno,vcf_field_object)
-        return table
+        return(table)
 #############################################################################################
 #############################################################################################
 def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
@@ -92,7 +92,7 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         variant_object.GetMappingPositionCouple()
         #Defines the genotype for the couple
         variant_object.GetGenotypes(nbGeno,vcf_field_object)
-        return table         
+        return(table)         
 #############################################################################################
 #############################################################################################
 def CounterGenotype(fileName):
@@ -136,7 +136,7 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
         # get the best mapping distance for upper path 
         best_up=1024
         if int(upper_path.mappingPosition)==0 and int(lower_path.mappingPosition)==0:#Checks if paths are unmappped
-                return "."
+                return(".")
         for position,nbMismatch in posUp.items(): 
                 if nbMismatch<best_up:
                         best_up=nbMismatch
@@ -153,18 +153,18 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
                 if nbMismatch == best_up:
                         position_set.add(position)
                 if len(position_set) > 1: 
-                        return "MULTIPLE"
+                        return("MULTIPLE")
 
         for position,nbMismatch in posLow.items():
                 if nbMismatch == best_low:
                         position_set.add(position)
                 if len(position_set) > 1: 
-                        return "MULTIPLE"
+                        return("MULTIPLE")
     
         if len(position_set) == 1: 
-                return "PASS"
+                return("PASS")
     
-        return "."
+        return(".")
 
 #############################################################################################
 #############################################################################################

@@ -311,20 +311,20 @@ class VARIANT():
                 """Reverse the alt nucleotide if it is needed"""
                 if self.upper_path.boolRef==True:#Checks if the upper path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse :#if the mapping strand is the same on both path => returns the nucleotide
-                                return nucleo
+                                return(nucleo)
                         elif int(self.upper_path.boolReverse)==1 and self.lower_path.boolReverse==".":
-                                return nucleo 
+                                return (nucleo) 
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
-                                return self.ReverseComplement(nucleo)
+                                return (self.ReverseComplement(nucleo))
                 elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
-                                return nucleo
+                                return (nucleo)
                         elif int(self.lower_path.boolReverse)==1 and self.upper_path.boolReverse==".":
-                                return nucleo
+                                return (nucleo)
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
-                                return self.ReverseComplement(nucleo)
+                                return (self.ReverseComplement(nucleo))
                 else :
-                        return nucleo 
+                        return (nucleo) 
 #---------------------------------------------------------------------------------------------------------------------------
 #Example of supplementary alignment
 #INDEL_higher_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_12|C2_1|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	0	gi|224384768|gb|CM000663.1|	191102952	60	52M	*	0	0	AAGAAAAAAGAAATAAAAAAAGAAAAAAAAACGAAATAGCCAGAAGGAATGA	*	NM:i:2	MD:Z:1G9C40	AS:i:45	XS:i:23
@@ -340,15 +340,15 @@ class VARIANT():
                         if bitwiseFlag & 2048 : #Checks if it's a supplementary alignment
                                 print("Supplementary alignment:")
                                 print(self.upper_path.listSam)
-                                return 2 
+                                return (2) 
                         else :
                                 print("WARNING two consecutive lines do not store the same variant id: ")
                                 print(self.upper_path.listSam)
                                 print(self.lower_path.listSam)
-                                return 1
+                                return (1)
                 
                 else:
-                        return 0                                                                           
+                        return (0)                                                                           
 #############################################################################################
 #############################################################################################
 class PATH():
@@ -518,7 +518,7 @@ class PATH():
                 if int(shift)<=-2:#we allow 2 soft clip (for bwa mem)
                       self.boolRef=False
                       self.mappingPosition=0#It is considered that the path is unmapped
-                      return  
+                      return()  
                 nucleoRef=None
                 boolEgalRef=None
                 matchInt=None
@@ -580,7 +580,7 @@ class PATH():
                                 posMut = field.split(":")[2] #MD tag parsing
                         if "NM" in field:
                                 nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by bwa
-                return posMut,nbMismatch               
+                return (posMut,nbMismatch)               
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
                         
@@ -916,7 +916,7 @@ class SNPSCLOSE(VARIANT):
                                 VCFObject.reverse=self.upper_path.boolReverse                             
                             tablebis.append(list(table))#Stocks the variable with all the vcf fields for each close snp to sort it and print it in the vcf
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
-                        return tablebis
+                        return (tablebis)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Both paths are unmapped     
                 elif int(self.upper_path.mappingPosition) <= 0 and int(self.lower_path.mappingPosition)<= 0:
@@ -937,7 +937,7 @@ class SNPSCLOSE(VARIANT):
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
                                 tablebis.append(list(table))
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
-                        return tablebis
+                        return (tablebis)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Upper path mapped and lower path unmapped  
                 elif int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)<=0:
@@ -960,7 +960,7 @@ class SNPSCLOSE(VARIANT):
                                 VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
                                 tablebis.append(list(table))
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
-                        return tablebis
+                        return (tablebis)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped            
                 elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)>0:
@@ -982,7 +982,7 @@ class SNPSCLOSE(VARIANT):
                                 VCFObject.nucleoRef.append([nucleoRefLow,positionSnpLow])
                                 tablebis.append(list(table))
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
-                        return tablebis
+                        return (tablebis)
                                     
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                        
@@ -1042,7 +1042,7 @@ class VCFFIELD():
         def PrintOneLine(self,table,VCF):
                 """Prints the line of the current SNP in the VCF file."""
                 if table==[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
-                        return
+                        return()
                 for i in range(len(table)):
                         element=table[i]
                         element=str(element).replace("None",".")
@@ -1074,7 +1074,7 @@ class VCFFIELD():
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
                                 print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
                                 error+=1
-                except TypeError or IndexError: # Case of SNP and INDEL
+                except(TypeError,IndexError): # Case of SNP and INDEL
                         if "SNP" in table[0] and table[6]=="PASS":
                                  print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
                                  error+=1
@@ -1089,7 +1089,7 @@ class VCFFIELD():
                         print(VARIANT.upper_path.listSam)
                         print(VARIANT.lower_path.listSam)
                         sys.exit(2)
-                else : return error                                   
+                else : return (error)                                   
                                 
                 
                 

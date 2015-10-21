@@ -58,7 +58,7 @@ try:
     if not opts:
         usage()
         sys.exit(2)
-except getopt.GetoptError, e:
+except getopt.GetoptError as e:
     print(e)
     usage()
     sys.exit(2)
