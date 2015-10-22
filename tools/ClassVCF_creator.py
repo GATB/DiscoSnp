@@ -743,8 +743,9 @@ class INDEL(VARIANT):
                         self.lower_path.listPosForward.append(int(posD)+1)
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insert=self.longestSequence[int(posD)-1:(int(posD)+int(ind))]
-                        self.ntStart=self.longestSequence[(int(posD)-1)]
+                        self.insert=self.longestSequence[int(posD):(int(posD)+int(ind))]
+                        self.ntStart=self.longestSequence[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
+                        self.insert=str(self.ntStart)+str(self.insert)
                         self.ambiguityPos=amb
                         self.lower_path.nucleo="."
                         self.upper_path.nucleo="."
@@ -771,10 +772,10 @@ class INDEL(VARIANT):
                 if self.upper_path.boolRef==True:
                         if len(self.upper_path.nucleo)==len(self.insert):
                                 self.upper_path.nucleoRef="."
-                                VCFObject.variantType="INS"
+                                VCFObject.variantType="DEL"
                         else:
                                 self.upper_path.nucleoRef="."
-                                VCFObject.variantType="DEL"
+                                VCFObject.variantType="INS"
                         if self.upper_path.mappingPosition>0:
                                 VCFObject.chrom=self.upper_path.listSam[2]
                         else:
@@ -786,10 +787,10 @@ class INDEL(VARIANT):
                 elif self.lower_path.boolRef==True:
                         if len(self.lower_path.nucleo)==len(self.insert):
                                 self.lower_path.nucleoRef="."
-                                VCFObject.variantType="INS"
+                                VCFObject.variantType="DEL"
                         else:
                                 self.lower_path.nucleoRef="."
-                                VCFObject.variantType="DEL"
+                                VCFObject.variantType="INS"
                         if self.lower_path.mappingPosition>0:
                                 VCFObject.chrom=self.lower_path.listSam[2]
                         else:
@@ -807,7 +808,7 @@ class INDEL(VARIANT):
                                 VCFObject.chrom=self.upper_path.discoName.split("|")[0]
                                 self.upper_path.boolRef=True
                                 self.upper_path.nucleoRef="."
-                                VCFObject.variantType="INS"
+                                VCFObject.variantType="DEL"
                                 VCFObject.ref=self.upper_path.nucleo
                                 VCFObject.alt=self.lower_path.nucleo
                                 VCFObject.reverse=self.upper_path.boolReverse
@@ -816,7 +817,7 @@ class INDEL(VARIANT):
                                 VCFObject.chrom=self.lower_path.discoName.split("|")[0]
                                 self.upper_path.boolRef=False
                                 self.upper_path.nucleoRef="."
-                                VCFObject.variantType="DEL"
+                                VCFObject.variantType="INS"
                                 VCFObject.ref=self.lower_path.nucleo
                                 VCFObject.alt=self.upper_path.nucleo
                                 VCFObject.reverse=self.lower_path.boolReverse
