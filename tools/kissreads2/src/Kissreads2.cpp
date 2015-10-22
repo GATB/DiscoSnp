@@ -74,13 +74,7 @@ void Kissreads2::execute ()
 {
     
     IProperties* props= getInput();
-    
-   
-    
-    
-   
     BankFasta predictions_bank = BankFasta(props->getStr(STR_URI_PREDICTION_INPUT));
-    
     
     
     // We declare a Bank instance.
@@ -92,11 +86,10 @@ void Kissreads2::execute ()
     gv.size_seeds=              props->getInt (STR_KISSREADS_SIZE_SEEDS);
     gv.index_stride=            props->getInt (STR_KISSREADS_INDEX_STRIDE);
     gv.minimal_read_overlap=    props->getInt (STR_KISSREADS_SIZE_K);
-    
-    
     gv.number_of_read_sets=     banks_of_queries.size();
     gv.subst_allowed=           props->getInt (STR_KISSREADS_MAX_HAMMING);
-    // We load a Storage product "foo" in HDF5 format
+
+    // We load a Storage product "STR_KISSREADS_COVERAGE_FILE_NAME" in HDF5 format
     // It must have been created with the storage1 snippet
     Storage* storage = StorageFactory(STORAGE_HDF5).load (props->getStr (STR_KISSREADS_COVERAGE_FILE_NAME));
     LOCAL (storage);

@@ -36,7 +36,7 @@
 
 void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
     
-    
+
     int i, start_on_prediction, stop_on_prediction;
 	if(start<0) start_on_prediction=0;
     else start_on_prediction=start;
