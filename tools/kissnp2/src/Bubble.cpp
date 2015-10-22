@@ -606,9 +606,7 @@ void BubbleFinder::finish (Bubble& bubble)
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
         const int size_repeat = sizeKmer-1-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
         
-        cout << "path1 = "<<bubble.extended_string[0]<<endl; //DEB
-        cout << "path2 = "<<bubble.extended_string[1]<<endl; //DEB
-        
+            
         comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
     }
     
