@@ -48,7 +48,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
     
     
-	the_prediction->number_mapped_reads[read_set_id]++;
+    the_prediction->number_mapped_reads[read_set_id]++;
     
     if ( quality.length()>0 ){
         if (the_reference_prediction->nbOfSnps>0) {
@@ -183,15 +183,15 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 //                            ...
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
-int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
+//int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
     
-    int i, val_min=INT_MAX;
-    const  int stopi=the_prediction.upperCaseSequence.size();
-    for(i=0;i<stopi;i++){ // for each position on the read
-        val_min=min(val_min, the_prediction.local_coverage[read_file_id][i]);
-    }
-    return val_min;
-}
+//    int i, val_min=INT_MAX;
+//    const  int stopi=the_prediction.upperCaseSequence.size();
+//    for(i=0;i<stopi;i++){ // for each position on the read
+//        val_min=min(val_min, the_prediction.local_coverage[read_file_id][i]);
+//    }
+//    return val_min;
+//}
 
 
 // We define a functor that will be cloned by the dispatcher
@@ -382,21 +382,21 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 
 
 
-void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
+//    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	/////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
+//	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    int prediction_id;
-	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
+//    int prediction_id;
+//	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
         
-        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
-	} // end all fragments
+//        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
+//	} // end all fragments
 	
 	
     
     
-}
+//}
 
 
 

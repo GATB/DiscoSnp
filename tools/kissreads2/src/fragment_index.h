@@ -41,7 +41,6 @@
 
 class FragmentIndex{
 public:
-    hash_t seeds; // hash table seed -> (fragment id, position)
     hash_t seeds_count;
     couple * seed_table;
     u_int64_t nb_coherent;
@@ -51,14 +50,11 @@ public:
     vector<FragmentInfo*> all_predictions;
     
     void index_predictions (BankFasta inputBank, GlobalValues& gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
-    
-    void index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment);
-    
+
   
     
     
     FragmentIndex(const int numberOfIndexedSequences){
-        seeds = hash_create(100000);  	test_alloc(seeds);
         seeds_count = hash_create_binarykey(100000); test_alloc(seeds_count); // todo  change to binary key (hash_t)AllocateHashTable(kmersize,1); //
         all_predictions.reserve(numberOfIndexedSequences);
         

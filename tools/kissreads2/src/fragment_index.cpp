@@ -42,9 +42,9 @@ int line_num(FILE * f)
 }
 
 
-void FragmentIndex::index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment){
-	hash_add_something_to_list(seeds,(char *)seed,create_couple(fragment_id,position_on_fragment));
-}
+//void FragmentIndex::index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment){
+//	hash_add_something_to_list(seeds,(char *)seed,create_couple(fragment_id,position_on_fragment));
+//}
 
 
 
@@ -146,7 +146,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
 
-                coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives
+                coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives)
                 hash_incr_kmer_count(seeds_count,&coded_seed, gv);
                 total_seeds++;
 			

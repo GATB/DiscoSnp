@@ -165,8 +165,8 @@ void Kissreads2::execute ()
                                                            {
                                                                // MAP ALL READS OF THE READ SET read_set_id
                                                                totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
-                                                               // SET THE READ COHERENCY OF THIS READ SET.
-                                                               RMvector[read_set_id].set_read_coherency(gv,index);
+//                                                               // SET THE READ COHERENCY OF THIS READ SET.
+//                                                               RMvector[read_set_id].set_read_coherency(gv,index);
                                                            }
     
     

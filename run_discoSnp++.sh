@@ -50,6 +50,10 @@ remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
 
+
+
+
+
 useref=""
 genome="" 
 bwa_path_option=""

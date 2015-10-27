@@ -253,10 +253,11 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
 /**
  * checks if at least one read set provide read coherency for a path.
  */
-inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets){
+inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets, GlobalValues & gv){
     int i;
     for(i=0;i<number_of_read_sets;i++){
-        if(fragment->read_coherent[i]) return true;
+        if(fragment->is_read_coherent(i,gv)) return true;
+//        if(fragment->read_coherent[i]) return true;
         
     }
     return false;
@@ -280,7 +281,7 @@ void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoheren
     
     for(int i=0;i<index.all_predictions.size();i+=2){
         //        cout<<"HEY "<<one_coherent(index.all_predictions[i],gv.number_of_read_sets)<<" -- "<<one_coherent(index.all_predictions[i+1],gv.number_of_read_sets)<<endl; //DEB
-        if(one_coherent(index.all_predictions[i],gv.number_of_read_sets) || one_coherent(index.all_predictions[i+1],gv.number_of_read_sets))
+        if(one_coherent(index.all_predictions[i],gv.number_of_read_sets,gv) || one_coherent(index.all_predictions[i+1],gv.number_of_read_sets,gv))
         {
             index.nb_coherent++;
             print_couple_i(coherent_out, index, i, gv);
