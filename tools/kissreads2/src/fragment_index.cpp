@@ -42,13 +42,6 @@ int line_num(FILE * f)
 }
 
 
-//void FragmentIndex::index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment){
-//	hash_add_something_to_list(seeds,(char *)seed,create_couple(fragment_id,position_on_fragment));
-//}
-
-
-
-
 
 char *  strdup_upper_case(char * in){
     // count number of upper case letters in "in"

@@ -84,14 +84,11 @@ public:
         
         
 		for (int i=0; i<number_of_read_sets; i++)
-		{
-//            read_coherent[i]=false;
-            
-            
+        {
 			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
 			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
             
-            
+
             
             nb_mapped_qualities[i]=0;
             sum_qualities[i]=0;
@@ -102,11 +99,6 @@ public:
 		}
     }
     
-//    FragmentInfo(FragmentInfo* ref){
-//        sequence=ref->sequence;
-//        upperCaseSequence=ref->upperCaseSequence;
-//        exit(0);
-//    }
     
     ~FragmentInfo(){
         
