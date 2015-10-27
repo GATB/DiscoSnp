@@ -125,14 +125,13 @@ void Kissreads2::execute ()
     
     FragmentIndex index(predictions_bank.estimateNbItems());
     
-    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<" -- "<< gv.number_of_read_sets<< " read set(s) "<<nbReads<<" reads"<<endl;
+    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<endl;
     index.index_predictions (predictions_bank, gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
     
     getTimeInfo().stop ("indexing");
     
-    
-    
-    
+
+    cout<<"Mapping of "<<nbReads<<" reads"<<endl;
     
     
 
@@ -166,7 +165,7 @@ void Kissreads2::execute ()
                                                                // MAP ALL READS OF THE READ SET read_set_id
                                                                totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
 //                                                               // SET THE READ COHERENCY OF THIS READ SET.
-//                                                               RMvector[read_set_id].set_read_coherency(gv,index);
+                                                               RMvector[read_set_id].set_read_coherency(gv,index);
                                                            }
     
     

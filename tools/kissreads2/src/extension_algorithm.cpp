@@ -33,18 +33,40 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
+//feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
 
-void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int start, const int length_read, string quality, int start_on_read, int read_set_id, GlobalValues& gv){
-    
+void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
+    int start_on_prediction, stop_on_prediction;
+    int start_on_read;
+    /*
+     *  | pwi (negative)
+     *     --------------  fragment
+     *  *************      read
+     *     | we start here
+     */
+    if(pwi<0) {
+        start_on_prediction=0;
+        start_on_read=-pwi;
+    }
 
-    int i, start_on_prediction, stop_on_prediction;
-	if(start<0) start_on_prediction=0;
-    else start_on_prediction=start;
+    /*
+     *        | pwi (positive)
+     *     --------------  fragment
+     *        *************      read
+     *        | we start here
+     */
+    else{
+        start_on_prediction=pwi;
+        start_on_read=0;
+    }
+
+    int i;
+
     
     FragmentInfo* the_prediction=predictions[prediction_id];
     FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference?
 	
-    if(start+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=start+length_read;
+    if(pwi+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
     
     
@@ -86,7 +108,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     //            ************************
     //                       <-----k----->
     //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage[read_file_id]
-	if(start+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=start+length_read-gv.minimal_read_overlap;
+    if(pwi+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read-gv.minimal_read_overlap;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
 #endif
     
@@ -109,7 +131,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
  * Thus in this function, we return 0 if any substitution occurs on this central position, whatever the number of substitution_seen
  *  returns 1 if true between read and fragment, 0 else
  */
-bool constrained_read_coherent(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions){
+bool constrained_read_coherent(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions, const int seed_position_on_read, const int size_seed){
 	int substitution_seen=0; // number of seen substitutions for now
 	int pos_on_read, pos_on_fragment; // where to start
     
@@ -145,6 +167,12 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 	// walk the read and the fragment together, detecting substitutions.
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
+        // we know that the seed has a perfect match. We can skip this positions.
+        // TODO: test this latter, i've found a valgrind error (28 oct 2015)
+//        if (pos_on_read==seed_position_on_read){
+//            pos_on_fragment+=size_seed;
+//            pos_on_read+=size_seed;
+//        }
         if (pos_on_fragment>snp_pos)
         {
             id_array_SNP_position++;
@@ -309,7 +337,7 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-                        const bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions);
+                        const bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
                         
                         
                         
@@ -320,7 +348,7 @@ struct Functor
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
-                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
+                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, read_set_id, gv);
                             
                         } // end tuple read prediction position is read coherent
                     }
@@ -382,21 +410,17 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 
 
 
-//void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
-//    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	/////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
-//	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-//    int prediction_id;
-//	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
+    int prediction_id;
+    for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
         
-//        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
-//	} // end all fragments
-	
-	
-    
-    
-//}
+        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
+    } // end all fragments
+}
 
 
 

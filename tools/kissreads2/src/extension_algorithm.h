@@ -62,7 +62,7 @@ public:
                                 );
     
     
-//    void set_read_coherency(GlobalValues& gv, FragmentIndex index);
+    void set_read_coherency(GlobalValues& gv, FragmentIndex index);
 };
 
 
