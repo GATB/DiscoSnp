@@ -53,9 +53,7 @@ public:
 	// fixed once at the beggining:
     char * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
     char nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
-
     unsigned char * local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
-
     bool * read_coherent; // for each read set: is the fragment read coherent?
     unsigned int * sum_qualities; // sum of the mapped qualities for each read set
     unsigned int * nb_mapped_qualities; // number of quality mapped for each read set. If there is a unique read, this is the number of mapped reads. In case of close SNPs, as a unique read may cover several SNPs, this can be bigger.
@@ -101,7 +99,6 @@ public:
     
     
     ~FragmentInfo(){
-        
     }
     
     void set_read_coherent(int read_file_id, GlobalValues gv);

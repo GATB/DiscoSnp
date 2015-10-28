@@ -107,7 +107,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     //  -------------------------------------------------------------- prediction
     //            ************************
     //                       <-----k----->
-    //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage[read_file_id]
+    //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage
     if(pwi+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read-gv.minimal_read_overlap;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
 #endif
