@@ -112,7 +112,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
 #endif
     
-	for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[read_set_id][i]);
+    for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[i]);
 	
     
     

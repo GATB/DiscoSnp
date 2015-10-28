@@ -54,7 +54,7 @@ public:
     char * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
     char nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
     bool * read_coherent;          // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
-	unsigned char ** local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
+    unsigned char * local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
 
 
     unsigned int * sum_qualities; // sum of the mapped qualities for each read set
@@ -69,7 +69,7 @@ public:
         upperCaseSequence=getUpperCaseOnly();
         read_coherent =                 (bool*) malloc(sizeof(bool)*number_of_read_sets);                          test_alloc(read_coherent);
         number_mapped_reads =           (int*) malloc(sizeof(int)*number_of_read_sets);                            test_alloc(number_mapped_reads);
-		local_coverage =                (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);      test_alloc(local_coverage);
+        local_coverage =                (unsigned char*) malloc(sizeof(unsigned char)*upperCaseSequence.size());   test_alloc(local_coverage);
 		sum_qualities =                 (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(sum_qualities);
         nb_mapped_qualities =           (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(nb_mapped_qualities);
         
@@ -82,11 +82,11 @@ public:
             nbOfSnps=1; // We don't know yep how many, at least one.
         }
         
-        
+
 		for (int i=0; i<number_of_read_sets; i++)
         {
-			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
-			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
+//			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
+//			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
             
 
             
@@ -118,7 +118,7 @@ public:
 
 //        cout<<"YYYY stop "<<stop<<" rfid "<<read_file_id<<endl; //DEB
         if(stop<=0){
-            if(local_coverage[read_file_id][0]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
+            if(local_coverage[0]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
             read_coherent[read_file_id]=true; return;
         }
 
@@ -126,7 +126,7 @@ public:
         const int stop=strlen(upperCaseSequence);
 #endif
 //        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<< " "<<gv.min_coverage[read_file_id]<<endl; //DEB
-        for(i=0;i<stop;i++) if((unsigned int)local_coverage[read_file_id][i]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
+        for(i=0;i<stop;i++) if((unsigned int)local_coverage[i]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
         read_coherent[read_file_id]=true;
     }
 

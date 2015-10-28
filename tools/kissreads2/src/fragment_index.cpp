@@ -94,7 +94,13 @@ char * strdup_last_lower(char * in){
 }
 
 
-
+void FragmentIndex::empty_coverage(){
+    int prediction_id;
+    for (prediction_id=0;prediction_id < all_predictions.size();prediction_id++){
+        for(int z=0;z<all_predictions[prediction_id]->upperCaseSequence.size(); z++)
+            all_predictions[prediction_id]->local_coverage[z]=(unsigned char)0;
+    } // end all fragments
+}
 
 // read and store all fragments presents in the pointed file.
 // index by seeds of length k all these fragments.

@@ -50,7 +50,7 @@ public:
     vector<FragmentInfo*> all_predictions;
     
     void index_predictions (BankFasta inputBank, GlobalValues& gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
-
+    void empty_coverage();
   
     
     

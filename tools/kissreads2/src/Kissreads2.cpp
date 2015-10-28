@@ -162,6 +162,7 @@ void Kissreads2::execute ()
     // The dispatcher is configured with the number of cores provided by the "-nb-cores" command line argument.
     for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++)
                                                            {
+                                                               index.empty_coverage();
                                                                // MAP ALL READS OF THE READ SET read_set_id
                                                                totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
 //                                                               // SET THE READ COHERENCY OF THIS READ SET.
@@ -170,8 +171,7 @@ void Kissreads2::execute ()
     
     
     
-    
-    
+
     
     getTimeInfo().stop ("mapping reads");
     
