@@ -162,10 +162,12 @@ void Kissreads2::execute ()
     // The dispatcher is configured with the number of cores provided by the "-nb-cores" command line argument.
     for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++)
                                                            {
+                                                                // INIT THE LOCAL COVERAGE TO ZERO FOR ALL PREDICTIONS
+                                                               index.init_local_coverage_of_each_prediction(gv);
                                                                // MAP ALL READS OF THE READ SET read_set_id
                                                                totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
 //                                                               // SET THE READ COHERENCY OF THIS READ SET.
-//                                                               RMvector[read_set_id].set_read_coherency(gv,index);
+                                                               RMvector[read_set_id].set_read_coherency(gv,index);
                                                            }
     
     

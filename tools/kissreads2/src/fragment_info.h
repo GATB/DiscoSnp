@@ -54,9 +54,9 @@ public:
     char * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
     char nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
 //	bool * read_coherent;          // =for every set of reads, 1 if the fragment is detected as read coherent, else =0
-	unsigned char ** local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
+    unsigned char * local_coverage;           //  number of reads covering each position
 
-
+    bool * read_coherent; // for each read set: is the fragment read coherent?
     unsigned int * sum_qualities; // sum of the mapped qualities for each read set
     unsigned int * nb_mapped_qualities; // number of quality mapped for each read set. If there is a unique read, this is the number of mapped reads. In case of close SNPs, as a unique read may cover several SNPs, this can be bigger.
     
@@ -69,8 +69,9 @@ public:
         upperCaseSequence=getUpperCaseOnly();
 //        read_coherent =                 (bool*) malloc(sizeof(bool)*number_of_read_sets);                          test_alloc(read_coherent);
         number_mapped_reads =           (int*) malloc(sizeof(int)*number_of_read_sets);                            test_alloc(number_mapped_reads);
-		local_coverage =                (unsigned char**) malloc(sizeof(unsigned char*)*number_of_read_sets);      test_alloc(local_coverage);
-		sum_qualities =                 (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(sum_qualities);
+        local_coverage =                (unsigned char*) malloc(sizeof(unsigned char)*upperCaseSequence.size());   test_alloc(local_coverage);
+        read_coherent =                 (bool *)        malloc(sizeof(bool)*number_of_read_sets);                  test_alloc(read_coherent);
+        sum_qualities =                 (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(sum_qualities);
         nb_mapped_qualities =           (unsigned int*) malloc(sizeof(unsigned int)*number_of_read_sets);          test_alloc(nb_mapped_qualities);
         
         
@@ -85,11 +86,10 @@ public:
         
 		for (int i=0; i<number_of_read_sets; i++)
         {
-			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
-			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
+//			local_coverage[i] = (unsigned char *) malloc(upperCaseSequence.size()*sizeof(unsigned char));            test_alloc(local_coverage[i]);
+//			for(int z=0;z<upperCaseSequence.size(); z++) local_coverage[i][z]=(unsigned char)0;
             
 
-            
             nb_mapped_qualities[i]=0;
             sum_qualities[i]=0;
             number_mapped_reads[i]=0;
@@ -104,8 +104,8 @@ public:
         
     }
     
-    bool is_read_coherent(int read_file_id, GlobalValues gv){
-        int i;
+    void set_read_coherent(int read_file_id, GlobalValues gv){
+        int i=0;
         // V1: the whole fragment has to be k_read coherent or V2 where the last k positions have no influence on the coherency of the fragment.
         // V2 is appropriate for the cases where the fragment is the end of a sequence (transcript, chromosome) and thus, no read are "longer" than the sequence:
         //    ----------------- fragment
@@ -118,16 +118,22 @@ public:
 
 //        cout<<"YYYY stop "<<stop<<" rfid "<<read_file_id<<endl; //DEB
         if(stop<=0){
-            if(local_coverage[read_file_id][0]<gv.min_coverage[read_file_id]) {return false;}
-            return true;
+            if(local_coverage[0]<gv.min_coverage[read_file_id]) {read_coherent[i]=false;}
+            else                                                              {read_coherent[i]=true; }
+            return;
         }
 
 #else
         const int stop=strlen(upperCaseSequence);
 #endif
 //        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<< " "<<gv.min_coverage[read_file_id]<<endl; //DEB
-        for(i=0;i<stop;i++) if((unsigned int)local_coverage[read_file_id][i]<gv.min_coverage[read_file_id]) {return false;}
-        return true;
+        for(i=0;i<stop;i++)
+            if((unsigned int)local_coverage[i]<gv.min_coverage[read_file_id])
+            {
+                read_coherent[i]=false;
+                return;
+            }
+        read_coherent[i]=true;
     }
 
     

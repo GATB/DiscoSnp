@@ -256,8 +256,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
 inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets, GlobalValues & gv){
     int i;
     for(i=0;i<number_of_read_sets;i++){
-        if(fragment->is_read_coherent(i,gv)) return true;
-//        if(fragment->read_coherent[i]) return true;
+        if(fragment->read_coherent[i]) return true;
         
     }
     return false;

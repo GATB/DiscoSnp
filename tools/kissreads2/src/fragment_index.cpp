@@ -94,6 +94,17 @@ char * strdup_last_lower(char * in){
 }
 
 
+void FragmentIndex::init_local_coverage_of_each_prediction(GlobalValues& gv){
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////// for each prediction: set the coverage of all positions to zero ///////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    int prediction_id;
+    for (prediction_id=0;prediction_id < all_predictions.size();prediction_id++){
+        for (int position=0;position<all_predictions[prediction_id]->upperCaseSequence.size();position++)
+            all_predictions[prediction_id]->local_coverage[position]=(unsigned char)0;
+    } // end all fragments
+}
 
 
 // read and store all fragments presents in the pointed file.

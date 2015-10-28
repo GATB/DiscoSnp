@@ -112,7 +112,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
 #endif
     
-	for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[read_set_id][i]);
+    for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[i]);
 	
     
     
@@ -336,11 +336,11 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-                        const bool read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
+                        const bool is_read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
                         
                         
                         
-                        if(read_coherent){ // tuple read prediction position is read coherent
+                        if(is_read_coherent){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
                             mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
 #ifdef DEBUG_MAPPING
@@ -409,21 +409,18 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
 
 
 
-//void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
-//    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//	/////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
-//	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-//    int prediction_id;
-//	for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
+    int prediction_id;
+    for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
         
-//        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
-//	} // end all fragments
-	
-	
-    
-    
-//}
+        index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
+    } // end all fragments
+}
+
 
 
 

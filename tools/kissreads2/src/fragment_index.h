@@ -49,15 +49,14 @@ public:
     
     vector<FragmentInfo*> all_predictions;
     
-    void index_predictions (BankFasta inputBank, GlobalValues& gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
-
+    void index_predictions (BankFasta inputBank, GlobalValues& gv);       // read and store all predictions presents in the pointed file. Index by seeds
+    void init_local_coverage_of_each_prediction(GlobalValues& gv);
   
     
     
     FragmentIndex(const int numberOfIndexedSequences){
         seeds_count = hash_create_binarykey(100000); test_alloc(seeds_count); // todo  change to binary key (hash_t)AllocateHashTable(kmersize,1); //
         all_predictions.reserve(numberOfIndexedSequences);
-        
     };
 };
 
