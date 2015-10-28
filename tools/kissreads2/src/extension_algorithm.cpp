@@ -167,11 +167,12 @@ bool constrained_read_coherent(const int pwi, const char * fragment, const char 
 	// walk the read and the fragment together, detecting substitutions.
 	// stop if the number of substitution is too high
 	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
-        // we knwo that the seed has a perfect match. We can skip this positions.
-        if (pos_on_read==seed_position_on_read){
-            pos_on_fragment+=size_seed;
-            pos_on_read+=size_seed;
-        }
+        // we know that the seed has a perfect match. We can skip this positions.
+        // TODO: test this latter, i've found a valgrind error (28 oct 2015)
+//        if (pos_on_read==seed_position_on_read){
+//            pos_on_fragment+=size_seed;
+//            pos_on_read+=size_seed;
+//        }
         if (pos_on_fragment>snp_pos)
         {
             id_array_SNP_position++;
@@ -336,7 +337,9 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
+
                         const bool is_read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
+
                         
                         
                         
@@ -420,8 +423,6 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
         index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
     } // end all fragments
 }
-
-
 
 
 

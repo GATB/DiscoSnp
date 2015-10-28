@@ -61,9 +61,11 @@ public:
                                          const int read_set_id
                                 );
     
+
     
     void set_read_coherency(GlobalValues& gv, FragmentIndex index);
     void init_local_coverage_of_each_prediction(GlobalValues& gv, FragmentIndex index);
+
 };
 
 
