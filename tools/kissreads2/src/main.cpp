@@ -37,13 +37,7 @@ using namespace gatb::core::system::impl;
 /********************************************************************************/
 
 
-//// We define a functor that will be cloned by the dispatcher
-//struct Functor { void operator() (int i)
-//    {
-//        // In this instruction block, we are executing in one of the nbCores threads
-//        // created by the dispatcher. Note that 'i' is one value of our range
-//        cout<<i<<endl;
-//    }};
+
 
 int main (int argc, char* argv[])
 {
@@ -51,16 +45,7 @@ int main (int argc, char* argv[])
     u_int64_t b=32;
     u_int64_t nbcreated ;
     
-    
-//    Hash16<u_int64_t, u_int64_t> * tested_starters_and_pwis = new Hash16<u_int64_t, u_int64_t>( 65 , &nbcreated );
-//    cout<<"nbcreated = "<<nbcreated;
-////    
-//    if (tested_starters_and_pwis->get(a, &b) == 0){
-//        cout<<"yé pas"<<endl;
-//        tested_starters_and_pwis->insert(a, b);
-//    }
-//    cout<<tested_starters_and_pwis->get(a, &b)<<endl;
-//    return 1;
+
     
     
     

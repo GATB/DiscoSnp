@@ -50,6 +50,10 @@ remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 DISCO_BUILD_PATH="$EDIR/build/"
 
+
+
+
+
 useref=""
 genome="" 
 bwa_path_option=""
@@ -372,17 +376,17 @@ echo -e "\t#############################################################"
 echo -e "\t#################### KISSREADS MODULE #######################"
 echo -e "\t#############################################################"
 
-i=4 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
-smallk=$(($k-$i-1)) # DON'T modify this.
+i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
+index_stride=$(($i+1)); size_seed=$(($k-$i)) # DON'T modify this.
 if (( $smallk>31))  ; then
   smallk=31
 fi
 
 
 echo "
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
 
-$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds $smallk -index_stride $i -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb
+$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb
 
 if [ $? -ne 0 ]
 then

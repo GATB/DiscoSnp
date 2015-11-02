@@ -35,7 +35,7 @@ include (GatbCore)
 #  TOOLS GENERATION 
 ################################################################################
 set(PROJECT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-
+#set(PROJECT_BINARY_DIR bin)
 ADD_SUBDIRECTORY(tools)
 
 

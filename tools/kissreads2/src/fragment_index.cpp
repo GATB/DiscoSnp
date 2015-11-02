@@ -42,13 +42,6 @@ int line_num(FILE * f)
 }
 
 
-void FragmentIndex::index_one_seed(const char * seed, const int fragment_id, const int position_on_fragment){
-	hash_add_something_to_list(seeds,(char *)seed,create_couple(fragment_id,position_on_fragment));
-}
-
-
-
-
 
 char *  strdup_upper_case(char * in){
     // count number of upper case letters in "in"
@@ -101,7 +94,13 @@ char * strdup_last_lower(char * in){
 }
 
 
-
+void FragmentIndex::empty_coverage(){
+    int prediction_id;
+    for (prediction_id=0;prediction_id < all_predictions.size();prediction_id++){
+        for(int z=0;z<all_predictions[prediction_id]->upperCaseSequence.size(); z++)
+            all_predictions[prediction_id]->local_coverage[z]=(unsigned char)0;
+    } // end all fragments
+}
 
 // read and store all fragments presents in the pointed file.
 // index by seeds of length k all these fragments.
@@ -146,7 +145,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
 
-                coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives
+                coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives)
                 hash_incr_kmer_count(seeds_count,&coded_seed, gv);
                 total_seeds++;
 			
@@ -212,13 +211,13 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
 
     
     
-    ///third loop over fragments : for SNPs, store the SNP positions and the SNP qualities
+    ///third loop over fragments : for SNPs, store the SNP positions
     for(int fragment_id=0;fragment_id<all_predictions.size();fragment_id+=2){
         
-        if ( all_predictions[fragment_id]->nbOfSnps==0 ) {
+        if ( all_predictions[fragment_id]->nbOfSnps==0 ) { // This is an indel.
             all_predictions[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)); // add a dummy contrained positions
             test_alloc(all_predictions[fragment_id]->SNP_positions);
-            all_predictions[fragment_id]->SNP_positions[0] = all_predictions[fragment_id  ]->upperCaseSequence.size()+1; // DUMMY SNP
+            all_predictions[fragment_id]->SNP_positions[0] = max(all_predictions[fragment_id  ]->upperCaseSequence.size(), all_predictions[fragment_id+1]->upperCaseSequence.size())+1; // DUMMY SNP
             continue;
         } // the rest applies only for SNPs
         
@@ -226,6 +225,13 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         const char * seq2 = all_predictions[fragment_id+1]->upperCaseSequence.c_str();
         int size_seq = strlen(seq1);
         assert(size_seq == strlen(seq2));
+        if(size_seq != strlen(seq2)){
+            cerr<<"two SNP sequences of distinct sizes. Impossible"<<endl;
+            cerr<<"ID="<<fragment_id<<endl;
+            cerr<<seq1<<endl;
+            cerr<<seq2<<endl;
+            exit(1);
+        }
         
         // compute the number of SNPs:
         int local_number_of_SNPs=0;
@@ -242,6 +248,8 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         local_number_of_SNPs=0;
         for (i=0; i<size_seq; i++) {
             if (seq1[i]!=seq2[i]) {
+
+
                 all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs++]=i;
             }
         }
