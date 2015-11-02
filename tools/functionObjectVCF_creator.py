@@ -178,11 +178,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         nbGeno=0
         nbSnp=0
         nbGeno = CounterGenotype(fileName)
-        if boolmyname:
-                VCF.write('##BWA_Options='+str(listName[1])+'\n')
-                VCF.write('##SAMPLE=file://'+str(listName[0])+".fa"+'\n')
-        else:
-                VCF.write('##SAMPLE=file://'+str(fileName)+'\n')
+        VCF.write('##SAMPLE=file://'+str(fileName)+'\n')
         VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
         VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">\n')
         VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')

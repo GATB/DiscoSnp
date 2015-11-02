@@ -254,8 +254,7 @@ if [ -z "$samfile" ];then
 	#BWA files
        #Pierre: user gave a file name we must respect its choice.
 #	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf" 
-	samfile=$(basename $discoSNPs .fa)"BWA_OPT_n"$n"_l"$l"_s"$s".sam"
-	saifile=$(basename $vcffile .vcf)"_n"$n"_l"$l"_s"$s".sai"
+	samfile=$(basename $discoSNPs .fa)"BWA_MEM".sam
 	indexamb=$genome".amb"
 	indexann=$genome".ann"
 	indexbwt=$genome".bwt"
@@ -272,11 +271,7 @@ if [ -z "$samfile" ];then
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Alignment discosnps on the reference genome
-	if [ -e $saifile ]; then
-		echo -e "...Alignment : Using the existing file : $saifile"
-	else
-		$PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
-	fi
+        $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Creation of the vcf file
@@ -320,7 +315,7 @@ fi
 if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
-	rm -f $saifile tmp.vcf $discoSNPsbis
+	rm -f tmp.vcf $discoSNPsbis
 fi	
 
 

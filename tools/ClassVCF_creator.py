@@ -276,7 +276,7 @@ class VARIANT():
                 table[1]=self.mappingPositionCouple
                 table[2]=self.variantID
                 table[3]=VCFObject.ref
-                table[4]=self.CheckStrandAndReverseNucleotide(str(VCFObject.alt))
+
                 table[5]="."
                 table[6]=VCFObject.filterField
                 table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
@@ -717,60 +717,91 @@ class SNP(VARIANT):
                                 VCFObject.alt=self.lower_path.nucleo
                                 VCFObject.reverse=self.upper_path.boolReverse
                                 VCFObject.nucleoRef=self.upper_path.nucleoRef
-                                self.mappingPositionCouple=int(posUnmapped)                            
+                                self.mappingPositionCouple=int(posUnmapped)
+                                
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------                                     
+                                
+        def FillVCF(self,VCFfile,nbGeno,table,VCFObject):
+                table[4]=self.CheckStrandAndReverseNucleotide(str(VCFObject.alt)) 
+                VARIANT.FillVCF(self,VCFfile,nbGeno,table,VCFObject)
+                                     
 #############################################################################################
 #############################################################################################
 class INDEL(VARIANT):
         def __init__(self,line1,line2):
                 VARIANT.__init__(self,line1,line2)
-                self.insert=None
-                self.nucleotideStart=None   
+                self.insertForward=None
+                self.insertReverse=None
+                self.ntStartForward=None
+                self.ntStartReverse=None   
                 self.smallestSequence=None
-                self.longestSequence=None
-                self.ambiguityPos=None
+                self.longestSequenceForward=None
+                self.longestSequenceReverse=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
         def GetPolymorphismFromHeader(self):
                 #Test which is the samllest sequence
                 if len(self.upper_path.seq)<len(self.lower_path.seq):
                         self.smallestSequence=self.upper_path.seq
-                        self.longestSequence=self.lower_path.seq
+                        if self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".":
+                                self.longestSequenceForward=self.lower_path.seq
+                                self.longestSequenceReverse=self.ReverseComplement(self.lower_path.seq)
+                        else:
+                                self.longestSequenceForward=self.ReverseComplement(self.lower_path.seq)
+                                self.longestSequenceReverse=self.lower_path.seq
                 else:
                        self.smallestSequence=self.lower_path.seq
-                       self.longestSequence=self.upper_path.seq
+                       if self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".":
+                                self.longestSequenceForward=self.upper_path.seq
+                                self.longestSequenceReverse=self.ReverseComplement(self.upper_path.seq)
+                       else:
+                                self.longestSequenceForward=self.ReverseComplement(self.upper_path.seq)
+                                self.longestSequenceReverse=self.upper_path.seq
+                
+                
                 for key,(posD,ind,amb) in self.dicoAllele.items():#Goes through the dictionary of parsed header
-                        self.upper_path.listPosForward.append(int(posD)+1)
-                        self.lower_path.listPosForward.append(int(posD)+1)
+                        #In case of forward strand mapped
+                        self.upper_path.listPosForward.append(int(posD)+1-int(amb))
+                        self.lower_path.listPosForward.append(int(posD)+1-int(amb))
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insert=self.longestSequence[int(posD):(int(posD)+int(ind))]
-                        self.ntStart=self.longestSequence[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
-                        self.insert=str(self.ntStart)+str(self.insert)
-                        self.ambiguityPos=amb
+                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
+                        self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
+                        self.ntStartForward=self.longestSequenceForward[(int(posD))-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
+                        self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
                         self.lower_path.nucleo="."
                         self.upper_path.nucleo="."
                         
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                          
         def WhichPathIsTheRef(self,VCFObject):
+                #Finds the path identical to the reference
                 VARIANT.WhichPathIsTheRef(self,VCFObject)
                 posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
-            #Checks if the insert correpond to the upper path or to the lower path
-                if len(self.upper_path.seq)<len(self.lower_path.seq):
-                        self.lower_path.nucleo=self.insert
-                        self.upper_path.nucleo=self.ntStart
-                else:
-                        self.upper_path.nucleo=self.insert
-                        self.lower_path.nucleo=self.ntStart
-                if  int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)<=0:
+                
+                if int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)<=0:
                         self.upper_path.boolRef=True
                         self.lower_path.boolRef=False
                 elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)>0:
                         self.upper_path.boolRef=False
-                        self.lower_path.boolRef=True              
+                        self.lower_path.boolRef=True
+                #Checks if the insert corresponds to the upper path or to the lower path and the strand of mapping
+                if self.lower_path.boolRef==True and self.lower_path.boolReverse=="-1":
+                        self.lower_path.nucleo=self.insertReverse
+                        self.upper_path.nucleo=self.ntStartReverse
+                elif self.lower_path.boolRef==True and self.lower_path.boolReverse=="1":
+                        self.lower_path.nucleo=self.insertForward
+                        self.upper_path.nucleo=self.ntStartForward
+                elif self.upper_path.boolRef==True and self.upper_path.boolReverse=="-1":
+                        self.upper_path.nucleo=self.insertReverse
+                        self.lower_path.nucleo=self.ntStartReverse
+                else:
+                        self.upper_path.nucleo=self.insertForward
+                        self.lower_path.nucleo=self.ntStartForward             
             ##Fills the VCF if the upper path is considered as the reference
                 if self.upper_path.boolRef==True:
-                        if len(self.upper_path.nucleo)==len(self.insert):
+                        if len(self.upper_path.nucleo)==len(self.insertForward):
                                 self.upper_path.nucleoRef="."
                                 VCFObject.variantType="DEL"
                         else:
@@ -785,7 +816,7 @@ class INDEL(VARIANT):
                         VCFObject.reverse=self.upper_path.boolReverse
                         VCFObject.nucleoRef=self.lower_path.nucleoRef
                 elif self.lower_path.boolRef==True:
-                        if len(self.lower_path.nucleo)==len(self.insert):
+                        if len(self.lower_path.nucleo)==len(self.insertForward):
                                 self.lower_path.nucleoRef="."
                                 VCFObject.variantType="DEL"
                         else:
@@ -804,7 +835,7 @@ class INDEL(VARIANT):
                                 self.mappingPositionCouple=int(posUnmapped)
                         else:
                                 self.mappingPositionCouple=int(posUnmapped)
-                        if len(self.upper_path.nucleo)==len(self.insert):
+                        if len(self.upper_path.nucleo)==len(self.insertForward):
                                 VCFObject.chrom=self.upper_path.discoName.split("|")[0]
                                 self.upper_path.boolRef=True
                                 self.upper_path.nucleoRef="."
@@ -823,12 +854,14 @@ class INDEL(VARIANT):
                                 VCFObject.reverse=self.lower_path.boolReverse
                                 VCFObject.nucleoRef=self.lower_path.nucleoRef
     
-                                                                          
+        def FillVCF(self,VCFfile,nbGeno,table,VCFObject):
+                   table[4]=str(VCFObject.alt) 
+                   VARIANT.FillVCF(self,VCFfile,nbGeno,table,VCFObject)                                                                          
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                          
         def GetMappingPositionCouple(self):
                 VARIANT.GetMappingPositionCouple(self)
-                self.mappingPositionCouple=int(self.mappingPositionCouple)-int(self.ambiguityPos)-1                                            
+                self.mappingPositionCouple=int(self.mappingPositionCouple)                                            
 #############################################################################################
 #############################################################################################
 class SNPSCLOSE(VARIANT):
