@@ -1,13 +1,16 @@
 import sys
-
-
+import gzip
 
 if len(sys.argv)<3:
     print "This tool filters out discoSnp prediction having a minor allele frequency lower than a provided threshold for ALL datasets."
     print "python filter_out_using_MAF.py \".fa from discoSnp\" \"MAF threshold\""
     sys.exit()
 
-coherent_file=open(sys.argv[1],"r")
+
+if "gz" in sys.argv[1]:
+    coherent_file=gzip.open(sys.argv[1],"r")
+else: 
+    coherent_file=open(sys.argv[1],"r")
 maf_threshold = float(sys.argv[2])
 
 first_coverage_field_id=0
