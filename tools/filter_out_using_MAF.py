@@ -26,8 +26,7 @@ while True:
     path2 = coherent_file.readline()
 
     coverage_high=[]
-    coverage_low= []
-    
+    coverage_low= []    
     if first_coverage_field_id==0:
         while True:
             if splitted_comment1[first_coverage_field_id][0]=="C": break
