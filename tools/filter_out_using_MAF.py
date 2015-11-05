@@ -10,7 +10,7 @@ if len(sys.argv)<3:
 coherent_file=open(sys.argv[1],"r")
 maf_threshold = float(sys.argv[2])
 
-
+first_coverage_field_id=0
 while True:
     #>SNP_higher_path_1384|P_1:30_A/G|high|nb_pol_1|left_unitig_length_108|right_unitig_length_1156|C1_0|C2_0|C3_0|C4_0|C5_183|Q1_0|Q2_0|Q3_0|Q4_0|Q5_70|G1_1/1:19724,2972,47|G2_1/1:21024,3168,50|G3_1/1:17124,2581,42|G4_1/1:19564,2948,47|G5_0/1:16063,1163,1575|rank_0.36839
     
@@ -25,10 +25,10 @@ while True:
     coverage_high=[]
     coverage_low= []
     
-    first_coverage_field_id=0
-    while True:
-        if splitted_comment1[first_coverage_field_id][0]=="C": break
-        first_coverage_field_id+=1
+    if first_coverage_field_id==0:
+        while True:
+            if splitted_comment1[first_coverage_field_id][0]=="C": break
+            first_coverage_field_id+=1
     
     i=first_coverage_field_id
     while True:
