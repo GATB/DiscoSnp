@@ -24,19 +24,26 @@ while True:
 
     coverage_high=[]
     coverage_low= []
-    i=6
+    
+    first_coverage_field_id=0
+    while True:
+        if splitted_comment1[first_coverage_field_id][0]=="C": break
+        first_coverage_field_id+=1
+    
+    i=first_coverage_field_id
     while True:
         if splitted_comment1[i][0]!="C": break # no more a coverage
         coverage_high.append(int(splitted_comment1[i].split("_")[1]))
         coverage_low.append( int(splitted_comment2[i].split("_")[1]))
         i+=1
     # print comment1,
-    # print coverage_high
-    
+#    print coverage_high
+ #   print coverage_low
     to_output=False
     for i in range(len(coverage_high)):
         if coverage_high[i]==0 and coverage_low[i]==0: continue
-        if (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i]))) < maf_threshold:
+        print (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i])))
+        if (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i]))) >= maf_threshold:
             to_output=True
             break
     
