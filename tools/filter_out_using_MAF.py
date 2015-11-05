@@ -37,12 +37,12 @@ while True:
         coverage_low.append( int(splitted_comment2[i].split("_")[1]))
         i+=1
     # print comment1,
-#    print coverage_high
- #   print coverage_low
+    #print coverage_high
+    #print coverage_low
     to_output=False
     for i in range(len(coverage_high)):
         if coverage_high[i]==0 and coverage_low[i]==0: continue
-        print (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i])))
+        # print (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i])))
         if (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i]))) >= maf_threshold:
             to_output=True
             break
