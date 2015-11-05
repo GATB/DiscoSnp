@@ -1,5 +1,5 @@
 import sys
-
+import re
 
 
 if len(sys.argv)<3:
@@ -24,15 +24,15 @@ while True:
 
     coverage_high=[]
     coverage_low= []
-    i=6
-    while True:
-        if splitted_comment1[i][0]!="C": break # no more a coverage
-        coverage_high.append(int(splitted_comment1[i].split("_")[1]))
-        coverage_low.append( int(splitted_comment2[i].split("_")[1]))
-        i+=1
+    for i in range(len(splitted_comment1)):
+        if "C" not in splitted_comment1[i]: continue # no more a coverage
+        else:
+                matchC=re.match(r'^C',splitted_comment1[i])
+                if matchC:
+                        coverage_high.append(int(splitted_comment1[i].split("_")[1]))
+                        coverage_low.append( int(splitted_comment2[i].split("_")[1]))
     # print comment1,
-    # print coverage_high
-    
+    # print coverage_high 
     to_output=False
     for i in range(len(coverage_high)):
         if coverage_high[i]==0 and coverage_low[i]==0: continue
