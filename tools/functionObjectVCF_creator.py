@@ -12,14 +12,14 @@ from ClassVCF_creator import *
 #INDEX_____________________________________________________________________________________________________________
 #      InitVariant(line1,line2):"""Initialization of the variant by taking into accoutn its type"""
 #      MappingTreatement(variant_object,vcf_field_object,nbGeno):
-#      UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):"""Fills VCFfile in ghost mode (from a fasta file)"""
-#      Counting(fileToRead)
+#      UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):"""Fills VCFfile in ghost mode (from a fasta file)"""
+#      CounterGenotype(fileToRead)
 #      AddPosition(position,setPositions,delta)
 #      CheckAtDistanceXBestHits(upper_path,lower_path):"""Prediction validation : check if the couple is validated with only one mapping position """
 #      PrintVCFHeader(VCF,listName,fileName,boolmyname):    
 #############################################################################################
 def InitVariant(line1,line2):
-        """Initialization of the variant by taking into accoutn its type"""
+        """Initialization of the variant by taking into account its type"""
         #Object Creation
         if "SNP" in line1 and "nb_pol_1" in line1:
                 variant_object=SNP(line1,line2)
@@ -31,8 +31,8 @@ def InitVariant(line1,line2):
                 #        return 1,1
                 variant_object=INDEL(line1,line2)
         else :
-                print "!!!!Undefined Variant!!!!"
-                return 1,1                
+                print("!!!!Undefined Variant!!!!")
+                return (1,1)                
                         
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
@@ -64,10 +64,10 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         vcf_field_object.GetFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
         #Defines the genotype for the couple
         variant_object.GetGenotypes(nbGeno,vcf_field_object)
-        return table
+        return(table)
 #############################################################################################
 #############################################################################################
-def UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
+def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         """Treatement of the couple of path without alignment"""
         table = [0] * 10 #Creates a 10 cols array
         seq1=seq1.rstrip('\n')
@@ -92,10 +92,10 @@ def UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         variant_object.GetMappingPositionCouple()
         #Defines the genotype for the couple
         variant_object.GetGenotypes(nbGeno,vcf_field_object)
-        return table         
+        return(table)         
 #############################################################################################
 #############################################################################################
-def Counting(fileName):
+def CounterGenotype(fileName):
         samfile=open(fileName,'r')
         nbGeno=0
         while True:
@@ -117,7 +117,7 @@ def Counting(fileName):
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions
 #############################################################################################
-def AddPosition(position,setPositions,delta):
+def AddPosition(position,setPositions,delta):#Not used
         """Add a position to a set of positions only if the difference between the two is greater than delta"""
         if len(setPositions)==0: #Case : it's the first position add to the set
                 setPositions.append(position)
@@ -136,7 +136,7 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
         # get the best mapping distance for upper path 
         best_up=1024
         if int(upper_path.mappingPosition)==0 and int(lower_path.mappingPosition)==0:#Checks if paths are unmappped
-                return "."
+                return(".")
         for position,nbMismatch in posUp.items(): 
                 if nbMismatch<best_up:
                         best_up=nbMismatch
@@ -153,18 +153,18 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
                 if nbMismatch == best_up:
                         position_set.add(position)
                 if len(position_set) > 1: 
-                        return "MULTIPLE"
+                        return("MULTIPLE")
 
         for position,nbMismatch in posLow.items():
                 if nbMismatch == best_low:
                         position_set.add(position)
                 if len(position_set) > 1: 
-                        return "MULTIPLE"
+                        return("MULTIPLE")
     
         if len(position_set) == 1: 
-                return "PASS"
+                return("PASS")
     
-        return "."
+        return(".")
 
 #############################################################################################
 #############################################################################################
@@ -177,12 +177,8 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##source=VCF_creator\n')
         nbGeno=0
         nbSnp=0
-        nbGeno = Counting(fileName)
-        if boolmyname:
-                VCF.write('##BWA_Options='+str(listName[1])+'\n')
-                VCF.write('##SAMPLE=file://'+str(listName[0])+".fa"+'\n')
-        else:
-                VCF.write('##SAMPLE=file://'+str(fileName)+'\n')
+        nbGeno = CounterGenotype(fileName)
+        VCF.write('##SAMPLE=file://'+str(fileName)+'\n')
         VCF.write('##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">\n')
         VCF.write('##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">\n')
         VCF.write('##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">\n')
@@ -192,18 +188,18 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
         VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is "." ">\n')
-        VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')
-        VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
-        VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
-        VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
-        VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
+        VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
 
 
         ##Creates the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
         if nbGeno==0: # Without genotypes
-            VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\n')
+            VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n')
         else:
             i=0
+            VCF.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
+            VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
+            VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
+            VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
             VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t')
             for i in range(0,int(nbGeno)):
                 nomCol="G"+str(i+1)

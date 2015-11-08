@@ -74,14 +74,7 @@ void Kissreads2::execute ()
 {
     
     IProperties* props= getInput();
-    
-    
-   
-    
-    
-   
     BankFasta predictions_bank = BankFasta(props->getStr(STR_URI_PREDICTION_INPUT));
-    
     
     
     // We declare a Bank instance.
@@ -93,11 +86,10 @@ void Kissreads2::execute ()
     gv.size_seeds=              props->getInt (STR_KISSREADS_SIZE_SEEDS);
     gv.index_stride=            props->getInt (STR_KISSREADS_INDEX_STRIDE);
     gv.minimal_read_overlap=    props->getInt (STR_KISSREADS_SIZE_K);
-    
-    
     gv.number_of_read_sets=     banks_of_queries.size();
     gv.subst_allowed=           props->getInt (STR_KISSREADS_MAX_HAMMING);
-    // We load a Storage product "foo" in HDF5 format
+
+    // We load a Storage product "STR_KISSREADS_COVERAGE_FILE_NAME" in HDF5 format
     // It must have been created with the storage1 snippet
     Storage* storage = StorageFactory(STORAGE_HDF5).load (props->getStr (STR_KISSREADS_COVERAGE_FILE_NAME));
     LOCAL (storage);
@@ -123,24 +115,23 @@ void Kissreads2::execute ()
     
     
     ofstream coherent_out;
-    coherent_out.open(props->getStr(STR_URI_OUTPUT_COHERENT));
+    coherent_out.open(props->getStr(STR_URI_OUTPUT_COHERENT).c_str(),std::ofstream::out);
     
     ofstream uncoherent_out;
-    uncoherent_out.open(props->getStr(STR_URI_OUTPUT_UNCOHERENT));
+    uncoherent_out.open(props->getStr(STR_URI_OUTPUT_UNCOHERENT).c_str(), std::ofstream::out);
       
      
     getTimeInfo().start ("indexing");
     
     FragmentIndex index(predictions_bank.estimateNbItems());
     
-    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<" -- "<< gv.number_of_read_sets<< " read set(s) "<<nbReads<<" reads"<<endl;
+    cout<<"Indexing bank "<<props->getStr(STR_URI_PREDICTION_INPUT)<<endl;
     index.index_predictions (predictions_bank, gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
     
     getTimeInfo().stop ("indexing");
     
-    
-    
-    
+
+    cout<<"Mapping of "<<nbReads<<" reads"<<endl;
     
     
 
@@ -171,16 +162,17 @@ void Kissreads2::execute ()
     // The dispatcher is configured with the number of cores provided by the "-nb-cores" command line argument.
     for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++)
                                                            {
+                                                                // INIT THE LOCAL COVERAGE TO ZERO FOR ALL PREDICTIONS
+                                                               index.empty_coverage();
                                                                // MAP ALL READS OF THE READ SET read_set_id
                                                                totalNumberOfMappedReads+= RMvector[read_set_id].map_all_reads_from_a_file(gv,index,read_set_id);
-                                                               // SET THE READ COHERENCY OF THIS READ SET.
+//                                                               // SET THE READ COHERENCY OF THIS READ SET.
                                                                RMvector[read_set_id].set_read_coherency(gv,index);
                                                            }
     
     
     
-    
-    
+
     
     getTimeInfo().stop ("mapping reads");
     

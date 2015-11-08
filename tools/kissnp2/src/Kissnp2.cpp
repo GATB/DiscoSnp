@@ -51,6 +51,7 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
 {
     /** We add options known by kissnp2. */
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
+    getParser()->push_front (new OptionOneParam (STR_MAX_AMBIGOUS_INDELS,           "Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output", false, "20"));
     getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "branching mode\n"
                                                  "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
                                                  "\t1: forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position (default value)\n"
@@ -80,6 +81,23 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
+
+
+/*
+ *     // We load a Storage product "foo" in HDF5 format
+    // It must have been created with the storage1 snippet
+    Storage* storage = StorageFactory(STORAGE_HDF5).load ("foo");
+    LOCAL (storage);
+    // Shortcut: we get the root of this Storage object
+    Group& root = storage->root();
+    // We get a collection of native integer from the storage.
+    Collection<NativeInt64>& myIntegers = root.getCollection<NativeInt64> ("myIntegers");
+    // We create an iterator for our collection.
+    Iterator<NativeInt64>* iter = myIntegers.iterator();
+    LOCAL (iter);
+    // Now we can iterate the collection through this iterator.
+    for (iter->first(); !iter->isDone(); iter->next())  {  cout << iter->item() << endl;  }
+    */
 void Kissnp2::execute ()
 {
     Dispatcher::Status status;
@@ -89,8 +107,6 @@ void Kissnp2::execute ()
     Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
     
     istringstream iss(graph.getInfo().getStr("thresholds"));
-    vector<string> tokens{istream_iterator<string>{iss},
-        istream_iterator<string>{}};
 
     /** We store in a _removemeplease.txt file the used coverages */
     // We create a Storage product "_removemeplease.h5" in HDF5 format
@@ -99,12 +115,12 @@ void Kissnp2::execute ()
     Group& root = storage->root();
     Collection<NativeInt64>& myIntegers = root.getCollection<NativeInt64> ("cutoffs");
     
-    std::vector<string>::iterator itint=tokens.begin();
+    int n;
     if (getInput()->get    (STR_KISSNP2_DONT_OUTPUT_FIRST_COV) != 0)
-        ++itint; //Don't output the first coverage value
+        iss >> n; //Don't output the first coverage value
     
-    for (; itint!=tokens.end(); ++itint)
-        myIntegers.insert (atoi(itint->c_str()));
+    while (iss >> n)
+        myIntegers.insert (n);
     
     myIntegers.flush();
     
@@ -132,7 +148,6 @@ void Kissnp2::execute ()
     nbNodes = it.size();
     
     /** We loop the nodes. */
-    
     status = getDispatcher()->iterate (it, bubbleFinder);
     
 

@@ -51,15 +51,15 @@ def usage():
     
     """
 #    -n --mismatch : number of differences allowed in the mapper (BWA)
-    print usage
+    print(usage)
 ###OPTIONS 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file","output=","output_filtered_SAM"])
+    opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file=","output=","output_filtered_SAM="])
     if not opts:
         usage()
         sys.exit(2)
-except getopt.GetoptError, e:
-    print e
+except getopt.GetoptError as e:
+    print(e)
     usage()
     sys.exit(2)
 for opt, arg in opts : 
@@ -68,8 +68,8 @@ for opt, arg in opts :
         sys.exit(2)
     elif opt in ("-s","--sam_file"):
         boolmyname=False
-        if os.path.isfile(arg):#checks if the file exists
-               fileName = arg
+        fileName=arg
+        if os.path.isfile(fileName):#checks if the file exists
                listNameFile=fileName.split(".")
                if "BWA_OPT" in listNameFile[0]: #When the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
                        boolmyname=True #Boolean to know if the file name contains the option of BWA
@@ -77,7 +77,7 @@ for opt, arg in opts :
                        listName[1]=listName[1].replace("_", " ")
                samfile=open(fileName,'r')
         else : 
-              print "!! No file :" +str(arg)+"!!"
+              print("!! No file :" +str(arg)+"!!")
               sys.exit(2)  
     #elif opt in ("-n","--mismatch"):
     #     nbMismatchBWA= arg
@@ -86,14 +86,14 @@ for opt, arg in opts :
         #if ".vcf" in arg: (we don't care the out file name, user is free to call it foo.hey)
                 VCFFile = open(arg,'w')
         else :
-                print "!! No output !!"
+                print("!! No output !!")
                 sys.exit(2)      
     elif opt in ("-f","--output_filtered_SAM"):
         if arg!=None:
             filtered_sam = True
             filtered_sam_file = open(arg,'w')
         else:
-            print "!! No filtered sam output !!"
+            print("!! No filtered sam output !!")
             sys.exit(2)      
     else:
         print("Unkwnown option {} ".format(opt))
@@ -102,7 +102,7 @@ for opt, arg in opts :
 
 #Creates the VCF file and prints the header into it 
 PrintVCFHeader(VCFFile,listName,fileName,boolmyname)
-nbGeno=Counting(fileName)
+nbGeno=CounterGenotype(fileName)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
@@ -153,10 +153,8 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
                 line2=samfile.readline() #Reads a couple of line
                 seq2=samfile.readline()
                 #Initializes variant object with the samline
-                variant_object, vcf_field_object=InitVariant(line1,line2)
-                if variant_object.CheckCoupleVariantID()==1:
-                        sys.exit(1) 
-                table=UnmappingTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
+                variant_object, vcf_field_object=InitVariant(line1,line2) 
+                table=UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 
 
