@@ -276,12 +276,12 @@ protected:
     bool expand_heart(
                        const int nb_polymorphism,
                        Bubble& bubble,
-                       const Node& nextNode1,
-                       const Node& nextNode2,
-                       const Node& node1,
-                       const Node& node2,
-                       const Node& previousNode1,
-                       const Node& previousNode2,
+                       Node& nextNode1,
+                       Node& nextNode2,
+                       Node& node1,
+                       Node& node2,
+                       Node& previousNode1,
+                       Node& previousNode2,
                        std::string local_extended_string1,
                        std::string local_extended_string2);
     
@@ -291,10 +291,10 @@ protected:
     bool expand (
                  const int nb_polymorphism,
                  Bubble& bubble,
-                 const Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
-                 const Node& node2, // In case of indels, this node is not extended (depth 1)
-                 const Node& previousNode1,
-                 const Node& previousNode2,
+                 Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
+                 Node& node2, // In case of indels, this node is not extended (depth 1)
+                 Node& previousNode1,
+                 Node& previousNode2,
                  std::string local_extended_string1,
                  std::string local_extended_string2
                  );
@@ -313,7 +313,7 @@ protected:
      * \param[in] current : current node
      * \param[in] next : next node
      * \return true if next node is different to current and previous nodes.*/
-    bool checkNodesDiff (const Node& previous, const Node& current, const Node& next) const;
+    bool checkNodesDiff (Node& previous, Node& current, Node& next) const;
 
     /** Check whether the first kmer of the first path is smaller than the first kmer
      * of the revcomp(first path), this avoids repeated SNPs
@@ -325,7 +325,7 @@ protected:
      * \param[in] node 1 : bubble branch last node
      * \param[in] node 2 : bubble branch last node
      * \return true if bubble is ok */
-    bool checkBranching (const Node& node1, const Node& node2) const;
+    bool checkBranching (Node& node1, Node& node2) const;
 
     /** Check complexity for a bubble.
      * \param[in] path1 : branch of the bubble
@@ -345,7 +345,7 @@ protected:
     void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, std::string polymorphism_comments);
 
     /** */
-    bool two_possible_extensions_on_one_path (const Node& node) const;
+    bool two_possible_extensions_on_one_path (Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
 private:
     bool recursive_indel_prediction(

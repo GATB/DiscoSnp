@@ -138,7 +138,7 @@ BubbleFinder::~BubbleFinder ()
  ** RETURN  : A unique successor of a node at depth d if exist. Else return nullptr
  ** REMARKS : DEPRECATED
  *********************************************************************/
-Node get_successors (const Graph& graph, const Node& node, const int depth){
+Node get_successors (const Graph& graph, Node& node, const int depth){
     Graph::Vector<Node> successors = graph.successors<Node> (node);
     if(successors.size() != 1) return Node(~0); // depth 1
     for (int d=2; d<depth; d++){
@@ -157,7 +157,9 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
     bubble.type=0;
     bubble.extended_string[0]="";
     bubble.extended_string[1]="";
-    expand (1,bubble, bubble.begin[0], bubble.begin[1], Node(~0), Node(~0),"","");
+    Node notzero = Node(~0);
+    Node notzero2 = Node(~0);
+    expand (1,bubble, bubble.begin[0], bubble.begin[1], notzero, notzero2, "","");
 }
 
 /** Transform a nucleotide in ASCII form into an integer form as:
@@ -234,10 +236,12 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
                 bubble.polymorphism_type="INDEL";//+(insert_size);
                 
                 /** try to close the bubble from the two initial (with one extended) node */
+                Node notzero = Node(~0);
+                Node notzero2 = Node(~0);
                 if(extended_path_id==0?
-                   expand (1,bubble, current, bubble.begin[1], Node(~0), Node(~0),tried_extension,"")
+                   expand (1,bubble, current, bubble.begin[1], notzero, notzero2,tried_extension,"")
                    :
-                   expand (1,bubble, bubble.begin[0], current, Node(~0), Node(~0),"",tried_extension)){
+                   expand (1,bubble, bubble.begin[0], current, notzero, notzero2, "",tried_extension)){
                     found_del_size=insert_size;   // an extension was found. We'll check if other extensions with same size can be found.
                     continue;                     // we won't add stuffs in the queue, we can continue.
                 }
@@ -287,7 +291,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
     DEBUG ((cout << "[BubbleSNPFinder::start] bubble.isCanonical " << bubble.isCanonical << endl));
     /** We compute the successors of the node. */
-    Graph::Vector<Node> successors = graph.successors<Node> (node);
+    Graph::Vector<Node> successors = graph.successors<Node>((Node&)node);
     DEBUG((cout << "successor size"<<successors.size()<<endl));
     if(successors.size()<2) return; // false branching (no extention in one or the other direction).
     for (size_t i=0; i<successors.size(); i++)
@@ -340,12 +344,12 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 bool BubbleFinder::expand_heart(
                                  const int nb_polymorphism,
                                  Bubble& bubble,
-                                 const Node& nextNode1,
-                                 const Node& nextNode2,
-                                 const Node& node1,
-                                 const Node& node2,
-                                 const Node& previousNode1,
-                                 const Node& previousNode2,
+                                 Node& nextNode1,
+                                 Node& nextNode2,
+                                 Node& node1,
+                                 Node& node2,
+                                 Node& previousNode1,
+                                 Node& previousNode2,
                                  string local_extended_string1,
                                  string local_extended_string2){
     /** We check whether the new nodes are different from previous ones. */
@@ -426,10 +430,10 @@ bool BubbleFinder::expand_heart(
 bool BubbleFinder::expand (
                            const int nb_polymorphism,
                            Bubble& bubble,
-                           const Node& node1, // Node currently tested
-                           const Node& node2, // Node currently tested
-                           const Node& previousNode1, // node before the one tested
-                           const Node& previousNode2, // node before the one tested
+                           Node& node1, // Node currently tested
+                           Node& node2, // Node currently tested
+                           Node& previousNode1, // node before the one tested
+                           Node& previousNode2, // node before the one tested
                            string local_extended_string1,
                            string local_extended_string2
                            )
@@ -547,7 +551,8 @@ void BubbleFinder::extend (Bubble& bubble)
         {
             /** We compute left extension of the node. */
             closureLeft  = graph.getNT (predecessors[0], 0);
-            _traversal->traverse (graph.reverse(predecessors[0]), DIR_OUTCOMING, bubble.extensionLeft);
+            Node rev_pred = graph.reverse(predecessors[0]);
+            _traversal->traverse (rev_pred, DIR_OUTCOMING, bubble.extensionLeft);
             bubble.divergenceLeft = _traversal->getBubbles().empty() ? bubble.extensionLeft.size() : _traversal->getBubbles()[0].first;
         }
     }
@@ -593,7 +598,7 @@ void BubbleFinder::finish (Bubble& bubble)
 //    string comment="";
     if ( bubble.polymorphism_type=="SNP" ){
         int polymorphism_id=1;
-        for (int i=0;i<path_0.length();i++){
+        for (unsigned int i=0;i<path_0.length();i++){
             if (path_0[i]!=path_1[i]) {
                 if (polymorphism_id>1) {
                     comment << ",";
@@ -654,7 +659,7 @@ void BubbleFinder::finish (Bubble& bubble)
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-bool BubbleFinder::two_possible_extensions_on_one_path (const Node& node) const
+bool BubbleFinder::two_possible_extensions_on_one_path (Node& node) const
 {
     return graph.indegree(node)>1 || graph.outdegree(node)>1;
 }
@@ -762,7 +767,7 @@ void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* ty
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-bool BubbleFinder::checkNodesDiff (const Node& previous, const Node& current, const Node& next) const
+bool BubbleFinder::checkNodesDiff (Node& previous, Node& current, Node& next) const
 {
     return (next.kmer != current.kmer) && (next.kmer != previous.kmer);
 }
@@ -799,7 +804,7 @@ void BubbleFinder::checkPath (Bubble& bubble) const
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-bool BubbleFinder::checkBranching (const Node& node1, const Node& node2) const
+bool BubbleFinder::checkBranching (Node& node1, Node& node2) const
 {
     // stop the extension if authorised_branching==0 (not branching in any path) and any of the two paths is branching
     if (authorised_branching==0 && (two_possible_extensions_on_one_path(node1) || two_possible_extensions_on_one_path(node2)))

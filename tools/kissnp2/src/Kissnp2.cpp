@@ -126,7 +126,7 @@ void Kissnp2::execute ()
      * of one of the N BubbleFinder instance. */
     
     /** We get an iterator over the branching nodes of the graph. */
-    ProgressGraphIterator<BranchingNode,ProgressTimer> it (graph.iterator<BranchingNode>(), "nodes");
+    ProgressGraphIterator<BranchingNode,ProgressTimer> it (graph.iteratorBranching(), "nodes");
     
     /** We get the number of nodes. */
     nbNodes = it.size();
