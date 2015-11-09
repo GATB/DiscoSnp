@@ -46,8 +46,8 @@ while True:
         if coverage_high[i]==0 and coverage_low[i]==0: continue
         
         # print (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i])))
-        if (min(coverage_high[i],coverage_low[i]) / float(max(coverage_high[i],coverage_low[i]))) >= maf_threshold:
-            print (min(coverage_high[i],coverage_low[i]) / float(int(coverage_high[i])+int(coverage_low[i]))
+        if (min(coverage_high[i],coverage_low[i]) / float(int(coverage_high[i])+int(coverage_low[i]))) >= maf_threshold:
+            #print (min(coverage_high[i],coverage_low[i]) / float(int(coverage_high[i])+int(coverage_low[i])))
             to_output=True
             break
     
