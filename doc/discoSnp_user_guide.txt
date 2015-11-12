@@ -1,7 +1,7 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.2.1
-User's guide – October 2015
+v2.2.2
+User's guide – November 2015
 
 contact: pierre.peterlongo@inria.fr
 Table of contents
@@ -125,6 +125,19 @@ reads2_R1.fq.gz
 reads2_R2.fq.gz
 and so on...
 
+Correspondance between read set file names and the Ci or Gi values
+DiscoSnp++ provides a file ${prefix}_read_files_correspondance.txt (with ${prefix} provided by the -p option, equal to “discoRes” by default) provinding the correspondance between the read file names, and the read sets. Given the previously provided examples, this file would contain:
+case1:
+C_1 reads.fq.gz
+case2: 
+C_1 reads_R1.fq.gz reads_R2.fq.gz
+case3:
+C_1  reads_R1.fq.gz
+C_2  reads_R2.fq.gz
+case4:
+C_1 reads1_R1.fq.gz reads1_R2.fq.gz
+C_2 reads2_R2.fq.gz reads2_R2.fq.gz
+
 Sample example:
 You can test discoSnp++ on a toy example containing 3 SNPs. In the discoSnp++ directory, type:
 ./run_discoSnp++.sh -r fof.txt -T
@@ -158,7 +171,7 @@ left_unitig_length: size of the full left extension. Here 86
 right_unitig_length: size of the right extension. Here 261
 left_contig_length: size of the full left extension. Here 169
 right_contig_length: size of the right extension. Here 764
-C1: number of reads mapping the central upper case sequence from the first read set
+C1: number of reads mapping the central upper case sequence from the first read set. Note that (see bellow), the correspondance between Ci and the read file names is provided in file “discoRes_read_files_correspondance.txt”.
 C2: number of reads mapping the central upper case sequence from the second read set
 C3 [if input data were at least 3 read sets]:  number of reads mapping the central upper case sequence from the third read set
 C4, C5, ...
@@ -173,7 +186,7 @@ rank: ranks the predictions according to their read coverage in each condition f
 Extensions: differences between unitig and contigs 
 By default in the pipeline, the found SNPs (of length 2k-1) are extended using a contiger. The output contains such contigs and their lengths are shown in the header (left_contig_length and right_contig_length). Moreover, a contig may hide some small polymorphism such as substitutions and/or indels. The output also proposes the length of the longuest extension not containing any such polymorphism. These extensions are called unitigs (defined as « A uniquely assembleable subset of overlapping fragments »).
 
-Second created file from VCF_Creator:
+Second created file (from VCF_Creator):
 The previous example:  ./run_discoSnp++.sh -r fof.txt -T also generated a vcf file: discoRes_k_31_c_auto_D_0_P_1_b_0_coherent.vcf. As we didn't provided a reference file, the VCF contains no mapping position on a reference. Instead, each variant position correspond to the mapping of itself on its own sequence. For instance: 
 SNP_higher_path_3       196     3       C       G       .       .       Ty=SNP;Rk=1;UL=86;UR=261;CL=166;CR=761  GT:DP:PL:AD     0/0:124:10,378,2484:124,0       1/1:134:2684,408,10:0,134
 corresponds to the previously explained SNP. It maps at position 196. 
