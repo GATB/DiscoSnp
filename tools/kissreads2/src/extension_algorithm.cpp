@@ -74,7 +74,6 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     
     if ( quality.length()>0 ){
         if (the_reference_prediction->nbOfSnps>0) {
-                        printf("there are %d SNPs\n", the_reference_prediction->nbOfSnps);
             int snp_id;
             for(snp_id=0;snp_id<the_reference_prediction->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
                 i=the_reference_prediction->SNP_positions[snp_id];
