@@ -21,7 +21,8 @@ for line in file:
         covs = splitted_line[i].split(":")[-1].split(",")
         covA=covs[0]
         covB=covs[1]
+        
         if int(covA)>minimal_coverage or int(covB)>minimal_coverage: print splitted_line[i],
-        else: print "-9",
+        else: print "-9"+splitted_line[i][3:],
     print
 
