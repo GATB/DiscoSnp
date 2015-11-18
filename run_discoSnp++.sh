@@ -260,12 +260,12 @@ fi
 #######################################
 if [ $C -ne $max_C ]
 then
-	h5prefix=$prefix\_k_$k\_c_$c\_C_$C
+	h5prefix=${prefix}_k_${k}_c_${c}_C_${C}
 else
-	h5prefix=$prefix\_k_$k\_c_$c
+	h5prefix=${prefix}_k_${k}_c_${c}
 	
 fi
-kissprefix=$h5prefix\_D_$D\_P_$P\_b_$b
+kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
 readsFilesDump=${prefix}_read_files_correspondance.txt
 
 
@@ -337,7 +337,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	#echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
 	#$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
        
-       graphCmd="$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb"
+       graphCmd="$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb}"
        echo ${graphCmd}
        ${graphCmd}
        
@@ -401,7 +401,7 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
-kissreadsCmd="$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co $kissprefix\_coherent -unco $kissprefix\_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
+kissreadsCmd="$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
 
 echo $kissreadsCmd
 $kissreadsCmd
@@ -423,25 +423,21 @@ T="$(($(date +%s)-T))"
 echo -e "\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
 echo -e "\t###############################################################"
-sortCmd"sort -rg $kissprefix\_coherent | cut -d " " -f 2 | tr ';' '\n' > $kissprefix\_coherent.fa"
-echo $sortCmd
-$sortCmd
+sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
 if [ $? -ne 0 ]
 then
-echo "there was a problem with the result sorting, command line: sort -rg $kissprefix\_coherent | cut -d " " -f 2 | tr ';' '\n' > $kissprefix\_coherent.fa"
+echo "there was a problem with the result sorting."
 exit
 fi
 
-sortCmd="sort -rg $kissprefix\_uncoherent | cut -d " " -f 2 | tr ';' '\n' > $kissprefix\_uncoherent.fa"
-echo $sortCmd
-$sortCmd
+sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
 if [ $? -ne 0 ]
 then
-echo "there was a problem with the result sorting, command line: sort -rg $kissprefix\_uncoherent | cut -d " " -f 2 | tr ';' '\n' > $kissprefix\_uncoherent.fa"
+echo "there was a problem with the result sorting"
 exit
 fi
 
-rm -f $kissprefix.fa $kissprefix\_coherent $kissprefix\_uncoherent
+rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
@@ -462,7 +458,7 @@ echo -e "\t#################### CREATE VCF         #######################"
 echo -e "\t###############################################################"
 
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
-       vcfCreatorCmd="$EDIR/run_VCF_creator.sh -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf"
+       vcfCreatorCmd="$EDIR/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
        echo $vcfCreatorCmd
        $vcfCreatorCmd
        if [ $? -ne 0 ]
@@ -470,7 +466,7 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
        fi
 else # A Reference genome is provided, vcf creator mode 2
-       vcfCreatorCmd="$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p $kissprefix\_coherent.fa -o $kissprefix\_coherent.vcf  -I $option_cores_post_analysis"
+       vcfCreatorCmd="$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
        echo $vcfCreatorCmd
        $vcfCreatorCmd
 
@@ -489,13 +485,13 @@ echo -e "\t###############################################################"
 Ttot="$(($(date +%s)-Ttot))"
 echo "DiscoSnp++ total time in seconds: ${Ttot}"
 echo -e "\t################################################################################################################"
-echo -e "\t fasta of predicted variant is \""$kissprefix\_coherent.fa"\""
+echo -e "\t fasta of predicted variant is \""${kissprefix}_coherent.fa"\""
 
 if [ -z "$genome" ]; then
-       echo -e "\t Ghost VCF file (1-based) is \""$kissprefix\_coherent.vcf"\""
+       echo -e "\t Ghost VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
 else
-       echo -e "\t VCF file (1-based) is \""$kissprefix\_coherent.vcf"\""
-       echo -e "\t An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""$kissprefix\_coherent_for_IGV.vcf"\""
+       echo -e "\t VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
+       echo -e "\t An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
 fi
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
 echo -e "\t################################################################################################################"
