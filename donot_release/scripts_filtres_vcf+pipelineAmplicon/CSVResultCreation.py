@@ -92,7 +92,7 @@ while True:
                           total_tp_indel=logFile.readline().split()[2]
                           precision_indel=logFile.readline().split()[2]
                           recall_indel=logFile.readline().split()[2]
-                          outputCSVINDEL.write(str(fileName)+str(";")+str(total_simulated_snp)+str(";")+str(total_predicted_snp)+str(";")+str(total_tp_snp)+str(";")+str(precision_snp)+str(";")+str(recall_snp)+str("\n"))
+                          outputCSVINDEL.write(str(fileName)+str(";")+str(total_simulated_indel)+str(";")+str(total_predicted_indel)+str(";")+str(total_tp_indel)+str(";")+str(precision_indel)+str(";")+str(recall_indel)+str("\n"))
                           
 outputCSVINDEL.close()
 outputCSVSNP.close()
