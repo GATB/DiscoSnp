@@ -192,7 +192,7 @@ void Kissreads2::execute ()
     // of the tool execution
     getInfo()->add (1, "Stats");
     getInfo()->add (2, "Total Number of Mapped reads",     "%ld",  totalNumberOfMappedReads);
-    getInfo()->add (2, "Minimal coveage per read set",      sstring_cutoffs.str());
+    getInfo()->add (2, "Minimal coverage per read set",      sstring_cutoffs.str());
     getInfo()->add (1, "Outputs");
     getInfo()->add (2, "Number of read coherent predictions",     "%ld",  index.nb_coherent);
     getInfo()->add (2, "Number of read uncoherent predictions",     "%ld",  index.nb_uncoherent);

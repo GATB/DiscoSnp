@@ -74,7 +74,6 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     
     if ( quality.length()>0 ){
         if (the_reference_prediction->nbOfSnps>0) {
-                        printf("there are %d SNPs\n", the_reference_prediction->nbOfSnps);
             int snp_id;
             for(snp_id=0;snp_id<the_reference_prediction->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
                 i=the_reference_prediction->SNP_positions[snp_id];
@@ -131,7 +130,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
  * Thus in this function, we return 0 if any substitution occurs on this central position, whatever the number of substitution_seen
  *  returns 1 if true between read and fragment, 0 else
  */
-bool constrained_read_coherent(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions, const int seed_position_on_read, const int size_seed){
+bool constrained_read_mappable(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions, const int seed_position_on_read, const int size_seed){
 	int substitution_seen=0; // number of seen substitutions for now
 	int pos_on_read, pos_on_fragment; // where to start
     
@@ -338,12 +337,12 @@ struct Functor
                         
                         
 
-                        const bool is_read_coherent = constrained_read_coherent(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
+                        const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
 
                         
                         
                         
-                        if(is_read_coherent){ // tuple read prediction position is read coherent
+                        if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
                             mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
 #ifdef DEBUG_MAPPING
