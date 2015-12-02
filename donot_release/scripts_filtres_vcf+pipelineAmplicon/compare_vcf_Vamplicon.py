@@ -28,7 +28,7 @@ def index_reference_csv(ref_vcf_file):
     typeFile=0
     while True:
         indel=False
-        line = filin.readline()
+        line = filin.readline().rstrip()
         if not line: break
         if line.startswith("run") : 
                 typeFile=1
@@ -56,20 +56,25 @@ def index_reference_csv(ref_vcf_file):
         if typeFile==2:
                 #PC;GENE;CHR;POS;EXON;AA;NT;AF;PCR_NAME
                 #c.1799T>A
-                ref = line.split(";")[6]
-                listref=re.findall('(\d+|[A-Za-z]|>|\.)',ref)
+                #ref = line.split(";")[6]
+                #listref=re.findall('(\d+|[A-Za-z]|>|\.)',ref)
+                ref=line.split(";")[4]
+                alt=line.split(";")[5]
+                print line.split(";")
                 chro ="chr"+str(line.split(";")[2])
                 pos = int(line.split(";")[3])
                 #parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode)
-                if ">" not in listref :
-                      indel==True
-                      ref="AA"
-                      alt="A"
-                else:                        
-                        ref=listref[3]
-                #if ',' in ref : continue
-                        alt=listref[5]
-                #if ',' in alt : continue
+                # if ">" not in listref :
+#                       indel==True
+#                       ref="AA"
+#                       alt="A"
+#                 else:
+#                         #ref=listref[3]
+#                 #if ',' in ref : continue
+#                         #alt=listref[5]
+#                         ref="A"
+#                         alt
+#                 #if ',' in alt : continue
         if not chro in index: index[chro]={}
         if not pos in index[chro]: 
             index[chro][pos]=[] 
@@ -266,7 +271,7 @@ def analyse_predicted_vcf(prediction_vcf_file,index,wantedtype,nb_ref, roc_file_
         # only position for now: 
         index,index_line = get_index_entry(chro,pos,index,wantedtype,nb_chro,ref,alt)
         if index_line:
-                #print line.rstrip()
+                print line.rstrip()
                 nb_TP+=1
         else:
                 nb_FP+=1

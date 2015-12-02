@@ -44,20 +44,20 @@ while True:
     #print comment1,
     #print coverage_high
     #print coverage_low
-    to_output=False
+    to_output=True
+    min_coverage=10
     if sum(coverage_alt)==0: continue
     if len(coverage_alt)==1:
-        if coverage_alt[0]/(coverage_alt[0]+coverage_ref[0])>=maf_threshold_low and (coverage_alt[0]+coverage_ref[0])>=150:
-                to_output=True
+        if coverage_alt[0]/(coverage_alt[0]+coverage_ref[0])<maf_threshold_low: to_output=False 
+        if (coverage_alt[0]+coverage_ref[0])<min_coverage: to_output=False
     else:
             try:
-                    if float(coverage_alt[0])/(float(coverage_alt[0])+float(coverage_ref[0]))>=float(maf_threshold_low) and (float(coverage_alt[0])+float(coverage_ref[0]))>=150:
-                        #if coverage_alt[1]/(coverage_alt[1]+coverage_ref[1])>=maf_threshold_low and (coverage_alt[1]+coverage_ref[1])>=150:#AND
-                        to_output=True
-                    elif float(coverage_alt[1])/(float(coverage_alt[1])+float(coverage_ref[1]))>=float(maf_threshold_low) and (float(coverage_alt[1])+float(coverage_ref[1]))>=150:
-                        to_output=True
-            except ZeroDivisionError:
-                to_output=False
+                    to_output=True
+                    if float(coverage_alt[0])/(float(coverage_alt[0])+float(coverage_ref[0]))<float(maf_threshold_low): to_output=False
+                    if float(coverage_alt[1])/(float(coverage_alt[1])+float(coverage_ref[1]))<float(maf_threshold_low): to_output=False
+                    if (float(coverage_alt[0])+float(coverage_ref[0]))<min_coverage: to_output=False
+                    if (float(coverage_alt[1])+float(coverage_ref[1]))<min_coverage: to_output=False
+            except ZeroDivisionError: to_output=False
             
             
     
