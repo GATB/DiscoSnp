@@ -24,10 +24,10 @@ name_filter="filter_out_using_MAF_up_MAF_low_Amplicon_VCF.py"
 
 ######################################################################
 #TODO Put your own paths
-bwa_path="-B /home/Workhan_Data/Documents/Programmes/bwa-0.7.10/"
-fofFile_path="/home/Workhan_Data/Expes_Run_15S42A_INCA/fofFiles/"
-truth_File_path="/home/Workhan_Data/Expes_Run_15S42A_INCA/"
-G="-G  /home/Workhan_Data/Run_Test_INCA/amplicons_hg19.fa"
+bwa_path="" #"-B /home/Workhan_Data/Documents/Programmes/bwa-0.7.10/"
+fofFile_path="/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/donot_release/scripts_filtres_vcf+pipelineAmplicon/fof_amplicons/" #/home/Workhan_Data/Expes_Run_15S42A_INCA/fofFiles/"
+truth_File_path="/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/donot_release/clefs_chloe_1_dec_2015/truth_files/"
+G="-G  /Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/donot_release/scripts_filtres_vcf+pipelineAmplicon/amplicons_hg19.fa"
 ######################################################################
 
 #DiscoSNP++ options
@@ -55,7 +55,7 @@ echo "#$compare_vcf_path"
 echo "MAF : $MAF"
 
 #Disco
-$disco_path\/run_discoSnp++.sh -r $fofFile_path$fof -c $c -D $D -P $P -p $prefix -b $b $R $G -k $k $bwa_path
+#$disco_path\/run_discoSnp++.sh -r $fofFile_path$fof -c $c -D $D -P $P -p $prefix -b $b $R $G -k $k $bwa_path -g -d 3
 
 
 
