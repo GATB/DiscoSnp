@@ -18,8 +18,9 @@ from ClassVCF_creator import *
 #      CheckAtDistanceXBestHits(upper_path,lower_path):"""Prediction validation : check if the couple is validated with only one mapping position """
 #      PrintVCFHeader(VCF,listName,fileName,boolmyname):    
 #############################################################################################
-def InitVariant(line1,line2):
+def InitVariant(line1,line2,fileName):
         """Initialization of the variant by taking into account its type"""
+        dicoIndex=GetIndex(fileName)
         #Object Creation
         if "SNP" in line1 and "nb_pol_1" in line1:
                 variant_object=SNP(line1,line2)
@@ -33,7 +34,7 @@ def InitVariant(line1,line2):
         else :
                 print("!!!!Undefined Variant!!!!")
                 return (1,1)                
-                        
+        variant_object.GetDicoIndex(dicoIndex)                
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)
@@ -47,8 +48,8 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         #Fills information of the variant object with the informations of the discosnp++ header
         variant_object.GetPolymorphismFromHeader() 
         #Gets the coverage for each path
-        variant_object.upper_path.GetCoverage()
-        variant_object.lower_path.GetCoverage()
+        variant_object.upper_path.GetCoverage(variant_object.dicoIndex)
+        variant_object.lower_path.GetCoverage(variant_object.dicoIndex)
         #Gives the position corrected for each path by taking into account the shift, deletion, insertion ....
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
@@ -78,8 +79,8 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         #Fills information of the variant object with the informations of the discosnp++ header        
         variant_object.GetPolymorphismFromHeader()
         #Gets the coverage for each path        
-        variant_object.upper_path.GetCoverage()
-        variant_object.lower_path.GetCoverage()
+        variant_object.upper_path.GetCoverage(variant_object.dicoIndex)
+        variant_object.lower_path.GetCoverage(variant_object.dicoIndex)
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
         #Checks if the variant has close SNPs        
@@ -112,7 +113,59 @@ def CounterGenotype(fileName):
                                                 if match:
                                                         nbGeno+=1
                                         samfile.close()
-                                        return(nbGeno)                        
+                                        return(nbGeno)
+#############################################################################################
+#############################################################################################
+def GetIndex(fileName):
+       samfile=open(fileName,'r')
+       while True:                
+                line=samfile.readline()
+                if not line: break #End of file
+                if line.startswith('@'): continue #We do not read headers
+                if ".fa" in fileName:
+                        line=line.strip('>')
+                        listLine=line.split("|")
+                elif ".sam" in fileName:
+                        listLine=line.split("\t")[0].split("|")
+                #Init dictionnary
+                dicoIndex={}
+                if "C1_" in line:
+                        dicoIndex["C"]=[]
+                if "G1_" in line:
+                        dicoIndex["G"]=[]
+                if "unitig" in line:
+                       dicoIndex["unitig"]=[]
+                if "contig" in line :
+                       dicoIndex["contig"]=[]     
+                for i in range(len(listLine)):
+                        if 'P_1' in listLine[i]:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
+                                dicoIndex["P_"]=int(i)                         
+                        elif "unitig" in listLine[i]:                                
+                                if "left" in listLine[i]:
+                                        dicoIndex["unitig"].append(int(i))
+                                if "right" in listLine[i]:
+                                        dicoIndex["unitig"].append(int(i))                                     
+                        elif "contig" in listLine[i]:
+                                if "left" in listLine[i]:
+                                       dicoIndex["contig"].append(int(i)) 
+                                if "right" in listLine[i]:
+                                       dicoIndex["contig"].append(int(i)) 
+                        elif "rank" in listLine[i]:
+                                dicoIndex["rank"]=int(i)
+                        elif "nb_pol" in listLine[i]:
+                                dicoIndex["nb_pol"]=int(i)                                                             
+                        elif "G" in listLine[i]: #Gets the genotype and likelihood by samples
+                               matchG=re.match(r'^G',listLine[i])# finds the genotype in the item of the dicoSnp++ header
+                               if matchG:
+                                       dicoIndex["G"].append(int(i))
+                        elif "C" in listLine[i]:                                
+                                matchC=re.match(r'^C',listLine[i])
+                                if matchC:
+                                       dicoIndex["C"].append(int(i))
+                break
+                                       
+       samfile.close()                              
+       return(dicoIndex)                     
 #############################################################################################
 #position : current position to add at the ensemble
 #delta : minimum number of difference allowed between two positions

@@ -43,7 +43,7 @@ def usage():
         Run VCF_creator
     ################################
     
-    -h --help : print this message
+    -h --help : print this messagehttp://www.ufunk.net/food/dealer-de-sucre/
     -s --sam_file : <file>.sam of the alignment
 
     -o --output : vcf file 
@@ -129,7 +129,7 @@ if ".sam" in fileName: #Checks if it's a samfile
                 #Initializes variant object with the samline
                 #if InitVariant(line1,line2)[0]==1:
                 #        continue
-                variant_object, vcf_field_object=InitVariant(line1,line2) #Fills the object with the line of the samfile        
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName) #Fills the object with the line of the samfile        
                 if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                         sys.exit(1)
                 #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
@@ -153,7 +153,7 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
                 line2=samfile.readline() #Reads a couple of line
                 seq2=samfile.readline()
                 #Initializes variant object with the samline
-                variant_object, vcf_field_object=InitVariant(line1,line2) 
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName) 
                 table=UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 

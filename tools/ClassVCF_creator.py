@@ -78,7 +78,11 @@ class VARIANT():
                 self.dicoGeno={}#dictionnary with the information of the genotype dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
                 self.dicoAllele={}#dictionnary of all the information from the header of discosnp++ : depending on the variant
                 self.mappingPositionCouple=0#mapping position of the bubble after correction
-
+                self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------                                           
+        def GetDicoIndex(self,dicoIndex):
+                self.dicoIndex=dicoIndex
 #---------------------------------------------------------------------------------------------------------------------------
 ##Example :SNP_higher_path_99|P_1:30_A/C|high|nb_pol_1|left_unitig_length_129|right_unitig_length_901|C1_0|C2_30|G1_1/1:744,116,6|G2_0/0:6,95,604|rank_1.00000
 #---------------------------------------------------------------------------------------------------------------------------                                           
@@ -91,39 +95,37 @@ class VARIANT():
                 self.variantID=self.discoName.split("_")[3]#Gets the variantID ex:56468
                 VCFObject.variantType=self.discoName.split("_")[0]#fills the VCF object with the variant type
                 listgeno=[]#splitted informations by genotype contained in the header of discoSnp++
-                for name in discoList:# Loops on the header of discoSnp++
-                        if 'P_1' in name:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
-                                pos=name.split(',')
-                                for item in pos:
-                                        if VCFObject.variantType=="SNP":#Specific dictionary dicoAllele in case of simple snp
-                                                if ":" in item:
-                                                        listP_=item.split(":")
-                                                        self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1].split("/")[0]),(listP_[1].split("_")[1].split("/")[1])]#{'P_1': ['30', 'A', 'G']}
-                                        elif VCFObject.variantType=="INDEL":#INDEL case : P_1:30_3_2 => {'P_1': ['30', '3', '2']} specific to the INDEL
-                                                listP_=item.split(":")
-                                                self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}                         
-                        elif "unitig" in name:
-                                if "left" in name:
-                                        self.unitigLeft=name.split("_")[3]
-                                if "right" in name:
-                                        self.unitigRight=name.split("_")[3]                                        
-                        elif "contig" in name:
-                                if "left" in name:
-                                        self.contigLeft=name.split("_")[3]
-                                if "right" in name:
-                                        self.contigRight=name.split("_")[3]
-                        elif "rank" in name:
-                                self.rank=name.split('_')[1]
-                        elif "nb_pol" in name:
-                                self.nb_pol=int(name.split('_')[2])                                                               
-                        elif "G" in name: #Gets the genotype and likelihood by samples
-                               matchG=re.match(r'^G',name)# finds the genotype in the item of the dicoSnp++ header
-                               if matchG:
-                                       listgeno=name.replace("_",":").split(":")
-                                       if len(listgeno)>2:
-                                                self.dicoGeno[listgeno[0]]=[listgeno[1],(listgeno[2].split(','))]
-                                       else:                                     
-                                                self.dicoGeno[listgeno[0]]=[listgeno[1]]
+                #Get dicoAllele P_1:30_A/G => {'P_1': ['30', 'A', 'G']} 
+
+                pos=discoList[self.dicoIndex["P_"]].split(',')
+                for item in pos:
+                        if VCFObject.variantType=="SNP":#Specific dictionary dicoAllele in case of simple snp
+                                if ":" in item:
+                                        listP_=item.split(":")
+                                        self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1].split("/")[0]),(listP_[1].split("_")[1].split("/")[1])]#{'P_1': ['30', 'A', 'G']}
+                        elif VCFObject.variantType=="INDEL":#INDEL case : P_1:30_3_2 => {'P_1': ['30', '3', '2']} specific to the INDEL
+                                listP_=item.split(":")
+                                self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}
+                #Get unitig
+                if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
+                        self.unitigLeft=discoList[self.dicoIndex["unitig"][0]].split("_")[3] 
+                        self.unitigRight=discoList[self.dicoIndex["unitig"][1]].split("_")[3] 
+                #Get contig
+                if "contig" in self.dicoIndex and "contig" in headerVariantUp:
+                        self.contigLeft=discoList[self.dicoIndex["contig"][0]].split("_")[3] 
+                        self.contigRight=discoList[self.dicoIndex["contig"][1]].split("_")[3] 
+                #Get rank
+                if "rank" in self.dicoIndex and "rank" in headerVariantUp:
+                        self.rank=discoList[self.dicoIndex["rank"]].split('_')[1]
+                #Get nb_pol
+                self.nb_pol=int(discoList[self.dicoIndex["nb_pol"]].split('_')[2])
+                if "G" in self.dicoIndex and "G1" in headerVariantUp:
+                        for i in self.dicoIndex["G"]:
+                               listgeno=discoList[i].replace("_",":").split(":")
+                               if len(listgeno)>2:
+                                        self.dicoGeno[listgeno[0]]=[listgeno[1],(listgeno[2].split(','))]
+                               else:                                     
+                                        self.dicoGeno[listgeno[0]]=[listgeno[1]]  
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                           
         def ReverseComplement(self,nucleotide):
@@ -564,13 +566,14 @@ class PATH():
     # nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                         
-        def GetCoverage(self):
+        def GetCoverage(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
-                for item in self.listSam[0].split('|'): 
-                        if "C" in item:
-                                matchC=re.match(r'^C',item)
-                                if matchC:
-                                        self.listCoverage.append(item.split('_')[1])    
+                if "C" in dicoIndex:
+                     for i in dicoIndex["C"]:   
+                         matchC=re.match(r'^C',self.discoName.split("|")[i])
+                         if matchC:
+                                self.listCoverage.append(self.discoName.split("|")[i].split('_')[1])
+                        
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
         def GetTag(self):
