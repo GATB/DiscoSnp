@@ -60,7 +60,7 @@ def index_reference_csv(ref_vcf_file):
                 #listref=re.findall('(\d+|[A-Za-z]|>|\.)',ref)
                 ref=line.split(";")[4]
                 alt=line.split(";")[5]
-                print line.split(";")
+                # print line.split(";")
                 chro ="chr"+str(line.split(";")[2])
                 pos = int(line.split(";")[3])
                 #parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode)
@@ -271,9 +271,10 @@ def analyse_predicted_vcf(prediction_vcf_file,index,wantedtype,nb_ref, roc_file_
         # only position for now: 
         index,index_line = get_index_entry(chro,pos,index,wantedtype,nb_chro,ref,alt)
         if index_line:
-                print line.rstrip()
+                print "TP", line.rstrip()
                 nb_TP+=1
         else:
+                print "FP", line.rstrip()
                 nb_FP+=1
     
     nb_TP_seen=countDict(index,wantedtype,nb_chro) 

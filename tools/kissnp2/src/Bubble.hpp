@@ -37,6 +37,7 @@
 
 #define STR_MAX_INDEL_SIZE                  "-D"
 #define STR_MAX_POLYMORPHISM                "-P"
+#define STR_MAX_SYMMETRICAL_CROSSROADS      "-max_symmetrical_crossroads"
 
 
 /********************************************************************************/
@@ -241,7 +242,9 @@ protected:
     *   2: no restriction on branching */
     int authorised_branching;
     
-    
+
+    /** In b 2: maximaml number of symetrically branches traversed while walking the bubble**/
+    int max_sym_branches;
 
     
 
@@ -287,7 +290,9 @@ protected:
                        Node& previousNode1,
                        Node& previousNode2,
                        std::string local_extended_string1,
-                       std::string local_extended_string2);
+                       std::string local_extended_string2,
+                       int sym_branches
+                       );
     
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      *
@@ -300,7 +305,8 @@ protected:
                  Node& previousNode1,
                  Node& previousNode2,
                  std::string local_extended_string1,
-                 std::string local_extended_string2
+                 std::string local_extended_string2,
+                 int sym_branches
                  );
     
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
@@ -329,7 +335,7 @@ protected:
      * \param[in] node 1 : bubble branch last node
      * \param[in] node 2 : bubble branch last node
      * \return true if bubble is ok */
-    bool checkBranching (Node& node1, Node& node2) const;
+    bool checkBranching (Node& node1, Node& node2,  int & sym_branches) const;
     
     /** Check that indel bubbles respect the maximal size of the position ambiguity */
     bool checkRepeatSize (string &extension1, string &extension2) const;

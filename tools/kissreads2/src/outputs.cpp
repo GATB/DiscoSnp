@@ -285,12 +285,10 @@ void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoheren
         {
             index.nb_coherent++;
             print_couple_i(coherent_out, index, i, gv);
-            //                           results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
         }
         else{
             index.nb_uncoherent++;
             print_couple_i(uncoherent_out, index, i, gv);
-            //            , results_against_set, i, number_of_read_sets, qual, 1, compute_genotype, paired);
         }
     }
 }

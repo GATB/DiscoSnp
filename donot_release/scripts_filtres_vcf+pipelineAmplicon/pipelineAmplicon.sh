@@ -55,7 +55,7 @@ echo "#$compare_vcf_path"
 echo "MAF : $MAF"
 
 #Disco
-#$disco_path\/run_discoSnp++.sh -r $fofFile_path$fof -c $c -D $D -P $P -p $prefix -b $b $R $G -k $k $bwa_path -g -d 3
+$disco_path\/run_discoSnp++.sh -r $fofFile_path$fof -c $c -D $D -P $P -p $prefix -b $b $R $G -k $k $bwa_path -g -d 2
 
 
 

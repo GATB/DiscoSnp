@@ -53,9 +53,11 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_LOW_COMPLEXITY,       "conserve low complexity SNPs",     false));
     getParser()->push_front (new OptionOneParam (STR_MAX_AMBIGOUS_INDELS,           "Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output", false, "20"));
     getParser()->push_front (new OptionOneParam (STR_DISCOSNP_AUTHORISED_BRANCHING, "branching mode\n"
-                                                 "\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
-                                                 "\t1: forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position (default value)\n"
-                                                 "\t2: No limitation on branching (low precision, high recall)",  false, "1"));
+                                                 "\t\t0: forbid SNPs for wich any of the two paths is branching (high precision, low recall)\n"
+                                                 "\t\t1: forbid SNPs for wich the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position (default value)\n"
+                                                 "\t\t2: No limitation on branching (low precision, high recall)",  false, "1"));
+    getParser()->push_front (new OptionOneParam (STR_MAX_SYMMETRICAL_CROSSROADS,"In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit", false, "-1"));
+
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_UNITIG,     "extend found and stop at first polymorphism (strict extension=unitigs) SNPs. Uncompatible with -T",  false));
     getParser()->push_front (new OptionNoParam  (STR_DISCOSNP_TRAVERSAL_CONTIG,     "extend found and stop at large polymorphism (extension=contigs) SNPs. Uncompatible with -t",  false));
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT,                    "output name",                      true));
@@ -167,7 +169,7 @@ void Kissnp2::execute ()
     getInfo()->add (3, "left",       "%d", stats.nb_where_to_extend_snp[1]);
     getInfo()->add (3, "right",      "%d", stats.nb_where_to_extend_snp[2]);
     getInfo()->add (3, "left|right", "%d", stats.nb_where_to_extend_snp[3]);
-    getInfo()->add (1, "Deletion bubbles",  "");
+    getInfo()->add (1, "Indel bubbles",  "");
     getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles_del);
     getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_del_high);
     getInfo()->add (2, "nb_low",  "%lu", stats.nb_bubbles_del_low);
