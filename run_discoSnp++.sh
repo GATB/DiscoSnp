@@ -278,6 +278,7 @@ readsFilesDump=${prefix}_read_files_correspondance.txt
 
 #######################################
 c_dbgh5=$c
+rm -f ${read_sets}_${kissprefix}_removemeplease
 if [[ "$useref" == "true" ]]; then
 
        if [ -z "$genome" ]; then
@@ -289,9 +290,9 @@ if [[ "$useref" == "true" ]]; then
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
        echo $c_dbgh5
-       cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
+       
 fi
-cat $read_sets > ${read_sets}_${kissprefix}_removemeplease
+cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 
 
 
@@ -359,8 +360,8 @@ if [ ! -e $h5prefix.h5 ]; then
 
 else
 	echo -e "File $h5prefix.h5 exists. We use it as input graph"
-fi
-	
+       fi
+       
 
 ######################################################
 #################### KISSNP2   #######################
@@ -391,6 +392,7 @@ echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
  exit
 fi
 
+exit
 #######################################################################
 #################### KISSREADS                  #######################
 #######################################################################
