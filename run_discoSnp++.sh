@@ -41,6 +41,7 @@ d=1 # estimated number of error per read (used by kissreads only)
 D=100 # maximal size of searched deletions
 max_ambigous_indel=20
 P=1 # number of polymorphsim per bubble
+option_max_symmetrical_crossroads=""
 l="-l"
 extend=""
 output_coverage_option=""
@@ -77,6 +78,7 @@ echo -e "\t\t -b value. "
 echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
 echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
 echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
+echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
 echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
 echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
 echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
@@ -108,7 +110,7 @@ echo "Any further question: read the readme file or contact us via the Biostar f
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:P:htTlRmgnG:B:M:u:a:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:" opt; do
 case $opt in
        R)
        useref="true"
@@ -117,6 +119,11 @@ case $opt in
        
        a)
        max_ambigous_indel=$OPTARG
+       ;;
+       
+       s)
+       option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
+       echo ${option_max_symmetrical_crossroads}
        ;;
        
 	t)
@@ -271,6 +278,7 @@ readsFilesDump=${prefix}_read_files_correspondance.txt
 
 #######################################
 c_dbgh5=$c
+rm -f ${read_sets}_${kissprefix}_removemeplease
 if [[ "$useref" == "true" ]]; then
 
        if [ -z "$genome" ]; then
@@ -282,9 +290,9 @@ if [[ "$useref" == "true" ]]; then
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
        echo $c_dbgh5
-       cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
+       
 fi
-cat $read_sets > ${read_sets}_${kissprefix}_removemeplease
+cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 
 
 
@@ -352,8 +360,8 @@ if [ ! -e $h5prefix.h5 ]; then
 
 else
 	echo -e "File $h5prefix.h5 exists. We use it as input graph"
-fi
-	
+       fi
+       
 
 ######################################################
 #################### KISSNP2   #######################
@@ -362,7 +370,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel}"
+kissnp2Cmd="$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 

@@ -24,7 +24,7 @@ x *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
 #include <string>
 using namespace std;
 
-#define DEBUG(a)  //a
+#define DEBUG(a) // a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 
@@ -55,9 +55,13 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     max_indel_size       = props->getInt (STR_MAX_INDEL_SIZE);
     max_indel_ambiguity  = props->getInt (STR_MAX_AMBIGOUS_INDELS);
     max_polymorphism     = props->getInt (STR_MAX_POLYMORPHISM);
+    max_sym_branches     = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
+
+
     
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
-    max_recursion_depth=100; // TODO: parameter?
+    max_recursion_depth=1000; // TODO: parameter?
+
     max_breadth = props->getInt (STR_BFS_MAX_BREADTH);
     /** We set the traversal kind. */
     traversalKind = TRAVERSAL_NONE;
@@ -98,12 +102,16 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     sizeKmer             = bf.sizeKmer;
     accept_low           = bf.accept_low;
     authorised_branching = bf.authorised_branching;
-    traversalKind        = bf.traversalKind;
     max_indel_size       = bf.max_indel_size;
-    max_polymorphism     = bf.max_polymorphism;
-    max_recursion_depth  = bf.max_recursion_depth;
-    breadth_first_queue  = bf.breadth_first_queue;
     max_indel_ambiguity  = bf.max_indel_ambiguity;
+    max_polymorphism     = bf.max_polymorphism;
+    max_sym_branches     = bf.max_sym_branches;
+    max_depth            = bf.max_depth;
+    max_recursion_depth  = bf.max_recursion_depth;
+    max_breadth          = bf.max_breadth;
+    traversalKind        = bf.traversalKind;
+    breadth_first_queue  = bf.breadth_first_queue;
+
     
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
@@ -151,7 +159,7 @@ Node get_successors (const Graph& graph, Node& node, const int depth){
 }
 
 
-void BubbleFinder::start_snp_prediction(Bubble& bubble){
+void BubbleFinder::start_snp_prediction(){
     if (max_polymorphism<1) { // if the parameter P is set to 0, do not output any SNP
         return;
     }
@@ -161,7 +169,7 @@ void BubbleFinder::start_snp_prediction(Bubble& bubble){
     bubble.extended_string[1]="";
     Node notzero = Node(~0);
     Node notzero2 = Node(~0);
-    expand (1,bubble, bubble.begin[0], bubble.begin[1], notzero, notzero2, "","");
+    expand (1,bubble.begin[0], bubble.begin[1], notzero, notzero2, "","", 0, 0);
 }
 
 /** Transform a nucleotide in ASCII form into an integer form as:
@@ -189,7 +197,7 @@ void clear_queue_pair( std::queue<pair<Node, string> > &q )
  ** REMARKS : breadth first search (queue already stored in the bubbleFinder class.
  Then limit the queue size. Thus early possible bubbles are tested even if longer insers are too complex to be treated.
  *********************************************************************/
-void BubbleFinder::start_indel_prediction(Bubble& bubble){
+void BubbleFinder::start_indel_prediction(){
     if (max_indel_size==0)
         return; // no need to try to find indels
     bubble.type=1;
@@ -242,9 +250,9 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
                 Node notzero = Node(~0);
                 Node notzero2 = Node(~0);
                 if(extended_path_id==0?
-                   expand (1,bubble, current, bubble.begin[1], notzero, notzero2,tried_extension,"")
+                   expand (1, current, bubble.begin[1], notzero, notzero2,tried_extension,"", 0, 0)
                    :
-                   expand (1,bubble, bubble.begin[0], current, notzero, notzero2, "",tried_extension)){
+                   expand (1, bubble.begin[0], current, notzero, notzero2, "",tried_extension, 0, 0)){
                     found_del_size=insert_size;   // an extension was found. We'll check if other extensions with same size can be found.
                     continue;                     // we won't add stuffs in the queue, we can continue.
                 }
@@ -291,6 +299,7 @@ void BubbleFinder::start_indel_prediction(Bubble& bubble){
 template<>
 void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
 {
+    this->bubble=bubble;
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
     DEBUG ((cout << "[BubbleSNPFinder::start] bubble.isCanonical " << bubble.isCanonical << endl));
     /** We compute the successors of the node. */
@@ -322,7 +331,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             /** Try a SNP                         **/
             /*************************************************/
             DEBUG ((cout << " start SNP detection with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
-            start_snp_prediction(bubble);
+            start_snp_prediction();
             
             /*************************************************/
             /** Try an isolated insertion                   **/
@@ -330,7 +339,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
             bubble.isCanonical=false;
             bubble.closed_bubble=false;
             DEBUG ((cout << " start indel detection with " << graph.toString(bubble.begin[0]) <<" and "<< graph.toString(bubble.begin[1]) << endl));
-            start_indel_prediction(bubble);
+            start_indel_prediction();
         }
     }
 }
@@ -346,7 +355,6 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
  *********************************************************************/
 bool BubbleFinder::expand_heart(
                                  const int nb_polymorphism,
-                                 Bubble& bubble,
                                  Node& nextNode1,
                                  Node& nextNode2,
                                  Node& node1,
@@ -354,7 +362,9 @@ bool BubbleFinder::expand_heart(
                                  Node& previousNode1,
                                  Node& previousNode2,
                                  string local_extended_string1,
-                                 string local_extended_string2){
+                                 string local_extended_string2,
+                                 int sym_branches,
+        int stack_size){
     /** We check whether the new nodes are different from previous ones. */
     bool checkPrevious =
     checkNodesDiff (previousNode1, node1, nextNode1) &&
@@ -380,19 +390,19 @@ bool BubbleFinder::expand_heart(
         bubble.end[0] = node1;
         bubble.end[1] = node2;
         
-        checkPath(bubble);
-        checkLowComplexity(bubble);
+        checkPath();
+        checkLowComplexity();
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
         if (bubble.isCanonical && bubble.acceptable_complexity && checkRepeatSize(local_extended_string1, local_extended_string2))
         {
             
             /** We extend the bubble on the left and right (unitigs or contigs). */
-            extend (bubble);
+            extend ();
             /** We got all the information about the bubble, we finish it. */
             bubble.extended_string[0] = local_extended_string1;
             bubble.extended_string[1] = local_extended_string2;
             bubble.final_nb_polymorphism=nb_polymorphism;
-            finish (bubble);
+            finish ();
             dumped_bubble =true;
         }
     }
@@ -408,13 +418,14 @@ bool BubbleFinder::expand_heart(
         DEBUG((cout<<"continue with nextNode1.value "<<graph.toString(nextNode1)<<" nextNode2.value "<<graph.toString(nextNode2)<<endl));
         /** We call recursively the method (recursion on 'pos'). */
         dumped_bubble = expand (nb_polymorphism,
-                                   bubble,
                                    nextNode1,
                                    nextNode2,
                                    node1,
                                    node2,
                                    local_extended_string1+ascii(added_nucleotide1),
-                                   local_extended_string2+ascii(added_nucleotide2));
+                                   local_extended_string2+ascii(added_nucleotide2),
+                                   sym_branches,
+                                   stack_size+1);
         
         //            /** There's only one branch to expand if we keep non branching SNPs only, therefore we can safely stop the for loop */
         //            if ( authorised_branching==0 || authorised_branching==1 )   {  break; }
@@ -433,31 +444,60 @@ bool BubbleFinder::expand_heart(
 
 bool BubbleFinder::expand (
                            const int nb_polymorphism,
-                           Bubble& bubble,
-                           Node& node1, // Node currently tested
-                           Node& node2, // Node currently tested
-                           Node& previousNode1, // node before the one tested
-                           Node& previousNode2, // node before the one tested
+                           Node node1, // Node currently tested
+                           Node node2, // Node currently tested
+                           Node previousNode1, // node before the one tested
+                           Node previousNode2, // node before the one tested
                            string local_extended_string1,
-                           string local_extended_string2
+                           string local_extended_string2,
+                           int sym_branches, // number of symmetrically branchings traversed (used in b 2 mode)
+                           int stack_size
                            )
 {
-
+    DEBUG((cout<<" *"<<stack_size<<"+"<<endl));
     DEBUG((cout<<"expand with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
     DEBUG((cout<<"expand with local_extended_string1 "<<local_extended_string1<<" local_extended_string2 "<<local_extended_string2<<endl));
-    
-    DEBUG((cout<<"check branching"<<endl));
+
+
+    /****************************************************************************/
+    /**************** OPTIMIZATION : AVOID RECURSIONS ***************************/
+    Graph::Vector < pair<Node,Node> > successors;
+    while (true){
+        if (checkBranching(node1,node2, sym_branches) == false) return false;       // no possibility to continue
+        successors = graph.successors (node1, node2); // get next two nodes
+        if (successors.size() != 1) break;                                          // no more iterative programming
+        if (successors[0].first == successors[0].second) {
+            break;                     // ended bubble
+        }
+
+        bool checkPrevious =
+        checkNodesDiff (previousNode1, node1, successors[0].first) &&
+        checkNodesDiff (previousNode2, node2, successors[0].second);
+        if (!checkPrevious)  { return false;}
+
+        local_extended_string1+=ascii(graph.getNT(successors[0].first,sizeKmer-1)); // extend upper sequence with new character
+        local_extended_string2+=ascii(graph.getNT(successors[0].second,sizeKmer-1));// extend lower sequence with new character
+        previousNode1 = node1;                                                      // change currents and previous nodes
+        previousNode2 = node2;                                                      // change currents and previous nodes
+        node1 = successors[0].first;                                                // change currents and previous nodes
+        node2 = successors[0].second;                                               // change currents and previous nodes
+    }
+
+    /**************** END OPTIMIZATION  *****************************************/
+    /****************************************************************************/
+
     /** We may have to stop the extension according to the branching mode. */
-    if (checkBranching(node1,node2) == false)  {
-        return false; }
+    if (checkBranching(node1,node2, sym_branches) == false)  {
+        return false;
+    }
     
     
     /** We get the common successors of node1 and node2. */
     /** Returns the successors of two nodes, ie with the same transition nucleotide from both nodes. */
-    Graph::Vector < pair<Node,Node> > successors = graph.successors (node1, node2);
+//    Graph::Vector < pair<Node,Node> > successors = graph.successors (node1, node2);
     DEBUG((cout<<"successors size "<<successors.size()<<endl));
-    /** We should not have several extensions possible unless authorised_branching==2 */
-    assert(authorised_branching==2 || successors.size<2);
+
+
     
     bool dumped_bubble=false;
     /** We loop over the successors of the two nodes. */
@@ -466,7 +506,8 @@ bool BubbleFinder::expand (
     {
         
         /** extend the bubble with the couple of nodes */
-        dumped_bubble = expand_heart(nb_polymorphism,bubble,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+        dumped_bubble = expand_heart(nb_polymorphism,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches,
+                                     stack_size);
         
         /******************************************************************************************* **/
         /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
@@ -475,8 +516,9 @@ bool BubbleFinder::expand (
         /** if(dumped_bubble && successors[i].first==successors[i].second) break; **/
         /******************************************************************************************* **/
 
-        /** Stop as soon as a bubble is dumped */
-        if(dumped_bubble) break;
+        // /** Stop as soon as a bubble is dumped */
+        // VERSION 2.2.5: commented this break line. Enable to explore all possible symmetrical paths, even in case of success on one of the paths.
+        //if(dumped_bubble) break;
     }
     
     DEBUG((cout<<"stop try"<<endl));
@@ -502,7 +544,8 @@ bool BubbleFinder::expand (
                     if ( graph.getNT(successors1[i1],sizeKmer-1) == graph.getNT(successors2[i2],sizeKmer-1))
                         continue; // This has already been tested in previous loop
                 DEBUG((cout<<"TRYING"<<endl));
-                dumped_bubble |= expand_heart(nb_polymorphism+1,bubble,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2);
+                dumped_bubble |= expand_heart(nb_polymorphism+1,successors1[i1],successors2[i2],node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches ,
+                                              stack_size);
                 /******************************************************************************************* **/
                 /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
                 /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
@@ -527,7 +570,7 @@ bool BubbleFinder::expand (
  ** RETURN  :
  ** REMARKS : In case of indel, the extended nodes are those from the full path of length 2k-1
  *********************************************************************/
-void BubbleFinder::extend (Bubble& bubble)
+void BubbleFinder::extend ()
 {
     Nucleotide closureLeft  = NUCL_UNKNOWN;
     Nucleotide closureRight = NUCL_UNKNOWN;
@@ -579,7 +622,7 @@ void BubbleFinder::extend (Bubble& bubble)
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::finish (Bubble& bubble)
+void BubbleFinder::finish ()
 {
     
     
@@ -617,12 +660,12 @@ void BubbleFinder::finish (Bubble& bubble)
     
     
     if (bubble.extended_string[0].length()<=bubble.extended_string[1].length()){
-        buildSequence (bubble, 0, "higher", bubble.seq1, comment.str());
-        buildSequence (bubble, 1, "lower",  bubble.seq2, comment.str());
+        buildSequence ( 0, "higher", bubble.seq1, comment.str());
+        buildSequence ( 1, "lower",  bubble.seq2, comment.str());
     }
     else{ // put the smaller overlap as the first sequence.
-        buildSequence (bubble, 1, "higher", bubble.seq1, comment.str());
-        buildSequence (bubble, 0, "lower",  bubble.seq2, comment.str());
+        buildSequence ( 1, "higher", bubble.seq1, comment.str());
+        buildSequence ( 0, "lower",  bubble.seq2, comment.str());
     }
     
     /** We have to protect the sequences dump wrt concurrent accesses. We use a {} block with
@@ -688,7 +731,7 @@ bool BubbleFinder::two_possible_extensions (Node node1, Node node2) const
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, string polymorphism_comments)
+void BubbleFinder::buildSequence ( size_t pathIdx, const char* type, Sequence& seq, string polymorphism_comments)
 {
     stringstream commentStream;
     
@@ -782,12 +825,11 @@ bool BubbleFinder::checkNodesDiff (Node& previous, Node& current, Node& next) co
  ** REMARKS : Trick: we test the reverse complement of the second $k$-mer. Thus the last nuc. of the first kmer and the first nuc. of the second kmer does not influence the
  **           comparison. Thus the choice of the path used to make this comparison (higher or lower) does not change the results.
  *********************************************************************/
-void BubbleFinder::checkPath (Bubble& bubble) const
+void BubbleFinder::checkPath ()
 {
     /** We test whether the first kmer of the first path is smaller than
      * the first kmer of the revcomp(first path), this should avoid repeated SNPs */
     DEBUG((cout<<"check path "<<graph.toString (bubble.begin[0])  <<"<"<<  graph.toString (graph.reverse(bubble.end[0]))<<endl));
-    
     if(graph.toString (bubble.begin[0])  <  graph.toString (graph.reverse(bubble.end[0])))
         bubble.isCanonical=true;
     else
@@ -847,7 +889,7 @@ bool BubbleFinder::checkRepeatSize (string &extension1, string &extension2) cons
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-bool BubbleFinder::checkBranching (Node& node1, Node& node2) const
+bool BubbleFinder::checkBranching (Node& node1, Node& node2,  int & sym_branches) const
 {
     // stop the extension if authorised_branching==0 (not branching in any path) and any of the two paths is branching
     if (authorised_branching==0 && (two_possible_extensions_on_one_path(node1) || two_possible_extensions_on_one_path(node2)))
@@ -855,12 +897,19 @@ bool BubbleFinder::checkBranching (Node& node1, Node& node2) const
         return false;
     }
     
+    const bool two_extensions = two_possible_extensions (node1, node2);
+
     // stop the extension if authorised_branching==1 (not branching in both path) and both the two paths are branching
-    if (authorised_branching==1 && two_possible_extensions (node1, node2))
+    if (authorised_branching==1 && two_extensions)
     {
         return false;
     }
-    
+
+    // stop the extension if authorised_branching=2 and too much nrabching crossroads were traversed.
+    if (authorised_branching==2 && two_extensions){
+        if (sym_branches==max_sym_branches) {return false;} // We saw already too much symmetrically branching crossreads
+        sym_branches++;
+    }
     return true;
 }
 
@@ -872,7 +921,7 @@ bool BubbleFinder::checkBranching (Node& node1, Node& node2) const
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::checkLowComplexity (Bubble& bubble) const
+void BubbleFinder::checkLowComplexity ()
 {
     bubble.acceptable_complexity=true;
     string path1 = graph.toString (bubble.begin[0]).substr(0, sizeKmer-1) + graph.toString (bubble.end[0]);

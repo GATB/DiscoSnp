@@ -52,7 +52,7 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_MAX_HAMMING,         "Maximal hamming distance authorized while maping",     false, "1"));
     
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_COHERENT,           "Output coherent file name",                      true));
-    getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_UNCOHERENT,         "Output uncoherent file name",                      true));
+    getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_UNCOHERENT,         "Output uncoherent file name",                      false,"/dev/null"));
     getParser()->push_front (new OptionOneParam (STR_URI_READS_INPUT,               "Input reads",  true));
     getParser()->push_front (new OptionOneParam (STR_URI_PREDICTION_INPUT,          "Input predictions",  true));
     
@@ -91,19 +91,29 @@ void Kissreads2::execute ()
 
     // We load a Storage product "STR_KISSREADS_COVERAGE_FILE_NAME" in HDF5 format
     // It must have been created with the storage1 snippet
+
     Storage* storage = StorageFactory(STORAGE_HDF5).load (props->getStr (STR_KISSREADS_COVERAGE_FILE_NAME));
     LOCAL (storage);
     // Shortcut: we get the root of this Storage object
     Group& root = storage->root();
     // We get a collection of native integer from the storage.
     Collection<NativeInt64>& myIntegers = root.getCollection<NativeInt64> ("cutoffs");
-    // We create an iterator for our collection.
-    Iterator<NativeInt64>* iterInt = myIntegers.iterator();
-    LOCAL (iterInt);
-    // Now we can iterate the collection through this iterator.
+
     stringstream sstring_cutoffs;
-    for (iterInt->first(); !iterInt->isDone(); iterInt->next())  {  gv.min_coverage.push_back(iterInt->item().toInt());  sstring_cutoffs<<iterInt->item().toInt()<<" ";}
-    
+    if(myIntegers.getNbItems() != gv.number_of_read_sets) // No STR_KISSREADS_COVERAGE_FILE_NAME provided or wrong .H5 file
+    {
+        cout<<"\t WARNING: no coverage file provided or wrong number of read sets ("<<myIntegers.getNbItems()<<" in coverage file for "<<gv.number_of_read_sets<<" read sets"<<endl;
+        cout<<"\t we use min coverage 0 for all read sets (all predictions are coherent)."<<endl;
+        for(int i=0;i<gv.number_of_read_sets;i++) {gv.min_coverage.push_back(0); sstring_cutoffs<<"0 ";}
+    }
+    else
+    {
+        // We create an iterator for our collection.
+        Iterator<NativeInt64>* iterInt = myIntegers.iterator();
+        LOCAL (iterInt);
+        // Now we can iterate the collection through this iterator.
+        for (iterInt->first(); !iterInt->isDone(); iterInt->next())  {  gv.min_coverage.push_back(iterInt->item().toInt());  sstring_cutoffs<<iterInt->item().toInt()<<" ";}
+    }
     
     gv.compute_genotypes=       props->get    (STR_KISSREADS_GENOTYPE) != 0;
     gv.standard_fasta=          props->get    (STR_KISSREADS_OUTPUT_FASTA) != 0;

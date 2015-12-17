@@ -37,6 +37,7 @@
 
 #define STR_MAX_INDEL_SIZE                  "-D"
 #define STR_MAX_POLYMORPHISM                "-P"
+#define STR_MAX_SYMMETRICAL_CROSSROADS      "-max_symmetrical_crossroads"
 
 
 /********************************************************************************/
@@ -241,7 +242,9 @@ protected:
     *   2: no restriction on branching */
     int authorised_branching;
     
-    
+
+    /** In b 2: maximaml number of symetrically branches traversed while walking the bubble**/
+    int max_sym_branches;
 
     
 
@@ -279,7 +282,6 @@ protected:
      */
     bool expand_heart(
                        const int nb_polymorphism,
-                       Bubble& bubble,
                        Node& nextNode1,
                        Node& nextNode2,
                        Node& node1,
@@ -287,30 +289,32 @@ protected:
                        Node& previousNode1,
                        Node& previousNode2,
                        std::string local_extended_string1,
-                       std::string local_extended_string2);
+                       std::string local_extended_string2,
+                       int sym_branches,
+            int stack_size
+                       );
     
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      *
      */
-    bool expand (
-                 const int nb_polymorphism,
-                 Bubble& bubble,
-                 Node& node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
-                 Node& node2, // In case of indels, this node is not extended (depth 1)
-                 Node& previousNode1,
-                 Node& previousNode2,
+    bool expand (const int nb_polymorphism,
+                 Node node1, // In case of indels, this node is the real extended one, but we keep it at depth 1
+                 Node node2, // In case of indels, this node is not extended (depth 1)
+                 Node previousNode1,
+                 Node previousNode2,
                  std::string local_extended_string1,
-                 std::string local_extended_string2
-                 );
+                 std::string local_extended_string2,
+                 int sym_branches,
+                 int stack_size);
     
     /** Extend the bubble to the left/right with a small assembly part of the de Bruijn graph.
      * \return true if the bubble has been extended, false otherwise. */
-    void extend (Bubble& bubble);
+    void extend ();
     
     /** Finish the bubble, ie output the pair of sequences in the output bank.
      * \param[in] bubble: bubble to be dumped in the output bank
      */
-    void finish (Bubble& bubble);
+    void finish ();
     
     /** Check whether new node is similar to two previous nodes.
      * \param[in] previous : previous node
@@ -323,13 +327,13 @@ protected:
      * of the revcomp(first path), this avoids repeated SNPs
      * \param[in] path : branch of a bubble.
      * \return set isCanonical to true if first path is lower than last reverse path. */
-    void checkPath (Bubble& bubble) const;
+    void checkPath ();
 
     /** Check bubble according to user choice for branching.
      * \param[in] node 1 : bubble branch last node
      * \param[in] node 2 : bubble branch last node
      * \return true if bubble is ok */
-    bool checkBranching (Node& node1, Node& node2) const;
+    bool checkBranching (Node& node1, Node& node2,  int & sym_branches) const;
     
     /** Check that indel bubbles respect the maximal size of the position ambiguity */
     bool checkRepeatSize (string &extension1, string &extension2) const;
@@ -339,7 +343,7 @@ protected:
      * \param[in] path2 : branch of the bubble
      * set acceptable_complexity to  true if the complexity is ok or if we accept low complexity bubbles.
      */
-    void checkLowComplexity (Bubble& bubble) const;
+    void checkLowComplexity ();
 
     /** Fill a Sequence object for a given branch of a bubble.
      * \param[in] path : branch of the bubble.
@@ -349,21 +353,20 @@ protected:
      * \param[in] seqIndex : index of the sequence (more exactly index for the pair of sequences)
      * \param[out] seq : sequence to be filled
      */
-    void buildSequence (Bubble& bubble, size_t pathIdx, const char* type, Sequence& seq, std::string polymorphism_comments);
+    void buildSequence (size_t pathIdx, const char* type, Sequence& seq, std::string polymorphism_comments);
 
     /** */
     bool two_possible_extensions_on_one_path (Node& node) const;
     bool two_possible_extensions (Node node1, Node node2) const;
 private:
     bool recursive_indel_prediction(
-                                    Bubble& bubble,
                                     int extended_path_id,
                                     std::string tried_extension,
                                     Node current,
                                     size_t insert_size,
                                     const char end_insertion);
-    void start_snp_prediction(Bubble& bubble);
-    void start_indel_prediction(Bubble& bubble);
+    void start_snp_prediction();
+    void start_indel_prediction();
 };
 
 #endif /* _TOOL_BUBBLE_HPP_ */
