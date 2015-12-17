@@ -508,6 +508,10 @@ bool BubbleFinder::expand (
         /** extend the bubble with the couple of nodes */
         dumped_bubble = expand_heart(nb_polymorphism,successors[i].first,successors[i].second,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches,
                                      stack_size);
+
+        /** B 2 special case: if two or more symmetrical branching close a bubble, the output is redundant. **/
+        /** Thus, if successors[i].first = successors[i].second and if the bubble is dumped, we stop **/
+        if (successors[i].first == successors[i].second && dumped_bubble) break;
         
         /******************************************************************************************* **/
         /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
