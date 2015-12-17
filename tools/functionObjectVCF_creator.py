@@ -22,9 +22,9 @@ def InitVariant(line1,line2,fileName):
         """Initialization of the variant by taking into account its type"""
         dicoIndex=GetIndex(fileName)
         #Object Creation
-        if "SNP" in line1 and "nb_pol_1" in line1:
+        if "SNP" in line1 and "|nb_pol_1|" in line1:
                 variant_object=SNP(line1,line2)
-        elif "SNP" in line1 and "nb_pol_1" not in line1:
+        elif "SNP" in line1 and "|nb_pol_1|" not in line1:
                 variant_object=SNPSCLOSE(line1,line2)
         elif "INDEL" in line1:
                 #Supression of indel when the ambiguity is greater than 20
