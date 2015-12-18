@@ -265,11 +265,12 @@ fi
 
 
 #######################################
+c_filename=`echo ${c} | tr ',' '_'`
 if [ $C -ne $max_C ]
 then
-	h5prefix=${prefix}_k_${k}_c_${c}_C_${C}
+	h5prefix=${prefix}_k_${k}_c_${c_filename}_C_${C}
 else
-	h5prefix=${prefix}_k_${k}_c_${c}
+	h5prefix=${prefix}_k_${k}_c_${c_filename}
 	
 fi
 kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
@@ -289,7 +290,6 @@ if [[ "$useref" == "true" ]]; then
               
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
-       echo $c_dbgh5
        
 fi
 cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
@@ -391,6 +391,9 @@ date
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
  exit
 fi
+
+
+
 
 #######################################################################
 #################### KISSREADS                  #######################
