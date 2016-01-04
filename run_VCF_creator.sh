@@ -70,7 +70,7 @@ echo -e "\t\t Optional in MODE 1 AND 2, default 3 - warning, bwa mapping running
 echo -e "\t\t Mandatory in MODE 3. "
 
 echo -e "\t-t: bwa option: Number of threads (default=unlimited) "
-echo -e "\t-w: remove waste tmp files (index files) "
+echo -e "\t-w: remove index files ( !!! (<.amb>, <.ann>, <.bwt>, <.pac>, <.sa> ) )"
 echo -e "\t\t Optional"
 }
 
