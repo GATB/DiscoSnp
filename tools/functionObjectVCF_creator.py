@@ -34,7 +34,7 @@ def InitVariant(line1,line2,fileName):
         else :
                 print("!!!!Undefined Variant!!!!")
                 return (1,1)                
-        variant_object.GetDicoIndex(dicoIndex)                
+        variant_object.RetrieveDicoIndex(dicoIndex)                
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)
@@ -46,25 +46,25 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         """Treatement of the mapping informations and filling of the vcf object """
         table = [0] * 10 #Creates a 10 cols array
         #Fills information of the variant object with the informations of the discosnp++ header
-        variant_object.GetPolymorphismFromHeader() 
+        variant_object.RetrievePolymorphismFromHeader() 
         #Gets the coverage for each path
-        variant_object.upper_path.GetCoverage(variant_object.dicoIndex)
-        variant_object.lower_path.GetCoverage(variant_object.dicoIndex)
+        variant_object.upper_path.RetrieveCoverage(variant_object.dicoIndex)
+        variant_object.lower_path.RetrieveCoverage(variant_object.dicoIndex)
         #Gives the position corrected for each path by taking into account the shift, deletion, insertion ....
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
         #Checks if the variant has close SNPs
         if int(variant_object.nb_pol)>1:#Close SNPs
-                variant_object.GetDicoClose(dicoCloseUp,dicoCloseLow)#fills the dictionnary with all informations for each snps of the path
+                variant_object.RetrieveDicoClose(dicoCloseUp,dicoCloseLow)#fills the dictionnary with all informations for each snps of the path
                 table=variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
         else:#Indel simple SNP
                 variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File  
         #Defines the mapping position for the couple
-        variant_object.GetMappingPositionCouple()
+        variant_object.RetrieveMappingPositionCouple()
         #Checks if the couple is validated with only one mapping position       
-        vcf_field_object.GetFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
+        vcf_field_object.RetrieveFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
         #Defines the genotype for the couple
-        variant_object.GetGenotypes(nbGeno,vcf_field_object)
+        variant_object.RetrieveGenotypes(nbGeno,vcf_field_object)
         return(table)
 #############################################################################################
 #############################################################################################
@@ -74,25 +74,25 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         seq1=seq1.rstrip('\n')
         seq2=seq2.rstrip('\n')
         #Gets the sequence of each path
-        variant_object.upper_path.GetSeq(seq1)
-        variant_object.lower_path.GetSeq(seq2)
+        variant_object.upper_path.RetrieveSeq(seq1)
+        variant_object.lower_path.RetrieveSeq(seq2)
         #Fills information of the variant object with the informations of the discosnp++ header        
-        variant_object.GetPolymorphismFromHeader()
+        variant_object.RetrievePolymorphismFromHeader()
         #Gets the coverage for each path        
-        variant_object.upper_path.GetCoverage(variant_object.dicoIndex)
-        variant_object.lower_path.GetCoverage(variant_object.dicoIndex)
+        variant_object.upper_path.RetrieveCoverage(variant_object.dicoIndex)
+        variant_object.lower_path.RetrieveCoverage(variant_object.dicoIndex)
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
         #Checks if the variant has close SNPs        
         if int(variant_object.nb_pol)>1:#Close SNPs
-                variant_object.GetDicoClose(dicoCloseUp,dicoCloseLow)#fills the dictionnary with all informations for each snps of the path
+                variant_object.RetrieveDicoClose(dicoCloseUp,dicoCloseLow)#fills the dictionnary with all informations for each snps of the path
                 table=variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
         else:#Indel simple SNP
                 variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
         #Defines the mapping position for the couple        
-        variant_object.GetMappingPositionCouple()
+        variant_object.RetrieveMappingPositionCouple()
         #Defines the genotype for the couple
-        variant_object.GetGenotypes(nbGeno,vcf_field_object)
+        variant_object.RetrieveGenotypes(nbGeno,vcf_field_object)
         return(table)         
 #############################################################################################
 #############################################################################################
@@ -240,7 +240,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">\n')
         VCF.write('##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">\n')
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
-        VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is "." ">\n')
+        VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">\n')
         VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
 
 

@@ -24,24 +24,24 @@ import time
 #      FillInformationFromHeader(self,VCFObject):"""Parsing of the DiscoSnp++ header"""
 #      ReverseComplement(self,nucleotide):"""Take a sequence or a nucleotide and reverse it"""
 #      CheckContigUnitig(self,unitig,contig):"""Checks if there is an extension in the form of contig or unitig to take into account in the mapping position"""
-#      GetPolymorphismFromHeader(self):'''Gets from the dicoAllele all the positions, and the nucleotides'''
+#      RetrievePolymorphismFromHeader(self):'''Gets from the dicoAllele all the positions, and the nucleotides'''
 #      MismatchChecker(self):"""In case of divergent main position (case snp whose two paths are mapped ) to define the reference = > check the number of mismatch
 #                               ( If the number of mismatch is the same in both cases it is the lower lexicographical SNP which is selected for reference .
 #                                The Boolean allows to know the reference SNP ) """      
-#      GetGenotypes(self,nbGeno,VCFObject):"""Gets the genotype, the coverage and the likelihood by sample and print it in the correspondand fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""     
+#      RetrieveGenotypes(self,nbGeno,VCFObject):"""Gets the genotype, the coverage and the likelihood by sample and print it in the correspondand fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""     
 #      FillVCF(self,VCFfile,nbGeno,table,VCFObject): """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""  
 #      WhichPathIsTheRef(self,VCFObject): """Finds which path is identical to the reference genome and defines it as the ref : specific method for each type of variant""" 
-#      GetMappingPositionCouple(self): """Defines the mapping position for the couple of variant"""
+#      RetrieveMappingPositionCouple(self): """Defines the mapping position for the couple of variant"""
 #      CheckStrandAndReverseNucleotide(self,nucleo):"""Reverse the alt nucleotide if it is needed"""     
 #      CheckCoupleVariantID(self):"""Test if the couple of paths has the same ID"""
 
 #________________class PATH(): """corresponds to one path"""________________
-#      GetSeq(self,seq):"""Getter for sequence"""
-#      GetDicoMappingPosition(self):"""Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch"""
+#      RetrieveSeq(self,seq):"""Getter for sequence"""
+#      RetrieveDicoMappingPosition(self):"""Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch"""
 #      CheckBitwiseFlag(self):"""Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
 #      CigarcodeChecker(self):"""Checks in the cigarcode of the samfile if there is a shift in the alignment between the path and the reference"""
 #      ReferenceChecker(self,shift,posCentraleRef,VCFObject):"""Function which allows to get the MD tag parsing; checks if path nucleotide is identical to the reference nucleotide"""
-#      GetCoverage(self):"""Get the coverage by path in the discosnp++ header"""
+#      RetrieveCoverage(self):"""Get the coverage by path in the discosnp++ header"""
 #      GetTag(self):"""Gets the number of mismatch in the samline"""
 #      CheckPosVariantFromRef(self,VCFObject): """Checks if the variant is identical to the reference or not ; defines the nucleotide on the reference"""
 
@@ -49,12 +49,12 @@ import time
 #       WhichPathIsTheRef(self,VCFObject):""""""
 
 #________________class INDEL(VARIANT):________________
-#      GetPolymorphismFromHeader(self):""""""
+#      RetrievePolymorphismFromHeader(self):""""""
 #      WhichPathIsTheRef(self,VCFObject):""""""
-#      GetMappingPositionCouple(self):""""""
+#      RetrieveMappingPositionCouple(self):""""""
 
 #________________class SNPSCLOSE(VARIANT):________________
-#      GetDicoClose(self,dicoCloseUp,dicoCloseLow):
+#      RetrieveDicoClose(self,dicoCloseUp,dicoCloseLow):
 #      WhichPathIsTheRef(self,VCFObject):
 #      FillVCF(self,VCFfile,nbGeno,table,VCFObject):
 
@@ -81,7 +81,7 @@ class VARIANT():
                 self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                           
-        def GetDicoIndex(self,dicoIndex):
+        def RetrieveDicoIndex(self,dicoIndex):
                 self.dicoIndex=dicoIndex
 #---------------------------------------------------------------------------------------------------------------------------
 ##Example :SNP_higher_path_99|P_1:30_A/C|high|nb_pol_1|left_unitig_length_129|right_unitig_length_901|C1_0|C2_30|G1_1/1:744,116,6|G2_0/0:6,95,604|rank_1.00000
@@ -161,7 +161,7 @@ class VARIANT():
         ##TODO
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                   
-        def GetPolymorphismFromHeader(self):
+        def RetrievePolymorphismFromHeader(self):
                 '''Gets from the dicoAllele all the positions, and the nucleotides for each variant '''
                 for key,(posD,ntUp,ntLow) in self.dicoAllele.items(): #Goes through the dictionary of parsed header
                         self.upper_path.listPosForward.append(int(posD)+1)
@@ -222,7 +222,7 @@ class VARIANT():
                                                 self.upper_path.boolRef=False
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-        def GetGenotypes(self,nbGeno,VCFObject):
+        def RetrieveGenotypes(self,nbGeno,VCFObject):
                 """Gets the genotype, the coverage and the likelihood by sample and prints it in the corresponding fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
                 j=0
                 genotypes=""
@@ -300,7 +300,7 @@ class VARIANT():
                                           
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-        def GetMappingPositionCouple(self): #Validation SNP second part (specific method for close snps)
+        def RetrieveMappingPositionCouple(self): #Validation SNP second part (specific method for close snps)
                """Defines the mapping position for the couple of variant by checking boolRef"""
                #for INDEL and simple snp
                if self.upper_path.boolRef==True:
@@ -375,7 +375,7 @@ class PATH():
                         self.discoName=self.listSam[0]
                         self.seq=self.listSam[9]#gets the sequence of the path
                         self.mappingPosition=abs(int(self.listSam[3])) #mapping position of the path
-                        self.GetDicoMappingPosition()
+                        self.RetrieveDicoMappingPosition()
                         self.CheckBitwiseFlag()
                 else:#Mode ghost fastafile
                        line=line.strip('>').split("\n")
@@ -388,10 +388,10 @@ class PATH():
                 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
-        def GetSeq(self,seq):
+        def RetrieveSeq(self,seq):
                 """Getter for sequence"""
                 self.seq=seq        
-        def GetDicoMappingPosition(self):
+        def RetrieveDicoMappingPosition(self):
                 """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch"""
                 variant=self.listSam
                 listXA=None
@@ -417,12 +417,14 @@ class PATH():
                                 i+=4
                 if abs(int(variant[3]))>0:#adds the main mapping position to the dictionary of all mapping positions
                       posMut,nbMismatch=self.GetTag()
+                      #In case of mapped variant without MD TAG :
                       self.dicoMappingPos[abs(int(variant[3]))]=int(nbMismatch)
 #---------------------------------------------------------------------------------------------------------------------------
 #
 #FLAG = field to test
 #1   read paired
 #2   read mapped in proper pair
+
 #4   read unmapped
 #8   mate unmapped
 #16   read reverse strand
@@ -566,7 +568,7 @@ class PATH():
     # nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                         
-        def GetCoverage(self,dicoIndex):
+        def RetrieveCoverage(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
                 if "C" in dicoIndex:
                      for i in dicoIndex["C"]:   
@@ -578,11 +580,21 @@ class PATH():
 #---------------------------------------------------------------------------------------------------------------------------                                             
         def GetTag(self):
                 """Gets the number of mismatch in the samline"""
+                variant=self.listSam
+                countM=0
+                NM=0
+                #Defines NM tag:
                 for field in self.listSam:
-                        if "MD" in field:
-                                posMut = field.split(":")[2] #MD tag parsing
                         if "NM" in field:
-                                nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by bwa
+                                nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
+                if abs(int(variant[3]))>0:#Check if the variant is really mapped
+                      if "MD" not in variant:#Not MD Tag in the variant we deduce the value from the cigarcode
+                        print "!!! No MD tag in your sam file : Could you create it in your sam file please (with samtools calmd) ?"
+                        sys.exit()
+                      else:                                              
+                        for field in self.listSam:
+                                if "MD" in field:
+                                        posMut = field.split(":")[2] #MD tag parsing
                 return (posMut,nbMismatch)               
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
@@ -743,7 +755,7 @@ class INDEL(VARIANT):
                 self.longestSequenceReverse=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
-        def GetPolymorphismFromHeader(self):
+        def RetrievePolymorphismFromHeader(self):
                 #Test which is the samllest sequence
                 if len(self.upper_path.seq)<len(self.lower_path.seq):
                         self.smallestSequence=self.upper_path.seq
@@ -862,8 +874,8 @@ class INDEL(VARIANT):
                    VARIANT.FillVCF(self,VCFfile,nbGeno,table,VCFObject)                                                                          
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                          
-        def GetMappingPositionCouple(self):
-                VARIANT.GetMappingPositionCouple(self)
+        def RetrieveMappingPositionCouple(self):
+                VARIANT.RetrieveMappingPositionCouple(self)
                 self.mappingPositionCouple=int(self.mappingPositionCouple)                                            
 #############################################################################################
 #############################################################################################
@@ -875,7 +887,7 @@ class SNPSCLOSE(VARIANT):
                 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                   
-        def GetDicoClose(self,dicoCloseUp,dicoCloseLow):# Gets the outputs of the method CheckPosVariantFromRef (PATH CLASS)
+        def RetrieveDicoClose(self,dicoCloseUp,dicoCloseLow):# Gets the outputs of the method CheckPosVariantFromRef (PATH CLASS)
                 self.dicoCloseSNPUp=dicoCloseUp
                 self.dicoCloseSNPLow=dicoCloseLow               
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1070,7 +1082,7 @@ class VCFFIELD():
                 self.reverse=""
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------    
-        def GetFilterField(self,filterField):
+        def RetrieveFilterField(self,filterField):
                 self.filterField=filterField
         
 #---------------------------------------------------------------------------------------------------------------------------
