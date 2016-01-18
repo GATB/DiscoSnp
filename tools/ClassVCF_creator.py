@@ -82,12 +82,13 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                           
         def RetrieveDicoIndex(self,dicoIndex):
+                """Gets a dictionnary with the position of each item in discoSnp header"""
                 self.dicoIndex=dicoIndex
 #---------------------------------------------------------------------------------------------------------------------------
 ##Example :SNP_higher_path_99|P_1:30_A/C|high|nb_pol_1|left_unitig_length_129|right_unitig_length_901|C1_0|C2_30|G1_1/1:744,116,6|G2_0/0:6,95,604|rank_1.00000
 #---------------------------------------------------------------------------------------------------------------------------                                           
         def FillInformationFromHeader(self,VCFObject):
-                """Parsing of the DiscoSnp++ header"""
+                """Parsing of the DiscoSnp++ header. Gets unitig, contig, rank, genotypes"""
                 headerVariantUp=self.upper_path.listSam[0]#header of the upper path
                 headerVariantLow= self.lower_path.listSam[0]#header of the lower path
                 discoList=headerVariantUp.split('|')#splitting the header of discosnp++ into a list
@@ -149,7 +150,7 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         def CheckContigUnitig(self,unitig,contig):
-                """Checks if there is an extension in form of contig or unitig to take into account in the position of the variant on the path"""
+                """Checks if there is an extension in form of contig or unitig to take into account in the position of the variant on the path (if the prediction is not mapped"""
                 if contig:#we keep the length of the contig to add it in the event of unmapped path
                         return(int(contig))#return the contig length
                 elif unitig:# if there is not a contig we keep the length of the unitig
@@ -177,7 +178,7 @@ class VARIANT():
         def MismatchChecker(self):
                 """In case of divergent main position (case snp whose two paths are mapped ) to define the reference = > check the number of mismatch
         ( If the number of mismatch is the same in both cases it is the lower lexicographical SNP which is selected for reference .
-        The Boolean allows to know the reference SNP ) """
+        The Boolean allows to know the reference SNP : It fills boolRef ) """
                 nmUp=None
                 nmLow=None
                 #Two paths mapped
@@ -354,7 +355,7 @@ class VARIANT():
 #############################################################################################
 #############################################################################################
 class PATH():
-        """corresponds to one path"""
+        """corresponds to one path of a discoSnp prediction"""
         def __init__(self,line):
                 self.listCoverage=[]#list of all the coverage by sample for the path
                 self.dicoMappingPos={}#dictionnary with all the mapping positions associated with their number of mismatches with the reference
@@ -389,7 +390,7 @@ class PATH():
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
         def RetrieveSeq(self,seq):
-                """Getter for sequence"""
+                """Getter for sequence: fills path object"""
                 self.seq=seq        
         def RetrieveDicoMappingPosition(self):
                 """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch"""
@@ -588,7 +589,7 @@ class PATH():
                         if "NM" in field:
                                 nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
-                      if "MD" not in variant:#Not MD Tag in the variant we deduce the value from the cigarcode
+                      if "MD" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
                         print "!!! No MD tag in your sam file : Could you create it in your sam file please (with samtools calmd) ?"
                         sys.exit()
                       else:                                              
