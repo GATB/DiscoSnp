@@ -41,7 +41,7 @@ echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-w]"
 echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
 echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-w] "
 echo -e "##MODE 3: USING A HOME MADE ALIGNMENT. Samfile from bwa already exists: "
-echo -e "\t\t./run_VCF_creator.sh -f <sam_file> [-w]"
+echo -e "\t\t./run_VCF_creator.sh -f <sam_file> -o <output> [-w]"
 echo
 echo -e "\t-h: print this message"
 echo -e "\t-p: discosnp++ output file (foo_coherent.fa)"
