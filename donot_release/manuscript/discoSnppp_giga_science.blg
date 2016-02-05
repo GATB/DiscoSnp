@@ -20,51 +20,49 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: discoSnppp_giga_science.bib
-Warning--I didn't find a database entry for "DBGPAPERXXX(Pevzner2004?)"
 Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
-You've used 19 entries,
+You've used 20 entries,
             7128 wiz_defined-function locations,
-            1279 strings with 15656 characters,
-and the built_in function-call counts, 174504 in all, are:
-= -- 22195
-> -- 1009
-< -- 494
-+ -- 6236
-- -- 339
-* -- 13911
-:= -- 34261
-add.period$ -- 34
-call.type$ -- 19
-change.case$ -- 246
-chr.to.int$ -- 931
-cite$ -- 19
-duplicate$ -- 2551
-empty$ -- 9965
-format.name$ -- 1369
-if$ -- 38491
+            1283 strings with 15750 characters,
+and the built_in function-call counts, 178784 in all, are:
+= -- 22757
+> -- 1031
+< -- 501
++ -- 6375
+- -- 348
+* -- 14205
+:= -- 35175
+add.period$ -- 35
+call.type$ -- 20
+change.case$ -- 256
+chr.to.int$ -- 932
+cite$ -- 20
+duplicate$ -- 2629
+empty$ -- 10197
+format.name$ -- 1401
+if$ -- 39436
 int.to.chr$ -- 1
-int.to.str$ -- 43
-missing$ -- 817
-newline$ -- 799
-num.names$ -- 98
-pop$ -- 1014
+int.to.str$ -- 47
+missing$ -- 851
+newline$ -- 822
+num.names$ -- 103
+pop$ -- 1064
 preamble$ -- 1
-purify$ -- 80
-quote$ -- 38
-skip$ -- 10588
+purify$ -- 86
+quote$ -- 40
+skip$ -- 10863
 stack$ -- 0
-substring$ -- 24778
-swap$ -- 866
-text.length$ -- 298
+substring$ -- 25297
+swap$ -- 876
+text.length$ -- 314
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 830
+type$ -- 856
 warning$ -- 0
-while$ -- 937
+while$ -- 966
 width$ -- 0
-write$ -- 1246
-(There was 1 warning)
+write$ -- 1279

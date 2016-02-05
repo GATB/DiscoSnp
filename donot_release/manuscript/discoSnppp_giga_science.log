@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/MacPorts 2014_4) (preloaded format=pdflatex 2014.12.16)  17 SEP 2015 15:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/MacPorts 2014_4) (preloaded format=pdflatex 2014.12.16)  5 FEB 2016 11:47
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -453,65 +453,65 @@ Overfull \hbox (1.0pt too wide) has occurred while \output is active
 
 [1{/opt/local/var/db/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
-]
+] [2] [3]
 
-LaTeX Warning: Citation `DBGPAPERXXX(Pevzner2004?)' on page 2 undefined on inpu
-t line 298.
+LaTeX Warning: Citation `lemaitre:hal-01063157' on page 4 undefined on input li
+ne 345.
 
-[2] [3] [4] [5]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 438.
+[4] [5] [6]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 436.
 
  (/opt/local/etc/texmf/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 438.
- [6]
-Overfull \hbox (3.40503pt too wide) in paragraph at lines 442--443
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 436.
+
+Overfull \hbox (3.40503pt too wide) in paragraph at lines 440--441
 []\OT1/cmr/bx/n/10 License\OT1/cmr/m/n/10 : GNU AF-FERO GEN-ERAL PUB-LIC LI-CEN
 SE $\OT1/cmtt/m/n/10 gnu . org / licenses /
  []
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <7> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 477.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 475.
 
 
 (./discoSnppp_giga_science.bbl [7])
-<figures/bubble_snp.png, id=42, 276.14368pt x 127.62881pt>
+<figures/bubble_snp.png, id=42, 234.37161pt x 42.85611pt>
 File: figures/bubble_snp.png Graphic file (type png)
 
 <use figures/bubble_snp.png>
-Package pdftex.def Info: figures/bubble_snp.png used on input line 524.
-(pdftex.def)             Requested size: 92.3412pt x 42.67912pt.
+Package pdftex.def Info: figures/bubble_snp.png used on input line 522.
+(pdftex.def)             Requested size: 233.40543pt x 42.67912pt.
 
 <figures/bubble_close_snp.png, id=44, 313.6518pt x 42.85611pt>
 File: figures/bubble_close_snp.png Graphic file (type png)
 
 <use figures/bubble_close_snp.png>
-Package pdftex.def Info: figures/bubble_close_snp.png used on input line 531.
+Package pdftex.def Info: figures/bubble_close_snp.png used on input line 529.
 (pdftex.def)             Requested size: 312.35881pt x 42.67912pt.
 
 <figures/bubble_indel.png, id=45, 276.14368pt x 42.92838pt>
 File: figures/bubble_indel.png Graphic file (type png)
 
 <use figures/bubble_indel.png>
-Package pdftex.def Info: figures/bubble_indel.png used on input line 539.
+Package pdftex.def Info: figures/bubble_indel.png used on input line 537.
 (pdftex.def)             Requested size: 274.55446pt x 42.67912pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 543.
+(Font)              <8> on input line 541.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 543.
+(Font)              <6> on input line 541.
 
 <../tests_n_coli_NAR/n_coli.png, id=46, 828.09375pt x 648.4225pt>
 File: ../tests_n_coli_NAR/n_coli.png Graphic file (type png)
 
 <use ../tests_n_coli_NAR/n_coli.png>
-Package pdftex.def Info: ../tests_n_coli_NAR/n_coli.png used on input line 548.
+Package pdftex.def Info: ../tests_n_coli_NAR/n_coli.png used on input line 546.
 
 (pdftex.def)             Requested size: 361.0pt x 282.67494pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 548--549
+Overfull \hbox (12.5pt too wide) in paragraph at lines 546--547
  [][] 
  []
 
@@ -523,10 +523,10 @@ File: ../tests_n_coli_NAR/perf_bact_article.png Graphic file (type png)
 
 <use ../tests_n_coli_NAR/perf_bact_article.png>
 Package pdftex.def Info: ../tests_n_coli_NAR/perf_bact_article.png used on inpu
-t line 554.
+t line 552.
 (pdftex.def)             Requested size: 361.0pt x 299.66159pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 554--555
+Overfull \hbox (12.5pt too wide) in paragraph at lines 552--553
  [][] 
  []
 
@@ -538,10 +538,10 @@ File: ../tests_human/results/roc_human.png Graphic file (type png)
 
 <use ../tests_human/results/roc_human.png>
 Package pdftex.def Info: ../tests_human/results/roc_human.png used on input lin
-e 559.
+e 557.
 (pdftex.def)             Requested size: 361.0pt x 293.30943pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 559--561
+Overfull \hbox (12.5pt too wide) in paragraph at lines 557--559
  [][] 
  []
 
@@ -554,10 +554,10 @@ File: ../tests_human/results/perf_human_article.png Graphic file (type png)
 
 <use ../tests_human/results/perf_human_article.png>
 Package pdftex.def Info: ../tests_human/results/perf_human_article.png used on 
-input line 565.
+input line 563.
 (pdftex.def)             Requested size: 361.0pt x 299.66159pt.
 
-Overfull \hbox (12.5pt too wide) in paragraph at lines 565--566
+Overfull \hbox (12.5pt too wide) in paragraph at lines 563--564
  [][] 
  []
 
@@ -570,14 +570,21 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
 AED: lastpage setting LastPage 
 
-Underfull \vbox (badness 3138) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [8 <./figures/bubble_snp.png> <./figures/bubble_close_snp.png> <./figures/bubb
-le_indel.png>] [9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/pe
-rf_bact_article.png>] [11 <../tests_human/results/roc_human.png>] [12 <../tests
-_human/results/perf_human_article.png>] (./discoSnppp_giga_science.aux)
+le_indel.png>]
+Overfull \vbox (3.58905pt too high) has occurred while \output is active []
+
+
+[9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/perf_bact_article
+.png>] [11 <../tests_human/results/roc_human.png>] [12 <../tests_human/results/
+perf_human_article.png>] (./discoSnppp_giga_science.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
@@ -587,13 +594,13 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 2995 strings out of 495060
- 39405 string characters out of 6182466
- 110185 words of memory out of 5000000
- 6116 multiletter control sequences out of 15000+600000
+ 2996 strings out of 495060
+ 39414 string characters out of 6182466
+ 112525 words of memory out of 5000000
+ 6117 multiletter control sequences out of 15000+600000
  16127 words of font info for 55 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 37i,14n,37p,1027b,400s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,14n,37p,1027b,398s stack positions out of 5000i,500n,10000p,200000b,80000s
 </opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/local/e
 tc/texmf/fonts/type1/public/amsfonts/cm/cmbx8.pfb></opt/local/etc/texmf/fonts/t
 ype1/public/amsfonts/cm/cmex10.pfb></opt/local/etc/texmf/fonts/type1/public/ams
@@ -612,7 +619,7 @@ xmf/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/local/etc/texmf/fonts/type1
 /public/amsfonts/cm/cmti7.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts
 /cm/cmti8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb><
 /opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on discoSnppp_giga_science.pdf (12 pages, 827290 bytes).
+Output written on discoSnppp_giga_science.pdf (12 pages, 727127 bytes).
 PDF statistics:
  146 PDF objects out of 1000 (max. 8388607)
  95 compressed objects within 1 object stream
