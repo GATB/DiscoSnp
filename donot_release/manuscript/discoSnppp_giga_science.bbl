@@ -1,6 +1,6 @@
 %% BioMed_Central_Bib_Style_v1.01
 
-\begin{thebibliography}{20}
+\begin{thebibliography}{21}
 % BibTex style file: bmc-mathphys.bst (version 2.1), 2014-07-24
 \ifx \bisbn   \undefined \def \bisbn  #1{ISBN #1}\fi
 \ifx \binits  \undefined \def \binits#1{#1}\fi
@@ -352,6 +352,21 @@ doi:\doiurl{10.1038/nrg2986}
 \endbibitem
 
 %%% 16
+\bibitem{bwa}
+\begin{barticle}
+\bauthor{\bsnm{Li}, \binits{H.}},
+\bauthor{\bsnm{Durbin}, \binits{R.}}:
+\batitle{{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}}.
+\bjtitle{Bioinformatics}
+\bvolume{25}(\bissue{14}),
+\bfpage{1754}--\blpage{1760}
+(\byear{2009}).
+doi:\doiurl{10.1093/bioinformatics/btp324}
+\end{barticle}
+\endbibitem
+
+%%% 17
 \bibitem{Chikhi2013}
 \begin{barticle}
 \bauthor{\bsnm{Chikhi}, \binits{R.}},
@@ -366,7 +381,28 @@ doi:\doiurl{10.1186/1748-7188-8-22}
 \end{barticle}
 \endbibitem
 
-%%% 17
+%%% 18
+\bibitem{lemaitre:hal-01063157}
+\begin{bchapter}
+\bauthor{\bsnm{Lemaitre}, \binits{C.}},
+\bauthor{\bsnm{Ciortuz}, \binits{L.}},
+\bauthor{\bsnm{Peterlongo}, \binits{P.}}:
+\bctitle{{Mapping-free and assembly-free discovery of inversion breakpoints
+  from raw NGS reads}}.
+In: \beditor{\bsnm{Dediu}, \binits{A.-H.}},
+\beditor{\bsnm{Mart$\backslash$'in-Vide}, \binits{C.}},
+\beditor{\bsnm{Truthe}, \binits{B.}} (eds.)
+\bbtitle{Algorithms for Computational Biology},
+vol. \bseriesno{8542}.
+\bconflocation{Tarragona, Spain},
+pp. \bfpage{119}--\blpage{130}
+(\byear{2014}).
+doi:\doiurl{10.1007/978-3-319-07953-0{\_}.
+\burl{https://hal.inria.fr/hal-01063157}
+\end{bchapter}
+\endbibitem
+
+%%% 19
 \bibitem{luo2012soapdenovo2}
 \begin{barticle}
 \bauthor{\bsnm{Luo}, \binits{R.}},
@@ -388,7 +424,7 @@ doi:\doiurl{10.1186/1748-7188-8-22}
 \end{barticle}
 \endbibitem
 
-%%% 18
+%%% 20
 \bibitem{langmead2012fast}
 \begin{barticle}
 \bauthor{\bsnm{Langmead}, \binits{B.}},
@@ -401,7 +437,7 @@ doi:\doiurl{10.1186/1748-7188-8-22}
 \end{barticle}
 \endbibitem
 
-%%% 19
+%%% 21
 \bibitem{Kvitek2013}
 \begin{barticle}
 \bauthor{\bsnm{Kvitek}, \binits{D.J.}},
@@ -414,21 +450,6 @@ doi:\doiurl{10.1186/1748-7188-8-22}
 \bfpage{1003972}
 (\byear{2013}).
 doi:\doiurl{10.1371/journal.pgen.1003972}
-\end{barticle}
-\endbibitem
-
-%%% 20
-\bibitem{bwa}
-\begin{barticle}
-\bauthor{\bsnm{Li}, \binits{H.}},
-\bauthor{\bsnm{Durbin}, \binits{R.}}:
-\batitle{{Fast and accurate short read alignment with Burrows-Wheeler
-  transform}}.
-\bjtitle{Bioinformatics}
-\bvolume{25}(\bissue{14}),
-\bfpage{1754}--\blpage{1760}
-(\byear{2009}).
-doi:\doiurl{10.1093/bioinformatics/btp324}
 \end{barticle}
 \endbibitem
 
@@ -765,6 +786,22 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
 </bibl>
 
 <bibl id="B16">
+  <title><p>{Fast and accurate short read alignment with Burrows-Wheeler
+  transform}</p></title>
+  <aug>
+    <au><snm>Li</snm><fnm>H</fnm></au>
+    <au><snm>Durbin</snm><fnm>R</fnm></au>
+  </aug>
+  <source>Bioinformatics</source>
+  <pubdate>2009</pubdate>
+  <volume>25</volume>
+  <issue>14</issue>
+  <fpage>1754</fpage>
+  <lpage>-1760</lpage>
+  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2705234\&tool=pmcentrez\&rendertype=abstract</url>
+</bibl>
+
+<bibl id="B17">
   <title><p>{Space-efficient and exact de Bruijn graph representation based on
   a Bloom filter.}</p></title>
   <aug>
@@ -779,7 +816,26 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <url>http://dx.doi.org/10.1186/1748-7188-8-22</url>
 </bibl>
 
-<bibl id="B17">
+<bibl id="B18">
+  <title><p>{Mapping-free and assembly-free discovery of inversion breakpoints
+  from raw NGS reads}</p></title>
+  <aug>
+    <au><snm>Lemaitre</snm><fnm>C</fnm></au>
+    <au><snm>Ciortuz</snm><fnm>L</fnm></au>
+    <au><snm>Peterlongo</snm><fnm>P</fnm></au>
+  </aug>
+  <source>Algorithms for Computational Biology</source>
+  <publisher>Tarragona, Spain</publisher>
+  <editor>Dediu, Adrian-Horia and Mart$\backslash$'in-Vide, Carlos and Truthe,
+  Bianca</editor>
+  <pubdate>2014</pubdate>
+  <volume>8542</volume>
+  <fpage>119</fpage>
+  <lpage>-130</lpage>
+  <url>https://hal.inria.fr/hal-01063157</url>
+</bibl>
+
+<bibl id="B19">
   <title><p>SOAPdenovo2: an empirically improved memory-efficient short-read de
   novo assembler</p></title>
   <aug>
@@ -803,7 +859,7 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <fpage>18</fpage>
 </bibl>
 
-<bibl id="B18">
+<bibl id="B20">
   <title><p>Fast gapped-read alignment with Bowtie 2</p></title>
   <aug>
     <au><snm>Langmead</snm><fnm>B</fnm></au>
@@ -818,7 +874,7 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <lpage>-359</lpage>
 </bibl>
 
-<bibl id="B19">
+<bibl id="B21">
   <title><p>{Whole genome, whole population sequencing reveals that loss of
   signaling networks is the major adaptive strategy in a constant
   environment.}</p></title>
@@ -832,22 +888,6 @@ doi:\doiurl{10.1093/bioinformatics/btp324}
   <issue>11</issue>
   <fpage>e1003972</fpage>
   <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3836717\&tool=pmcentrez\&rendertype=abstract</url>
-</bibl>
-
-<bibl id="B20">
-  <title><p>{Fast and accurate short read alignment with Burrows-Wheeler
-  transform}</p></title>
-  <aug>
-    <au><snm>Li</snm><fnm>H</fnm></au>
-    <au><snm>Durbin</snm><fnm>R</fnm></au>
-  </aug>
-  <source>Bioinformatics</source>
-  <pubdate>2009</pubdate>
-  <volume>25</volume>
-  <issue>14</issue>
-  <fpage>1754</fpage>
-  <lpage>-1760</lpage>
-  <url>http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2705234\&tool=pmcentrez\&rendertype=abstract</url>
 </bibl>
 
 </refgrp>

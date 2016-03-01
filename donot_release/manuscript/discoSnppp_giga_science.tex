@@ -336,9 +336,9 @@ Importantly, if a reference genome is provided (close or not), \discopp predicti
 If no reference is provided, the genomic position fields are replaced by dummy value '.'.
 
 \subsection*{Other improvements}
-\discopp now differentiates read files from read sets: A read set may be composed of two read files (eg. paired-end read files) or any number of read sets (eg. in population studies). 
+\discopp now differentiates ``\emph{read files}'' from ``\emph{read sets}'': A read set may be composed of two read files (eg. paired-end read files) or any number of read sets (eg. in population studies). 
 
-Differentiating $k$-mers due to sequencing errors from other is based on a counting threshold. In \discopp, this threshold can be manually set differentially for each read set. Moreover, this threshold can be automatically detected, also differentially for each input read set. 
+Some $k$-mers are erroneous because of sequencing errors. They can be distinguished from non-erroneous by counting their occurrence number and by removing those whose count is below a threshold. In \discopp, this threshold can be manually set differentially for each read set. Moreover, this threshold can be automatically detected, also differentially for each input read set. 
 
 
 The code was re-implemented from scratch using the GATB library~\cite{Drezen2014}. This provides a much easier way to handle the graph file, this improves the running time, with clearer progress messages. 

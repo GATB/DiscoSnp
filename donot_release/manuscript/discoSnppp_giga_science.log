@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/MacPorts 2014_4) (preloaded format=pdflatex 2014.12.16)  5 FEB 2016 11:47
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014/MacPorts 2014_4) (preloaded format=pdflatex 2014.12.16)  26 FEB 2016 16:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -455,13 +455,24 @@ Overfull \hbox (1.0pt too wide) has occurred while \output is active
 
 ] [2] [3]
 
-LaTeX Warning: Citation `lemaitre:hal-01063157' on page 4 undefined on input li
-ne 345.
+LaTeX Warning: Citation `luo2012soapdenovo2' on page 4 undefined on input line 
+364.
 
-[4] [5] [6]
+
+LaTeX Warning: Citation `langmead2012fast' on page 4 undefined on input line 36
+4.
+
+[4] [5]
+
+LaTeX Warning: Citation `Kvitek2013' on page 6 undefined on input line 418.
+
+[6]
+
+LaTeX Warning: Citation `Kvitek2013' on page 7 undefined on input line 427.
+
 LaTeX Font Info:    Try loading font information for OMS+cmr on input line 436.
 
- (/opt/local/etc/texmf/tex/latex/base/omscmr.fd
+(/opt/local/etc/texmf/tex/latex/base/omscmr.fd
 File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
@@ -478,6 +489,18 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <7> not available
 
 
 (./discoSnppp_giga_science.bbl [7])
+Runaway argument?
+{10.1007/978-3-319-07953-0{\_}. \burl {https://hal.inria.fr/hal-01063\ETC.
+./discoSnppp_giga_science.tex:494: File ended while scanning use of \doiurl .
+<inserted text> 
+                \par 
+l.494 \bibliography{discoSnppp_giga_science}
+                                                  % Bibliography file (usual...
+I suspect you have forgotten a `}', causing me
+to read past where you wanted me to stop.
+I'll try to recover; but if the error is serious,
+you'd better type `E' or `X' now and fix your file.
+
 <figures/bubble_snp.png, id=42, 234.37161pt x 42.85611pt>
 File: figures/bubble_snp.png Graphic file (type png)
 
@@ -509,11 +532,7 @@ File: ../tests_n_coli_NAR/n_coli.png Graphic file (type png)
 <use ../tests_n_coli_NAR/n_coli.png>
 Package pdftex.def Info: ../tests_n_coli_NAR/n_coli.png used on input line 546.
 
-(pdftex.def)             Requested size: 361.0pt x 282.67494pt.
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 546--547
- [][] 
- []
+(pdftex.def)             Requested size: 346.49641pt x 271.32639pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -524,11 +543,7 @@ File: ../tests_n_coli_NAR/perf_bact_article.png Graphic file (type png)
 <use ../tests_n_coli_NAR/perf_bact_article.png>
 Package pdftex.def Info: ../tests_n_coli_NAR/perf_bact_article.png used on inpu
 t line 552.
-(pdftex.def)             Requested size: 361.0pt x 299.66159pt.
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 552--553
- [][] 
- []
+(pdftex.def)             Requested size: 346.49641pt x 287.6194pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -539,11 +554,7 @@ File: ../tests_human/results/roc_human.png Graphic file (type png)
 <use ../tests_human/results/roc_human.png>
 Package pdftex.def Info: ../tests_human/results/roc_human.png used on input lin
 e 557.
-(pdftex.def)             Requested size: 361.0pt x 293.30943pt.
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 557--559
- [][] 
- []
+(pdftex.def)             Requested size: 346.49641pt x 281.52545pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -555,11 +566,7 @@ File: ../tests_human/results/perf_human_article.png Graphic file (type png)
 <use ../tests_human/results/perf_human_article.png>
 Package pdftex.def Info: ../tests_human/results/perf_human_article.png used on 
 input line 563.
-(pdftex.def)             Requested size: 361.0pt x 299.66159pt.
-
-Overfull \hbox (12.5pt too wide) in paragraph at lines 563--564
- [][] 
- []
+(pdftex.def)             Requested size: 346.49641pt x 287.6194pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
@@ -572,19 +579,41 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+
+./discoSnppp_giga_science.tex:677: LaTeX Error: \begin{bchapter} on input line 
+386 ended by \end{backmatter}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.677 \end{backmatter}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
 
 AED: lastpage setting LastPage 
+[8 <./figures/bubble_snp.png> <./figures/bubble_close_snp.png> <./figures/bubbl
+e_indel.png>] [9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/per
+f_bact_article.png>] [11 <../tests_human/results/roc_human.png>] [12 <../tests_
+human/results/perf_human_article.png>]
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+./discoSnppp_giga_science.tex:678: LaTeX Error: \begin{thebibliography} on inpu
+t line 3 ended by \end{document}.
 
- [8 <./figures/bubble_snp.png> <./figures/bubble_close_snp.png> <./figures/bubb
-le_indel.png>]
-Overfull \vbox (3.58905pt too high) has occurred while \output is active []
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.678 \end{document}
+                    
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
 
-
-[9 <../tests_n_coli_NAR/n_coli.png>] [10 <../tests_n_coli_NAR/perf_bact_article
-.png>] [11 <../tests_human/results/roc_human.png>] [12 <../tests_human/results/
-perf_human_article.png>] (./discoSnppp_giga_science.aux)
+(./discoSnppp_giga_science.aux)
 
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
@@ -592,37 +621,43 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Warning: There were undefined references.
 
- ) 
+ )
+(\end occurred inside a group at level 2)
+
+### semi simple group (level 2) entered at line 3 (\begingroup)
+### semi simple group (level 1) entered at line 466 (\begingroup)
+### bottom level 
 Here is how much of TeX's memory you used:
  2996 strings out of 495060
  39414 string characters out of 6182466
- 112525 words of memory out of 5000000
+ 114263 words of memory out of 5000000
  6117 multiletter control sequences out of 15000+600000
  16127 words of font info for 55 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 37i,14n,37p,1027b,398s stack positions out of 5000i,500n,10000p,200000b,80000s
-</opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmbx10.pfb></opt/local/e
-tc/texmf/fonts/type1/public/amsfonts/cm/cmbx8.pfb></opt/local/etc/texmf/fonts/t
-ype1/public/amsfonts/cm/cmex10.pfb></opt/local/etc/texmf/fonts/type1/public/ams
-fonts/cm/cmmi10.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmmi7.
-pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmmi8.pfb></opt/local/
-etc/texmf/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></opt/local/etc/texmf/
-fonts/type1/public/amsfonts/cm/cmr10.pfb></opt/local/etc/texmf/fonts/type1/publ
-ic/amsfonts/cm/cmr5.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cm
-r8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmss10.pfb></opt/lo
-cal/etc/texmf/fonts/type1/public/amsfonts/cm/cmss17.pfb></opt/local/etc/texmf/f
-onts/type1/public/amsfonts/cm/cmss8.pfb></opt/local/etc/texmf/fonts/type1/publi
-c/amsfonts/cm/cmssbx10.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm
-/cmssi8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmsy10.pfb></o
-pt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmti10.pfb></opt/local/etc/te
-xmf/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/local/etc/texmf/fonts/type1
-/public/amsfonts/cm/cmti7.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts
-/cm/cmti8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb><
-/opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on discoSnppp_giga_science.pdf (12 pages, 727127 bytes).
+ 37i,14n,37p,1027b,492s stack positions out of 5000i,500n,10000p,200000b,80000s
+</opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmbx8.pfb></opt/local/etc
+/texmf/fonts/type1/public/amsfonts/cm/cmex10.pfb></opt/local/etc/texmf/fonts/ty
+pe1/public/amsfonts/cm/cmmi10.pfb></opt/local/etc/texmf/fonts/type1/public/amsf
+onts/cm/cmmi7.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmmi8.pf
+b></opt/local/etc/texmf/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></opt/lo
+cal/etc/texmf/fonts/type1/public/amsfonts/cm/cmr10.pfb></opt/local/etc/texmf/fo
+nts/type1/public/amsfonts/cm/cmr5.pfb></opt/local/etc/texmf/fonts/type1/public/
+amsfonts/cm/cmr8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmss1
+0.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmss17.pfb></opt/loc
+al/etc/texmf/fonts/type1/public/amsfonts/cm/cmss8.pfb></opt/local/etc/texmf/fon
+ts/type1/public/amsfonts/cm/cmssbx10.pfb></opt/local/etc/texmf/fonts/type1/publ
+ic/amsfonts/cm/cmssi8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/
+cmsy10.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmsy7.pfb></opt
+/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmti10.pfb></opt/local/etc/texm
+f/fonts/type1/public/amsfonts/cm/cmti12.pfb></opt/local/etc/texmf/fonts/type1/p
+ublic/amsfonts/cm/cmti7.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/c
+m/cmti8.pfb></opt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt10.pfb></o
+pt/local/etc/texmf/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on discoSnppp_giga_science.pdf (12 pages, 734244 bytes).
 PDF statistics:
- 146 PDF objects out of 1000 (max. 8388607)
- 95 compressed objects within 1 object stream
+ 150 PDF objects out of 1000 (max. 8388607)
+ 98 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
