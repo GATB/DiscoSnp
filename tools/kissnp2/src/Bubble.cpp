@@ -513,12 +513,6 @@ bool BubbleFinder::expand (
         /** Thus, if successors[i].first = successors[i].second and if the bubble is dumped, we stop **/
         if (successors[i].first == successors[i].second && dumped_bubble) break;
         
-        /******************************************************************************************* **/
-        /** Un-understood Sept 2015 (Pierre). Removed and replaced by the next "break"               **/
-        /** if the bubble is finished with THIS couple of tested successors, we stop here.**/
-        /** if we don't check this, in b 2 mode we may close a bubble with several distinct couple of node and thus create redondant bubbles **/
-        /** if(dumped_bubble && successors[i].first==successors[i].second) break; **/
-        /******************************************************************************************* **/
 
         // /** Stop as soon as a bubble is dumped */
         // VERSION 2.2.5: commented this break line. Enable to explore all possible symmetrical paths, even in case of success on one of the paths.
