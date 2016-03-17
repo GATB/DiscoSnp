@@ -65,6 +65,9 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         vcf_field_object.RetrieveFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
         #Defines the genotype for the couple
         variant_object.RetrieveGenotypes(nbGeno,vcf_field_object)
+        #Defines variant with multiple mapping : return the XA tag in the vcf file : case of multiply mapped variant
+        #variant_object.upper_path.RetrieveXA(vcf_field_object)
+        #variant_object.lower_path.RetrieveXA(vcf_field_object)
         return(table)
 #############################################################################################
 #############################################################################################
@@ -190,25 +193,25 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
         best_up=1024
         if int(upper_path.mappingPosition)==0 and int(lower_path.mappingPosition)==0:#Checks if paths are unmappped
                 return(".")
-        for position,nbMismatch in posUp.items(): 
+        for position,(nbMismatch,cigarcode) in posUp.items(): 
                 if nbMismatch<best_up:
                         best_up=nbMismatch
 
         # get the best mapping distance for lower path 
         best_low=1024
-        for position,nbMismatch in posLow.items(): 
+        for position,(nbMismatch,cigarcode) in posLow.items(): 
                 if nbMismatch<best_low:
                         best_low=nbMismatch
     
         # get the union of the mapping position at the best mapping positions
         position_set = set()
-        for position,nbMismatch in posUp.items():
+        for position,(nbMismatch,cigarcode) in posUp.items():
                 if nbMismatch == best_up:
                         position_set.add(position)
                 if len(position_set) > 1: 
                         return("MULTIPLE")
 
-        for position,nbMismatch in posLow.items():
+        for position,(nbMismatch,cigarcode) in posLow.items():
                 if nbMismatch == best_low:
                         position_set.add(position)
                 if len(position_set) > 1: 

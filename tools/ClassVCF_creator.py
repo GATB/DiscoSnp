@@ -183,10 +183,10 @@ class VARIANT():
                 nmLow=None
                 #Two paths mapped
                 if int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)>0:#Checks if both paths are mapped 
-                        nmUp=int(self.upper_path.dicoMappingPos[self.upper_path.mappingPosition]) #Distance with the reference for the snpUp
-                        nmLow=int(self.lower_path.dicoMappingPos[self.lower_path.mappingPosition]) #Distance with the reference for the snpLow
+                        nmUp=int(self.upper_path.dicoMappingPos[self.upper_path.mappingPosition][0]) #Distance with the reference for the snpUp
+                        nmLow=int(self.lower_path.dicoMappingPos[self.lower_path.mappingPosition][0]) #Distance with the reference for the snpLow
                         if nmUp<nmLow: #Checks if the upper path has a distance with the reference smaller than the lower path
-                                self.lower_path.boolRef=False
+                                self.lower_path.boolRef=False # Defines the boolean to know which path will be defined as reference
                                 self.upper_path.boolRef=True 
                                 self.lower_path.nucleoRef=self.upper_path.nucleoRef
                                 self.mappingPosition=self.upper_path.mappingPosition
@@ -282,7 +282,10 @@ class VARIANT():
 
                 table[5]="."
                 table[6]=VCFObject.filterField
-                table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+                if VCFObject.XA:
+                        table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)+";"+"XA="+str(VCFObject.XA)
+                else:
+                        table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
                 table[7]=table[7].replace("None",".")
                 table[7]=table[7].replace("none",".")
                 table[7]=table[7].replace("=;","=.;")
@@ -384,9 +387,15 @@ class PATH():
                        self.listSam=line#gets the sequence of the path
                        self.discoName=self.listSam[0]
                        self.seq=""
-                       self.mappingPosition=0#mapping position of the path
-                
-                
+                       self.mappingPosition=0#mapping position of the path                
+
+        def RetrieveXA(self,VCFObject):
+                for position,(NM,cigarcode) in self.dicoMappingPos.items():
+                       if cigarcode!="":
+                                VCFObject.XA=str(position)+","
+                if VCFObject.XA:
+                        VCFObject.XA=VCFObject.XA.rstrip(',')             
+                            
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
         def RetrieveSeq(self,seq):
@@ -414,12 +423,12 @@ class PATH():
                                         position=listXA[1:] #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]
                         while i<len(position): #Runs through the list 4 by 4 to get all the positions 
                                 if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
-                                        self.dicoMappingPos[abs(int(position[i]))]=int(position[i+2]) #the position is associated to the number of mismatch in a dictionary
+                                        self.dicoMappingPos[abs(int(position[i]))]=[int(position[i+2]), position[i+1]]#the position is associated to the number of mismatch in a dictionary
                                 i+=4
                 if abs(int(variant[3]))>0:#adds the main mapping position to the dictionary of all mapping positions
                       posMut,nbMismatch=self.GetTag()
                       #In case of mapped variant without MD TAG :
-                      self.dicoMappingPos[abs(int(variant[3]))]=int(nbMismatch)
+                      self.dicoMappingPos[abs(int(variant[3]))]=[int(nbMismatch),""]
 #---------------------------------------------------------------------------------------------------------------------------
 #
 #FLAG = field to test
@@ -442,7 +451,7 @@ class PATH():
         def CheckBitwiseFlag(self):
                 """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
                 if int(self.listSam[1]) & 16:#Reverse strand
-                     self.boolReverse="-1"
+                     self.boolReverse="-1" 
                      self.listPosVariantOnPathToKeep=self.listPosReverse
                 elif int(self.listSam[1]) & 4: #Unmapped
                      self.listPosVariantOnPathToKeep=self.listPosForward
@@ -590,7 +599,7 @@ class PATH():
                                 nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
                       if "MD" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
-                        print "!!! No MD tag in your sam file : Could you create it in your sam file please (with samtools calmd) ?"
+                        print "!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?"
                         sys.exit()
                       else:                                              
                         for field in self.listSam:
@@ -947,9 +956,6 @@ class SNPSCLOSE(VARIANT):
                             nucleoRefLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][1]
                             #Fills the variable table with the vcf fields ; Checks the "REF" path to fill the vcf
                             if self.lower_path.boolRef==True and self.upper_path.boolRef==False: #The lower path is defined as REF
-                            #table[1]=self.mappingPositionCouple
-                            #table[3]=self.ref
-                            #table[4]=self.alt
                                
                                 VCFObject.chrom=self.lower_path.listSam[2]
                                 table[1]=int(positionSnpLow)-1
@@ -1052,7 +1058,10 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(ID)
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
-                        table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+                        if VCFObject.XA:
+                                table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)+";"+"XA="+str(VCFObject.XA)
+                        else:
+                                table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
                         table[line][7]=table[line][7].replace("None",".")
                         table[line][7]=table[line][7].replace("none",".")
                         table[line][7]=table[line][7].replace("=;","=.;")
@@ -1081,11 +1090,12 @@ class VCFFIELD():
                 self.qual=""
                 self.nucleoRef=None
                 self.reverse=""
+                self.XA=None
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------    
         def RetrieveFilterField(self,filterField):
                 self.filterField=filterField
-        
+                
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------    
         
@@ -1129,7 +1139,7 @@ class VCFFIELD():
                                  print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
                                  error+=1
                         if "INDEL" in table[0] and table[6]=="PASS":
-                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
+                                 print("!!! an error occurred in determining the filter of indel (an unmapped INDEL is \"PASS\")!!!")
                                  error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
                                 print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
