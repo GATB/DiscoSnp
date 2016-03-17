@@ -791,8 +791,8 @@ class INDEL(VARIANT):
                         self.lower_path.listPosForward.append(int(posD)+1-int(amb))
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
-                        self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
+                        self.insertForward=self.longestSequenceForward[(int(posD)-int(amb)):(int(posD)-int(amb)+int(ind))]
+                        self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)-1+int(ind))]
                         self.ntStartForward=self.longestSequenceForward[(int(posD))-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
                         self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
                         self.lower_path.nucleo="."
