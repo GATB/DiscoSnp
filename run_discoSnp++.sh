@@ -345,7 +345,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	#echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
 	#$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
        
-       graphCmd="$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb}"
+       graphCmd="$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none"
        echo ${graphCmd}
        ${graphCmd}
        
