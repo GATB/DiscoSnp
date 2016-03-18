@@ -47,9 +47,11 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         table = [0] * 10 #Creates a 10 cols array
         #Fills information of the variant object with the informations of the discosnp++ header
         variant_object.RetrievePolymorphismFromHeader() 
-        #Gets the coverage for each path
+        #Gets the coverage and quality for each path
         variant_object.upper_path.RetrieveCoverage(variant_object.dicoIndex)
         variant_object.lower_path.RetrieveCoverage(variant_object.dicoIndex)
+        variant_object.upper_path.RetrieveQualityFQ(variant_object.dicoIndex)
+        variant_object.lower_path.RetrieveQualityFQ(variant_object.dicoIndex)
         #Gives the position corrected for each path by taking into account the shift, deletion, insertion ....
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
@@ -84,6 +86,8 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         #Gets the coverage for each path        
         variant_object.upper_path.RetrieveCoverage(variant_object.dicoIndex)
         variant_object.lower_path.RetrieveCoverage(variant_object.dicoIndex)
+        variant_object.upper_path.RetrieveQualityFQ(variant_object.dicoIndex)
+        variant_object.lower_path.RetrieveQualityFQ(variant_object.dicoIndex)
         dicoCloseUp=variant_object.upper_path.CheckPosVariantFromRef(vcf_field_object)
         dicoCloseLow=variant_object.lower_path.CheckPosVariantFromRef(vcf_field_object)
         #Checks if the variant has close SNPs        
@@ -136,6 +140,8 @@ def GetIndex(fileName):
                         dicoIndex["C"]=[]
                 if "G1_" in line:
                         dicoIndex["G"]=[]
+                if "Q1_" in line:
+                        dicoIndex["Q"]=[]
                 if "unitig" in line:
                        dicoIndex["unitig"]=[]
                 if "contig" in line :
@@ -165,6 +171,11 @@ def GetIndex(fileName):
                                 matchC=re.match(r'^C',listLine[i])
                                 if matchC:
                                        dicoIndex["C"].append(int(i))
+                                       
+                        elif "Q" in listLine[i]:
+                              matchQ=re.match(r'^Q',listLine[i])
+                              if matchQ:
+                                dicoIndex["Q"].append(int(i))  
                 break
                                        
        samfile.close()                              
@@ -226,6 +237,16 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
 #############################################################################################
 def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         ###Header of the VCF file 
+        samfile=open(fileName,'r')
+        boolQuality=False
+        while True:                
+                line=samfile.readline()
+                if not line: break #End of file
+                if line.startswith('@'): continue #We do not read headers
+                if "Q1_" in line : 
+                        boolQuality=True
+                        break
+                else: break 
         today=time.localtime()
         date=str(today.tm_year)+str(today.tm_mon)+str(today.tm_mday)
         VCF.write('##fileformat=VCFv4.1\n')
@@ -245,7 +266,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
         VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">\n')
         VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
-
+        
 
         ##Creates the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
         if nbGeno==0: # Without genotypes
@@ -256,6 +277,8 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
             VCF.write('##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">\n')
             VCF.write('##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">\n')
             VCF.write('##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">\n')
+            if boolQuality:
+                VCF.write('##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">\n')
             VCF.write('#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t')
             for i in range(0,int(nbGeno)):
                 nomCol="G"+str(i+1)
@@ -264,6 +287,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
                         VCF.write("\t" )# Adds a \t except if this is the last genotype
                 if i==int(nbGeno)-1:
                     VCF.write("\n")
+        samfile.close()
 
 #############################################################################################
 #############################################################################################

@@ -224,7 +224,7 @@ class VARIANT():
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         def RetrieveGenotypes(self,nbGeno,VCFObject):
-                """Gets the genotype, the coverage and the likelihood by sample and prints it in the corresponding fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
+                """Gets the phred quality Q, the genotype, the coverage and the likelihood by sample and prints it in the corresponding fields. The genotype is determined by DiscoSnp++ (which considered the upper path as reference). If the “REF” corresponds the upper path, the genotype in the VCF is identical to the genotype in DiscoSnp++, else  it's the opposite ( 1/1 becomes 0/0 and so on)."""
                 j=0
                 genotypes=""
                 key=None
@@ -233,6 +233,8 @@ class VARIANT():
                 coverage=None
                 listcovUp=self.upper_path.listCoverage
                 listcovLow=self.lower_path.listCoverage
+                listfqUp=self.upper_path.listFQQuality
+                listfqLow=self.lower_path.listFQQuality
                 if int(nbGeno)==0:
                         VCFObject.formatField=""
                         VCFObject.genotypes=""
@@ -243,7 +245,15 @@ class VARIANT():
                                 key="G"+str(i+1) # Creates the dictionary key
                                 current_genotype = self.dicoGeno[key]#Gets the genotypes associated to the key
                                 likelihood=current_genotype[1]#Gets the likelihood associated to the key
+                                if listfqUp!="":
+                                        fq_quality=":"+str(listfqUp[i])+","+str(listfqLow[i])
+                                else :
+                                        fq_quality=""
                                 if self.lower_path.boolRef==True: #Checks if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 ; exchanges the likelihood to have the good one for each genotypes)
+                                        if listfqUp!="":
+                                                fq_quality=":"+str(listfqLow[i])+","+str(listfqUp[i])
+                                        else :
+                                                fq_quality=""
                                         coverage=str(listcovLow[i])+","+str(listcovUp[i])#Inverts the coverage
                                         #Inverts the first and the last likelihood
                                         likelihoodStart=likelihood[2]
@@ -261,12 +271,16 @@ class VARIANT():
                                     likelihood=str(','.join(current_genotype[1]))
                                 else:
                                     likelihood=str(likelihood)
-                                genotypes+=str(current_genotype[0])+":"+str(int(listcovUp[i])+int(listcovLow[i]))+":"+likelihood+":"+str(coverage)
+                                genotypes+=str(current_genotype[0])+":"+str(int(listcovUp[i])+int(listcovLow[i]))+":"+likelihood+":"+str(coverage)+str(fq_quality)
+                                       
                                 if i<nbGeno-1 :
                                         genotypes+="\t" #Adds a \t except if this is the last genotype
                 #Write results in VCF object
                         VCFObject.formatField="GT:DP:PL:AD"
+                        if listfqUp!="":
+                              VCFObject.formatField="GT:DP:PL:AD:HQ"  
                         VCFObject.genotypes=genotypes                                                                                                               
+    
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                                 
@@ -286,6 +300,7 @@ class VARIANT():
                         table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)+";"+"XA="+str(VCFObject.XA)
                 else:
                         table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+
                 table[7]=table[7].replace("None",".")
                 table[7]=table[7].replace("none",".")
                 table[7]=table[7].replace("=;","=.;")
@@ -374,6 +389,7 @@ class PATH():
                 self.listPosReverse=[]#mapping position(s) of the variant on the path (if it is mapped on the reverse strand)
                 self.listPosForward=[]#mapping position(s) of the variant on the path (if it is mapped on the forward strand)
                 self.correctedPos=0 #list or position of the mapping variant by taking into account the shift with the reference
+                self.listFQQuality=[] #string of all the quality scores of every variant
                 if ">" not in line:# Case of samfile
                         self.listSam=line.rstrip('\r').rstrip('\n').split('\t')
                         self.discoName=self.listSam[0]
@@ -585,7 +601,16 @@ class PATH():
                          matchC=re.match(r'^C',self.discoName.split("|")[i])
                          if matchC:
                                 self.listCoverage.append(self.discoName.split("|")[i].split('_')[1])
-                        
+
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------                                         
+        def RetrieveQualityFQ(self,dicoIndex):
+                """Gets the coverage by path in the discosnp++ header"""
+                if "Q" in dicoIndex:
+                     for i in dicoIndex["Q"]:   
+                         matchQ=re.match(r'^Q',self.discoName.split("|")[i])
+                         if matchQ:
+                             self.listFQQuality.append(self.discoName.split("|")[i].split('_')[1])                                 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
         def GetTag(self):
