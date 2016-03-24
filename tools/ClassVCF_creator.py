@@ -157,9 +157,7 @@ class VARIANT():
                         return(int(unitig))#return the unitig length
                 else:
                         return 0
-                                                                                                                                                                                                                                      
-        #def FillInformationFromSequence():
-        ##TODO
+                                                                                                                                                                                                                                            
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                   
         def RetrievePolymorphismFromHeader(self):
@@ -245,7 +243,7 @@ class VARIANT():
                                 key="G"+str(i+1) # Creates the dictionary key
                                 current_genotype = self.dicoGeno[key]#Gets the genotypes associated to the key
                                 likelihood=current_genotype[1]#Gets the likelihood associated to the key
-                                if listfqUp!="":
+                                if listfqUp!="" and listfqLow!="":
                                         fq_quality=":"+str(listfqUp[i])+","+str(listfqLow[i])
                                 else :
                                         fq_quality=""
@@ -342,7 +340,7 @@ class VARIANT():
                                 return (nucleo)
                         elif int(self.lower_path.boolReverse)==1 and self.upper_path.boolReverse==".":
                                 return (nucleo)
-                        elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
+                        elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
                                 return (self.ReverseComplement(nucleo))
                 else :
                         return (nucleo) 
@@ -610,7 +608,9 @@ class PATH():
                      for i in dicoIndex["Q"]:   
                          matchQ=re.match(r'^Q',self.discoName.split("|")[i])
                          if matchQ:
-                             self.listFQQuality.append(self.discoName.split("|")[i].split('_')[1])                                 
+                             self.listFQQuality.append(self.discoName.split("|")[i].split('_')[1])
+                             
+                else : self.listFQQuality = ""                              
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
         def GetTag(self):
