@@ -19,7 +19,7 @@ fi
 #---------------------------------------------------------------------------------------------------------------------------
 echo -e "****************Running Test 2****************"
 $DIR/run_VCF_creator.sh -f data_test_creator.sam -o VCF_data_test.vcf 
-if  ! diff GoldVCF_data_test.vcf VCF_data_test.vcf ;then
+if  ! diff VCF_data_test.vcf GoldVCF_data_test.vcf ;then
         echo "!!! Test 2 : Difference between the two files!!!"
 fi
 
