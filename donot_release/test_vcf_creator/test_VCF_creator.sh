@@ -18,7 +18,7 @@ fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 echo -e "****************Running Test 2****************"
-$DIR/run_VCF_creator.sh -f data_test_creator.sam -o VCF_data_test.vcf 
+$DIR/run_VCF_creator.sh -f data_test_creator.sam -o afac_VCF_data_test.vcf 
 if  ! diff VCF_data_test.vcf GoldVCF_data_test.vcf ;then
         echo "!!! Test 2 : Difference between the two files!!!"
 fi
@@ -26,8 +26,8 @@ fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 echo -e "****************Running Test 3****************"
-$DIR/run_VCF_creator.sh -p HMMM_with_indels_k_31_c_4_D_500_P_5_b_1_withlow_coherent.fa -o afac.vcf
-if ! diff afac.vcf GOLDstandardHMMPseudomonasWithoutRef.vcf;then
+$DIR/run_VCF_creator.sh -p HMMM_with_indels_k_31_c_4_D_500_P_5_b_1_withlow_coherent.fa -o afac_withoutref.vcf
+if ! diff afac_withoutref.vcf GOLDstandardHMMPseudomonasWithoutRef.vcf;then
         echo "!!! Test 1 : Difference between the two files !!!"
 fi
 
