@@ -24,7 +24,6 @@
 #include <Kissreads2.h>
 
 
-using namespace std;
 
 using namespace gatb::core;
 using namespace gatb::core::tools;

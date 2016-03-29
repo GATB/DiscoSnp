@@ -308,7 +308,7 @@ else
 fi
 
 if [ $igv -eq 1 ] ; then 
-       $DIR/create_IGV_compatible_VCF.sh $vcffile
+       $DIR/tools/create_IGV_compatible_VCF.sh $vcffile
        nameVCFIGV=$( basename $vcffile .vcf )
        python $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf
        cat tmp.vcf > $nameVCFIGV\_for_IGV.vcf
