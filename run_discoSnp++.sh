@@ -63,7 +63,7 @@ else # VERSION BINARY
 fi
 
 
-chmox +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh
+chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh
 
 
 
