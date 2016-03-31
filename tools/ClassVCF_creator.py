@@ -811,24 +811,13 @@ class INDEL(VARIANT):
                                 self.longestSequenceReverse=self.upper_path.seq
                 for key,(posD,ind,amb) in self.dicoAllele.items():#Goes through the dictionary of parsed header
                         #In case of forward strand mapped
-                        
-                        #We return the leftmost indel
-                        """
-                        self.upper_path.listPosForward.append(int(posD)+1-int(amb))
-                        self.lower_path.listPosForward.append(int(posD)+1-int(amb))
-                        self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
-                        self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
-                        self.ntStartForward=self.longestSequenceForward[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
-                        self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
-                        """
                         #we return the disco indel + the lefmost nucleotide before the indel (by taking into account the ambiguity
-                        self.upper_path.listPosForward.append(int(posD)+1-int(amb))
-                        self.lower_path.listPosForward.append(int(posD)+1-int(amb))
+                        self.upper_path.listPosForward.append(int(posD)-int(amb))
+                        self.lower_path.listPosForward.append(int(posD)-int(amb))
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb))]+self.longestSequenceForward[(int(posD)):(int(posD)+int(ind))]
+                        
+                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
                         self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
                         self.ntStartForward=self.longestSequenceForward[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
                         self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
@@ -850,7 +839,7 @@ class INDEL(VARIANT):
                 elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)<=0:
                         if self.smallestSequence==self.lower_path.seq:
                                 self.upper_path.boolRef=False
-                                self.lower_path.boolRef=True,
+                                self.lower_path.boolRef=True
                         else:
                                 self.upper_path.boolRef=True
                                 self.lower_path.boolRef=False 
