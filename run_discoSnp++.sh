@@ -63,7 +63,7 @@ else # VERSION BINARY
 fi
 
 
-chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh
+chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh 2>/dev/null # Usefull for binary distributions
 
 
 

@@ -869,7 +869,7 @@ bool BubbleFinder::checkRepeatSize (string &extension1, string &extension2) cons
      **/
     
     
-    const int size_repeat = sizeKmer-1-min(extension1.length(), extension2.length());
+    const int size_repeat = sizeKmer-2-min(extension1.length(), extension2.length());
     if (size_repeat>max_indel_ambiguity) {
         return false;
     }
