@@ -189,6 +189,10 @@ if [ -z "$samfile" ];then
 	fi
 	#Ghost mode
         if [ -z "$genome" ]; then
+                if [[ "$discoSNPs" =~ sam ]]; then
+	             echo "!!! Disco file can't be a sam file !!!"
+	             exit 1
+	        fi 
                 echo -e "...Ghost mode..."
                 echo -e "...Creation of a vcf without alignment..."
                 if [ -z "$discoSNPs" ] && [ -z "$vcffile" ];then
@@ -232,7 +236,7 @@ if [ -z "$samfile" ];then
 		echo "... Error : file disco is missing : option -p (for help -h)..."
               help
 		exit 1
-	else
+	else  	                
 		if [ ! -e $PATH_VCF_creator/remove_extensions_disco_file.py ];then
 			echo "...Unable to find remove_extensions_disco_file.py..."
 			exit 1

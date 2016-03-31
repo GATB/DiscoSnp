@@ -401,7 +401,8 @@ class PATH():
                        self.listSam=line#gets the sequence of the path
                        self.discoName=self.listSam[0]
                        self.seq=""
-                       self.mappingPosition=0#mapping position of the path                
+                       self.mappingPosition=0#mapping position of the path 
+                       self.boolReverse="."#We need to define the absence of strand           
 
         def RetrieveXA(self,VCFObject):
                 for position,(NM,cigarcode) in self.dicoMappingPos.items():
@@ -808,21 +809,31 @@ class INDEL(VARIANT):
                        else:
                                 self.longestSequenceForward=self.ReverseComplement(self.upper_path.seq)
                                 self.longestSequenceReverse=self.upper_path.seq
-                
-                
                 for key,(posD,ind,amb) in self.dicoAllele.items():#Goes through the dictionary of parsed header
                         #In case of forward strand mapped
+                        
+                        #We return the leftmost indel
+                        """
                         self.upper_path.listPosForward.append(int(posD)+1-int(amb))
                         self.lower_path.listPosForward.append(int(posD)+1-int(amb))
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
-                        self.insertForward=self.longestSequenceForward[(int(posD)-int(amb)):(int(posD)-int(amb)+int(ind))]
+                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
                         self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
-                        self.ntStartForward=self.longestSequenceForward[(int(posD))-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
+                        self.ntStartForward=self.longestSequenceForward[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
+                        self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
+                        """
+                        #we return the disco indel + the lefmost nucleotide before the indel (by taking into account the ambiguity
+                        self.upper_path.listPosForward.append(int(posD)+1-int(amb))
+                        self.lower_path.listPosForward.append(int(posD)+1-int(amb))
+                        self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
+                        self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
+                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb))]+self.longestSequenceForward[(int(posD)):(int(posD)+int(ind))]
+                        self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
+                        self.ntStartForward=self.longestSequenceForward[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
                         self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
                         self.lower_path.nucleo="."
                         self.upper_path.nucleo="."
-                        
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                          
         def WhichPathIsTheRef(self,VCFObject):
@@ -836,17 +847,24 @@ class INDEL(VARIANT):
                 elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)>0:
                         self.upper_path.boolRef=False
                         self.lower_path.boolRef=True
+                elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)<=0:
+                        if self.smallestSequence==self.lower_path.seq:
+                                self.upper_path.boolRef=False
+                                self.lower_path.boolRef=True,
+                        else:
+                                self.upper_path.boolRef=True
+                                self.lower_path.boolRef=False 
                 #Checks if the insert corresponds to the upper path or to the lower path and the strand of mapping
                 if self.lower_path.boolRef==True and self.lower_path.boolReverse=="-1":
                         self.lower_path.nucleo=self.insertReverse
                         self.upper_path.nucleo=self.ntStartReverse
-                elif self.lower_path.boolRef==True and self.lower_path.boolReverse=="1":
+                elif self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse=="."):
                         self.lower_path.nucleo=self.insertForward
                         self.upper_path.nucleo=self.ntStartForward
                 elif self.upper_path.boolRef==True and self.upper_path.boolReverse=="-1":
                         self.upper_path.nucleo=self.insertReverse
                         self.lower_path.nucleo=self.ntStartReverse
-                else:
+                elif self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse=="."):
                         self.upper_path.nucleo=self.insertForward
                         self.lower_path.nucleo=self.ntStartForward             
             ##Fills the VCF if the upper path is considered as the reference
