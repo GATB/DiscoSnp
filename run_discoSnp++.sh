@@ -49,7 +49,21 @@ genotyping="-genotype"
 paired=""
 remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-DISCO_BUILD_PATH="$EDIR/build/"
+
+if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
+       read_file_names_bin=$EDIR/build/tools/read_file_names/read_file_names
+       dbgh5_bin=$EDIR/build/ext/gatb-core/bin/dbgh5
+       kissnp2_bin=$EDIR/build/tools/kissnp2/kissnp2
+       kissreads2_bin=$EDIR/build/tools/kissreads2/kissreads2
+else # VERSION BINARY
+       read_file_names_bin=$EDIR/bin/read_file_names
+       dbgh5_bin=$EDIR/bin/dbgh5
+       kissnp2_bin=$EDIR/bin/kissnp2
+       kissreads2_bin=$EDIR/bin/kissreads2
+fi
+
+
+chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh
 
 
 
@@ -245,14 +259,7 @@ fi
 
 
 
-if [ -d "$DISCO_BUILD_PATH" ] ; then
-echo "Binaries in $DISCO_BUILD_PATH"
-else
-ls "$DISCO_BUILD_PATH"
-echo "error; for some reason, the discoSnp++ build path ($DISCO_BUILD_PATH) is not accessible"
-echo "Please indicate (option -B) the location of the discoSnp++ build directory"
-exit 1  # fail
-fi
+
 
 
 ######### CHECK THE k PARITY ##########
@@ -299,13 +306,8 @@ cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 #######################################################################
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
-MY_PATH="`( cd \"$MY_PATH\" && pwd )`"  # absolutized and normalized
-if [ -z "$MY_PATH" ] ; then
-# error; for some reason, the path is not accessible
-# to the script (e.g. permissions re-evaled after suid)
-exit 1  # fail
-fi
-echo -e "\tRunning discoSnp++ "$version", in directory "$MY_PATH" with following parameters:"
+
+echo -e "\tRunning discoSnp++ "$version", in directory "$EDIR" with following parameters:"
 echo -e "\t\t read_sets="$read_sets
 echo -e "\t\t prefix="$h5prefix
 echo -e "\t\t c="$c
@@ -326,7 +328,7 @@ echo
 #############################################################
 #################### DUMP READ FILES  #######################
 #############################################################
-$DISCO_BUILD_PATH/tools/read_file_names/read_file_names -in $read_sets > $readsFilesDump
+${read_file_names_bin} -in $read_sets > $readsFilesDump
 
 
 
@@ -342,10 +344,8 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-	#echo $DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
-	#$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min $c_dbgh5 -abundance-max $C -solidity-kind one $option_cores_gatb
        
-       graphCmd="$DISCO_BUILD_PATH/ext/gatb-core/bin/dbgh5 -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none"
+       graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose 0"
        echo ${graphCmd}
        ${graphCmd}
        
@@ -370,7 +370,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="$DISCO_BUILD_PATH/tools/kissnp2/kissnp2 -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 
@@ -411,7 +411,7 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
-kissreadsCmd="$DISCO_BUILD_PATH/tools/kissreads2/kissreads2 -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
 
 echo $kissreadsCmd
 $kissreadsCmd

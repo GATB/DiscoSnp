@@ -1,4 +1,7 @@
-############### COMPILATION ##################
+############### FOR COMPILED VERSIONS  ##################
+chmod +x run_discoSnp++.sh
+
+############### FOR NON COMPILED VERSIONS: COMPILATION OF SOURCES ##################
 ./compile_discoSnp++.sh
 
 ############### QUICK START ##################
