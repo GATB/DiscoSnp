@@ -650,7 +650,7 @@ void BubbleFinder::finish ()
     }
     if ( bubble.polymorphism_type=="INDEL" ){
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
-        const int size_repeat = sizeKmer-1-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
+        const int size_repeat = sizeKmer-2-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
         
             
         comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
@@ -867,7 +867,7 @@ bool BubbleFinder::checkRepeatSize (string &extension1, string &extension2) cons
      * ACCT->CCTG->CTGG->TGGG->GGGA->GGAX ------------------------------> extended string is empty (size 0 = k-1-ambiguity => ambiguity=k-1)
      * ACCT->CCTG->CTGG->TGGG->GGGA->GGAG->GAGG->AGGG->GGGA->GAAX ------> extended string is AGGG (size k = k-1-ambiguity+size_ins = k-1-(k-1)+k => insertion of length k
      **/
-    
+
     
     const int size_repeat = sizeKmer-2-min(extension1.length(), extension2.length());
     if (size_repeat>max_indel_ambiguity) {
