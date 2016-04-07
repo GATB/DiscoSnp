@@ -29,7 +29,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.2.5"
+version="2.2.6"
 read_sets="" # A file of file(s)
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers

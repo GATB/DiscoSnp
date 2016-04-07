@@ -28,7 +28,8 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 igvfiletemp=$(basename $vcffile .vcf)"_for_IGV.vcf.tmp"
 igvfile=$(basename $vcffile .vcf)"_for_IGV.vcf"
 cat $vcffile|grep "#">$igvfile
-cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "^SNP"|grep -v "^INDEL">>$igvfile
+#cat $vcffile|grep -v  "#"|sort -k 2n,2n -n|grep -v "^SNP"|grep -v "^INDEL">>$igvfile
+cat $vcffile|grep -v  "#"|sort -k 1,1 -k 2,2n |grep -v "^SNP"|grep -v "^INDEL">>$igvfile # from 2 2 6
 #python $DIR/tools/one2zeroBased_vcf.py $igvfiletemp 
 #cat VCFone2zeroBAsed.vcf >> $igvfile
 #rm -f $igvfiletemp VCFone2zeroBAsed.vcf
