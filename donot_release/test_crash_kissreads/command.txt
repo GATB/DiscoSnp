@@ -1,1 +1,0 @@
-/Users/ppeterlo/workspace/gatb-tools/gatb-tools/tools/DiscoSNP/build//tools/kissreads/kissreads discoRes_k_31_c_1_D_0_P_1_b_0_withlow.fa M28-STAB905.fa M28-STAB1001.fa -k 26 -i 4 -O 31 -c 1 -d 1 -n -g -o discoRes_k_31_c_1_D_0_P_1_b_0_withlow\_coherent -u discoRes_k_31_c_1_D_0_P_1_b_0_withlow\_uncoherent
