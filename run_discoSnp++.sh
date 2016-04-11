@@ -63,11 +63,7 @@ else # VERSION BINARY
 fi
 
 
-chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh 2>/dev/null # Usefull for binary distributions
-
-
-
-
+chmod +x scripts/*.sh run_discoSnp++.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
 genome=""
@@ -469,7 +465,7 @@ echo -e "\t#################### CREATE VCF         #######################"
 echo -e "\t###############################################################"
 
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
-       vcfCreatorCmd="$EDIR/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
+       vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
        echo $vcfCreatorCmd
        $vcfCreatorCmd
        if [ $? -ne 0 ]
@@ -477,7 +473,7 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
        fi
 else # A Reference genome is provided, vcf creator mode 2
-       vcfCreatorCmd="$EDIR/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
+       vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
        echo $vcfCreatorCmd
        $vcfCreatorCmd
 

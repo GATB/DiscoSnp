@@ -36,7 +36,7 @@ echo " ##############################"
 echo "   Run VCF_creator pipeline     "
 echo " ##############################"
 echo "Usage : ./run_VCF_creator.sh OPT"
-echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:" 
+echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:"
 echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-w]"
 echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
 echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-w] "
@@ -79,11 +79,11 @@ echo -e "\t\t Optional"
 
 while getopts "hB:c:G:p:wIf:o:t:" opt; do
 case $opt in
-       
+
        t)
        bwa_threads="-t ",$OPTARG
        ;;
-       
+
 	w)
 	remove=1
 	;;
@@ -132,17 +132,17 @@ case $opt in
 	echo -e "\t##use directly samfile : $OPTARG" >&2
 	samfile=$OPTARG
 	;;
-	
+
 	I)
 	echo -e "\t##Will create a vcf file for IGV : Sorting VCF by mapping positions and removing unmapped variants"
 	igv=1
 	;;
-		
+
 	o)
 	echo -e "\t##output : $OPTARG" >&2
 	vcffile=$OPTARG
 	;;
-	
+
 	\?)
 	echo -e "##Invalid option: -$OPTARG" >&2
 	exit 1
@@ -170,9 +170,9 @@ if [ -z "$vcffile" ];then
 fi
 
 # if [ -z "$PATH_VCF_creator" ];then
-#        PATH_VCF_creator=$DIR"/tools"
+#        PATH_VCF_creator=$DIR""
 # fi
-PATH_VCF_creator=$DIR"/tools"
+PATH_VCF_creator=$DIR
 if [ ! -e  $PATH_VCF_creator/VCF_creator.py ]; then
 	echo "...Unable to find VCF_creator..."
 	exit 1
@@ -192,35 +192,35 @@ if [ -z "$samfile" ];then
                 if [[ "$discoSNPs" =~ sam ]]; then
 	             echo "!!! Disco file can't be a sam file !!!"
 	             exit 1
-	        fi 
+	        fi
                 echo -e "...Ghost mode..."
                 echo -e "...Creation of a vcf without alignment..."
                 if [ -z "$discoSNPs" ] && [ -z "$vcffile" ];then
                        echo -e "...To create a vcf without alignment ..."
                        echo -e "...You must provide an output <file>.vcf : option -o..."
                        echo -e "...And the file disco : option -p..."
-                       exit 1 
+                       exit 1
                 else
-                        
+
                         python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
-		        echo -e "... Creation of the vcf file : done ...==> $vcffile" 
-		        exit 
-                fi    
+		        echo -e "... Creation of the vcf file : done ...==> $vcffile"
+		        exit
+                fi
         fi
 	if [ -z "$PATH_BWA" ] ;then
 		IS_BWA=$(command -v bwa)
-	
-	
-	
+
+
+
 		if [ -z "$IS_BWA" ];then
 			echo -e "... BWA not found... add bwa to \$PATH or give directly the path (-B)"
 			exit 1
-		else 
+		else
 			PATH_BWA=$(dirname $IS_BWA)
 		fi
 	fi
-	
-	
+
+
 	if [ -z "$vcffile" ] ; then
 		echo -e "...You must provide an output <file> : option -o (for help -h)..."
                 help
@@ -231,12 +231,12 @@ if [ -z "$samfile" ];then
               help
 		exit 1
 	fi
-	
+
 	if [ -z "$discoSNPs" ];then
 		echo "... Error : file disco is missing : option -p (for help -h)..."
               help
 		exit 1
-	else  	                
+	else
 		if [ ! -e $PATH_VCF_creator/remove_extensions_disco_file.py ];then
 			echo "...Unable to find remove_extensions_disco_file.py..."
 			exit 1
@@ -252,12 +252,12 @@ if [ -z "$samfile" ];then
 #		echo -e "\t##Default value for the number of mismatches allowed in alignment : 3 (to change it -n)"
 #		n=3
 #	fi
-###BWA 
+###BWA
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	#BWA files
        #Pierre: user gave a file name we must respect its choice.
-#	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf" 
+#	vcf=$(basename $vcffile .vcf)"_"$(basename $discoSNPs .fa)"_n"$n"_l"$l"_s"$s".vcf"
 	samfile=$(basename $discoSNPs .fa)"BWA_MEM".sam
 	indexamb=$genome".amb"
 	indexann=$genome".ann"
@@ -284,10 +284,10 @@ if [ -z "$samfile" ];then
 #        else
 		python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
 		echo -e "... Creation of the vcf file : done ...==> $vcffile"
-       # fi       
+       # fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-	
+
 else
        ####Skip alignment phase to create a vcf file
 ##Test to execute VCF_creator
@@ -306,13 +306,13 @@ else
 #		exit 1
 #	fi
 	##Creation of the vcf file
-       
+
 	python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
 	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
 
-if [ $igv -eq 1 ] ; then 
-       $DIR/tools/create_IGV_compatible_VCF.sh $vcffile
+if [ $igv -eq 1 ] ; then
+       $DIR/create_IGV_compatible_VCF.sh $vcffile
        nameVCFIGV=$( basename $vcffile .vcf )
        python $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf
        cat tmp.vcf > $nameVCFIGV\_for_IGV.vcf
@@ -323,6 +323,4 @@ if [ $remove -eq 1 ];then
 	rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
 else
 	rm -f tmp.vcf $discoSNPsbis
-fi	
-
-
+fi
