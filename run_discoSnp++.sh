@@ -158,7 +158,7 @@ case $opt in
 	;;
 h)
 help
-exit
+exit 
 ;;
 
 r)
@@ -248,7 +248,7 @@ done
 if [ -z "$read_sets" ]; then
 	echo "You must provide at least one read set (-r)"
 help
-exit
+exit 1
 fi
 
 
@@ -288,7 +288,7 @@ if [[ "$useref" == "true" ]]; then
        if [ -z "$genome" ]; then
               echo "You can't use option -R without providing a reference genome (-G)"
               help
-              exit
+              exit 1
        fi
 
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
@@ -348,7 +348,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction"
-		exit
+		exit 1
 	fi
 
        T="$(($(date +%s)-T))"
@@ -373,7 +373,7 @@ ${kissnp2Cmd}
 if [ $? -ne 0 ]
 then
     echo "there was a problem with kissnp2"
-    exit
+    exit 1
 fi
 
 T="$(($(date +%s)-T))"
@@ -385,7 +385,7 @@ then
 echo -e -n "\t ending date="
 date
 echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
- exit
+ exit 
 fi
 
 
@@ -415,7 +415,7 @@ $kissreadsCmd
 if [ $? -ne 0 ]
 then
 echo "there was a problem with kissreads2":
-exit
+exit 1
 fi
 
 T="$(($(date +%s)-T))"
@@ -433,14 +433,14 @@ sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_
 if [ $? -ne 0 ]
 then
 echo "there was a problem with the result sorting."
-exit
+exit 1
 fi
 
 sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
 if [ $? -ne 0 ]
 then
 echo "there was a problem with the result sorting"
-exit
+exit 1
 fi
 
 rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
