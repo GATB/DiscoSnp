@@ -6,12 +6,12 @@ chmod +x run_discoSnp++.sh
 
 ############### QUICK START ##################
  * WITHOUT mapping results on a reference genome:
-       ./run_discoSnp++.sh -r fof.txt -T
+       ./run_discoSnp++.sh -r data_sample/fof.txt -T
  * WITH mapping results on a reference genome:
-       ./run_discoSnp++.sh -r fof.txt -T  -G data_sample/reference_genome.fa 
-       Warning: if bwa is not in you PATH, then add the option "-B path_to_bwa". For instance:    
+       ./run_discoSnp++.sh -r fof.txt -T  -G data_sample/reference_genome.fa
+       Warning: if bwa is not in you PATH, then add the option "-B path_to_bwa". For instance:
        ./run_discoSnp++.sh -r fof.txt -T  -G data_sample/reference_genome.fa -B /home/me/my_programs/bwa-0.7.12/
- * WITH mapping results on a reference genome AND using this reference genome for calling variants: 
+ * WITH mapping results on a reference genome AND using this reference genome for calling variants:
        ./run_discoSnp++.sh -r fof.txt -T  -G data_sample/reference_genome.fa -R
 
 ############### MORE DOCUMENTATION ###########

@@ -22,7 +22,7 @@
 option_cores_gatb=""
 option_cores_post_analysis=""
 
-Ttot="$(date +%s)" 
+Ttot="$(date +%s)"
 #### constant #####
 max_C=2147483647 #$((2**31-1))
 
@@ -53,8 +53,8 @@ EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
        read_file_names_bin=$EDIR/build/tools/read_file_names/read_file_names
        dbgh5_bin=$EDIR/build/ext/gatb-core/bin/dbgh5
-       kissnp2_bin=$EDIR/build/tools/kissnp2/kissnp2
-       kissreads2_bin=$EDIR/build/tools/kissreads2/kissreads2
+       kissnp2_bin=$EDIR/build/bin/kissnp2
+       kissreads2_bin=$EDIR/build/bin/kissreads2
 else # VERSION BINARY
        read_file_names_bin=$EDIR/bin/read_file_names
        dbgh5_bin=$EDIR/bin/dbgh5
@@ -70,7 +70,7 @@ chmod +x tools/*.sh run_discoSnp++.sh run_VCF_creator.sh 2>/dev/null # Usefull f
 
 
 useref=""
-genome="" 
+genome=""
 bwa_path_option=""
 bwa_distance=4
 
@@ -83,8 +83,8 @@ echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and
 echo "Version "$version
 echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
 echo -e "\tMANDATORY:"
-echo -e "\t\t -r read_file_of_files" 
-echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz" 
+echo -e "\t\t -r read_file_of_files"
+echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
 echo -e "\tDISCOSNP++ OPTIONS:"
 echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
@@ -130,20 +130,20 @@ case $opt in
        useref="true"
        output_coverage_option="-dont_output_first_coverage"
        ;;
-       
+
        a)
        max_ambigous_indel=$OPTARG
        ;;
-       
+
        s)
        option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
        echo ${option_max_symmetrical_crossroads}
        ;;
-       
+
 	t)
 	extend="-t"
 	;;
-	
+
 	T)
 	extend="-T"
 	;;
@@ -151,12 +151,12 @@ case $opt in
 	g)
 	remove=0
 	;;
-	
-	
+
+
 	n)
 	genotyping=""
 	;;
-	
+
 	l)
 	l=""
 	;;
@@ -222,18 +222,18 @@ D=$OPTARG
 	echo -e "use genome : $OPTARG" >&2
 	genome=$OPTARG
 	;;
-       
+
        M)
        echo "use M=$OPTARG" >&2
        M=$OPTARG
        ;;
-       
+
        u)
        echo "use at most $OPTARG cores" >&2
        option_cores_gatb="-nb-cores $OPTARG"
        option_cores_post_analysis="-t $OPTARG"
        ;;
-       
+
 \?)
 echo "Invalid option: -$OPTARG" >&2
 exit 1
@@ -278,7 +278,7 @@ then
 	h5prefix=${prefix}_k_${k}_c_${c_filename}_C_${C}
 else
 	h5prefix=${prefix}_k_${k}_c_${c_filename}
-	
+
 fi
 kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
 readsFilesDump=${prefix}_read_files_correspondance.txt
@@ -294,10 +294,10 @@ if [[ "$useref" == "true" ]]; then
               help
               exit
        fi
-              
+
        echo $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
-       
+
 fi
 cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 
@@ -340,15 +340,15 @@ if [ $remove -eq 1 ]; then
 fi
 
 if [ ! -e $h5prefix.h5 ]; then
-       T="$(date +%s)"      
+       T="$(date +%s)"
 	echo -e "\t############################################################"
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
-       
+
        graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose 0"
        echo ${graphCmd}
        ${graphCmd}
-       
+
 	if [ $? -ne 0 ]
 	then
 		echo "there was a problem with graph construction"
@@ -361,12 +361,12 @@ if [ ! -e $h5prefix.h5 ]; then
 else
 	echo -e "File $h5prefix.h5 exists. We use it as input graph"
        fi
-       
+
 
 ######################################################
 #################### KISSNP2   #######################
 ######################################################
-T="$(date +%s)"      
+T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
@@ -398,7 +398,7 @@ fi
 #################### KISSREADS                  #######################
 #######################################################################
 
-T="$(date +%s)" 
+T="$(date +%s)"
 echo
 echo -e "\t#############################################################"
 echo -e "\t#################### KISSREADS MODULE #######################"
@@ -418,7 +418,7 @@ $kissreadsCmd
 
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissreads2": 
+echo "there was a problem with kissreads2":
 exit
 fi
 
@@ -463,7 +463,7 @@ rm -f ${read_sets}_${kissprefix}_removemeplease
 #################### Deal with VCF ###############################
 #######################################################################
 
-T="$(date +%s)" 
+T="$(date +%s)"
 echo -e "\t###############################################################"
 echo -e "\t#################### CREATE VCF         #######################"
 echo -e "\t###############################################################"
