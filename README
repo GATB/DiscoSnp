@@ -1,5 +1,5 @@
 ############### FOR COMPILED VERSIONS  ##################
-chmod +x run_discoSnp++.sh
+chmod +x run_discoSnp++.sh test/*.sh scripts/*.sh
 
 ############### FOR NON COMPILED VERSIONS: COMPILE SOURCE CODES ##################
 sh INSTALL

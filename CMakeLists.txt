@@ -68,23 +68,28 @@ SET (CPACK_PACKAGE_VERSION              "${gatb-tool-version}")
 SET (CPACK_GENERATOR            "TGZ")
 SET (CPACK_SOURCE_GENERATOR     "TGZ")
 
-# We copy other stuff
+# We ignore unwanted files for the source archive
+SET (CPACK_SOURCE_IGNORE_FILES
+    "^${PROJECT_SOURCE_DIR}/\\.git/"     ;
+    "^${PROJECT_SOURCE_DIR}/\\.gitmodules" ;
+    "^${PROJECT_SOURCE_DIR}/\\.gitignore" ;
+    "^${PROJECT_SOURCE_DIR}/build/"  ;
+    "^${GATB_CORE_HOME}/\\.cproject" ;
+    "^${GATB_CORE_HOME}/\\.git/"     ;
+    "^${GATB_CORE_HOME}/\\.project"  ;
+    "^${GATB_CORE_HOME}/\\.gitignore"
+)
+
 # For creating the BINARY package we include the files we want
-#INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools                         DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DESTINATION .)
-INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data_sample                    DESTINATION .)
-#INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output_analyses                DESTINATION .)
+INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test                           DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts                        DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/compile_discoSnp++.sh          DESTINATION .)
-#INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt                 DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh              DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_VCF_creator.sh             DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README                         DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
 
-# For the source archive, we exclude some unwanted directories.
-# For creating the SOURCE package we should ignore some files
-SET (CPACK_SOURCE_IGNORE_FILES  ${CPACK_SOURCE_IGNORE_FILES} ".DS_Store" "/build" "../../cmake/Delivery.cmake" "genere_distrib.sh"  ".gitignore$" "doc/discoSnp_user_guide.odt" "doc/vcf_creator_user_guide.odt" "my_local_data" "donot_release" "simple_test.sh")
+# We include the "bin" tag into binary archive file name
+set (CPACK_PACKAGE_FILE_NAME  ${PROJECT_NAME}-${CPACK_PACKAGE_VERSION}-bin-${CMAKE_SYSTEM_NAME})
 
 # To be done at the end.
 INCLUDE (CPack)
