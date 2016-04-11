@@ -1,8 +1,8 @@
 ############### FOR COMPILED VERSIONS  ##################
 chmod +x run_discoSnp++.sh
 
-############### FOR NON COMPILED VERSIONS: COMPILATION OF SOURCES ##################
-./compile_discoSnp++.sh
+############### FOR NON COMPILED VERSIONS: COMPILE SOURCE CODES ##################
+sh INSTALL
 
 ############### QUICK START ##################
  * WITHOUT mapping results on a reference genome:
