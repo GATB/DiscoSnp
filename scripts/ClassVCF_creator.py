@@ -829,65 +829,71 @@ class INDEL(VARIANT):
                 #Finds the path identical to the reference
                 VARIANT.WhichPathIsTheRef(self,VCFObject)
                 posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
-                
-                if int(self.upper_path.mappingPosition)>0 and int(self.lower_path.mappingPosition)<=0:
-                        self.upper_path.boolRef=True
-                        self.lower_path.boolRef=False
-                elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)>0:
-                        self.upper_path.boolRef=False
-                        self.lower_path.boolRef=True
-                elif int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)<=0:
+                old_boolRef_Up=None
+                old_boolRef_Low=None
+                #In case of unmapped variant : we have to define a reference
+                if self.upper_path.boolRef==False and self.lower_path.boolRef==False: # case of unmapped variant
+                        old_boolRef_Up=False
+                        old_boolRef_Low=False
                         if self.smallestSequence==self.lower_path.seq:
                                 self.upper_path.boolRef=False
                                 self.lower_path.boolRef=True
                         else:
                                 self.upper_path.boolRef=True
-                                self.lower_path.boolRef=False 
+                                self.lower_path.boolRef=False         
                 #Checks if the insert corresponds to the upper path or to the lower path and the strand of mapping
-                if self.lower_path.boolRef==True and self.lower_path.boolReverse=="-1":
-                        self.lower_path.nucleo=self.insertReverse
-                        self.upper_path.nucleo=self.ntStartReverse
-                elif self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse=="."):
-                        self.lower_path.nucleo=self.insertForward
-                        self.upper_path.nucleo=self.ntStartForward
-                elif self.upper_path.boolRef==True and self.upper_path.boolReverse=="-1":
-                        self.upper_path.nucleo=self.insertReverse
-                        self.lower_path.nucleo=self.ntStartReverse
-                elif self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse=="."):
-                        self.upper_path.nucleo=self.insertForward
-                        self.lower_path.nucleo=self.ntStartForward             
-            ##Fills the VCF if the upper path is considered as the reference
-                if self.upper_path.boolRef==True:
-                        if len(self.upper_path.nucleo)==len(self.insertForward):
-                                self.upper_path.nucleoRef="."
-                                VCFObject.variantType="DEL"
+                # if the lower path or the upper path is the ref and if it is a reverse mapping : 
+                if (self.lower_path.boolRef==True and self.lower_path.boolReverse=="-1") or  (self.upper_path.boolRef==True and self.upper_path.boolReverse=="-1"): 
+                        if len(self.lower_path.seq)>len(self.upper_path.seq): #if the sequence of the upper path is the smallest 
+                                self.lower_path.nucleo=self.insertReverse
+                                self.upper_path.nucleo=self.ntStartReverse
                         else:
-                                self.upper_path.nucleoRef="."
-                                VCFObject.variantType="INS"
-                        if self.upper_path.mappingPosition>0:
-                                VCFObject.chrom=self.upper_path.listSam[2]
+                               self.upper_path.nucleo=self.insertReverse
+                               self.lower_path.nucleo=self.ntStartReverse 
+                #If the upper path or the lower path is the ref and if it is a reference mappind
+                elif (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
+                        if len(self.lower_path.seq)>len(self.upper_path.seq): #if the sequence of the upper path is the smallest :
+                                self.lower_path.nucleo=self.insertForward
+                                self.upper_path.nucleo=self.ntStartForward
                         else:
-                                VCFObject.chrom=self.upper_path.listSam[0].split("|")[0]    
-                        VCFObject.ref=self.upper_path.nucleo
-                        VCFObject.alt=self.lower_path.nucleo
-                        VCFObject.reverse=self.upper_path.boolReverse
-                        VCFObject.nucleoRef=self.lower_path.nucleoRef
-                elif self.lower_path.boolRef==True:
-                        if len(self.lower_path.nucleo)==len(self.insertForward):
-                                self.lower_path.nucleoRef="."
-                                VCFObject.variantType="DEL"
-                        else:
-                                self.lower_path.nucleoRef="."
-                                VCFObject.variantType="INS"
-                        if self.lower_path.mappingPosition>0:
-                                VCFObject.chrom=self.lower_path.listSam[2]
-                        else:
-                                VCFObject.chrom=self.lower_path.listSam[0].split("|")[0]  
-                        VCFObject.ref=self.lower_path.nucleo
-                        VCFObject.alt=self.upper_path.nucleo
-                        VCFObject.reverse=self.lower_path.boolReverse
-                        VCFObject.nucleoRef=self.lower_path.nucleoRef
-                if int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)<=0:
+                                self.upper_path.nucleo=self.insertForward
+                                self.lower_path.nucleo=self.ntStartForward                                      
+                #In case of mapped variant
+                if old_boolRef_Low==None and old_boolRef_Up==None: #In case of unmapped variant or too much soft clip we have an other way to fill vcf
+                        ##Fills the VCF if the upper path is considered as the reference
+                        if self.upper_path.boolRef==True:
+                                if len(self.upper_path.nucleo)==len(self.insertForward):
+                                        self.upper_path.nucleoRef="."
+                                        VCFObject.variantType="DEL"
+                                else:
+                                        self.upper_path.nucleoRef="."
+                                        VCFObject.variantType="INS"
+                                if self.upper_path.mappingPosition>0:
+                                        VCFObject.chrom=self.upper_path.listSam[2]
+                                else:
+                                        VCFObject.chrom=self.upper_path.listSam[0].split("|")[0]    
+                                VCFObject.ref=self.upper_path.nucleo
+                                VCFObject.alt=self.lower_path.nucleo
+                                VCFObject.reverse=self.upper_path.boolReverse
+                                VCFObject.nucleoRef=self.lower_path.nucleoRef
+                        ##Fills the VCF if the lower path is considered as the reference
+                        elif self.lower_path.boolRef==True:
+                                if len(self.lower_path.nucleo)==len(self.insertForward):
+                                        self.lower_path.nucleoRef="."
+                                        VCFObject.variantType="DEL"
+                                else:
+                                        self.lower_path.nucleoRef="."
+                                        VCFObject.variantType="INS"
+                                if self.lower_path.mappingPosition>0:
+                                        VCFObject.chrom=self.lower_path.listSam[2]
+                                else:
+                                        VCFObject.chrom=self.lower_path.listSam[0].split("|")[0]  
+                                VCFObject.ref=self.lower_path.nucleo
+                                VCFObject.alt=self.upper_path.nucleo
+                                VCFObject.reverse=self.lower_path.boolReverse
+                                VCFObject.nucleoRef=self.lower_path.nucleoRef
+                # Unmapped variants or too much soft clipped (=> the variant will be considered as unmapped)
+                if (int(self.upper_path.mappingPosition)<=0 and int(self.lower_path.mappingPosition)<=0) or (old_boolRef_Low==False and old_boolRef_Up==False):
                         if self.lower_path.boolRef==True:
                                 self.mappingPositionCouple=int(posUnmapped)
                         else:
