@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.6)
 ################################################################################
 SET (gatb-tool_VERSION_MAJOR 2)
 SET (gatb-tool_VERSION_MINOR 2)
-SET (gatb-tool_VERSION_PATCH 1)
+SET (gatb-tool_VERSION_PATCH 7)
 
 IF (DEFINED MAJOR)
     SET (gatb-tool_VERSION_MAJOR ${MAJOR})
@@ -85,7 +85,7 @@ INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DE
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test                           DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts                        DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh              DESTINATION .)
-INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README                         DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README.md                      DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
 
 # We include the "bin" tag into binary archive file name
