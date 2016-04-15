@@ -51,7 +51,7 @@ remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
-       read_file_names_bin=$EDIR/build/tools/read_file_names/read_file_names
+       read_file_names_bin=$EDIR/build/bin/read_file_names
        dbgh5_bin=$EDIR/build/ext/gatb-core/bin/dbgh5
        kissnp2_bin=$EDIR/build/bin/kissnp2
        kissreads2_bin=$EDIR/build/bin/kissreads2

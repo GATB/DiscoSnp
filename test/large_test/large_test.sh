@@ -1,9 +1,9 @@
 # Get and decompress the data
-#wget http://www.irisa.fr/symbiose/people/ppeterlongo/data_test_disco.zip 
-#unzip data_test_disco.zip
+wget http://www.irisa.fr/symbiose/people/ppeterlongo/data_test_disco.zip 
+unzip data_test_disco.zip
 
 # Create the file of file: 
-#ls humch1_00* > fof.txt
+ls humch1_00* > fof.txt
 
 #####################
 # Default option run: 
@@ -62,7 +62,7 @@ grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | gre
 grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
-       echo "*** Default option FAILURE:"
+       echo "*** With mapping on ref FAILURE:"
   echo "*** Test: FAILURE on diff headers of .vcf"
   exit 1
 fi
@@ -73,7 +73,7 @@ awk '!/#/'  ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf  | 
 awk '!/#/'  discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
-       echo "*** Default option FAILURE:"
+       echo "*** With mapping on ref FAILURE:"
   echo "*** Test: FAILURE on diff content of .vcf"
   exit 1
 fi
@@ -85,8 +85,8 @@ grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.v
 grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
-       echo "*** Default option FAILURE:"
-  echo "*** Test: FAILURE on diff headers of .vcf"
+       echo "*** With mapping on ref FAILURE:"
+  echo "*** Test: FAILURE on diff headers of for IGV .vcf"
   exit 1
 fi
 
@@ -96,8 +96,8 @@ awk '!/#/' ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.
 awk '!/#/' discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
-       echo "*** Default option FAILURE:"
-  echo "*** Test: FAILURE on diff content of .vcf"
+       echo "*** With mapping on ref FAILURE:"
+  echo "*** Test: FAILURE on diff content of for IGV .vcf"
   exit 1
 fi
 
