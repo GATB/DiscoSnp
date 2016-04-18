@@ -1,7 +1,7 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.2.5
-User's guide – March 2016
+v2.2.7
+User's guide – April 2016
 
 contact: pierre.peterlongo@inria.fr – remarks and questions: http://www.biostars.org/t/discosnp/
 Table of contents
@@ -30,22 +30,26 @@ Software discoSnp++ is designed for extracting  Single Nucleotide Polymorphism (
 Note that this tool is specially designed to use only a limited amount of memory (3 billions reads of size 100 can be treated with less that 6GB memory).
 The software is composed of three independent modules. The first module, kissnp2, detects SNPs and indels from read sets. The second module, kissreads2, enhances the kissnp2 results by computing per read set  and for each predicted polymorphism i/ its mean read coverage and ii/ the average (phred) quality of reads generating the polymorphism. The third module, VCF_creator generates a VCF file from the kissnp2/kissreads2 outputs. VCF_creator may use a reference file or not.
 Quick starting
-Download and uncompress the discoSnp++ 
-Compile programs: 
-“./compile_discoSnp++.sh”
+Download and uncompress the discoSnp++ from the discoSnp github page: 
+“https://github.com/GATB/DiscoSnp”
+Compile programs (for source versions): 
+“sh INSTALL”
 Run the simple example:
-./run_discoSnp++.sh -r fof.txt -T
+“./run_discoSnp++.sh -r test/fof.txt -T”
    	
 
 This creates a fasta file called discoRes_k_31_c_4_D_0_P_1_b_0_coherent.fa containing the found SNPs and a VCF file called  discoRes_k_31_c_auto_D_0_P_1_b_0_withlow_coherent.vcf containing the same variants in a VCF fashion.
-Download and install
-Download from discoSnp++ web page – http://colibread.inria.fr/discosnp/ . Please read and accept the license before downloading.
-Uncompress the downloaded package :
- 	# tar -xvzf DiscoSNP-[Version_number]-Source.tar.gz
-Get into the newly created discoSnp directory:
-	 # cd DiscoSNP-[Version_number]-Source
-Compile all three tools (graph creation, kissnp2, kissreads)
-		# ./compile_discoSnp++.sh
+Get a local copy of DiscoSnp source code
+git clone --recursive https://github.com/GATB/DiscoSnp.git
+  # compile the code an run a simple test on your computer
+cd DiscoSnp
+sh INSTALL
+Getting a binary stable release
+Binary release for Linux and Mac OSX are provided within the "Releases" tab on Github/DiscoSnp web pag (https://github.com/GATB/DiscoSnp)
+
+After downloading and extracting the content of the binary archive, please run the following command from DiscoSnp home directory:
+
+    chmod +x run_discoSnp++.sh test/*.sh scripts/*.sh
 
 Running discoSnp++
 The main script run_discoSnp++.sh automatically runs the three modules (1/ SNP detection; 2/ read coverage and quality computations; 3/ VCF creation). You will provide the following information:
