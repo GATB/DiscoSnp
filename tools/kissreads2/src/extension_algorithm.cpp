@@ -70,7 +70,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
     
     
-    the_prediction->number_mapped_reads[read_set_id]++;
+    __sync_fetch_and_add ( & the_prediction->number_mapped_reads[read_set_id],1);
     
     if ( quality.length()>0 ){
         if (the_reference_prediction->nbOfSnps>0) {
