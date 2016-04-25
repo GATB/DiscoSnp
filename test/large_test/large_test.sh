@@ -43,12 +43,12 @@ fi
 # Test the .vcf content
 awk '!/#/' ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > ref
 awk '!/#/' discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
-#diff created ref
-#if [ $? -ne 0 ] ; then
-#       echo "*** Default option FAILURE:"
-#  echo "*** Test: FAILURE on diff content of .vcf"
-#  exit 1
-#fi
+diff created ref
+if [ $? -ne 0 ] ; then
+ echo "*** Default option FAILURE:"
+ echo "*** Test: FAILURE on diff content of .vcf"
+ exit 1
+fi
 
 
 
