@@ -29,7 +29,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.2.6"
+version="2.2.8"
 read_sets="" # A file of file(s)
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -51,7 +51,7 @@ remove=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
-       read_file_names_bin=$EDIR/build/tools/read_file_names/read_file_names
+       read_file_names_bin=$EDIR/build/bin/read_file_names
        dbgh5_bin=$EDIR/build/ext/gatb-core/bin/dbgh5
        kissnp2_bin=$EDIR/build/bin/kissnp2
        kissreads2_bin=$EDIR/build/bin/kissreads2
