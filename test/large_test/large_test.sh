@@ -4,11 +4,16 @@ unzip data_test_disco.zip
 
 # Create the file of file: 
 ls humch1_00* > fof.txt
-
+ 
 #####################
 # Default option run: 
 #####################
 ../../run_discoSnp++.sh -r fof.txt -T
+if [ $? -ne 0 ] ; then
+       echo "*** Default option FAILURE:"
+  echo "*** discoSnp failure"
+  exit 1
+fi
 # Test the .fa 
 # The sequence ids and orders are not conserved due to parallelisation. This explains why we separate sequences from headers and why we remove ids
 grep -v ">" ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.fa | sort > ref
@@ -56,7 +61,11 @@ fi
 # With reference run (using previously created graph): 
 ######################################################
 ../../run_discoSnp++.sh -r fof.txt -T -G humch1_first_5M.fasta -g
-
+if [ $? -ne 0 ] ; then
+       echo "*** With mapping on ref FAILURE:"
+  echo "*** discoSnp failure"
+  exit 1
+fi
 # Test the .vcf headers 
 grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > ref
 grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
@@ -108,5 +117,9 @@ rm -f humch1_*
 rm -f fof.txt
 rm -f ref*
 
+
+echo "****************************"
+echo "***** ALL TESTS PASSED *****"
+echo "****************************"
 
 
