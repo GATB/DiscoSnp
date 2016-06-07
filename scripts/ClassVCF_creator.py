@@ -305,7 +305,8 @@ class VARIANT():
                 table[8]=VCFObject.formatField
                 table[9]=VCFObject.genotypes
                 error=VCFObject.CheckOutputConsistency(table,self)
-                VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
+                if error == 0: 
+                        VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                                 
@@ -1108,8 +1109,9 @@ class SNPSCLOSE(VARIANT):
                         ID+=1
                         i+=1
                 error=VCFObject.CheckOutputConsistency(table,self)
-                for l in range(len(table)):
-                        VCFObject.PrintOneLine(table[l],VCFfile)        
+                if error == 0: 
+                        for l in range(len(table)):
+                                VCFObject.PrintOneLine(table[l],VCFfile)        
         
         
 #############################################################################################
@@ -1186,7 +1188,6 @@ class VCFFIELD():
                         print(" !!! Line where the error occured !!!")
                         print(VARIANT.upper_path.listSam)
                         print(VARIANT.lower_path.listSam)
-                        sys.exit(2)
                 else : return (error)                                   
                                 
                 
