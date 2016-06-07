@@ -899,6 +899,8 @@ class INDEL(VARIANT):
                                 self.mappingPositionCouple=int(posUnmapped)
                         else:
                                 self.mappingPositionCouple=int(posUnmapped)
+                        if self.upper_path.nucleo==None: print "HEY self.upper_path.nucleo is NONE"
+                        if self.insertForward==None: print "Hey self.insertForward is NONE"
                         if len(self.upper_path.nucleo)==len(self.insertForward):
                                 VCFObject.chrom=self.upper_path.discoName.split("|")[0]
                                 self.upper_path.boolRef=True
