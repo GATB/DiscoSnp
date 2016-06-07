@@ -852,7 +852,8 @@ class INDEL(VARIANT):
                                self.upper_path.nucleo=self.insertReverse
                                self.lower_path.nucleo=self.ntStartReverse 
                 #If the upper path or the lower path is the ref and if it is a reference mappind
-                elif (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
+                # 7/6/2016: CL and PP: changed this elif for the else. Avoids an issue with self.upper_path.nucleo not initialized. Large tests results are the same. 
+                else:#if (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
                         if len(self.lower_path.seq)>len(self.upper_path.seq): #if the sequence of the upper path is the smallest :
                                 self.lower_path.nucleo=self.insertForward
                                 self.upper_path.nucleo=self.ntStartForward
@@ -899,8 +900,6 @@ class INDEL(VARIANT):
                                 self.mappingPositionCouple=int(posUnmapped)
                         else:
                                 self.mappingPositionCouple=int(posUnmapped)
-                        if self.upper_path.nucleo==None: print "HEY self.upper_path.nucleo is NONE"
-                        if self.insertForward==None: print "Hey self.insertForward is NONE"
                         if len(self.upper_path.nucleo)==len(self.insertForward):
                                 VCFObject.chrom=self.upper_path.discoName.split("|")[0]
                                 self.upper_path.boolRef=True
