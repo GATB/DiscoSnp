@@ -270,11 +270,13 @@ if [ -z "$samfile" ];then
 	if [ -e $indexamb ] && [ -e $indexann ] && [ -e $indexbwt ] && [ -e $indexpac ] && [ -e $indexsa ]; then
 		echo -e "...Indexation : Using the existing index..."
 	else
+              echo "INDEXATION:  $PATH_BWA/bwa index $genome"
 		$PATH_BWA/bwa index $genome
 	fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Alignment discosnps on the reference genome
+        echo "ALIGNMENT: $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile"
         $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
