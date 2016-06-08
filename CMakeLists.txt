@@ -83,7 +83,8 @@ SET (CPACK_SOURCE_IGNORE_FILES
 # For creating the BINARY package we include the files we want
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc                            DESTINATION .)
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test                           DESTINATION .)
-INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/scripts                        DESTINATION .)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.sh                   DESTINATION ./scripts)
+INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/scripts/*.py*                  DESTINATION ./scripts)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/run_discoSnp++.sh              DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/README.md                      DESTINATION .)
 INSTALL (FILES     ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE                        DESTINATION .)
