@@ -1,6 +1,6 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.2.8
+v2.2.X
 User's guide – April 2016
 
 contact: pierre.peterlongo@inria.fr – remarks and questions: http://www.biostars.org/t/discosnp/
