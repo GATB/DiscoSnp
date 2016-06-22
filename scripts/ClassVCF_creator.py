@@ -305,7 +305,8 @@ class VARIANT():
                 table[8]=VCFObject.formatField
                 table[9]=VCFObject.genotypes
                 error=VCFObject.CheckOutputConsistency(table,self)
-                VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
+                if error == 0: 
+                        VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                                 
@@ -851,7 +852,8 @@ class INDEL(VARIANT):
                                self.upper_path.nucleo=self.insertReverse
                                self.lower_path.nucleo=self.ntStartReverse 
                 #If the upper path or the lower path is the ref and if it is a reference mappind
-                elif (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
+                # 7/6/2016: CL and PP: changed this elif for the else. Avoids an issue with self.upper_path.nucleo not initialized. Large tests results are the same. 
+                else:#if (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
                         if len(self.lower_path.seq)>len(self.upper_path.seq): #if the sequence of the upper path is the smallest :
                                 self.lower_path.nucleo=self.insertForward
                                 self.upper_path.nucleo=self.ntStartForward
@@ -1108,8 +1110,9 @@ class SNPSCLOSE(VARIANT):
                         ID+=1
                         i+=1
                 error=VCFObject.CheckOutputConsistency(table,self)
-                for l in range(len(table)):
-                        VCFObject.PrintOneLine(table[l],VCFfile)        
+                if error == 0: 
+                        for l in range(len(table)):
+                                VCFObject.PrintOneLine(table[l],VCFfile)        
         
         
 #############################################################################################
@@ -1186,7 +1189,6 @@ class VCFFIELD():
                         print(" !!! Line where the error occured !!!")
                         print(VARIANT.upper_path.listSam)
                         print(VARIANT.lower_path.listSam)
-                        sys.exit(2)
                 else : return (error)                                   
                                 
                 
