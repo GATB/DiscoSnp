@@ -22,7 +22,3 @@ for line in file:
 
     # prints the line
     printOneline(splitted_line,VCFfile)
-    #for i in range(len(splitted_line)):
-    #    print splitted_line[i],
-    #    if i<len(splitted_line)-1:
-    #        print "\t",

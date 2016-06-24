@@ -248,11 +248,7 @@ if [ -z "$samfile" ];then
 			fi
 		fi
 	fi
-#	if [ -z "$n" ];then
-#		echo -e "\t##Default value for the number of mismatches allowed in alignment : 3 (to change it -n)"
-#		n=3
-#	fi
-###BWA
+
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	#BWA files
@@ -270,46 +266,32 @@ if [ -z "$samfile" ];then
 	if [ -e $indexamb ] && [ -e $indexann ] && [ -e $indexbwt ] && [ -e $indexpac ] && [ -e $indexsa ]; then
 		echo -e "...Indexation : Using the existing index..."
 	else
+              echo "INDEXATION:  $PATH_BWA/bwa index $genome"
 		$PATH_BWA/bwa index $genome
 	fi
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 	##Alignment discosnps on the reference genome
+        echo "ALIGNMENT: $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile"
         $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-	##Creation of the vcf file
-	# if [ -e $vcffile ]; then
-#               echo -e "...VCF file for this alignment already exists...==> $vcf"
-#        else
-		python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
-		echo -e "... Creation of the vcf file : done ...==> $vcffile"
-       # fi
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------
+
 
 else
        ####Skip alignment phase to create a vcf file
 ##Test to execute VCF_creator
         echo -e "...Skipping alignment phase..."
-#        if [ -z "$n" ];then
-#                echo -e " ...To do it you must provide the number of mismatch of the alignment..."
-#                echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
-#                exit 1
-#        fi
+
 	if [ -z "$vcffile" ] || [[ "$vcffile" =~ *.vcf ]]; then
 		echo -e "...You must provide an output <file>..."
 		exit 1
 	fi
-#	if [ -z "$n" ]; then
-#		echo -e "...You must provide the number of mismatch allowed during the alignment phase.."
-#		exit 1
-#	fi
-	##Creation of the vcf file
-
-	python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile #-n $n
-	echo -e "... Creation of the vcf file : done ...==> $vcffile"
 fi
+
+python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile 
+echo -e "... Creation of the vcf file: done ...==> $vcffile"
+
 
 if [ $igv -eq 1 ] ; then
        $DIR/create_IGV_compatible_VCF.sh $vcffile

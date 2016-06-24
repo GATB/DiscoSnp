@@ -48,6 +48,7 @@ output_coverage_option=""
 genotyping="-genotype"
 paired=""
 remove=1
+verbose=1
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
@@ -102,6 +103,7 @@ echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kiss
 echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
 echo -e "\t\t -n: do not compute the genotypes"
 echo -e "\t\t -u: max number of used threads"
+echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
 
 
 echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
@@ -120,7 +122,7 @@ echo "Any further question: read the readme file or contact us via the Biostar f
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:v:" opt; do
 case $opt in
        R)
        useref="true"
@@ -129,6 +131,10 @@ case $opt in
 
        a)
        max_ambigous_indel=$OPTARG
+       ;;
+       
+       v)
+       verbose=$OPTARG
        ;;
 
        s)
@@ -341,7 +347,7 @@ if [ ! -e $h5prefix.h5 ]; then
 	echo -e "\t#################### GRAPH CREATION  #######################"
 	echo -e "\t############################################################"
 
-       graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose 0"
+       graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose $verbose"
        echo ${graphCmd}
        ${graphCmd}
 
@@ -366,7 +372,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 
@@ -407,7 +413,7 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
-kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb"
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose"
 
 echo $kissreadsCmd
 $kissreadsCmd
