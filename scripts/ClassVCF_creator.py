@@ -612,20 +612,22 @@ class PATH():
         def RetrieveCoverage(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
                 if "C" in dicoIndex:
-                     for i in dicoIndex["C"]:   
-                         matchC=re.match(r'^C',self.discoName.split("|")[i])
-                         if matchC:
-                                self.listCoverage.append(self.discoName.split("|")[i].split('_')[1])
+                     spitted_input=self.discoName.split("|")
+                     for i in dicoIndex["C"]:
+                         # matchC=re.match(r'^C',spitted_input[i])
+                         if spitted_input[i][0]=='C':
+                                self.listCoverage.append(spitted_input[i].split('_')[1])
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                         
         def RetrieveQualityFQ(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
                 if "Q" in dicoIndex:
+                     spitted_input=self.discoName.split("|")
                      for i in dicoIndex["Q"]:   
-                         matchQ=re.match(r'^Q',self.discoName.split("|")[i])
-                         if matchQ:
-                             self.listFQQuality.append(self.discoName.split("|")[i].split('_')[1])
+                         # matchQ=re.match(r'^Q',self.discoName.split("|")[i])
+                         if spitted_input[i][0]=="Q":
+                             self.listFQQuality.append(spitted_input[i].split('_')[1])
                              
                 else : self.listFQQuality = ""                              
 #---------------------------------------------------------------------------------------------------------------------------
