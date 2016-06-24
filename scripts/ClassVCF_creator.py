@@ -294,11 +294,12 @@ class VARIANT():
 
                 table[5]="."
                 table[6]=VCFObject.filterField
+                table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
                 if VCFObject.XA:
-                        table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)+";"+"XA="+str(VCFObject.XA)
-                else:
-                        table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
-
+                        table[7]+=";"+"XA="+str(VCFObject.XA)
+                
+                #TODO: eviter ces replace.
+                #TODO global: pourquoi stocker les valeurs quand on peut les simplement afficher ?
                 table[7]=table[7].replace("None",".")
                 table[7]=table[7].replace("none",".")
                 table[7]=table[7].replace("=;","=.;")
@@ -417,6 +418,8 @@ class PATH():
         def RetrieveSeq(self,seq):
                 """Getter for sequence: fills path object"""
                 self.seq=seq        
+                
+                
         def RetrieveDicoMappingPosition(self):
                 """Retrieves for each path alignment information in a list ; retrieves a dictionary with all the positions of a path and the number of associated mismatch"""
                 variant=self.listSam
@@ -692,7 +695,6 @@ class PATH():
                 self.boolRef=boolRef
                 self.nucleoRef=nucleoRef
                 self.nucleo=nucleo
-                
                 return(dicoClose)                                                                           
 #############################################################################################
 #############################################################################################
@@ -1098,10 +1100,11 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(ID)
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
+                        table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+                        print table[line][7]
                         if VCFObject.XA:
-                                table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)+";"+"XA="+str(VCFObject.XA)
-                        else:
-                                table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+                                table[line][7]+=";"+"XA="+str(VCFObject.XA)
+                        #TODO: eviter ces "replace"
                         table[line][7]=table[line][7].replace("None",".")
                         table[line][7]=table[line][7].replace("none",".")
                         table[line][7]=table[line][7].replace("=;","=.;")
@@ -1146,7 +1149,7 @@ class VCFFIELD():
                         return()
                 for i in range(len(table)):
                         element=table[i]
-                        element=str(element).replace("None",".")
+                        element=str(element).replace("None",".") # TODO: peut on éviter ce nouveau 'replace'... ?
                         VCF.write((str(element)).strip())
                         if i<len(table)-1 and table[i+1]!="": VCF.write("\t")
                 VCF.write('\n')
@@ -1159,7 +1162,7 @@ class VCFFIELD():
                 previous_position=None
                 error=0
                 try:#Case of SNPs CLOSE
-                        for line in len(table):
+                        for line in len(table): # ATTENTION BUG ICI: CE 'FOR' NE FAIT RIEN (for line in range(len(table)) fait qq chose. J'ai essaye (pierre 22 juin 2016) mais ça leve une des erreurs.
                                 # Test if positions follow each other
                                 current_position=int(table[line][1])
                                 if previous_position:

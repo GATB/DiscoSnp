@@ -30,7 +30,6 @@ from ClassVCF_creator import *
 
 
 #Default value
-#nbMismatchBWA=3 #number of mismatch allowed for the alignment in BWA
 listName=[] #List from the file name used to create the VCF
 nbSnp=0 #number of SNP in the input file
 nbGeno=0 #number of genotype for every path
@@ -50,7 +49,6 @@ def usage():
     -f --output_filtered_SAM : if provided, a SAM file in which uncorrectly mapped prediction (corresponding to filter '.' in the provided VCF) are removed is output in this file.
     
     """
-#    -n --mismatch : number of differences allowed in the mapper (BWA)
     print(usage)
 ###OPTIONS 
 try:
@@ -71,19 +69,16 @@ for opt, arg in opts :
         fileName=arg
         if os.path.isfile(fileName):#checks if the file exists
                listNameFile=fileName.split(".")
-               if "BWA_OPT" in listNameFile[0]: #When the samfile is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
+               if "BWA_OPT" in listNameFile[0]: #When the stream_file is created by run_VCF_creator.sh ; it adds BWA_OPT to separate the name of the file and the BWA options
                        boolmyname=True #Boolean to know if the file name contains the option of BWA
                        listName=listNameFile[0].split("BWA_OPT") #Parsing of the file name listName[0] corresponds to the name of the discofile ; listName[1] corresponds to the bwa options
                        listName[1]=listName[1].replace("_", " ")
-               samfile=open(fileName,'r')
+               stream_file=open(fileName,'r')
         else : 
               print("!! No file :" +str(arg)+"!!")
               sys.exit(2)  
-    #elif opt in ("-n","--mismatch"):
-    #     nbMismatchBWA= arg
     elif opt in ("-o","--output"):
         if arg!=None:
-        #if ".vcf" in arg: (we don't care the out file name, user is free to call it foo.hey)
                 VCFFile = open(arg,'w')
         else :
                 print("!! No output !!")
@@ -105,11 +100,16 @@ PrintVCFHeader(VCFFile,listName,fileName,boolmyname)
 nbGeno=CounterGenotype(fileName)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
+#Generates the field index (first occurrence of "contig", and so on)
+fieldIndex=GetIndex(fileName)
 
+
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
 #Start to read the file two lines by two lines
-if ".sam" in fileName: #Checks if it's a samfile
+if ".sam" in fileName: #Checks if it's a stream_file
         while True:
-                line1=samfile.readline()   
+                line1=stream_file.readline()   
                 if not line1: break #End of file
                 if line1.startswith('@'):
                         if filtered_sam:
@@ -118,18 +118,18 @@ if ".sam" in fileName: #Checks if it's a samfile
                 while True:
                         listline1=line1.split("\t")  
                         if int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
-                                line1=samfile.readline()
+                                line1=stream_file.readline()
                         else:break
-                line2=samfile.readline() #Read couple of lines
+                line2=stream_file.readline() #Read couple of lines
                 while True:
                         listline2=line2.split("\t") 
                         if int(listline2[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
-                                line2=samfile.readline()
+                                line2=stream_file.readline()
                         else:break       
                 #Initializes variant object with the samline
                 #if InitVariant(line1,line2)[0]==1:
                 #        continue
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName) #Fills the object with the line of the samfile        
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) #Fills the object with the line of the stream_file        
                 if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                         sys.exit(1)
                 #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
@@ -147,19 +147,19 @@ if ".sam" in fileName: #Checks if it's a samfile
 
 elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
         while True:
-                line1=samfile.readline()
+                line1=stream_file.readline()
                 if not line1: break #End of file
-                seq1=samfile.readline() #Reads the seq associate to the SNP
-                line2=samfile.readline() #Reads a couple of line
-                seq2=samfile.readline()
+                seq1=stream_file.readline() #Reads the seq associate to the SNP
+                line2=stream_file.readline() #Reads a couple of line
+                seq2=stream_file.readline()
                 #Initializes variant object with the samline
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName) 
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) 
                 table=UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 
 
 VCFFile.close()
-samfile.close()
+stream_file.close()
 if filtered_sam:
     filtered_sam_file.close()
 
