@@ -1,5 +1,6 @@
 * 9/6/2016 2.2.9
 	+ Fixed a VCF creator bug
+	+ Optimizing VCF creator
 * 26/04/2016 2.2.8
 	+ Fixed a tiny kissread bug
 	+ Adding a continuous integration large test collection
