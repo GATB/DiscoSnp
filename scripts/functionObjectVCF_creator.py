@@ -33,7 +33,7 @@ def InitVariant(line1,line2,fileName,dicoIndex):
         else :
                 print("!!!!Undefined Variant!!!!")
                 return (1,1)                
-        variant_object.RetrieveDicoIndex(dicoIndex)                
+        variant_object.setDicoIndex(dicoIndex)                
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)

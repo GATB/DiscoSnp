@@ -79,9 +79,19 @@ class VARIANT():
                 self.dicoAllele={}#dictionnary of all the information from the header of discosnp++ : depending on the variant
                 self.mappingPositionCouple=0#mapping position of the bubble after correction
                 self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
+
+                self.char2char = dict() # for fast reverse complement computations
+                self.char2char['A'] = 'T'
+                self.char2char['T'] = 'A'
+                self.char2char['C'] = 'G'
+                self.char2char['G'] = 'C'
+                self.char2char['a'] = 't'
+                self.char2char['t'] = 'a'
+                self.char2char['c'] = 'g'
+                self.char2char['g'] = 'c'
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                           
-        def RetrieveDicoIndex(self,dicoIndex):
+        def setDicoIndex(self,dicoIndex):
                 """Gets a dictionnary with the position of each item in discoSnp header"""
                 self.dicoIndex=dicoIndex
 #---------------------------------------------------------------------------------------------------------------------------
@@ -128,9 +138,11 @@ class VARIANT():
                                else:                                     
                                         self.dicoGeno[listgeno[0]]=[listgeno[1]]  
 #---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------                                           
+#---------------------------------------------------------------------------------------------------------------------------              
+        
         def ReverseComplement(self,nucleotide):
                 """Take a sequence or a nucleotide and reverse it"""
+                return ''.join(self.char2char[c] for c in nucleotide)[::-1]
                 if len(nucleotide)==1:#nucleotide 
                         if nucleotide=="A": return "T"
                         if nucleotide=="T": return "A"
