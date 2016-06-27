@@ -306,10 +306,9 @@ class VARIANT():
 
                 table[5]="."
                 table[6]=VCFObject.filterField
-                table[7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(VCFObject.nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
+                table[7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(VCFObject.nucleoRef)+";Sd="+str(VCFObject.reverse)
                 if VCFObject.XA:
-                        table[7]+=";"+"XA="+str(VCFObject.XA)
-                
+                        table[7]+=";XA="+str(VCFObject.XA)
                 #TODO: eviter ces replace.
                 #TODO global: pourquoi stocker les valeurs quand on peut les simplement afficher ?
                 table[7]=table[7].replace("None",".")
@@ -345,14 +344,14 @@ class VARIANT():
                 if self.upper_path.boolRef==True:#Checks if the upper path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse :#if the mapping strand is the same on both path => returns the nucleotide
                                 return(nucleo)
-                        elif int(self.upper_path.boolReverse)==1 and self.lower_path.boolReverse==".":
+                        elif self.upper_path.boolReverse!="-1":
                                 return (nucleo) 
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return (self.ReverseComplement(nucleo))
                 elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
                                 return (nucleo)
-                        elif int(self.lower_path.boolReverse)==1 and self.upper_path.boolReverse==".":
+                        elif self.lower_path.boolReverse!="-1":
                                 return (nucleo)
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
                                 return (self.ReverseComplement(nucleo))
@@ -442,6 +441,7 @@ class PATH():
                 #Error list with mapping positions very close to the first position given by bwa
                 listerreur=set([(int(variant[3])-1),(int(variant[3])+1),(int(variant[3])+2),(int(variant[3])+3),(int(variant[3])-3),(int(variant[3])-2),int(variant[3])])
                 #Creation of a dict with mapping position associated with number of mismatch
+                
                 if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
                         for item in variant:
                                 if "XA" in item:
@@ -669,11 +669,11 @@ class PATH():
                                 self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject,self.listPosVariantOnPathToKeep[i])#Checks if the path is identical to the reference genome
                                 if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping so we have to check again if the mapping position
                                         break
-                                if int(self.boolReverse)==1 and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
+                                if self.boolReverse=="1" and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideForward[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                                                 self.nucleoRef=self.listNucleotideForward[i]
-                                elif int(self.boolReverse)==-1 and self.listNucleotideReverse!=[]:#If we are on the reverse strand => defines the nucleotide for the current snp or indel.
+                                elif self.boolReverse=="-1" and self.listNucleotideReverse!=[]:#If we are on the reverse strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideReverse[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                                                 self.nucleoRef=self.listNucleotideReverse[i]
@@ -1114,10 +1114,10 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(ID)
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
-                        table[line][7]="Ty="+str(VCFObject.variantType)+";"+"Rk="+str(self.rank)+";"+"UL="+str(self.unitigLeft)+";"+"UR="+str(self.unitigRight)+";"+"CL="+str(self.contigLeft)+";"+"CR="+str(self.contigRight)+";"+"Genome="+str(nucleoRef)+";"+"Sd="+str(VCFObject.reverse)
-                        print table[line][7]
+                        table[line][7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(nucleoRef)+";Sd="+str(VCFObject.reverse)
+                        # print table[line][7]
                         if VCFObject.XA:
-                                table[line][7]+=";"+"XA="+str(VCFObject.XA)
+                                table[line][7]+=";XA="+str(VCFObject.XA)
                         #TODO: eviter ces "replace"
                         table[line][7]=table[line][7].replace("None",".")
                         table[line][7]=table[line][7].replace("none",".")
