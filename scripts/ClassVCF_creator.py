@@ -345,14 +345,14 @@ class VARIANT():
                 if self.upper_path.boolRef==True:#Checks if the upper path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse :#if the mapping strand is the same on both path => returns the nucleotide
                                 return(nucleo)
-                        elif int(self.upper_path.boolReverse)==1 and self.lower_path.boolReverse==".":
+                        elif self.upper_path.boolReverse!="-1":
                                 return (nucleo) 
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return (self.ReverseComplement(nucleo))
                 elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
                                 return (nucleo)
-                        elif int(self.lower_path.boolReverse)==1 and self.upper_path.boolReverse==".":
+                        elif self.lower_path.boolReverse!="-1":
                                 return (nucleo)
                         elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
                                 return (self.ReverseComplement(nucleo))
@@ -669,11 +669,11 @@ class PATH():
                                 self.ReferenceChecker(listShift[i],listCorrectedPos[i],VCFObject,self.listPosVariantOnPathToKeep[i])#Checks if the path is identical to the reference genome
                                 if int(self.mappingPosition)<=0:# Case => variant considered as unmapped because of soft clipping so we have to check again if the mapping position
                                         break
-                                if int(self.boolReverse)==1 and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
+                                if self.boolReverse=="1" and self.listNucleotideForward!=[]:#If we are on the forward strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideForward[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                                                 self.nucleoRef=self.listNucleotideForward[i]
-                                elif int(self.boolReverse)==-1 and self.listNucleotideReverse!=[]:#If we are on the reverse strand => defines the nucleotide for the current snp or indel.
+                                elif self.boolReverse=="-1" and self.listNucleotideReverse!=[]:#If we are on the reverse strand => defines the nucleotide for the current snp or indel.
                                         self.nucleo=self.listNucleotideReverse[i]
                                         if self.nucleoRef==None:#If there is no reference nucleotide given by ReferenceChecker, it means that the variant is equal to the reference so we defined it !
                                                 self.nucleoRef=self.listNucleotideReverse[i]
