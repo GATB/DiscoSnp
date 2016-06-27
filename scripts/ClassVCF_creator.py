@@ -143,22 +143,22 @@ class VARIANT():
         def ReverseComplement(self,nucleotide):
                 """Take a sequence or a nucleotide and reverse it"""
                 return ''.join(self.char2char[c] for c in nucleotide)[::-1]
-                if len(nucleotide)==1:#nucleotide 
-                        if nucleotide=="A": return "T"
-                        if nucleotide=="T": return "A"
-                        if nucleotide=="C": return "G"
-                        return "C"
-                elif len(nucleotide)>1:#Sequence
-                        i=0
-                        listSeq=list(nucleotide)
-                        seq=''
-                        while i<len(listSeq):
-                                if seq!='':#adds the nucleotide to the already reversed sequence
-                                        seq=str(self.ReverseComplement(listSeq[i]))+seq
-                                else :#first nucleotide of the sequence
-                                        seq=str(self.ReverseComplement(listSeq[i]))
-                                i+=1
-                        return(seq)
+                # if len(nucleotide)==1:#nucleotide
+                #         if nucleotide=="A": return "T"
+                #         if nucleotide=="T": return "A"
+                #         if nucleotide=="C": return "G"
+                #         return "C"
+                # elif len(nucleotide)>1:#Sequence
+                #         i=0
+                #         listSeq=list(nucleotide)
+                #         seq=''
+                #         while i<len(listSeq):
+                #                 if seq!='':#adds the nucleotide to the already reversed sequence
+                #                         seq=str(self.ReverseComplement(listSeq[i]))+seq
+                #                 else :#first nucleotide of the sequence
+                #                         seq=str(self.ReverseComplement(listSeq[i]))
+                #                 i+=1
+                #         return(seq)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         def CheckContigUnitig(self,unitig,contig):
