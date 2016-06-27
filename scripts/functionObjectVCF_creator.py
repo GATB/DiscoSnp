@@ -70,11 +70,12 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         #variant_object.upper_path.RetrieveXA(vcf_field_object)
         #variant_object.lower_path.RetrieveXA(vcf_field_object)
         return(table)
+        
 #############################################################################################
 #############################################################################################
 def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         """Treatement of the couple of path without alignment"""
-        table = [0] * 10 #Creates a 10 cols array
+        
         seq1=seq1.rstrip('\n')
         seq2=seq2.rstrip('\n')
         #Gets the sequence of each path
@@ -95,6 +96,7 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
                 table=variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
         else:#Indel simple SNP
                 variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
+                table = [0]*10
         #Defines the mapping position for the couple        
         variant_object.RetrieveMappingPositionCouple()
         #Defines the genotype for the couple
