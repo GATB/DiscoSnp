@@ -348,7 +348,7 @@ class VARIANT():
                                 return (nucleo) 
                         if self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return (self.ReverseComplement(nucleo))
-                else #if self.lower_path.boolRef==True:#Checks if the lower path is the reference
+                elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
                                 return (nucleo)
                         if self.lower_path.boolReverse=="1" and self.upper_path.boolReverse==".":
