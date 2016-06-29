@@ -101,7 +101,7 @@ nbGeno=CounterGenotype(fileName)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 #Generates the field index (first occurrence of "contig", and so on)
-fieldIndex=GetIndex(fileName)
+fieldIndex,informationStored=GetIndex(fileName)
 
 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ if ".sam" in fileName: #Checks if it's a stream_file
                 #Initializes variant object with the samline
                 #if InitVariant(line1,line2)[0]==1:
                 #        continue
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) #Fills the object with the line of the stream_file        
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex,informationStored) #Fills the object with the line of the stream_file        
                 if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                         sys.exit(1)
                 #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
@@ -153,7 +153,7 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
                 line2=stream_file.readline() #Reads a couple of line
                 seq2=stream_file.readline()
                 #Initializes variant object with the samline
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) 
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex,informationStored) 
                 table=UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 

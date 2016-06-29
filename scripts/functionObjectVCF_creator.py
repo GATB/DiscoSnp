@@ -17,7 +17,7 @@ from ClassVCF_creator import *
 #      CheckAtDistanceXBestHits(upper_path,lower_path):"""Prediction validation : check if the couple is validated with only one mapping position """
 #      PrintVCFHeader(VCF,listName,fileName,boolmyname):    
 #############################################################################################
-def InitVariant(line1,line2,fileName,dicoIndex):
+def InitVariant(line1,line2,fileName,dicoIndex,informationStored):
         """Initialization of the variant by taking into account its type"""
         #Object Creation
         if "SNP" in line1 and "|nb_pol_1|" in line1:
@@ -32,7 +32,8 @@ def InitVariant(line1,line2,fileName,dicoIndex):
         else :
                 print("!!!!Undefined Variant!!!!")
                 return (1,1)                
-        variant_object.setDicoIndex(dicoIndex)                
+        variant_object.setDicoIndex(dicoIndex)
+        variant_object.setInformationStored(informationStored)
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)
@@ -124,6 +125,12 @@ def CounterGenotype(fileName):
 #############################################################################################
 #############################################################################################
 def GetIndex(fileName):
+       informationStored={}#indicates which fields are present among Genotypes/Unitigs/Contigs/Rank/Quality
+       informationStored["rank"]=False
+       informationStored["genotypes"]=False
+       informationStored["unitigs"]=False
+       informationStored["contigs"]=False
+       informationStored["qualities"]=False
        stream_file=open(fileName,'r')
        while True:                
                 line=stream_file.readline()
@@ -140,12 +147,16 @@ def GetIndex(fileName):
                         dicoIndex["C"]=[]
                 if "G1_" in line:
                         dicoIndex["G"]=[]
+                        informationStored["genotypes"]=True
                 if "Q1_" in line:
                         dicoIndex["Q"]=[]
+                        informationStored["qualities"]=True
                 if "unitig" in line:
                        dicoIndex["unitig"]=[]
+                       informationStored["unitigs"]=True
                 if "contig" in line :
-                       dicoIndex["contig"]=[]     
+                       dicoIndex["contig"]=[]
+                       informationStored["contigs"]=True
                 for i in range(len(listLine)):
                         if 'P_1' in listLine[i]:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
                                 dicoIndex["P_"]=int(i)                         
@@ -161,6 +172,7 @@ def GetIndex(fileName):
                                        dicoIndex["contig"].append(int(i)) 
                         elif "rank" in listLine[i]:
                                 dicoIndex["rank"]=int(i)
+                                informationStored["rank"]=True
                         elif "nb_pol" in listLine[i]:
                                 dicoIndex["nb_pol"]=int(i)                                                             
                         elif "G" in listLine[i]: #Gets the genotype and likelihood by samples
@@ -179,7 +191,7 @@ def GetIndex(fileName):
                 break
                                        
        stream_file.close()                              
-       return(dicoIndex)                     
+       return(dicoIndex,informationStored)                     
 
 #############################################################################################
 #############################################################################################

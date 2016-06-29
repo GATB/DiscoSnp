@@ -79,6 +79,7 @@ class VARIANT():
                 self.dicoAllele={}#dictionnary of all the information from the header of discosnp++ : depending on the variant
                 self.mappingPositionCouple=0#mapping position of the bubble after correction
                 self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
+                self.informationStored={}#indicates which fields are present among Genotypes/Unitigs/Contigs/Rank
 
                 self.char2char = dict() # for fast reverse complement computations
                 self.char2char['A'] = 'T'
@@ -94,6 +95,15 @@ class VARIANT():
         def setDicoIndex(self,dicoIndex):
                 """Gets a dictionnary with the position of each item in discoSnp header"""
                 self.dicoIndex=dicoIndex
+                
+                
+
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------                                           
+        def setInformationStored(self,informationStored):
+                """setter"""
+                self.informationStored=informationStored
+
 #---------------------------------------------------------------------------------------------------------------------------
 ##Example :SNP_higher_path_99|P_1:30_A/C|high|nb_pol_1|left_unitig_length_129|right_unitig_length_901|C1_0|C2_30|G1_1/1:744,116,6|G2_0/0:6,95,604|rank_1.00000
 #---------------------------------------------------------------------------------------------------------------------------                                           
@@ -119,19 +129,23 @@ class VARIANT():
                                 listP_=item.split(":")
                                 self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}
                 #Get unitig
-                if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
+                # if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
+                if self.informationStored["unitigs"]:
                         self.unitigLeft=discoList[self.dicoIndex["unitig"][0]].split("_")[3] 
                         self.unitigRight=discoList[self.dicoIndex["unitig"][1]].split("_")[3] 
                 #Get contig
-                if "contig" in self.dicoIndex and "contig" in headerVariantUp:
+                # if "contig" in self.dicoIndex and "contig" in headerVariantUp:
+                if self.informationStored["contigs"]:
                         self.contigLeft=discoList[self.dicoIndex["contig"][0]].split("_")[3] 
                         self.contigRight=discoList[self.dicoIndex["contig"][1]].split("_")[3] 
                 #Get rank
-                if "rank" in self.dicoIndex and "rank" in headerVariantUp:
+                if self.informationStored["rank"]:
+                # if "rank" in self.dicoIndex and "rank" in headerVariantUp:
                         self.rank=discoList[self.dicoIndex["rank"]].split('_')[1]
                 #Get nb_pol
                 self.nb_pol=int(discoList[self.dicoIndex["nb_pol"]].split('_')[2])
-                if "G" in self.dicoIndex and "G1" in headerVariantUp:
+                # if "G" in self.dicoIndex and "G1" in headerVariantUp:
+                if self.informationStored["genotypes"]:
                         for i in self.dicoIndex["G"]:
                                listgeno=discoList[i].replace("_",":").split(":")
                                if len(listgeno)>2:
