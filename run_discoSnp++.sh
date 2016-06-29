@@ -477,6 +477,7 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        if [ $? -ne 0 ]
        then
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+       exit 1
        fi
 else # A Reference genome is provided, vcf creator mode 2
        vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
@@ -486,6 +487,7 @@ else # A Reference genome is provided, vcf creator mode 2
        if [ $? -ne 0 ]
        then
        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+       exit 1
        fi
 fi
 

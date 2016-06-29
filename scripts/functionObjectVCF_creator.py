@@ -14,7 +14,6 @@ from ClassVCF_creator import *
 #      MappingTreatement(variant_object,vcf_field_object,nbGeno):
 #      UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):"""Fills VCFfile in ghost mode (from a fasta file)"""
 #      CounterGenotype(fileToRead)
-#      AddPosition(position,setPositions,delta)
 #      CheckAtDistanceXBestHits(upper_path,lower_path):"""Prediction validation : check if the couple is validated with only one mapping position """
 #      PrintVCFHeader(VCF,listName,fileName,boolmyname):    
 #############################################################################################
@@ -181,19 +180,7 @@ def GetIndex(fileName):
                                        
        stream_file.close()                              
        return(dicoIndex)                     
-#############################################################################################
-#position : current position to add at the ensemble
-#delta : minimum number of difference allowed between two positions
-#############################################################################################
-def AddPosition(position,setPositions,delta):#Not used
-        """Add a position to a set of positions only if the difference between the two is greater than delta"""
-        if len(setPositions)==0: #Case : it's the first position add to the set
-                setPositions.append(position)
-                return(setPositions)
-        if abs(position-setPositions[0])>delta: #Checks in the postions to test have a difference greatest than delta with the first position of the set
-                setPositions.append(position)
-                return(setPositions)
-        return(setPositions)
+
 #############################################################################################
 #############################################################################################
 def CheckAtDistanceXBestHits(upper_path,lower_path):
