@@ -339,24 +339,33 @@ class VARIANT():
                        self.mappingPositionCouple=int(self.lower_path.mappingPosition)+int(self.lower_path.correctedPos[0])+int(self.mappingPositionCouple)-1
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
-        def CheckStrandAndReverseNucleotide(self,nucleo):
+        def CheckStrandAndReverseNucleotideNONOPTIMIZED(self,nucleo):
                 """Reverse the alt nucleotide if it is needed"""
                 if self.upper_path.boolRef==True:#Checks if the upper path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse :#if the mapping strand is the same on both path => returns the nucleotide
                                 return(nucleo)
-                        elif self.upper_path.boolReverse!="-1":
+                        if self.upper_path.boolReverse=="1" and self.lower_path.boolReverse==".":
                                 return (nucleo) 
-                        elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
+                        if self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
                                 return (self.ReverseComplement(nucleo))
-                elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
+                else #if self.lower_path.boolRef==True:#Checks if the lower path is the reference
                         if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
                                 return (nucleo)
-                        elif self.lower_path.boolReverse!="-1":
+                        if self.lower_path.boolReverse=="1" and self.upper_path.boolReverse==".":
                                 return (nucleo)
-                        elif self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
+                        if self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
                                 return (self.ReverseComplement(nucleo))
                 else :
                         return (nucleo) 
+                        
+#---------------------------------------------------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------------------------------
+        def CheckStrandAndReverseNucleotide(self,nucleo):
+                """Reverse the alt nucleotide if it is needed"""
+                if self.upper_path.boolReverse!=self.lower_path.boolReverse:# if the mapping strand is different on both path => returns the reverse nuclotide
+                        return self.ReverseComplement(nucleo)
+                else :
+                        return nucleo 
 #---------------------------------------------------------------------------------------------------------------------------
 #Example of supplementary alignment
 #INDEL_higher_path_17964|P_1:30_10_8|low|nb_pol_1|left_unitig_length_346|right_unitig_length_815|C1_12|C2_1|G1_0/1:321,17,162|G2_1/1:848,120,10|rank_0.46189	0	gi|224384768|gb|CM000663.1|	191102952	60	52M	*	0	0	AAGAAAAAAGAAATAAAAAAAGAAAAAAAAACGAAATAGCCAGAAGGAATGA	*	NM:i:2	MD:Z:1G9C40	AS:i:45	XS:i:23
