@@ -42,7 +42,7 @@ def usage():
         Run VCF_creator
     ################################
     
-    -h --help : print this messagehttp://www.ufunk.net/food/dealer-de-sucre/
+    -h --help : print this message
     -s --sam_file : <file>.sam of the alignment
 
     -o --output : vcf file 
