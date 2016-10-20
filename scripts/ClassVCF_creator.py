@@ -657,7 +657,7 @@ class PATH():
                                 nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
                       if "MD" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
-                        print "!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?"
+                        print ("!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?")
                         sys.exit()
                       else:                                              
                         for field in self.listSam:

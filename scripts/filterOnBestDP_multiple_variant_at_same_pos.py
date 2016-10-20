@@ -25,7 +25,7 @@ while True:
                 line = vcf_for_igv.readline()
                 if not line: break
         if line.startswith("#"): #We just print the header
-                print line.rstrip()
+                print (line.rstrip())
                 continue
         list_line_same_pos.append(line) #list with all the lines 
         pos=int(line.split("\t")[1])  
@@ -61,9 +61,9 @@ while True:
                                                 DP_max=DP
         compt+=1
         if to_output:
-                print line_to_print.rstrip()   
+                print (line_to_print.rstrip())
         elif line_to_print :
-                print line_to_print.rstrip()
+                print (line_to_print.rstrip())
         if out:break         
 vcf_for_igv.close() 
 

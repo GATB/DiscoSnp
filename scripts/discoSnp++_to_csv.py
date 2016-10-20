@@ -64,7 +64,7 @@ while 1:
         i+=1
     sys.stdout.write( com2_tab[i][:-1]+",")
     
-    print data1_2,
+    print (data1_2,)
     
     
     
