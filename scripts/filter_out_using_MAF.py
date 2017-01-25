@@ -52,7 +52,7 @@ while True:
             break
     
     if to_output:
-        print comment1,path1,comment2,path2,
+        print (comment1,path1,comment2,path2,)
     
       
             

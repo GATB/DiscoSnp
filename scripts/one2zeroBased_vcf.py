@@ -10,7 +10,7 @@ VCFfile=open("VCFone2zeroBAsed.vcf","w")
 
 for line in file:
     if "#" == line[0]: 
-        print line, 
+        print (line,)
         continue
     line=line.rstrip('\n')
     #SNP_higher_path_3       117     3       C       G       .       .       Ty=SNP;Rk=1.00000;UL=86;UR=261;CL=.;CR=.;C1=124,0;C2=0,134      GT:DP:PL        0/0:124:10,378,2484     1/1:134:2684,408,10

@@ -2,8 +2,8 @@ import sys
 import gzip
 
 if len(sys.argv)<4:
-    print "This tool filters out discoSnp prediction whose number of read sets covering it is lower than a user defined threshold. A set covers a prediction if its coverage in at least one of the two alleles is higher than a user defined threshold"
-    print "python filter_out_using_ratio_of_covered_files.py \".fa from discoSnp\" \"number of sets threshold\" \"minimal coverage\""
+    print ("This tool filters out discoSnp prediction whose number of read sets covering it is lower than a user defined threshold. A set covers a prediction if its coverage in at least one of the two alleles is higher than a user defined threshold")
+    print ("python filter_out_using_ratio_of_covered_files.py \".fa from discoSnp\" \"number of sets threshold\" \"minimal coverage\"")
     sys.exit()
 
 
@@ -53,7 +53,7 @@ while True:
         if coverage_high[i]>=minimal_coverage or coverage_low[i]>=minimal_coverage: number_of_covered_sets+=1
     
     if 100*number_of_covered_sets/float(number_of_read_sets)>=ratio_threshold:
-        print comment1,path1,comment2,path2,
+        print (comment1,path1,comment2,path2,)
     
       
             
