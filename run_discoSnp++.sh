@@ -19,6 +19,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
 
+function myrealpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
+
 option_cores_gatb=""
 option_cores_post_analysis=""
 
@@ -296,8 +298,8 @@ if [[ "$useref" == "true" ]]; then
               help
               exit 1
        fi
-
-       echo $genome > ${read_sets}_${kissprefix}_removemeplease
+       
+       myrealpath $genome > ${read_sets}_${kissprefix}_removemeplease
        c_dbgh5="1,"$c
 
 fi
