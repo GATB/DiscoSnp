@@ -198,7 +198,14 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     if(gv.compute_genotypes){
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
-            char * geno_likelihood = genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
+            char * geno_likelihood;
+            if (!index.all_predictions[fragment_id]->read_coherent[read_set_id] && !index.all_predictions[fragment_id+1]->read_coherent[read_set_id]) {
+                geno_likelihood= (char *) malloc(9*sizeof(char)); test_alloc(geno_likelihood);
+                sprintf(geno_likelihood, "./.:.,.,.");
+            }
+            else {
+                geno_likelihood = genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
+            }
             sprintf(append, "G%d_%s|",read_set_id+1,geno_likelihood);
             free(geno_likelihood);
             strcat(genotypes,append);
@@ -254,10 +261,10 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
  * checks if at least one read set provide read coherency for a path.
  */
 inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets, GlobalValues & gv){
-    int i;
-    for(i=0;i<number_of_read_sets;i++){
+    int read_set_id;
+    for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 
-        if(fragment->read_coherent[i]) return true;
+        if(fragment->read_coherent[read_set_id]) return true;
         
     }
     return false;
@@ -281,7 +288,7 @@ void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoheren
     
     for(int i=0;i<index.all_predictions.size();i+=2){
         //        cout<<"HEY "<<one_coherent(index.all_predictions[i],gv.number_of_read_sets)<<" -- "<<one_coherent(index.all_predictions[i+1],gv.number_of_read_sets)<<endl; //DEB
-        if(one_coherent(index.all_predictions[i],gv.number_of_read_sets,gv) || one_coherent(index.all_predictions[i+1],gv.number_of_read_sets,gv))
+        if(one_coherent(index.all_predictions[i],gv.number_of_read_sets,gv) && one_coherent(index.all_predictions[i+1],gv.number_of_read_sets,gv))
         {
             index.nb_coherent++;
             print_couple_i(coherent_out, index, i, gv);
