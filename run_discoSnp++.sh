@@ -76,46 +76,46 @@ bwa_distance=4
 #######################################################################
 
 function help {
-echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
-echo "Version "$version
-echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
-echo -e "\tMANDATORY:"
-echo -e "\t\t -r read_file_of_files"
-echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
+       echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
+       echo "Version "$version
+       echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
+       echo -e "\tMANDATORY:"
+       echo -e "\t\t -r read_file_of_files"
+       echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
-echo -e "\tDISCOSNP++ OPTIONS:"
-echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-echo -e "\t\t -b value. "
-echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
-echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
-echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
-echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
-echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
-echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
-echo -e "\t\t -l: remove low complexity bubbles"
-echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
-echo -e "\t\t -t: extend found polymorphisms with unitigs"
-echo -e "\t\t -T: extend found polymorphisms with contigs"
-echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
-echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
-echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
-echo -e "\t\t -n: do not compute the genotypes"
-echo -e "\t\t -u: max number of used threads"
-echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+       echo -e "\tDISCOSNP++ OPTIONS:"
+       echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+       echo -e "\t\t -b value. "
+       echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
+       echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
+       echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
+       echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
+       echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+       echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+       echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
+       echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
+       echo -e "\t\t -l: remove low complexity bubbles"
+       echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
+       echo -e "\t\t -t: extend found polymorphisms with unitigs"
+       echo -e "\t\t -T: extend found polymorphisms with contigs"
+       echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
+       echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
+       echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+       echo -e "\t\t -n: do not compute the genotypes"
+       echo -e "\t\t -u: max number of used threads"
+       echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
 
 
-echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
+       echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
 
-echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
-echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
-echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
-echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
-echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
-echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
-echo -e "\t\t -h: Prints this message and exist"
-echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
+       echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
+       echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
+       echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+       echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
+       echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
+       echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
+       echo -e "\t\t -h: Prints this message and exist"
+       echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
 
@@ -123,138 +123,138 @@ echo "Any further question: read the readme file or contact us via the Biostar f
 #################### GET OPTIONS                #######################
 #######################################################################
 while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:v:" opt; do
-case $opt in
-       R)
-       useref="true"
-       output_coverage_option="-dont_output_first_coverage"
-       ;;
+       case $opt in
+              R)
+              useref="true"
+              output_coverage_option="-dont_output_first_coverage"
+              ;;
 
-       a)
-       max_ambigous_indel=$OPTARG
-       ;;
+              a)
+              max_ambigous_indel=$OPTARG
+              ;;
        
-       v)
-       verbose=$OPTARG
-       ;;
+              v)
+              verbose=$OPTARG
+              ;;
 
-       s)
-       option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
-       echo ${option_max_symmetrical_crossroads}
-       ;;
+              s)
+              option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
+              echo ${option_max_symmetrical_crossroads}
+              ;;
 
-	t)
-	extend="-t"
-	;;
+              t)
+              extend="-t"
+              ;;
 
-	T)
-	extend="-T"
-	;;
+              T)
+              extend="-T"
+              ;;
 
-	g)
-	remove=0
-	;;
-
-
-	n)
-	genotyping=""
-	;;
-
-	l)
-	l=""
-	;;
-h)
-help
-exit 
-;;
-
-r)
-echo "use read set: $OPTARG" >&2
-read_sets=$OPTARG
-;;
+              g)
+              remove=0
+              ;;
 
 
-b)
-echo "use branching strategy: $OPTARG" >&2
-b=$OPTARG
-;;
+              n)
+              genotyping=""
+              ;;
 
-p)
-echo "use prefix=$OPTARG" >&2
-prefix=$OPTARG
-;;
+              l)
+              l=""
+              ;;
+              h)
+              help
+              exit 
+              ;;
 
-k)
-echo "use k=$OPTARG" >&2
-k=$OPTARG
-;;
-
-
-P)
-echo "use P=$OPTARG" >&2
-P=$OPTARG
-;;
-
-c)
-echo "use c=$OPTARG" >&2
-c=$OPTARG
-;;
-
-C)
-echo "use C=$OPTARG" >&2
-C=$OPTARG
-;;
-
-d)
-echo "use d=$OPTARG" >&2
-d=$OPTARG
-;;
-
-D)
-echo "use D=$OPTARG" >&2
-D=$OPTARG
-;;
-
-	B)
-	echo -e "BWA directory: $OPTARG" >&2
-	bwa_path_option="-B "$OPTARG
-	;;
+              r)
+              echo "use read set: $OPTARG" >&2
+              read_sets=$OPTARG
+              ;;
 
 
-	G)
-	echo -e "use genome : $OPTARG" >&2
-	genome=$OPTARG
-	;;
+              b)
+              echo "use branching strategy: $OPTARG" >&2
+              b=$OPTARG
+              ;;
 
-       M)
-       echo "use M=$OPTARG" >&2
-       M=$OPTARG
-       ;;
+              p)
+              echo "use prefix=$OPTARG" >&2
+              prefix=$OPTARG
+              ;;
 
-       u)
-       echo "use at most $OPTARG cores" >&2
-       option_cores_gatb="-nb-cores $OPTARG"
-       option_cores_post_analysis="-t $OPTARG"
-       ;;
+              k)
+              echo "use k=$OPTARG" >&2
+              k=$OPTARG
+              ;;
 
-\?)
-echo "Invalid option: -$OPTARG" >&2
-exit 1
-;;
 
-:)
-echo "Option -$OPTARG requires an argument." >&2
-exit 1
-;;
-esac
+              P)
+              echo "use P=$OPTARG" >&2
+              P=$OPTARG
+              ;;
+
+              c)
+              echo "use c=$OPTARG" >&2
+              c=$OPTARG
+              ;;
+
+              C)
+              echo "use C=$OPTARG" >&2
+              C=$OPTARG
+              ;;
+
+              d)
+              echo "use d=$OPTARG" >&2
+              d=$OPTARG
+              ;;
+
+              D)
+              echo "use D=$OPTARG" >&2
+              D=$OPTARG
+              ;;
+
+              B)
+              echo -e "BWA directory: $OPTARG" >&2
+              bwa_path_option="-B "$OPTARG
+              ;;
+
+
+              G)
+              echo -e "use genome : $OPTARG" >&2
+              genome=$OPTARG
+              ;;
+
+              M)
+              echo "use M=$OPTARG" >&2
+              M=$OPTARG
+              ;;
+
+              u)
+              echo "use at most $OPTARG cores" >&2
+              option_cores_gatb="-nb-cores $OPTARG"
+              option_cores_post_analysis="-t $OPTARG"
+              ;;
+
+              \?)
+              echo "Invalid option: -$OPTARG" >&2
+              exit 1
+              ;;
+
+              :)
+              echo "Option -$OPTARG requires an argument." >&2
+              exit 1
+              ;;
+       esac
 done
 #######################################################################
 #################### END GET OPTIONS            #######################
 #######################################################################
 
 if [ -z "$read_sets" ]; then
-	echo "You must provide at least one read set (-r)"
-help
-exit 1
+       echo "You must provide at least one read set (-r)"
+       help
+       exit 1
 fi
 
 
@@ -268,8 +268,8 @@ fi
 rest=$(( $k % 2 ))
 if [ $rest -eq 0 ]
 then
-echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
-k=$(($k-1))
+       echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
+       k=$(($k-1))
 fi
 
 
@@ -277,9 +277,9 @@ fi
 c_filename=`echo ${c} | tr ',' '_'`
 if [ $C -ne $max_C ]
 then
-	h5prefix=${prefix}_k_${k}_c_${c_filename}_C_${C}
+       h5prefix=${prefix}_k_${k}_c_${c_filename}_C_${C}
 else
-	h5prefix=${prefix}_k_${k}_c_${c_filename}
+       h5prefix=${prefix}_k_${k}_c_${c_filename}
 
 fi
 kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
@@ -338,31 +338,31 @@ ${read_file_names_bin} -in $read_sets > $readsFilesDump
 #################### GRAPH CREATION  #######################
 ############################################################
 if [ $remove -eq 1 ]; then
-	rm -f $h5prefix.h5
+       rm -f $h5prefix.h5
 fi
 
 if [ ! -e $h5prefix.h5 ]; then
        T="$(date +%s)"
-	echo -e "\t############################################################"
-	echo -e "\t#################### GRAPH CREATION  #######################"
-	echo -e "\t############################################################"
+       echo -e "\t############################################################"
+       echo -e "\t#################### GRAPH CREATION  #######################"
+       echo -e "\t############################################################"
 
        graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose $verbose"
        echo ${graphCmd}
        ${graphCmd}
 
-	if [ $? -ne 0 ]
-	then
-		echo "there was a problem with graph construction"
-		exit 1
-	fi
+       if [ $? -ne 0 ]
+       then
+              echo "there was a problem with graph construction"
+              exit 1
+       fi
 
        T="$(($(date +%s)-T))"
        echo "Graph creation time in seconds: ${T}"
 
 else
-	echo -e "File $h5prefix.h5 exists. We use it as input graph"
-       fi
+       echo -e "File $h5prefix.h5 exists. We use it as input graph"
+fi
 
 
 ######################################################
@@ -378,8 +378,8 @@ ${kissnp2Cmd}
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2"
-    exit 1
+       echo "there was a problem with kissnp2"
+       exit 1
 fi
 
 T="$(($(date +%s)-T))"
@@ -387,11 +387,11 @@ echo "Bubble detection time in seconds: ${T}"
 
 if [ ! -f $kissprefix.fa ]
 then
- echo "No polymorphism predicted by discoSnp++"
-echo -e -n "\t ending date="
-date
-echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
- exit 
+       echo "No polymorphism predicted by discoSnp++"
+       echo -e -n "\t ending date="
+       date
+       echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+       exit 
 fi
 
 
@@ -408,7 +408,7 @@ echo -e "\t#############################################################"
 
 smallk=$k
 if (( $smallk>31 ))  ; then
-  smallk=31
+       smallk=31
 fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
@@ -420,8 +420,8 @@ $kissreadsCmd
 
 if [ $? -ne 0 ]
 then
-echo "there was a problem with kissreads2":
-exit 1
+       echo "there was a problem with kissreads2":
+       exit 1
 fi
 
 T="$(($(date +%s)-T))"
@@ -438,15 +438,15 @@ echo -e "\t###############################################################"
 sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
 if [ $? -ne 0 ]
 then
-echo "there was a problem with the result sorting."
-exit 1
+       echo "there was a problem with the result sorting."
+       exit 1
 fi
 
 sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
 if [ $? -ne 0 ]
 then
-echo "there was a problem with the result sorting"
-exit 1
+       echo "there was a problem with the result sorting"
+       exit 1
 fi
 
 rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
@@ -476,8 +476,8 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
        $vcfCreatorCmd
        if [ $? -ne 0 ]
        then
-       echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
-       exit 1
+              echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+              exit 1
        fi
 else # A Reference genome is provided, vcf creator mode 2
        vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
@@ -486,8 +486,8 @@ else # A Reference genome is provided, vcf creator mode 2
 
        if [ $? -ne 0 ]
        then
-       echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
-       exit 1
+              echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+              exit 1
        fi
 fi
 
