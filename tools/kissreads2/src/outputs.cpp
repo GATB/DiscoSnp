@@ -114,7 +114,7 @@ const double mylog10choose (const int n,const int k){
 }
 
 
-char * genotype_simple_model(const int c1, const int c2, const float err, const float prior_het){
+string genotype_simple_model(const int c1, const int c2, const float err, const float prior_het){
     
     // LIKELIHOOD
     double lik0 = c1*log10(1-err)+c2*log10(err)+mylog10choose(c1+c2,c1);
@@ -132,24 +132,27 @@ char * genotype_simple_model(const int c1, const int c2, const float err, const 
     lik2=floor(-10*lik2);
     
     // FORMATING RESULTS
-    char * append = (char *)malloc(sizeof(char)*2048); test_alloc(append);
-    char geno[4];
+//    char * append = (char *)malloc(sizeof(char)*2048); test_alloc(append);
+//    char geno[4];
+    stringstream geno;
     if (lik0<lik1 &&lik0<lik2){
-        sprintf(geno, "0/0");
+        geno<<"0/0";
     }
     else
     {
         
         if (lik1<lik0 && lik1<lik2){
-            sprintf(geno, "1/1");
+            geno<<"1/1";
         }
         
         else{
-            sprintf(geno, "0/1");
+            geno<<"0/1";
         }
     }
-    sprintf(append, "%s:%d,%d,%d",geno,(int)lik0,(int)lik2,(int)lik1);
-    return append;
+    stringstream append;
+    append<<geno.str()<<":"<<(int)lik0<<","<<(int)lik2<<","<<(int)lik1;
+//    sprintf(append, "%s:%d,%d,%d",geno,(int)lik0,(int)lik2,(int)lik1);
+    return append.str();
 }
 
 /**
@@ -192,23 +195,23 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     const float err = 0.01;
     const float prior_het = 1/(float)3;
     float rank = rank_phi_N(sum_up,sum_lo,gv.number_of_read_sets);
-    char genotypes[819200]; genotypes[0]='\0';
-    char append[160000];
+//    char genotypes[819200]; genotypes[0]='\0';
+    stringstream genotypes;//%[160000];
     
     if(gv.compute_genotypes){
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
-            char * geno_likelihood;
+            stringstream geno_likelihood;
             if (!index.all_predictions[fragment_id]->read_coherent[read_set_id] && !index.all_predictions[fragment_id+1]->read_coherent[read_set_id]) {
-                geno_likelihood= (char *) malloc(9*sizeof(char)); test_alloc(geno_likelihood);
-                sprintf(geno_likelihood, "./.:.,.,.");
+                geno_likelihood<<"./.:.,.,.";
             }
             else {
-                geno_likelihood = genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
+                geno_likelihood << genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
             }
-            sprintf(append, "G%d_%s|",read_set_id+1,geno_likelihood);
-            free(geno_likelihood);
-            strcat(genotypes,append);
+            genotypes<<"G"<<read_set_id+1<<"_"<<geno_likelihood.str()<<"|";
+//            sprintf(append, "G%d_%s|",read_set_id+1,geno_likelihood);
+//            free(geno_likelihood);
+//            strcat(genotypes,append);
         }
     }
     //    cout<<"genotypes"<<genotypes<<endl; //DEB
@@ -233,7 +236,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
         fasta_out<<"Q"<<read_set_id+1<<"_"<<avg_up[read_set_id]<<"|";
     }
-    fasta_out<<genotypes;
+    fasta_out<<genotypes.str();
     fasta_out<<"rank_"<<setprecision(5)<<rank;
     
     fasta_out<<sep<<index.all_predictions[fragment_id]->sequence.toString()<<sep;
@@ -246,7 +249,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
         fasta_out<<"Q"<<read_set_id+1<<"_"<<avg_lo[read_set_id]<<"|";
     }
-    fasta_out<<genotypes;
+    fasta_out<<genotypes.str();
     fasta_out<<"rank_"<<setprecision(5)<<rank;
     
     fasta_out<<sep<<index.all_predictions[fragment_id+1]->sequence.toString()<<endl;
