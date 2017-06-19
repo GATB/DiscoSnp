@@ -368,6 +368,8 @@ class VARIANT():
         def CheckStrandAndReverseNucleotide(self,nucleo):
                 """Reverse the alt nucleotide if it is needed"""
                 if self.upper_path.boolReverse!=self.lower_path.boolReverse:# if the mapping strand is different on both path => returns the reverse nuclotide
+                        if (str(self.upper_path.boolReverse)=="1" and self.lower_path.boolReverse==".") or (self.upper_path.boolReverse=="." and str(self.lower_path.boolReverse)=="1"):
+                                return nucleo # Case in which one of the two variants matched with a 2 or more indel, thus considered as non mapped. June 3017
                         return self.ReverseComplement(nucleo)
                 else :
                         return nucleo 
