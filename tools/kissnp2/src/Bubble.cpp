@@ -390,14 +390,8 @@ bool BubbleFinder::expand_heart(
         bubble.end[1] = node2;
 
         /** if the Bubble is truncated, it must be Canonical **/
-        if (graph.successors(node1).size()==0)
-        {
-            bubble.isCanonical = true ;
-        }
-        else
-        {
-           checkPath();
-        }
+        if (graph.successors(node1).size()==0) {bubble.isCanonical = true ;}
+        else {checkPath();}
 
         checkLowComplexity();
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
@@ -483,8 +477,18 @@ bool BubbleFinder::expand (
         checkNodesDiff (previousNode2, node2, successors[0].second);
         if (!checkPrevious)
         {
-            /** CHARLOTTE - if the two current nodes have no successors, the bubble is truncated */
-            if ((graph.successors(node1).size()==0) && (graph.successors(node2).size()==0)) {break;}
+            // CHARLOTTE - if the two current nodes have no successors, the bubble is truncated, we keep it
+            if ((graph.successors(node1).size()==0) && (graph.successors(node2).size()==0))
+            {
+                //We check that the last 3 nt are similar on the two truncated paths, in order to avoid confusion with overlapping indels
+                bool checkLastNucleotides=
+                graph.getNT(node1, sizeKmer-3)==graph.getNT(node2, sizeKmer-3) &&
+                graph.getNT(node1, sizeKmer-2)==graph.getNT(node2, sizeKmer-2) &&
+                graph.getNT(node1, sizeKmer-1)==graph.getNT(node2, sizeKmer-1);
+                
+                if (checkLastNucleotides) {break;}
+                else {return false;}
+            }
             else {return false;}
         }
 
@@ -509,7 +513,7 @@ bool BubbleFinder::expand (
 
 
 
-    /** We check if the bubble is truncated**/ //MODIFIED_CHARLOTTE --> faut-il faire un nouveau statut ?
+    /** We check if the bubble is truncated **/
     bool truncatedBubble = ((graph.successors(node1).size() == 0) && (graph.successors(node2).size() == 0));
 
 
