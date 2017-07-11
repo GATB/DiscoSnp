@@ -38,6 +38,7 @@
 #define STR_MAX_INDEL_SIZE                  "-D"
 #define STR_MAX_POLYMORPHISM                "-P"
 #define STR_MAX_SYMMETRICAL_CROSSROADS      "-max_symmetrical_crossroads"
+#define STR_RADSEQ                          "-x"
 
 
 /********************************************************************************/
@@ -225,8 +226,8 @@ protected:
     int max_indel_ambiguity;
 
     bool accept_low; // Option set: do we accept low complexity bubbles
+    bool accept_truncated_bubbles; //CHARLOTTE Option set: we accept truncated bubbles (for radseq sequencing)
     
-   
     std::queue<std::pair<Node,std::string> > breadth_first_queue;
     
     

@@ -31,6 +31,8 @@ l=10
 n=""
 s=0
 igv=0
+map_with_extensions=0
+
 function help {
        echo " ##############################"
        echo "   Run VCF_creator pipeline     "
@@ -39,7 +41,7 @@ function help {
        echo -e "##MODE 1: WITHOUT REFERENCE GENOME. Create a vcf file without alignment:"
        echo -e "\t\t./run_VCF_creator.sh -p <disco_file> -o <output> [-w]"
        echo -e "##MODE 2: ALIGNING AGAINST A REFERENCE GENOME:"
-       echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-w] "
+       echo -e "\t\t./run_VCF_creator.sh -G <ref> -p <disco_file> -o <output> [-B <path_bwa>] [-w] [-e]"
        echo -e "##MODE 3: USING A HOME MADE ALIGNMENT. Samfile from bwa already exists: "
        echo -e "\t\t./run_VCF_creator.sh -f <sam_file> -o <output> [-w]"
        echo
@@ -72,12 +74,13 @@ function help {
        echo -e "\t-t: bwa option: Number of threads (default=unlimited) "
        echo -e "\t-w: remove index files ( <.amb>, <.ann>, <.bwt>, <.pac>, <.sa>  )"
        echo -e "\t\t Optional"
+       echo -e "\t-e: Map SNP predictions with their extensions on reference genome"
 }
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hB:c:G:p:wIf:o:t:" opt; do
+while getopts "hB:c:G:p:wIef:o:t:" opt; do
        case $opt in
 
               t)
@@ -137,6 +140,12 @@ while getopts "hB:c:G:p:wIf:o:t:" opt; do
               echo -e "\t##Will create a vcf file for IGV : Sorting VCF by mapping positions and removing unmapped variants"
               igv=1
               ;;
+
+              e)
+              echo -e "\t##Predictions will be mapped with their extensions on reference genome"
+              map_with_extensions=1
+              ;;
+
 
               o)
               echo -e "\t##output : $OPTARG" >&2
@@ -247,7 +256,12 @@ if [ -z "$samfile" ];then
                      exit 1
               else
                      discoSNPsbis=$(basename $discoSNPs .fa)"bis.fasta"
-                     python $PATH_VCF_creator/remove_extensions_disco_file.py $discoSNPs $discoSNPsbis
+
+                     if [ $map_with_extensions -eq 1 ];then
+                            python $PATH_VCF_creator/keep_extensions_disco_file.py $discoSNPs $discoSNPsbis
+                     else
+                            python $PATH_VCF_creator/remove_extensions_disco_file.py $discoSNPs $discoSNPsbis
+                     fi
                      if [ -z "$discoSNPsbis" ];then
                             echo "...Error with the script remove_extensions_disco_file.py..."
                             exit 1

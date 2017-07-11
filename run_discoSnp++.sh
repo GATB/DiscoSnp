@@ -46,11 +46,13 @@ P=1 # number of polymorphsim per bubble
 option_max_symmetrical_crossroads=""
 l="-l"
 extend=""
+x=""
 output_coverage_option=""
 genotyping="-genotype"
 paired=""
 remove=1
 verbose=1
+e=""
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
@@ -106,6 +108,7 @@ function help {
        echo -e "\t\t -n: do not compute the genotypes"
        echo -e "\t\t -u: max number of used threads"
        echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+       echo -e "\t\t -rad: radseq optimization" #CHARLOTTE
 
 
        echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
@@ -117,6 +120,7 @@ function help {
        echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
        echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
        echo -e "\t\t -h: Prints this message and exist"
+       echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
        echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
@@ -124,7 +128,7 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnxeG:B:M:u:a:v:" opt; do
        case $opt in
               R)
               useref="true"
@@ -221,6 +225,9 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:v:" opt; do
               bwa_path_option="-B "$OPTARG
               ;;
 
+              x)
+              x="-x" ##CHARLOTTE
+              ;;
 
               G)
               echo -e "use genome : $OPTARG" >&2
@@ -230,6 +237,10 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnG:B:M:u:a:v:" opt; do
               M)
               echo "use M=$OPTARG" >&2
               M=$OPTARG
+              ;;
+
+              M)
+              e="-e"
               ;;
 
               u)
@@ -374,7 +385,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 
@@ -415,7 +426,7 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
-kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose"
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $x"
 
 echo $kissreadsCmd
 $kissreadsCmd
@@ -451,7 +462,7 @@ then
        exit 1
 fi
 
-rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
+#rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
 rm -f ${read_sets}_${kissprefix}_removemeplease
 
 #######################################################################
@@ -482,7 +493,7 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
               exit 1
        fi
 else # A Reference genome is provided, vcf creator mode 2
-       vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis"
+       vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis $e"
        echo $vcfCreatorCmd
        $vcfCreatorCmd
 

@@ -29,7 +29,7 @@
 
 
 void FragmentInfo::set_read_coherent(int read_file_id, GlobalValues gv){
-
+    
     int i;
     // V1: the whole fragment has to be k_read coherent or V2 where the last k positions have no influence on the coherency of the fragment.
     // V2 is appropriate for the cases where the fragment is the end of a sequence (transcript, chromosome) and thus, no read are "longer" than the sequence:
@@ -54,10 +54,27 @@ void FragmentInfo::set_read_coherent(int read_file_id, GlobalValues gv){
 #endif
     //        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<< " "<<gv.min_coverage[read_file_id]<<endl; //DEB
 
+    if (gv.radseq_option)
+    {
+        unsigned int ref_coverage=((unsigned int)local_coverage[0]);
+        if (ref_coverage<gv.min_coverage[read_file_id])
+        {
+            read_coherent[read_file_id]=false;
+            return;
+        }
+        
+        for(i=1;i<stop;i++)
+        {
+            if(((unsigned int)local_coverage[i])!=ref_coverage)
+                {read_coherent[read_file_id]=false; return;}
+        }
+    }
+
     for(i=0;i<stop;i++){
         if(((unsigned int)local_coverage[i])<gv.min_coverage[read_file_id])
-            {read_coherent[read_file_id]=false; return;}
+        {read_coherent[read_file_id]=false; return;}
     }
+        
     read_coherent[read_file_id]=true;
 }
 

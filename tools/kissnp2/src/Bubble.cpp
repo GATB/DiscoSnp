@@ -51,13 +51,11 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     /** We set attributes according to user choice. */
     accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
     authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-
     max_indel_size       = props->getInt (STR_MAX_INDEL_SIZE);
     max_indel_ambiguity  = props->getInt (STR_MAX_AMBIGOUS_INDELS);
     max_polymorphism     = props->getInt (STR_MAX_POLYMORPHISM);
     max_sym_branches     = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
-
-
+    accept_truncated_bubbles = props->get (STR_RADSEQ) != 0;
 
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
     max_recursion_depth=1000; // TODO: parameter?
@@ -111,7 +109,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     max_breadth          = bf.max_breadth;
     traversalKind        = bf.traversalKind;
     breadth_first_queue  = bf.breadth_first_queue;
-
+    accept_truncated_bubbles = bf.accept_truncated_bubbles;
 
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
@@ -390,8 +388,14 @@ bool BubbleFinder::expand_heart(
         bubble.end[1] = node2;
 
         /** if the Bubble is truncated, it must be Canonical **/
-        if (graph.successors(node1).size()==0) {bubble.isCanonical = true ;}
-        else {checkPath();}
+        if (graph.successors(node1).size()==0)
+        {
+            bubble.isCanonical = true ;
+        }
+        else
+        {
+           checkPath();
+        }
 
         checkLowComplexity();
         /** We check several conditions (the first path vs. its revcomp and low complexity). */
@@ -475,23 +479,7 @@ bool BubbleFinder::expand (
         bool checkPrevious =
         checkNodesDiff (previousNode1, node1, successors[0].first) &&
         checkNodesDiff (previousNode2, node2, successors[0].second);
-        if (!checkPrevious)
-        {
-            // CHARLOTTE - if the two current nodes have no successors, the bubble is truncated, we keep it
-            if ((graph.successors(node1).size()==0) && (graph.successors(node2).size()==0))
-            {
-                //We check that the last 3 nt are similar on the two truncated paths, in order to avoid confusion with overlapping indels
-                bool checkLastNucleotides=
-                graph.getNT(node1, sizeKmer-3)==graph.getNT(node2, sizeKmer-3) &&
-                graph.getNT(node1, sizeKmer-2)==graph.getNT(node2, sizeKmer-2) &&
-                graph.getNT(node1, sizeKmer-1)==graph.getNT(node2, sizeKmer-1);
-                
-                if (checkLastNucleotides) {break;}
-                else {return false;}
-            }
-            else {return false;}
-        }
-
+        if (!checkPrevious){return false;}
 
         local_extended_string1+=ascii(graph.getNT(successors[0].first,sizeKmer-1)); // extend upper sequence with new character
         local_extended_string2+=ascii(graph.getNT(successors[0].second,sizeKmer-1));// extend lower sequence with new character
@@ -509,15 +497,29 @@ bool BubbleFinder::expand (
         return false;
     }
 
-    bool dumped_bubble=false; //CHARLOTTE, DEPLACEMENT
+    bool dumped_bubble=false;
 
 
 
-    /** We check if the bubble is truncated **/
-    bool truncatedBubble = ((graph.successors(node1).size() == 0) && (graph.successors(node2).size() == 0));
-
-
-    if (truncatedBubble)
+    /** CHARLOTTE We check if the bubble is truncated**/
+    bool truncatedBubble = false;
+    
+    if(accept_truncated_bubbles)
+     {
+         if ((graph.successors(node1).size() == 0) && (graph.successors(node2).size() == 0))
+        {
+             //We check that the last 3 nt are similar on the two truncated paths, else the bubble is discarded
+             bool checkLastNucleotides=
+             graph.getNT(node1, sizeKmer-3)==graph.getNT(node2, sizeKmer-3) &&
+             graph.getNT(node1, sizeKmer-2)==graph.getNT(node2, sizeKmer-2) &&
+             graph.getNT(node1, sizeKmer-1)==graph.getNT(node2, sizeKmer-1);
+     
+            if (checkLastNucleotides) {truncatedBubble = true;}
+        }
+     }
+ 
+    
+     if (truncatedBubble)
     {
        /** We call expand_heart with a false nextnode **/
         Node notzero = Node(~0);
@@ -985,6 +987,7 @@ IProperties* BubbleFinder::getConfig () const
     props->add (1, "max_indel_size",     "%d", max_indel_size);
     props->add (1, "max_polymorphism", "%d", max_polymorphism);
     props->add (1, "low",              "%d", accept_low);
+    props-> add (1, "rad",              "%d", accept_truncated_bubbles);
     props->add (1, "traversal",        "%s", toString (traversalKind).c_str());
 
     return props;
