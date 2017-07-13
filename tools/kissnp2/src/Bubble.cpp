@@ -508,7 +508,7 @@ bool BubbleFinder::expand (
      {
          if ((graph.successors(node1).size() == 0) && (graph.successors(node2).size() == 0))
         {
-             //We check that the last 3 nt are similar on the two truncated paths, else the bubble is discarded
+             //We check that the last 3 nt are similar on the two truncated paths
              bool checkLastNucleotides=
              graph.getNT(node1, sizeKmer-3)==graph.getNT(node2, sizeKmer-3) &&
              graph.getNT(node1, sizeKmer-2)==graph.getNT(node2, sizeKmer-2) &&
