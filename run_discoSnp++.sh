@@ -239,7 +239,7 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnxeG:B:M:u:a:v:" opt; do
               M=$OPTARG
               ;;
 
-              M)
+              e)
               e="-e"
               ;;
 
