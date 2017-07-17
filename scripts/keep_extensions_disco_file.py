@@ -17,12 +17,19 @@ snp_file = open(fichier,"r")
 snp_discobis = open(output, "w")
 left_shift = 0
 
-def findShift(line):
+def findShift(line, mode):
     headerComp = line.split("\n")[0].split("|")
+    left_shift = 0
+    prefix = 'left_unitig'
+
+    if mode == 1: prefix = 'left_contig'
+
     for elt in headerComp:
-        if not elt.startswith("left"): continue
+
+        if not elt.startswith(prefix): continue
         left_shift = int(elt.split("_")[-1])
         break
+
     return left_shift
 
 def replacePos(snp, left_shift):
@@ -34,16 +41,35 @@ def replaceHeader(elt, left_shift):
         elt = ",".join([replacePos(snp, left_shift) for snp in elt.split(",")])
     return elt
 
+def contigOrUnitig():
+    #return 0 if unitig mode, 1 if contig mode
+    mode = 0
+
+    for line in snp_file:
+        headerComp = line.split("\n")[0].split("|")
+    
+        for elt in headerComp:
+            if not elt.startswith("left_contig"): continue
+            mode = 1
+            break
+
+    return mode
+
+
+mode = contigOrUnitig()
+
+#back to the first line
+snp_file.seek(0, 0)
 
 for line in snp_file:
     if not line.startswith(">"):
         snp_discobis.write(line.upper())
         continue
-        
-    left_shift = findShift(line)
+    
+    left_shift = findShift(line, mode)
 
     if left_shift == 0:
-        snp_discobis.write(">" + header)
+        snp_discobis.write(line)
         continue
 
     new_header = "|".join([replaceHeader(elt, left_shift) for elt in line.split("|")])
@@ -52,3 +78,7 @@ for line in snp_file:
 
 snp_file.close()
 snp_discobis.close()
+
+
+
+
