@@ -40,41 +40,49 @@ void FragmentInfo::set_read_coherent(int read_file_id, GlobalValues gv){
     //         °°°°°°°°°°°° read
 #ifdef KMER_SPANNING
     const int stop=upperCaseSequence.size()-gv.minimal_read_overlap;
-
+    
     //        cout<<"YYYY stop "<<stop<<" rfid "<<read_file_id<<endl; //DEB
     if(stop<=0){
-
+        
         if(local_coverage[0]<gv.min_coverage[read_file_id]) {read_coherent[read_file_id]=false; return;}
         read_coherent[read_file_id]=true; return;
-
+        
     }
-
+    
 #else
     const int stop=strlen(upperCaseSequence);
 #endif
     //        for(i=0;i<stop;i++) cout<<i<<"--"<<(unsigned int)local_coverage[read_file_id][i]<< " "<<gv.min_coverage[read_file_id]<<endl; //DEB
-
-    if (gv.radseq_option)
-    {
-        unsigned int ref_coverage=((unsigned int)local_coverage[0]);
-        if (ref_coverage<gv.min_coverage[read_file_id])
-        {
-            read_coherent[read_file_id]=false;
-            return;
+    
+    if (gv.radseq_option){
+        //depth should be homogenous along the prediction, we skip the 3 first and last bases in case of short indels in the read, resulting in different length of reads
+        
+        //we first check the extremities
+        for(i=0;i<3;i++){
+            if(((unsigned int)local_coverage[i])<gv.min_coverage[read_file_id])
+            {read_coherent[read_file_id]=false; return;}
+        }
+    
+        
+        for(i=stop-3;i<stop;i++){
+            if(((unsigned int)local_coverage[i])<gv.min_coverage[read_file_id])
+            {read_coherent[read_file_id]=false; return;}
         }
         
-        for(i=1;i<stop;i++)
-        {
+        //then the heart of the prediction
+        unsigned int ref_coverage=((unsigned int)local_coverage[2]);
+        
+        for(i=3;i<(stop-3);i++){
             if(((unsigned int)local_coverage[i])!=ref_coverage)
-                {read_coherent[read_file_id]=false; return;}
+            {read_coherent[read_file_id]=false; return;}
         }
     }
-
+    
     for(i=0;i<stop;i++){
         if(((unsigned int)local_coverage[i])<gv.min_coverage[read_file_id])
         {read_coherent[read_file_id]=false; return;}
     }
-        
+    
     read_coherent[read_file_id]=true;
 }
 

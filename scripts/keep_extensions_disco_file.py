@@ -74,7 +74,7 @@ for line in snp_file:
 
     new_header = "|".join([replaceHeader(elt, left_shift) for elt in line.split("|")])
 
-    snp_discobis.write(new_header)
+    snp_discobis.write(ınew_header)
 
 snp_file.close()
 snp_discobis.close()
