@@ -193,30 +193,30 @@ class VARIANT():
                 nmUp=None
                 nmLow=None
                 #Two paths mapped
-                if self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0:#Checks if both paths are mapped 
-                        nmUp=int(self.upper_path.dicoMappingPos[self.upper_path.mappingPosition][0]) #Distance with the reference for the snpUp
-                        nmLow=int(self.lower_path.dicoMappingPos[self.lower_path.mappingPosition][0]) #Distance with the reference for the snpLow
-                        if nmUp<nmLow: #Checks if the upper path has a distance with the reference smaller than the lower path
-                                self.lower_path.boolRef=False # Defines the boolean to know which path will be defined as reference
+                if self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0:             #Checks if both paths are mapped 
+                        nmUp=int(self.upper_path.dicoMappingPos[self.upper_path.mappingPosition][0])    #Distance with the reference for the snpUp
+                        nmLow=int(self.lower_path.dicoMappingPos[self.lower_path.mappingPosition][0])   #Distance with the reference for the snpLow
+                        if nmUp<nmLow:                                                                  #Checks if the upper path has a distance with the reference smaller than the lower path
+                                self.lower_path.boolRef=False                                           # Defines the boolean to know which path will be defined as reference
                                 self.upper_path.boolRef=True 
                                 self.lower_path.nucleoRef=self.upper_path.nucleoRef
                                 self.mappingPosition=self.upper_path.mappingPosition
-                        elif nmUp>nmLow :#Checks if the lower path has a distance with the reference smaller than the upper path
+                        elif nmUp>nmLow :                                                               #Checks if the lower path has a distance with the reference smaller than the upper path
                                 self.lower_path.boolRef=True
                                 self.upper_path.boolRef=False
                                 self.upper_path.nucleoRef=self.lower_path.nucleoRef
-                        elif nmUp==nmLow: #Checks if both path have the same number of difference
-                                if self.discoName.split("_")[0]!="INDEL": #In case of simple snp
-                                        if  self.upper_path.nucleo<self.lower_path.nucleo: #Checks the lexicographical order
+                        elif nmUp==nmLow:                                                               #Checks if both path have the same number of difference
+                                if self.discoName.split("_")[0]!="INDEL":                               #In case of simple snp
+                                        if  self.upper_path.nucleo<self.lower_path.nucleo:              #Checks the lexicographical order
                                                 self.lower_path.boolRef=False
                                                 self.upper_path.boolRef=True
                                                 self.lower_path.nucleoRef=self.upper_path.nucleoRef
                                                 self.mappingPosition=self.upper_path.mappingPosition
-                                        elif  self.upper_path.nucleo> self.lower_path.nucleo: #Checks the lexicographical order
+                                        elif  self.upper_path.nucleo> self.lower_path.nucleo:           #Checks the lexicographical order
                                                 self.lower_path.boolRef=True
                                                 self.upper_path.boolRef=False
                                                 self.upper_path.nucleoRef=self.lower_path.nucleoRef
-                                        else : #If none of the alleles is lexicographically less : checks the mapping position and keeps the lefmost position
+                                        else :                                                          #If none of the alleles is lexicographically less : checks the mapping position and keeps the lefmost position
                                                 if self.upper_path.mappingPosition<self.lower_path.mappingPosition:
                                                         self.lower_path.boolRef=False
                                                         self.upper_path.boolRef=True
@@ -225,7 +225,7 @@ class VARIANT():
                                                         self.lower_path.boolRef=True
                                                         self.upper_path.boolRef=False
                                                         self.upper_path.nucleoRef=self.lower_path.nucleoRef
-                                else: #In case of indel
+                                else:                                                                   #In case of indel
                                         if self.upper_path.mappingPosition<self.lower_path.mappingPosition: #Checks the mapping position and keeps the lefmost position
                                                 self.lower_path.boolRef=False
                                                 self.upper_path.boolRef=True
@@ -308,13 +308,14 @@ class VARIANT():
                 table[5]="."
                 table[6]=VCFObject.filterField
                 table[7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(VCFObject.nucleoRef)+";Sd="+str(VCFObject.reverse)
-                if VCFObject.XA:
+                if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                         table[7]+=";XA="+str(VCFObject.XA)
                 #TODO: eviter ces replace.
                 #TODO global: pourquoi stocker les valeurs quand on peut les simplement afficher ?
                 table[7]=table[7].replace("None",".")
                 table[7]=table[7].replace("none",".")
                 table[7]=table[7].replace("=;","=.;")
+                # print (table[7])
                 table[8]=VCFObject.formatField
                 table[9]=VCFObject.genotypes
                 error=VCFObject.CheckOutputConsistency(table,self)
@@ -402,43 +403,44 @@ class VARIANT():
 class PATH():
         """corresponds to one path of a discoSnp prediction"""
         def __init__(self,line):
-                self.listCoverage=[]#list of all the coverage by sample for the path
-                self.dicoMappingPos={}#dictionnary with all the mapping positions associated with their number of mismatches with the reference
-                self.listNucleotideReverse=[]#list of all the variant (snp) of the path on the reverse strand
-                self.listNucleotideForward=[]#list of all the variant (snp) of the path on the forward strand                
-                self.boolReverse=None#Boolean to know if the strand is reverse(-1) or forward(1)
-                self.posMut=None#MD tag of the samfile "MD:Z:5A10A0A25G17" =>  5A10A0A25G17
-                self.cigarcode=None#cigarcode of the samfile "61M"
-                self.boolRef=None#Boolean to know if the path is identical to the reference
-                self.nucleoRef=None #Nucleotide corresponding to the variant on the reference
-                self.nucleo=None #nucleotide corresponding of the variant on the path
-                self.listPosVariantOnPathToKeep=[]#list of the positions of all the variant on the in case of Reverse or Forward mapped path
-                self.listPosReverse=[]#mapping position(s) of the variant on the path (if it is mapped on the reverse strand)
-                self.listPosForward=[]#mapping position(s) of the variant on the path (if it is mapped on the forward strand)
-                self.correctedPos=0 #list or position of the mapping variant by taking into account the shift with the reference
-                self.listFQQuality=[] #string of all the quality scores of every variant
-                if ">" not in line:# Case of samfile
+                self.listCoverage=[]                                    #list of all the coverage by sample for the path
+                self.dicoMappingPos={}                                  #dictionnary with all the mapping positions associated with their number of mismatches with the reference
+                self.listNucleotideReverse=[]                           #list of all the variant (snp) of the path on the reverse strand
+                self.listNucleotideForward=[]                           #list of all the variant (snp) of the path on the forward strand                
+                self.boolReverse=None                                   #Boolean to know if the strand is reverse(-1) or forward(1)
+                self.posMut=None                                        #MD tag of the samfile "MD:Z:5A10A0A25G17" =>  5A10A0A25G17
+                self.cigarcode=None                                     #cigarcode of the samfile "61M"
+                self.boolRef=None                                       #Boolean to know if the path is identical to the reference
+                self.nucleoRef=None                                     #Nucleotide corresponding to the variant on the reference
+                self.nucleo=None                                        #nucleotide corresponding of the variant on the path
+                self.listPosVariantOnPathToKeep=[]                      #list of the positions of all the variant on the in case of Reverse or Forward mapped path
+                self.listPosReverse=[]                                  #mapping position(s) of the variant on the path (if it is mapped on the reverse strand)
+                self.listPosForward=[]                                  #mapping position(s) of the variant on the path (if it is mapped on the forward strand)
+                self.correctedPos=0                                     #list or position of the mapping variant by taking into account the shift with the reference
+                self.listFQQuality=[]                                   #string of all the quality scores of every variant
+                if ">" not in line:                                     # Case of samfile
                         self.listSam=line.rstrip('\r').rstrip('\n').split('\t')
                         self.discoName=self.listSam[0]
-                        self.seq=self.listSam[9]#gets the sequence of the path
-                        self.mappingPosition=abs(int(self.listSam[3])) #mapping position of the path
+                        self.seq=self.listSam[9]                        #gets the sequence of the path
+                        self.mappingPosition=abs(int(self.listSam[3]))  #mapping position of the path
                         self.RetrieveDicoMappingPosition()
                         self.CheckBitwiseFlag()
-                else:#Mode ghost fastafile
+                else:                                                   #Mode ghost fastafile
                        line=line.strip('>').split("\n")
                        line.pop()
-                       self.listSam=line#gets the sequence of the path
+                       self.listSam=line                                #gets the sequence of the path
                        self.discoName=self.listSam[0]
                        self.seq=""
-                       self.mappingPosition=0#mapping position of the path 
-                       self.boolReverse="."#We need to define the absence of strand           
+                       self.mappingPosition=0                           #mapping position of the path 
+                       self.boolReverse="."                             #We need to define the absence of strand           
 
         def RetrieveXA(self,VCFObject):
+                VCFObject.XA=""
                 for position,(NM,cigarcode) in self.dicoMappingPos.items():
                        if cigarcode!="":
-                                VCFObject.XA=str(position)+","
+                                VCFObject.XA+=str(position)+","
                 if VCFObject.XA:
-                        VCFObject.XA=VCFObject.XA.rstrip(',')             
+                        VCFObject.XA=VCFObject.XA.rstrip(',')
                             
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
@@ -452,27 +454,33 @@ class PATH():
                 variant=self.listSam
                 listXA=None
                 strXA=None
-                position=None
+                alternative_positions=None
                 nbMismatch=None
+                variant_position = abs(int(variant[3]))
+                variant_chromosome = variant[2]
                 #Error list with mapping positions very close to the first position given by bwa
-                listerreur=set([(int(variant[3])-1),(int(variant[3])+1),(int(variant[3])+2),(int(variant[3])+3),(int(variant[3])-3),(int(variant[3])-2),int(variant[3])])
+                # listerreur=set([(int(variant[3])-1),(int(variant[3])+1),(int(variant[3])+2),(int(variant[3])+3),(int(variant[3])-3),(int(variant[3])-2),int(variant[3])])
                 #Creation of a dict with mapping position associated with number of mismatch
                 
                 if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
                         for item in variant:
                                 if "XA" in item:
-                                        i=0
                                         #Parsing XA tag
-                                        listXA=item.split(';')
+                                        listXA=item.split(":")[2].split(';')
                                         strXA = ','.join(listXA)
                                         listXA = strXA.split(',')
                                         listXA.pop()
-                                        position=listXA[1:] #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]
-                        while i<len(position): #Runs through the list 4 by 4 to get all the positions 
-                                if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
-                                        self.dicoMappingPos[abs(int(position[i]))]=[int(position[i+2]), position[i+1]]#the position is associated to the number of mismatch in a dictionary
+                                        alternative_positions=listXA     #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]. pos_i may be negative, in case of revcomp mapping.
+                                        self.XA=item
+                                        break                #no need to search for XA in other fields
+                        i=1
+                        while i<len(alternative_positions): #Runs through the list 4 by 4 to get all the positions 
+                                if alternative_positions[i-1]==variant_chromosome and abs(int(alternative_positions[i])) > variant_position-4 and abs(int(alternative_positions[i]))<variant_position+4: continue #Checks if the position is not too close to the main one
+                                # if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
+                                self.dicoMappingPos[alternative_positions[i-1]+"_"+alternative_positions[i]]=[int(alternative_positions[i+2]), alternative_positions[i+1]]#the position is associated to the number of mismatch in a dictionary
                                 i+=4
-                if abs(int(variant[3]))>0:#adds the main mapping position to the dictionary of all mapping positions
+
+                if variant_position>0:#adds the main mapping position to the dictionary of all mapping positions
                       posMut,nbMismatch=self.GetTag()
                       #In case of mapped variant without MD TAG :
                       self.dicoMappingPos[abs(int(variant[3]))]=[int(nbMismatch),""]
@@ -1132,7 +1140,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][6]=VCFObject.filterField
                         table[line][7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(nucleoRef)+";Sd="+str(VCFObject.reverse)
                         # print table[line][7]
-                        if VCFObject.XA:
+                        if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                                 table[line][7]+=";XA="+str(VCFObject.XA)
                         #TODO: eviter ces "replace"
                         table[line][7]=table[line][7].replace("None",".")

@@ -66,8 +66,8 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         #Defines the genotype for the couple
         variant_object.RetrieveGenotypes(nbGeno,vcf_field_object)
         #Defines variant with multiple mapping : return the XA tag in the vcf file : case of multiply mapped variant
-        #variant_object.upper_path.RetrieveXA(vcf_field_object)
-        #variant_object.lower_path.RetrieveXA(vcf_field_object)
+        variant_object.upper_path.RetrieveXA(vcf_field_object)
+        variant_object.lower_path.RetrieveXA(vcf_field_object)
         return(table)
         
 #############################################################################################
@@ -254,6 +254,8 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
         VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">\n')
         VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
+        VCF.write('##INFO=<ID=XA,Number=0/1,Type=String,Description="Other mapping positions (chromosome_position). Position is negative in case of Reverse alignment. The position designs the starting position of the alignment, not the position of the variant itself.">\n')        
+        
         
 
         ##Creates the columns of the VCF File with all the fields + one field by genotypes/samples/individuals
