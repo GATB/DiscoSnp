@@ -349,7 +349,7 @@ if [ ! -e $h5prefix.h5 ]; then
        echo -e "\t#################### GRAPH CREATION  #######################"
        echo -e "\t############################################################"
 
-       graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -mphf none -verbose $verbose"
+       graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose"
        echo ${graphCmd}
        ${graphCmd}
 
