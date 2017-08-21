@@ -1,5 +1,5 @@
 # Get and decompress the data
-wget http://gatb-discosnp.gforge.inria.fr/data_test_disco.zip
+wget http://gatb-discosnp.gforge.inria.fr/data_test_disco.zip #(update = scp data_test_disco.zip ppeterlo@scm.gforge.inria.fr:/home/groups/gatb-discosnp/htdocs)
 unzip data_test_disco.zip
 
 # Create the file of file: 
