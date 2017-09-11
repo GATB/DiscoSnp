@@ -212,7 +212,39 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 
+######################################################
+#           test the radseq option (-x)              #
+######################################################
 
+../../run_discoSnp++.sh -r rad_option_test/fof_rad.txt -k 31 -b 2 -D 0 -P 4 -p radtest -t -x
+
+if [ $? -ne 0 ] ; then
+       echo "*** With truncated bubbles FAILURE:"
+       echo "*** discoSnp failure"
+       exit 1
+fi
+
+# Test the .fa
+# The sequence ids and orders are not conserved due to parallelisation. This explains why we separate sequences from headers and why we remove ids
+grep -v ">" rad_option_test/radref_k_31_c_auto_D_0_P_4_b_2_coherent.fa | sort -n > radref
+grep -v ">" radtest_k_31_c_auto_D_0_P_4_b_2_coherent.fa | sort -n > radtest
+diff radref radtest
+if [ $? -ne 0 ] ; then
+       echo "*** With truncated bubbles FAILURE:"
+       echo "*** Test: FAILURE on diff sequences of .fa"
+       exit 1
+fi
+
+grep ">" rad_option_test/radref_k_31_c_auto_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radref
+grep ">" radtest_k_31_c_auto_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radtest
+diff radref radtest
+if [ $? -ne 0 ] ; then
+       echo "*** With truncated bubbles FAILURE:"
+       echo "*** Test: FAILURE on diff headers of .fa"
+       exit 1
+fi
+
+rm radref radtest*
 
 
 

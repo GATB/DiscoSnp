@@ -72,7 +72,8 @@ Kissnp2::Kissnp2 () : Tool ("Kissnp2")
     
     getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_DEPTH,   "maximum depth for BFS",    false,  "200"));
     getParser()->push_back (new OptionOneParam (BubbleFinder::STR_BFS_MAX_BREADTH, "maximum breadth for BFS",  false,  "20"));
-    
+
+    getParser()->push_front (new OptionNoParam (STR_RADSEQ, "keep truncated bubbles, that have no successors on the 2 paths at the same position",  false));
 }
 
 /*********************************************************************

@@ -41,7 +41,7 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     /** We add options known by kissnp2. */
     
     getParser()->push_front (new OptionNoParam (STR_KISSREADS_GENOTYPE,             "Compute genotypes", false));
-    getParser()->push_front (new OptionNoParam (STR_KISSREADS_OUTPUT_FASTA,         "Output stnadart Fasta. By default the output is formatted especially for the discoSnp++ pipeline", false));
+    getParser()->push_front (new OptionNoParam (STR_KISSREADS_OUTPUT_FASTA,         "Output standart Fasta. By default the output is formatted especially for the discoSnp++ pipeline", false));
     
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_SIZE_SEEDS,          "Size of the used seeds (distinct from the size of k)",  false, "25"));
     getParser()->push_front (new OptionOneParam (STR_KISSREADS_INDEX_STRIDE,        "Index Stride", false, "2"));
@@ -55,7 +55,7 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_UNCOHERENT,         "Output uncoherent file name",                      false,"/dev/null"));
     getParser()->push_front (new OptionOneParam (STR_URI_READS_INPUT,               "Input reads",  true));
     getParser()->push_front (new OptionOneParam (STR_URI_PREDICTION_INPUT,          "Input predictions",  true));
-    
+    getParser()->push_front (new OptionNoParam (STR_RADSEQ,          "radseq option, homogeneous read depth along the prediction ",  false)); //CHARLOTTE
 }
 
 
@@ -117,11 +117,8 @@ void Kissreads2::execute ()
     
     gv.compute_genotypes=       props->get    (STR_KISSREADS_GENOTYPE) != 0;
     gv.standard_fasta=          props->get    (STR_KISSREADS_OUTPUT_FASTA) != 0;
-    
+    gv.radseq_option=           props->get    (STR_RADSEQ) != 0; //CHARLOTTE
     gv.set_mask_code_seed();
-    
-    
-    
     
     
     ofstream coherent_out;
