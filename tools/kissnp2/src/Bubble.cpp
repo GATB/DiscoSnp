@@ -149,7 +149,7 @@ BubbleFinder::~BubbleFinder ()
  ** REMARKS : DEPRECATED
  *********************************************************************/
 Node get_successors (const Graph& graph, Node& node, const int depth){
-    Graph::Vector<Node> successors = graph.successors (node);
+    GraphVector<Node> successors = graph.successors (node);
     if(successors.size() != 1) return Node(~0); // depth 1
     for (int d=2; d<depth; d++){
         successors = graph.successors (successors[0]);
@@ -262,7 +262,7 @@ void BubbleFinder::start_indel_prediction(){
                insert_size == found_del_size || // no need to try longer extension than the one already found.
                insert_size == max_indel_size      // no need to try longer extension than the maximal length
                ) continue;
-            Graph::Vector<Node> successors = graph.successors (current);
+            GraphVector<Node> successors = graph.successors (current);
             
             /** No branching authorized in the insertion mode. */
             if (successors.size()>1 && authorised_branching==0) {
@@ -303,7 +303,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
     DEBUG ((cout << "[BubbleSNPFinder::start] BRANCHING NODE " << graph.toString(node) << endl));
     DEBUG ((cout << "[BubbleSNPFinder::start] bubble.isCanonical " << bubble.isCanonical << endl));
     /** We compute the successors of the node. */
-    Graph::Vector<Node> successors = graph.successors((Node&)node);
+    GraphVector<Node> successors = graph.successors((Node&)node);
     DEBUG((cout << "successor size"<<successors.size()<<endl));
     if(successors.size()<2) return; // false branching (no extention in one or the other direction).
     for (size_t i=0; i<successors.size(); i++)
@@ -313,7 +313,7 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         // In case two or more branching nodes lead to the same extensions : (b1 -> s1 and b1 -> s2 and b2 -> s1 and b2 -> s2), then
         // we need to construct the bubble s1... s2... from only one of the two branching nodes b1 or b2.
         // We chose the smallest from all the possible starting nodes to start a bubble.
-        Graph::Vector<Node> predecessors = graph.predecessors (successors[i]);
+        GraphVector<Node> predecessors = graph.predecessors (successors[i]);
         
         if (predecessors.size()>1)
         {
@@ -461,7 +461,7 @@ bool BubbleFinder::expand (
 
     /****************************************************************************/
     /**************** OPTIMIZATION : AVOID RECURSIONS ***************************/
-    Graph::Vector < pair<Node,Node> > successors;
+    GraphVector < pair<Node,Node> > successors;
     while (true){
         if (checkBranching(node1,node2, sym_branches) == false) return false;       // no possibility to continue
         successors = graph.successors (node1, node2); // get next two nodes
@@ -494,7 +494,7 @@ bool BubbleFinder::expand (
     
     /** We get the common successors of node1 and node2. */
     /** Returns the successors of two nodes, ie with the same transition nucleotide from both nodes. */
-//    Graph::Vector < pair<Node,Node> > successors = graph.successors (node1, node2);
+//    GraphVector < pair<Node,Node> > successors = graph.successors (node1, node2);
     DEBUG((cout<<"successors size "<<successors.size()<<endl));
 
 
@@ -533,8 +533,8 @@ bool BubbleFinder::expand (
     /** Maybe we can search for a close SNP */
     if (nb_polymorphism < max_polymorphism && bubble.type==0) {
         DEBUG((cout<<"try with a new polymorphism ("<<nb_polymorphism<<") with node1.value "<<graph.toString(node1)<<" node2.value "<<graph.toString(node2)<<endl));
-        Graph::Vector < Node > successors1 = graph.successors (node1);
-        Graph::Vector < Node > successors2 = graph.successors (node2);
+        GraphVector < Node > successors1 = graph.successors (node1);
+        GraphVector < Node > successors2 = graph.successors (node2);
         
         /** We loop over the successors of the two nodes found with distinct extending nucleotides. */
         for (size_t i1=0; i1<successors1.size(); i1++){
@@ -577,8 +577,8 @@ void BubbleFinder::extend ()
     if (traversalKind != TRAVERSAL_NONE)
     {
         /** We ask for the predecessors of the first node and successors of the last node. */
-        Graph::Vector<Node> successors   = graph.successors   (bubble.end[0]);
-        Graph::Vector<Node> predecessors = graph.predecessors (bubble.begin[0]);
+        GraphVector<Node> successors   = graph.successors   (bubble.end[0]);
+        GraphVector<Node> predecessors = graph.predecessors (bubble.begin[0]);
         
         /** We need to reset branching nodes between extensions in case of overlapping extensions. */
         _terminator->reset ();
