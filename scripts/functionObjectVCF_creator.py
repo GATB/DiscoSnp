@@ -177,7 +177,6 @@ def GetIndex(fileName):
                               if matchQ:
                                 dicoIndex["Q"].append(int(i))  
                 break
-                                       
        stream_file.close()                              
        return(dicoIndex)                     
 

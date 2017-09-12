@@ -104,8 +104,10 @@ class VARIANT():
                 discoList=headerVariantUp.split('|')#splitting the header of discosnp++ into a list
                 self.discoName=discoList[0]#fills the attribut discoName of the variant object
                 # print discoList
-                self.variantID=self.discoName.split("_")[3]#Gets the variantID ex:56468
-                VCFObject.variantType=self.discoName.split("_")[0]#fills the VCF object with the variant type
+                self.variantID=self.discoName.split("_")[-1]#Gets the variantID ex:56468
+                if ("SNP" in self.discoName): VCFObject.variantType="SNP"
+                else: VCFObject.variantType="INDEL"
+                # VCFObject.variantType=self.discoName.split("_")[0]#fills the VCF object with the variant type
                 listgeno=[]#splitted informations by genotype contained in the header of discoSnp++
                 #Get dicoAllele P_1:30_A/G => {'P_1': ['30', 'A', 'G']} 
 
