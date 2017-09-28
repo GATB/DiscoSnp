@@ -310,7 +310,7 @@ class VARIANT():
                 table[5]="."
                 table[6]=VCFObject.filterField
                 table[7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(VCFObject.nucleoRef)+";Sd="+str(VCFObject.reverse)
-                if VCFObject.XA :#and VCFObject.filterField=="MULTIPLE":
+                if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                         table[7]+=";XA="+str(VCFObject.XA)
                 #TODO: eviter ces replace.
                 #TODO global: pourquoi stocker les valeurs quand on peut les simplement afficher ?
