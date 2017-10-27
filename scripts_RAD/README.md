@@ -1,0 +1,102 @@
+Directory containing all the scripts to post-process and filter discoSnpRad results
+-----------------------------------------------------------------------------------------------
+
+These scripts are made available on the [github of DiscoSNP++](https://github.com/GATB/DiscoSnp)
+
+1. Before clustering   
+
+    TODO
+    Removes variants with too many missing genotypes 
+
+2. Clustering
+
+    - **cpp file**: `quick_hierarchical_clustering.cpp`
+
+        -  From a .txt file containing pair of similar sequence informations, generate a .cluster. Each cluster is a connected component.
+
+        -   For instance, on text file
+
+            -   $$0:1 2$$  
+                $$2:0 3$$  
+                $$4:5 6$$
+
+            -   The output is  
+                $$0 1 2 3$$  
+                $$4 5 6$$
+
+        -   Compilation: `c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering `
+
+        -   Usage:    
+        ```./quick_hierarchical_clustering ${discofile}.txt > ${discofile}.cluster```
+
+    -   **script**:`clusters_and_fasta_to_fasta.py` :
+
+        -   From a .fa and a corresponding .cluster add a label to each header indicating from which cluster a variant comes from.  For instance
+
+            -   $$>SNP_higher_path_9996|P_1:30_C/T|high|nb_pol_1|...$$  
+            becomes
+
+            -   \>cluster_4635_size_10_SNP_higher_path_9996\|P_1:30_C/T\|high\|nb_pol_1\|...
+
+        -   usage :   
+        ```python clusters_and_fasta_to_fasta.py ${discofile}.fa ${discofile}.cluster > ${discofile_with_clusters.fa```
+
+3 **Filtering scripts** (after clustering):
+
+    1. script `filter_paralogs.py`:
+        - identifies variants (vcf lines) that have a fraction of heterozygous genotypes greater than `x` (not counting missing genotypes)
+        - removes variants (vcf lines) that belong to a cluster having a fraction of such variants greater than `y`
+        - Example : `x=0.1` and `y= 0.5` and if we consider a cluster to represent a locus. This filter removes loci that have more than 50% of the SNPs that have each more than 10% of heterozygous genotypes.
+        - Usage :   
+        ```python filter_paralogs.py vcf_file 0.1 0.5```
+
+    2. script `filter_rank_vcf.py`:
+        - removes variants with rank lower than a given threshold
+        - Usage :  
+        ```python filter_rank_vcf.py vcf_file 0.2```
+        - output file : `0.2rk_vcf_file`
+
+
+    3. script `filter_vcf_by_indiv_cov_and_max_missing.py`:
+        - replaces individual genotypes that have DP less than option `-c` by missing genotype `./.`
+        - removes variants (vcf lines) that have a fraction of missing genotypes greater than option `m` 
+        - outputs only SNP variants if option `-s`. 
+        - TODO : AJOUTER filtre sur la MAF `-f` (permettra d'éviter vcf_tools) 
+        - Usage :    
+        ```python filter_vcf_by_indiv_cov_and_max_missing.py  -i vcf_file -o output_file [-c min_cov -m max_missing -s] ```
+
+    From this step, scripts for STRUCTURE analyses :
+
+    4. script `1SNP_by_cluster.py`
+
+    5. format change script `vcf2structure.sh`
+
+
+- **Clustering scripts** :  
+
+
+
+== Clustering full process ==
+-----------------------------
+
+`ls ${discofile}.fa > ${discofile}.fof  `
+
+`short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${k} -a
+1 -l -p ${discofile}.txt`
+
+`./quick_hierarchical_clustering ${discofile}.txt > ${discofile}.cluster`
+
+`python3 clusters_and_fasta_to_fasta.py ${discofile}.fa ${discofile}.cluster >
+${discofile}_with_clusters.fa`
+
+`run_VCF_creator.sh -p ${discofile}_with_clusters.fa
+-o ${discofile}_with_clusters.vcf`
+
+**NB**: Then the `${discofile}_with_clusters.vcf` can be simply sorted to put
+together variants from each cluster.
+
+**Sources**:
+
+`short_read_connector.sh` from <https://github.com/GATB/short_read_connector>
+
+`run_VCF_creator.sh` from <https://github.com/GATB/DiscoSnp> (scripts directory)
