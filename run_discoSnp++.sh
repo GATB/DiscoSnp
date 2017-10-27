@@ -101,7 +101,7 @@ function help {
     echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
     echo -e "\t\t -l: remove low complexity bubbles"
     echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
-    echo -e "\t\t -t: extend found polymorphisms with unitigs"
+    echo -e "\t\t -t: extend found polymorphisms with unitigs - Forced usage when using discoSnpRad"
     echo -e "\t\t -T: extend found polymorphisms with contigs"
     echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
@@ -109,8 +109,8 @@ function help {
     echo -e "\t\t -n: do not compute the genotypes"
     echo -e "\t\t -u: max number of used threads"
     echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
-    echo -e "\t\t -x: variant detection radseq optimization" #CHARLOTTE
-    echo -e "\t\t -y: variant coverage radseq optimization" #CHARLOTTE
+    # echo -e "\t\t -x: variant detection radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
+    # echo -e "\t\t -y: variant coverage radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
 
 
     echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
@@ -122,7 +122,7 @@ function help {
     echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
     echo -e "\t\t -h: Prints this message and exist"
-    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
+    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions. - Forced usage when using discoSnpRad"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
