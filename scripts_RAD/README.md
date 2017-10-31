@@ -1,8 +1,8 @@
-#Directory containing all the scripts to post-process and filter discoSnpRad results
+# Directory containing all the scripts to post-process and filter discoSnpRad results
    
 These scripts are made available on the [github of DiscoSNP++](https://github.com/GATB/DiscoSnp)
 
-##Automatic pipeline   
+## Automatic pipeline   
 We propose an automatic pipeline that calls filtering and clustering scripts.   
 
    *  **Usage**: `sh discoRAD_finalization.sh discoSnpRAD_file  short_read_connector_path`   
@@ -17,8 +17,8 @@ We propose an automatic pipeline that calls filtering and clustering scripts.
    	* a log file reminds all filtering steps applied and the name of the output .vcf file
 	* a vcf file containing results of filtrations and clustering
 	
-##Details on each script   
-###1. Before clustering   
+## Details on each script   
+### 1. Before clustering   
   Removes variants with too many missing genotypes   
   
   *  **script** `filter_missgeno.py"
@@ -26,7 +26,7 @@ We propose an automatic pipeline that calls filtering and clustering scripts.
 	 * Usage: 
 	 `filter_missgeno.py file max_missing` (with max_missing in percent)
 
-###2. Clustering   
+### 2. Clustering   
   * cpp file `quick_hierarchical_clustering.cpp`
 
       *  From a .txt file containing pair of similar sequence informations, generate a .cluster. Each cluster is a connected component.
@@ -70,7 +70,7 @@ We propose an automatic pipeline that calls filtering and clustering scripts.
 	     
 	 
 
-###3. **Filtering scripts** (after clustering)   
+### 3. **Filtering scripts** (after clustering)   
 
    1. **script** `filter_paralogs.py`:
        * identifies variants (vcf lines) that have a fraction of heterozygous genotypes greater than `x` (not counting missing genotypes)

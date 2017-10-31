@@ -22,8 +22,8 @@
 
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 function myrealpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
-cmd="$EDIR/run_discoSnp++.sh "$@" -x -t -e"
-echo "I run discoSnp with following command line: " ${cmd}
+cmd="$EDIR/run_discoSnp++.sh "$@" -x -t -e -c 3 -b 1"
+echo "I run discoSnp++ with following command line: " ${cmd}
 ${cmd}
 
 #TODO: call automatically the clustering +radseq filters. 

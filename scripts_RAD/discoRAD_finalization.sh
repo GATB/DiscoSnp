@@ -62,7 +62,7 @@ python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}
 # Generate a .vcf file with clustering information
 ${EDIR}/../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf
 # Filter suspicious paralogous clusters
-python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}
+#python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}
 # Remove low ranked variants
 python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}
 # Sort the .vcf file
@@ -71,7 +71,7 @@ grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_cl
 python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf > ${original_disco}_with_sorted_formatted_clusters.vcf
 # Clean results
 mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf
-rm -f *ERASEME* 
+#rm -f *ERASEME* 
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
 echo
