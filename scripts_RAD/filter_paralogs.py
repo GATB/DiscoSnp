@@ -6,9 +6,9 @@ import sys
 
 #
 #input: disco.vcf
-#output : nouveau disco.vcf sans les SNP situés dans des clusters comportant plus de y% SNP hétérozygotes chez plus de x% individus
+#output : new disco.vcf without SNP located in clusters with more than y% SNP heterozygous in more than x% individuals
 #
-#utilisation : python filter_paralogs.py disco.vcf x y
+#Usage : python filter_paralogs.py disco.vcf x y
 #
 
 

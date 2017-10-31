@@ -24,7 +24,7 @@ def output_newvcf(vcf_file, rk_ref):
             new_vcf.write(line)
             continue
 
-        rk_exp = float(line.split("\t")[7].split(";")[1].split("=")[1])
+        rk_exp = float(line.split("Rk=")[1].split(";")[0])
         
        	if rk_exp <= rk_ref: continue
 
