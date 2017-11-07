@@ -45,34 +45,55 @@ max_indivs=0.5
 
 percent_missing=0.95
 # Filter missing data
-python3 ${EDIR}/filter_missgeno.py ${rawdiscofile} ${percent_missing}
-mv ${percent_missing}missing_${rawdiscofile_base}.fa ERASEME_${percent_missing}missing_${rawdiscofile_base}.fa
+cmd="python3 ${EDIR}/filter_missgeno.py ${rawdiscofile} ${percent_missing}"
+echo -e "\t\t$cmd"
+$cmd
+cmd="mv ${percent_missing}missing_${rawdiscofile_base}.fa ERASEME_${percent_missing}missing_${rawdiscofile_base}.fa"
+echo -e "\t\t$cmd"
+$cmd
 original_disco=ERASEME_${percent_missing}missing_${rawdiscofile_base}
-echo ${original_disco}
 # Simplify headers (for dsk purposes)
-cat ${original_disco}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${original_disco}_simpler.fa 
+cat ${original_disco}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${original_disco}_simpler.fa
 discofile=${original_disco}_simpler
 ls ${discofile}.fa > ${discofile}.fof
 # Compute sequence similarities
-${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}
+cmd="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}" 
+echo -e "\t\t$cmd"
+$cmd
 # Compute the clustering
-${EDIR}/quick_hierarchical_clustering ${discofile}.txt > ${discofile}.cluster
+cmd="${EDIR}/../build/bin/quick_hierarchical_clustering ${discofile}.txt > ${discofile}.cluster"
+echo -e "\t\t$cmd"
+$cmd  > ${discofile}.cluster
 # Generate a .fa file with clustering information
-python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster > ${original_disco}_with_clusters.fa
+cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster > ${original_disco}_with_clusters.fa"
+echo -e "\t\t$cmd"
+$cmd> ${original_disco}_with_clusters.fa
 # Generate a .vcf file with clustering information
-${EDIR}/../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf
+cmd="${EDIR}/../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
+echo -e "\t\t$cmd"
+$cmd
 # Filter suspicious paralogous clusters
-#python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}
+cmd=python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}
+echo -e "\t\t$cmd"
+$cmd
 # Remove low ranked variants
-python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}
+cmd="python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}"
+echo -e "\t\t$cmd"
+$cmd
 # Sort the .vcf file
 grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf > ${original_disco}_with_sorted_clusters.vcf; grep -v ^# ${original_disco}_with_clusters.vcf | sort >> ${original_disco}_with_sorted_clusters.vcf;
 # Format chromosome Names in the VCF
-python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf > ${original_disco}_with_sorted_formatted_clusters.vcf
+cmd="python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf > ${original_disco}_with_sorted_formatted_clusters.vcf"
+echo -e "\t\t$cmd"
+$cmd > ${original_disco}_with_sorted_formatted_clusters.vcf
 # Clean results
-mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf
+cmd="mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf"
+echo -e "\t\t$cmd"
+$cmd
 #rm -f *ERASEME* 
-sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
+cmd="sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt"
+echo -e "\t\t$cmd"
+$cmd
 
 echo
 echo "============================"

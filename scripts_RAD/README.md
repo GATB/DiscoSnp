@@ -10,9 +10,6 @@ We propose an automatic pipeline that calls filtering and clustering scripts.
 	* `short_read_connector_path` designs the directory where `short_read_connector`had been installed and compiled
    * **prerequisite**
    	* `short_read_connector` must have been downloaded and installed. [https://github.com/GATB/short_read_connector](https://github.com/GATB/short_read_connector)
-	* quick_hierarchical_clustering.cpp must have been compiled :
-		* **Linux:** `c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering`
-		* **Macos**  `clang++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering`
    * **output**
    	* a log file reminds all filtering steps applied and the name of the output .vcf file
 	* a vcf file containing results of filtrations and clustering
