@@ -43,7 +43,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.2.X"
+version="2.3.X"
 read_sets="" # A file of file(s)
 prefix="discoRad" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -125,7 +125,7 @@ function help {
     # echo -e "\t\t -y: variant coverage radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
 
 
-
+    echo 
     echo -e "\t\t -h: Prints this message and exist"
     # echo -e "\t\t -e: map SNP predictions on reference genome with their extensions. - Forced usage when using discoSnpRad"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"

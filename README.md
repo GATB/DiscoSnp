@@ -15,7 +15,7 @@ DiscoSnp is designed for discovering all kinds of SNPs (not only isolated ones),
 
 Uricaru R., Rizk G., Lacroix V., Quillery E., Plantard O., Chikhi R., Lemaitre C., Peterlongo P. (2014). [Reference-free detection of isolated SNPs](http://nar.oxfordjournals.org/content/43/2/e11). Nucleic Acids Research 43(2):e11.
 
-Peterlongo, P., Riou, C., Drezen, E., Lemaitre, C. (2017). [DiscoSnp ++ : de novo detection of small variants from raw unassembled read set(s).](http://doi.org/https://doi.org/10.1101/209965) Arxiv.
+Peterlongo, P., Riou, C., Drezen, E., Lemaitre, C. (2017). [DiscoSnp ++ : de novo detection of small variants from raw unassembled read set(s).](http://doi.org/https://doi.org/10.1101/209965) BioRxiv.
 
 ## DiscoSnp++ or DiscoSnpRad
 We propose a DiscoSnp++ adaptation for RAD-Seq data. A script, called `run_discoSnpRad.sh`, is adapted to this kind of data. See below for more details.
@@ -65,14 +65,11 @@ Run DiscoSnp WITH mapping results on a reference genome AND using this reference
 
 # User manual
 
-See 
-
-    doc/discoSnp_user_guide.pdf or doc/discoSnp_user_guide.txt
+See doc/discoSnp_user_guide.pdf or doc/discoSnp_user_guide.txt
 
 # DiscoSnpRad
-While using `run_discoSnpRad.sh` script, the main `run_discoSnp++.sh` is called, using options specific to RAD-Seq: branching strategy, kind of extensions, abundance threshold, and kind of bubbles to be found. 
+While dealing with RAD-Seq data,  `run_discoSnpRad.sh` script should be used. It uses options specific to RAD-Seq: branching strategy, kind of extensions, abundance threshold, and kind of bubbles to be found. Moreover, it clusters variants per locus by calling the `discoRAD_finalization.sh` pipeline. Cluster information is  reported in the final provided VCF file. 
 
-Moreover, a catalogue of scripts specific to RAD-Seq variant analyses are available in the `scripts_RAD` directory. Note that in this directory, a script, `discoRAD_finalization.sh`, pipelines elements of a classical RAD-Seq data analyse: variant clustering, rank filtering, missing data filtering, paralogous filtering, ...   
 A README file describes all scripts and the `discoRAD_finalization.sh` pipeline.
 
 # Contact

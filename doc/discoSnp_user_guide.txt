@@ -1,7 +1,7 @@
 ﻿discoSnp++
 Reference-free detection of SNPs and small indels
-v2.2.X
-User's guide – April 2016
+v2.3.X
+User's guide – November 2017
 
 contact: pierre.peterlongo@inria.fr – remarks and questions: http://www.biostars.org/t/discosnp/
 Table of contents
@@ -24,6 +24,7 @@ Read and accept the GNU AFFERO GENERAL PUBLIC LICENSE. See the LICENCE text file
 Publications
 R. Uricaru, G. Rizk, V. Lacroix, E. Quillery, O. Plantard, R. Chikhi, C. Lemaitre, and P. Peterlongo, “Reference-free detection of isolated SNPs.,” Nucleic acids research, vol. 33, pp. 1–11, Dec. 2014.
 C. Riou,  C. Lemaitre, and P. Peterlongo, “VCF_creator: Mapping and VCF Creation features in DiscoSnp++”. Poster at Jobim 2015
+Peterlongo, P., Riou, C., Drezen, E., Lemaitre, C. (2017). DiscoSnp ++ : de novo detection of small variants from raw unassembled read set(s). https://doi.org/10.1101/209965 BioRxiv.
 
 discoSnp++ features at a glance
 Software discoSnp++ is designed for extracting  Single Nucleotide Polymorphism (SNP) and small indels from raw set(s) of reads obtained with Next Generation Sequencers (NGS). 
@@ -216,3 +217,20 @@ Exemple of an indel:
 AGGCGACCGAGAAAATGGAGAACGTGCGCATCGCTGTTTATTAATGCCCGTTCGGCG
 >INDEL_lower_path_3756|P_1:30_8_3|high|nb_pol_1|C1_0|C2_42|C3_44|G1_0/0|G2_1/1|G3_1/1|rank_1.00000
 AGGCGACCGAGAAAATGGAGAACGTGCGCAAGCGGGCATCGCTGTTTATTAATGCCCGTTCGGCG
+
+DiscoSnpRad
+We propose a DiscoSnp++ version designed for dealing with RAD-Seq data. This version provides a way to detect variants located near start or end of a locus and it clusters variants per locus. 
+The script run_discoSnpRad.sh  replaces the script  run_discoSnp++.sh. This scripts needs a short_read_connector (https://github.com/GATB/short_read_connector) program instance installed. Run  run_discoSnpRad.sh with no argument or -h for more information.
+In the RAD-seq context, the VCF file contains the locus information for each variant. For instance: 
+…
+cluster_1000_size_16    .       SNP_higher_path_1369    C       T       .       .       Ty=SNP;Rk=0.64903;UL=71;UR=79;CL=.;CR=.;Genome=.;Sd=.   GT:DP:PL:AD:HQ  0/1:39:220,16,359:23,16:0,0     1/1:40:804,125,6:0,40:0,0
+cluster_1000_size_16    .       SNP_higher_path_2454    A       G       .       .       Ty=SNP;Rk=0.43869;UL=169;UR=49;CL=.;CR=.;Genome=.;Sd=.  GT:DP:PL:AD:HQ  0/1:38:203,17,363:23,15:0,0     0/0:34:10,91,649:33,1:0,0
+…
+Here two variants from a same locus are shown. 
+Cluster_1000 indicates the id of the cluster of these two variants
+size_16 indicates that this cluster contains 8 variants (should be divided by two).
+We do not report mapping position on this cluster (first « . » column)
+Variant id indicates the type of variant (SNP or Indel) and provides a variant id (distinct from the cluster id). 
+Remaining columns are the same as in the general discoSnp++ VCF file. 
+
+

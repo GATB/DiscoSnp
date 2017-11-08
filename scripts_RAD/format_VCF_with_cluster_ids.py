@@ -45,7 +45,7 @@ def output_newvcf(vcf_file):
             
         
         print (cluster_id_and_size+"\t.\t"+path_id, end='')
-        for i in range (4,len(splitline)):
+        for i in range (3,len(splitline)):
             print ("\t"+splitline[i],end='')
         print()
     filin.close()

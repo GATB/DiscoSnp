@@ -31,7 +31,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 #################### DEFAULT VALUES #######################
 ###########################################################
-version="2.2.X"
+version="2.3.X"
 read_sets="" # A file of file(s)
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
@@ -68,8 +68,7 @@ else # VERSION BINARY
     kissreads2_bin=$EDIR/bin/kissreads2
 fi
 
-
-chmod +x scripts/*.sh run_discoSnp++.sh 2>/dev/null # Usefull for binary distributions
+chmod +x $EDIR/scripts/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
 genome=""
@@ -121,6 +120,8 @@ function help {
     echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
     echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
+    echo 
+    
     echo -e "\t\t -h: Prints this message and exist"
     echo -e "\t\t -e: map SNP predictions on reference genome with their extensions. - Forced usage when using discoSnpRad"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
