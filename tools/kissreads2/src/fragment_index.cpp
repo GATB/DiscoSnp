@@ -223,15 +223,19 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         
         const char * seq1 = all_predictions[fragment_id  ]->upperCaseSequence.c_str();
         const char * seq2 = all_predictions[fragment_id+1]->upperCaseSequence.c_str();
-        int size_seq = strlen(seq1);
-        assert(size_seq == strlen(seq2));
-        if(size_seq != strlen(seq2)){
-            cerr<<"two SNP sequences of distinct sizes. Impossible"<<endl;
-            cerr<<"ID="<<fragment_id<<endl;
-            cerr<<seq1<<endl;
-            cerr<<seq2<<endl;
-            exit(1);
-        }
+        const int size_seq1 = strlen(seq1);
+        const int size_seq2 = strlen(seq2);
+        const int size_seq = min(size_seq1,size_seq2);
+        
+//        COMMENTED ON NOV 2017: WITH RAD SEQ DATA, SNP SEQUENCES MAY HAVE DISCTINCT SIZES
+//        assert(size_seq == strlen(seq2));
+//        if(size_seq != strlen(seq2)){
+//            cerr<<"two SNP sequences of distinct sizes. Impossible"<<endl;
+//            cerr<<"ID="<<fragment_id<<endl;
+//            cerr<<seq1<<endl;
+//            cerr<<seq2<<endl;
+//            exit(1);
+//        }
         
         // compute the number of SNPs:
         int local_number_of_SNPs=0;
@@ -248,12 +252,10 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         local_number_of_SNPs=0;
         for (i=0; i<size_seq; i++) {
             if (seq1[i]!=seq2[i]) {
-
-
                 all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs++]=i;
             }
         }
-        all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs] = size_seq+1; // DUMMY SNP
+        all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs] = max(size_seq1,size_seq2)+1; // DUMMY SNP
 	}
     
     

@@ -458,16 +458,13 @@ bool BubbleFinder::expand_one_simple_path (
 )
 {
     GraphVector < Node > successors;
-    cout<<"expend "<<local_extended_string<<endl; //DEB
     for (int depth=0;depth<max_depth+1;depth++){
         successors = graph.successors (node);       // get next node
-        cout << "successor size "<<successors.size()<<endl; //DEB
         if (successors.size()>1)    return false;   // right branching, returns false
         if (graph.indegree(node)>1) return false;   // left branching, returns false.
         if (successors.size()==0)   return true;    // path ends, return true
         node = successors[0];
         local_extended_string+=ascii(graph.getNT(successors[0],sizeKmer-1));
-        cout<<"now "<<local_extended_string<<endl; //DEB
     }
     // the loop stops one step latter, meaning that if we arrive here, the path if of length max_depth+1, longer than max_depth.
     return false;
@@ -550,11 +547,11 @@ bool BubbleFinder::expand (
                 return false;
             }
         // First case: only upper path ends
-        if ((suc1 == 0) && (suc2 == 1)){
+        if (suc2 == 1){
             if (not expand_one_simple_path (node2, local_extended_string2, max_indel_size)) return false;
         }
         // second case: only lower path ends
-        if ((suc1 == 1) && (suc2 == 0)){
+        if (suc2 == 0){
             if (not expand_one_simple_path (node1, local_extended_string1, max_indel_size)) return false;
         }
         // third case: the both paths end, nothing additional to be checked. 
