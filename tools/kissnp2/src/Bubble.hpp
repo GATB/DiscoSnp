@@ -295,6 +295,15 @@ protected:
             int stack_size
                        );
     
+    /**  Extension of a single single node. Extension is non branching and stops after max_depth path. Returns true if the created path if smaller or equal to max_depth.
+     *
+     */
+    bool expand_one_simple_path (
+                                               Node& node,                       // Node currently tested
+                                               string& local_extended_string,    // add nucleotides to this string
+                                               const int max_depth              // maximal size of the path
+    );
+    
     /** Extension of a bubble by testing extensions from both branches of the bubble.
      *
      */
