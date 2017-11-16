@@ -1,24 +1,21 @@
 # REQUIRES:
-## short_read_connector: instaleld and compiled: https://github.com/GATB/short_read_connector
-## quick_hierarchical_clustering compiled: 
-### c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering     # WITH LINUX
-### clang++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering # WITH MACOS
-
-
-# echo "WARNING1: short_read_connector must have been compiled"
-# echo "WARNING2: quick_hierarchical_clustering.cpp must have been compiled :"
-# echo "  c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering     # WITH LINUX"
-# echo "  clang++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering # WITH MACOS"
+## short_read_connector: installed and compiled: https://github.com/GATB/short_read_connector
 
 function sumup {
-    echo "====================================================="
-    echo "Filtration of $rawdiscofile"
-    echo "====================================================="
-    echo " 1/ Remove variants with more than ${percent_missing} genotypes"
-    echo " 2/ Clustering variants (sharing at least a ${usedk}-mers)"
-    echo " 3/ Removing clusters with more than 100*${max_hetero}% heterozygous variants in more than 100*${max_indivs}% individuals"
-    echo " 4/ Removing low ranked variants (those whose rank is < ${min_rank}"
-    echo " Resulting file is ${rawdiscofile_base}_sorted_with_clusters.vcf"
+    echo ""
+    echo "  ============================================================================================================"
+    echo "  =  Filtration of $rawdiscofile"
+    echo "  ============================================================================================================"
+    echo "  = 1/ Remove variants with more than ${percent_missing} genotypes"
+    echo "  = 2/ Clustering variants (sharing at least a ${usedk}-mers)"
+    echo "  = 3/ Removing clusters with more than 100*${max_hetero}% heterozygous variants in more than 100*${max_indivs}% individuals"
+    echo "  = 4/ Removing low ranked variants (those whose rank is < ${min_rank})"
+    echo "  = Resulting file are "
+    echo "  =   - ${rawdiscofile_base}_with_clusters.fa: fasta file after steps 1/ and 2/"
+    echo "  =   - raw_${original_disco}_with_sorted_clusters.vcf: vcf file after steps 1/ and 2/"
+    echo "  =   - filtered_${original_disco}_with_sorted_clusters.vcf: vcf file after steps 1/, 2/, 3/ and 4/"
+    # echo "  =   - log_${rawdiscofile_base}_sorted_with_clusters.txt: contains logs of clustering and filtrations"
+    echo "  ============================================================================================================"
 }
 
 
@@ -26,6 +23,8 @@ if [ "$#" -ne 2 ]; then
     echo "Illegal number of parameters. Usage: "
     echo "sh discoRAD_finalization.sh discoSnpRAD_file  short_read_connector_path."
     echo "  Example: : sh discoRAD_finalization.sh /tmp/mydata_k_31_c_3_D_10_P_5_b_1_coherent.fa ~/workspace/short_read_connector/"
+    echo ""
+    echo "short_read_connector sources:  https://github.com/GATB/short_read_connector"
     exit
 fi
 
@@ -118,16 +117,19 @@ do
     $cmd
 done
 
+mv ${original_disco}_with_clusters.fa ${rawdiscofile_base}_with_clusters.fa
 rm -f *ERASEME*
 
-cmd="sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt"
-echo -e "\t\t$cmd"
-$cmd
+sumup
 
-echo
-echo "============================"
-echo " DISCORAD FINALIZATION DONE"
-echo "============================"
-echo " Filtered results in filtered_{rawdiscofile_base}_sorted_with_clusters.vcf"
-echo " Raw results in raw_${rawdiscofile_base}_sorted_with_clusters.vcf"
-echo " Logs in log_${rawdiscofile_base}_sorted_with_clusters.txt"
+# cmd="sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt"
+# echo -e "\t\t$cmd"
+# $cmd
+#
+# echo
+# echo "============================"
+# echo " DISCORAD FINALIZATION DONE"
+# echo "============================"
+# echo " Filtered results in filtered_{rawdiscofile_base}_sorted_with_clusters.vcf"
+# echo " Raw results in raw_${rawdiscofile_base}_sorted_with_clusters.vcf"
+# echo " Logs in log_${rawdiscofile_base}_sorted_with_clusters.txt"

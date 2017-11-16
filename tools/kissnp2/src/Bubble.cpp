@@ -547,18 +547,18 @@ bool BubbleFinder::expand (
                 return false;
             }
         // First case: only upper path ends
-        if (suc2 == 1){
-            if (not expand_one_simple_path (node2, local_extended_string2, max_indel_size)) return false;
-        }
+        bool close_truncated=false;
+        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_indel_size)) close_truncated=true;
         // second case: only lower path ends
-        if (suc2 == 0){
-            if (not expand_one_simple_path (node1, local_extended_string1, max_indel_size)) return false;
+        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_indel_size)) close_truncated=true;
+        // third case: the both paths end, nothing additional to be checked.
+        if (suc1 == suc2) close_truncated=true;
+    
+        if (close_truncated){
+            /** We call expand_heart with a false nextnode **/
+            Node notzero = Node(~0);
+            dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size);
         }
-        // third case: the both paths end, nothing additional to be checked. 
-        
-        /** We call expand_heart with a false nextnode **/
-        Node notzero = Node(~0);
-        dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size);
     }
     
     /** We get the common successors of node1 and node2. */
@@ -710,7 +710,7 @@ void BubbleFinder::finish ()
     stringstream comment;
     if ( bubble.polymorphism_type=="SNP" ){
         int polymorphism_id=1;
-        for (unsigned int i=0;i<path_0.length();i++){
+        for (unsigned int i=0;i<min(path_0.length(), path_1.length());i++){ // In the rad seq context, path may be of inequal sizes
             if (path_0[i]!=path_1[i]) {
                 if (polymorphism_id>1) {
                     comment << ",";
