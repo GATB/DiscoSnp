@@ -724,7 +724,7 @@ void BubbleFinder::finish ()
         const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
         const int size_repeat = sizeKmer-2-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
         
-        
+        // TODO : FOR RADSEQ when two sequence lengths differ, the insert_size is wrong.
         comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
     }
     
