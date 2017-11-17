@@ -28,16 +28,17 @@
 #ifndef COUPLE_H_
 #define COUPLE_H_
 #include <gatb/gatb_core.hpp>
+#include <commons.h>
 
 
 typedef struct {
 	uint64_t a;
-	uint64_t b;
+	int b;
 } couple, * p_couple;
 
 
 
-p_couple create_couple(uint64_t a, uint64_t b);
+p_couple create_couple(uint64_t a, int b);
 void free_couple (const void * v_c);
 
 

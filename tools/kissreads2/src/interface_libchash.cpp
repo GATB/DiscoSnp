@@ -22,14 +22,14 @@
  * interface between libchash and the generic hash functions used in mapsembler
  */
 
-#include <assert.h>
+//#include <assert.h>
 #include <libchash.h>
 #include <hash.h>
-#include <string.h> /* for strdup  */
-#include <ctype.h> /* for toupper */
-#include <list.h> /* for hash_add_int_to_list */
-#include <stdint.h>
-#include "commons.h"
+//#include <string.h> /* for strdup  */
+//#include <ctype.h> /* for toupper */
+//#include <list.h> /* for hash_add_int_to_list */
+//#include <stdint.h>
+//#include "commons.h"
 
 #define debug_libchash_access
 

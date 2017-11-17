@@ -105,7 +105,6 @@ public:
 
     
     string getUpperCaseOnly(){
-        int sizeUpper=0;
         string res="";
         string stringseq=sequence.toString();
         for (int i=0;i<stringseq.size();i++){

@@ -118,12 +118,7 @@
  *  is defined correctly for your machine!  (5 for 32 bit words, 6 for 64).
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>       /* for strcmp, memcmp, etc */
-#include <sys/types.h>    /* ULTRIX needs this for in.h */
-#include <netinet/in.h>   /* for reading/writing hashtables */
-#include <assert.h>
+
 #include "libchash.h"     /* all the types */
 
    /* if keys are stored directly but cchKey is less than sizeof(ulong), */

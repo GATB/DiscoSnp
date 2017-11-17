@@ -26,15 +26,9 @@
  */
 
 #include<commons.h>
-#include <ctype.h>
-#include<stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include<math.h>
 
 
-#include<inttypes.h> // DEBUG
+//#include<inttypes.h> // DEBUG
 
 //#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in upper case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
 
