@@ -25,11 +25,11 @@
  *      Author: ppeterlo
  */
 #include <couple.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <commons.h>
-p_couple create_couple(uint64_t a,uint64_t b){
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <commons.h>
+p_couple create_couple(uint64_t a, int b){
 	p_couple cpl = (p_couple)malloc(sizeof(couple));
 	test_alloc(cpl);
 	cpl->a=a;

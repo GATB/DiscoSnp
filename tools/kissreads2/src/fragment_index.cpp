@@ -107,7 +107,7 @@ void FragmentIndex::empty_coverage(){
 // each fragment is stored twice: one direct, one reverse complement.
 void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
 	kmer_type coded_seed;
-	int i,z,stop;
+	int i,stop;
     uint64_t total_seeds = 0 ;
     
         
@@ -126,29 +126,17 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
    
     
     
-    // We loop over sequences.
+    // First loop over the sequences: count seeds occurrences
     for (it->first(); !it->isDone(); it->next())
     {
         FragmentInfo * currentFragment = new FragmentInfo(it->item(), gv.number_of_read_sets);
-#ifdef DEBUG_INDEXING
-        cout<<"allocating for "<<currentFragment<<endl;
-#endif
-        
-        
-		
-#ifdef DEBUG_INDEXING
-		printf("counting in %s\n", currentFragment->upperCaseSequence.c_str());
-#endif
 		// read all the seeds present on the fragment
-		
         const char * w = currentFragment->upperCaseSequence.c_str();
         stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
-
                 coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives)
                 hash_incr_kmer_count(seeds_count,&coded_seed, gv);
                 total_seeds++;
-			
 		}
         all_predictions.push_back(currentFragment);
 	}

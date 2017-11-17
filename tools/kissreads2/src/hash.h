@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <list.h>
 #include "commons.h"
 #ifndef _HASH_H
 #define _HASH_H
