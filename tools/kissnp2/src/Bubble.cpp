@@ -50,12 +50,12 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     
     /** We set attributes according to user choice. */
     accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
-    authorised_branching = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-    max_indel_size       = props->getInt (STR_MAX_INDEL_SIZE);
-    max_indel_ambiguity  = props->getInt (STR_MAX_AMBIGOUS_INDELS);
-    max_polymorphism     = props->getInt (STR_MAX_POLYMORPHISM);
-    max_sym_branches     = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
-    accept_truncated_bubbles = props->get (STR_RADSEQ) != 0;
+    authorised_branching        = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
+    max_indel_size              = props->getInt (STR_MAX_INDEL_SIZE);
+    max_indel_ambiguity         = props->getInt (STR_MAX_AMBIGOUS_INDELS);
+    max_polymorphism            = props->getInt (STR_MAX_POLYMORPHISM);
+    max_sym_branches            = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
+    accept_truncated_bubbles    = props->get (STR_RADSEQ) != 0;
     
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
     max_recursion_depth=1000; // TODO: parameter?
@@ -364,7 +364,8 @@ bool BubbleFinder::expand_heart(
                                 string local_extended_string1,
                                 string local_extended_string2,
                                 int sym_branches,
-                                int stack_size){
+                                int stack_size,
+                                const int dissyetrical_end_size=0){
     /** We check whether the new nodes are different from previous ones. */
     bool checkPrevious =
     checkNodesDiff (previousNode1, node1, nextNode1) &&
@@ -410,7 +411,7 @@ bool BubbleFinder::expand_heart(
             bubble.extended_string[0] = local_extended_string1;
             bubble.extended_string[1] = local_extended_string2;
             bubble.final_nb_polymorphism=nb_polymorphism;
-            finish ();
+            finish (dissyetrical_end_size);
             dumped_bubble =true;
         }
     }
@@ -454,9 +455,11 @@ bool BubbleFinder::expand_heart(
 bool BubbleFinder::expand_one_simple_path (
                                            Node& node,                       // Node currently tested
                                            string& local_extended_string,    // add nucleotides to this string
-                                           const int max_depth              // maximal size of the path
+                                           const int max_depth,              // maximal size of the path
+                                           int & size_extension              // Obtained size of the extension
 )
 {
+    size_extension=0;
     GraphVector < Node > successors;
     for (int depth=0;depth<max_depth+1;depth++){
         successors = graph.successors (node);       // get next node
@@ -465,6 +468,7 @@ bool BubbleFinder::expand_one_simple_path (
         if (successors.size()==0)   return true;    // path ends, return true
         node = successors[0];
         local_extended_string+=ascii(graph.getNT(successors[0],sizeKmer-1));
+        size_extension++;
     }
     // the loop stops one step latter, meaning that if we arrive here, the path if of length max_depth+1, longer than max_depth.
     return false;
@@ -546,18 +550,22 @@ bool BubbleFinder::expand (
             if ( graph.getNT(node1, sizeKmer-i-1)!=graph.getNT(node2, sizeKmer-i-1)){
                 return false;
             }
-        // First case: only upper path ends
         bool close_truncated=false;
-        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_indel_size)) close_truncated=true;
+        int dissyetrical_end_size=0;
+        // First case: only upper path ends
+        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_indel_size,dissyetrical_end_size)) {
+            dissyetrical_end_size=-dissyetrical_end_size;
+            close_truncated=true;
+        }
         // second case: only lower path ends
-        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_indel_size)) close_truncated=true;
+        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_indel_size,dissyetrical_end_size)) close_truncated=true;
         // third case: the both paths end, nothing additional to be checked.
         if (suc1 == suc2) close_truncated=true;
     
         if (close_truncated){
             /** We call expand_heart with a false nextnode **/
             Node notzero = Node(~0);
-            dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size);
+            dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size,dissyetrical_end_size);
         }
     }
     
@@ -692,7 +700,7 @@ void BubbleFinder::extend ()
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::finish ()
+void BubbleFinder::finish (const int dissyetrical_end_size)
 {
     
     
@@ -721,10 +729,20 @@ void BubbleFinder::finish ()
         }
     }
     if ( bubble.polymorphism_type=="INDEL" ){
-        const int insert_size = path_0.length()<path_1.length()?path_1.length()-path_0.length():path_0.length()-path_1.length();
-        const int size_repeat = sizeKmer-2-min(bubble.extended_string[0].length(),bubble.extended_string[1].length()); // SEE checkRepeatSize function for explanations
-        
-        // TODO : FOR RADSEQ when two sequence lengths differ, the insert_size is wrong.
+        // if dissyetrical_end_size>0: path0 has been extended more than path1
+        // if dissyetrical_end_size<0: path1 has been extended more than path0
+        int p0=path_0.length(),p1=path_1.length();
+        int bes0=bubble.extended_string[0].length(), bes1=bubble.extended_string[1].length();
+        if (dissyetrical_end_size>0){
+            p0-=dissyetrical_end_size;
+            bes0-=dissyetrical_end_size;
+        }
+        if (dissyetrical_end_size<0){
+            p1+=dissyetrical_end_size;
+            bes1+=dissyetrical_end_size;
+        }
+        const int insert_size = p0<p1?p1-p0:p0-p1;
+        const int size_repeat = sizeKmer-2-min(bes0,bes1); // SEE checkRepeatSize function for explanations
         comment << "P_1:" << (sizeKmer-1) << "_" << (insert_size) << "_" << (size_repeat);
     }
     
