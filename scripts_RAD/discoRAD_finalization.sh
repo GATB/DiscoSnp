@@ -65,7 +65,7 @@ discofile=${original_disco}_simpler
 ls ${discofile}.fa > ${discofile}.fof
 
 # Compute sequence similarities
-cmd="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}" 
+cmd="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -p ${discofile}" 
 echo -e "\t\t$cmd"
 $cmd
 
@@ -110,7 +110,7 @@ for type in 'raw' 'filtered'
     done
 
 # Clean results
-for type in 'raw' 'filtered' 
+for type in 'raw' 'filtered'
 do
     cmd="mv "$type"_${original_disco}_with_sorted_formatted_clusters.vcf "$type"_${rawdiscofile_base}_sorted_with_clusters.vcf"
     echo -e "\t\t$cmd"
