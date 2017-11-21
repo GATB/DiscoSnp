@@ -117,10 +117,10 @@
 
 #include <sys/types.h>         /* includes definition of "ulong", we hope */
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>       /* for strcmp, memcmp, etc */
-//#include <sys/types.h>    /* ULTRIX needs this for in.h */
-//#include <netinet/in.h>   /* for reading/writing hashtables */
+#include <sys/types.h>    /* ULTRIX needs this for in.h */
+#include <netinet/in.h>   /* for reading/writing hashtables */
 #include <assert.h>
 #define ulong u_long
 
