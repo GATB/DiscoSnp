@@ -65,7 +65,8 @@ discofile=${original_disco}_simpler
 ls ${discofile}.fa > ${discofile}.fof
 
 # Compute sequence similarities
-cmd="sh ${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}" 
+chmod u+x ${short_read_connector_directory}/short_read_connector.sh
+cmd="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}" 
 echo -e "\t\t$cmd"
 $cmd
 
@@ -80,7 +81,8 @@ echo -e "\t\t$cmd"
 $cmd > ${original_disco}_with_clusters.fa
 
 # Generate a .vcf file with clustering information
-cmd="sh ${EDIR}/../scripts/run_VCF_creator.sh -p ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
+chmod u+x ${EDIR}/../scripts/run_VCF_creator.sh
+cmd="${EDIR}/../scripts/run_VCF_creator.sh -p ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
 echo -e "\t\t$cmd"
 $cmd
 
