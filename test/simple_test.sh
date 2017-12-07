@@ -17,6 +17,6 @@ if [ $? -ne 0 ] ; then
   exit 1
 fi
 
-rm -f discoRes_*  reference_genome.fa.*
+rm -fr discoRes_*  reference_genome.fa.*
 
 echo "*** Test: OK"

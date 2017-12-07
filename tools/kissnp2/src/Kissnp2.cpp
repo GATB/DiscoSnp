@@ -106,8 +106,24 @@ void Kissnp2::execute ()
     Dispatcher::Status status;
     u_int64_t nbNodes = 0;
     
+    
     /** We load the graph from the provided uri. */
-    Graph graph = Graph::load (getInput()->getStr(STR_URI_INPUT));
+    
+//    Graph graph = Graph::create ("-in /Users/ppeterlo/workspace/gatb-discosnp/test/discoRes_k_31_c_auto_gatb");
+    string input_graph =   "-in "+getInput()->getStr(STR_URI_INPUT);
+    
+    Graph graph = Graph::create(input_graph.c_str());
+    // DEBUG
+//    cout<<"INFOS: "<<graph.getInfo()<<endl;
+//    // We get an iterator for all nodes of the graph.
+//        GraphIterator<Node> ite = graph.iterator ();
+//    // We loop each node. Note the structure of the for loop.
+//    for (ite.first(); !ite.isDone(); ite.next())
+//    {
+//        // The currently iterated node is available with it.item()
+//        // We dump an ascii representation of the current node.
+//        std::cout << graph.toString (ite.item()) << std::endl;
+//    }
     
     istringstream iss(graph.getInfo().getStr("thresholds"));
 
