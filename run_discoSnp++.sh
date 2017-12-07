@@ -479,7 +479,7 @@ then
 fi
 
 #rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
-rm -f ${read_sets}_${kissprefix}_removemeplease
+rm -rf ${read_sets}_${kissprefix}_removemeplease
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################

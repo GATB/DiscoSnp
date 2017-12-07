@@ -80,7 +80,7 @@ else # VERSION BINARY
 fi
 
 
-chmod +x $EDIR/scripts/*.sh $EDIR/scripts_RAD/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
+chmod u+x $EDIR/scripts/*.sh $EDIR/scripts_RAD/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
 genome=""

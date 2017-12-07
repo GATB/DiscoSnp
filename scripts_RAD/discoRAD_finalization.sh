@@ -1,7 +1,8 @@
 # REQUIRES:
 ## short_read_connector: installed and compiled: https://github.com/GATB/short_read_connector
 
-function sumup {
+function sumup 
+{
     echo ""
     echo "  ============================================================================================================"
     echo "  =  Filtration of $rawdiscofile"
