@@ -92,9 +92,9 @@ bwa_distance=4
 #######################################################################
 
 function help {
-    echo ""
-    echo ""
-    echo ""
+    echo " ************"
+    echo " *** HELP ***"
+    echo " ************"
     echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
     echo "Version "$version
     echo "Usage: ./run_discoSnpRad.sh -r read_file_of_files [OPTIONS]"

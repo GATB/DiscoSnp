@@ -110,7 +110,7 @@ void Kissnp2::execute ()
     /** We load the graph from the provided uri. */
     
 //    Graph graph = Graph::create ("-in /Users/ppeterlo/workspace/gatb-discosnp/test/discoRes_k_31_c_auto_gatb");
-    string input_graph =   "-in "+getInput()->getStr(STR_URI_INPUT);
+    string input_graph =   "-in "+getInput()->getStr(STR_URI_INPUT)+" -no-mphf";
     
     Graph graph = Graph::create(input_graph.c_str());
     // DEBUG
