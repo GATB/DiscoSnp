@@ -13,8 +13,8 @@ function sumup
     echo "  = 4/ Removing low ranked variants (those whose rank is < ${min_rank})"
     echo "  = Resulting file are "
     echo "  =   - ${rawdiscofile_base}_with_clusters.fa: fasta file after steps 1/ and 2/"
-    echo "  =   - raw_${original_disco}_with_sorted_clusters.vcf: vcf file after steps 1/ and 2/"
-    echo "  =   - filtered_${original_disco}_with_sorted_clusters.vcf: vcf file after steps 1/, 2/, 3/ and 4/"
+    echo "  =   - raw_${rawdiscofile_base}_sorted_with_clusters.vcf: vcf file after steps 1/ and 2/"
+    echo "  =   - filtered_${rawdiscofile_base}_sorted_with_clusters.vcf: vcf file after steps 1/, 2/, 3/ and 4/"
     # echo "  =   - log_${rawdiscofile_base}_sorted_with_clusters.txt: contains logs of clustering and filtrations"
     echo "  ============================================================================================================"
 }

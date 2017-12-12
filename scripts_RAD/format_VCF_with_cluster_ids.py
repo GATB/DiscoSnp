@@ -29,7 +29,7 @@ def output_newvcf(vcf_file):
         line = filin.readline()
         if not line: break
         if line.startswith("#"): 
-            print (line)
+            print (line.rstrip())
             continue
         if not line.startswith("cluster"): continue
         splitline = line.rstrip().split()
