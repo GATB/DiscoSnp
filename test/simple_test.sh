@@ -19,4 +19,10 @@ fi
 
 rm -fr discoRes_*  reference_genome.fa.*
 
+
+
 echo "*** Test: OK"
+
+
+
+

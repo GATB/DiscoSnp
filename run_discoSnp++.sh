@@ -55,7 +55,9 @@ remove=1
 verbose=1
 stop_after_kissnp=0
 e=""
-EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+#EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
+
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
     read_file_names_bin=$EDIR/build/bin/read_file_names

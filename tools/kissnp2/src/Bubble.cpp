@@ -49,13 +49,14 @@ BubbleFinder::BubbleFinder (IProperties* props, const Graph& graph, Stats& stats
     sizeKmer = graph.getKmerSize();
     
     /** We set attributes according to user choice. */
-    accept_low                  = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
-    authorised_branching        = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
-    max_indel_size              = props->getInt (STR_MAX_INDEL_SIZE);
-    max_indel_ambiguity         = props->getInt (STR_MAX_AMBIGOUS_INDELS);
-    max_polymorphism            = props->getInt (STR_MAX_POLYMORPHISM);
-    max_sym_branches            = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
-    accept_truncated_bubbles    = props->get (STR_RADSEQ) != 0;
+    accept_low                              = props->get    (STR_DISCOSNP_LOW_COMPLEXITY) != 0;
+    authorised_branching                    = props->getInt (STR_DISCOSNP_AUTHORISED_BRANCHING);
+    max_indel_size                          = props->getInt (STR_MAX_INDEL_SIZE);
+    max_indel_ambiguity                     = props->getInt (STR_MAX_AMBIGOUS_INDELS);
+    max_polymorphism                        = props->getInt (STR_MAX_POLYMORPHISM);
+    max_sym_branches                        = props->getInt (STR_MAX_SYMMETRICAL_CROSSROADS);
+    accept_truncated_bubbles                = props->get    (STR_RADSEQ) != 0;
+    max_truncated_path_length_difference    = props->getInt (STR_MAX_TRUNCATED_PATH_LENGTH_DIFFERENCE);
     
     max_depth   = props->getInt (STR_BFS_MAX_DEPTH);
     max_recursion_depth=1000; // TODO: parameter?
@@ -365,7 +366,7 @@ bool BubbleFinder::expand_heart(
                                 string local_extended_string2,
                                 int sym_branches,
                                 int stack_size,
-                                const int dissyetrical_end_size=0){
+                                const int disymetrical_end_size=0){
     /** We check whether the new nodes are different from previous ones. */
     bool checkPrevious =
     checkNodesDiff (previousNode1, node1, nextNode1) &&
@@ -411,7 +412,7 @@ bool BubbleFinder::expand_heart(
             bubble.extended_string[0] = local_extended_string1;
             bubble.extended_string[1] = local_extended_string2;
             bubble.final_nb_polymorphism=nb_polymorphism;
-            finish (dissyetrical_end_size);
+            finish (disymetrical_end_size);
             dumped_bubble =true;
         }
     }
@@ -551,21 +552,21 @@ bool BubbleFinder::expand (
                 return false;
             }
         bool close_truncated=false;
-        int dissyetrical_end_size=0;
+        int disymetrical_end_size=0;
         // First case: only upper path ends
-        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_indel_size,dissyetrical_end_size)) {
-            dissyetrical_end_size=-dissyetrical_end_size;
+        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_truncated_path_length_difference, disymetrical_end_size)) {
+            disymetrical_end_size=-disymetrical_end_size;
             close_truncated=true;
         }
         // second case: only lower path ends
-        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_indel_size,dissyetrical_end_size)) close_truncated=true;
+        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_truncated_path_length_difference, disymetrical_end_size)) close_truncated=true;
         // third case: the both paths end, nothing additional to be checked.
         if (suc1 == suc2) close_truncated=true;
     
         if (close_truncated){
             /** We call expand_heart with a false nextnode **/
             Node notzero = Node(~0);
-            dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size,dissyetrical_end_size);
+            dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size,disymetrical_end_size);
         }
     }
     
@@ -700,7 +701,7 @@ void BubbleFinder::extend ()
  ** RETURN  :
  ** REMARKS :
  *********************************************************************/
-void BubbleFinder::finish (const int dissyetrical_end_size)
+void BubbleFinder::finish (const int disymetrical_end_size)
 {
     
     
@@ -729,17 +730,17 @@ void BubbleFinder::finish (const int dissyetrical_end_size)
         }
     }
     if ( bubble.polymorphism_type=="INDEL" ){
-        // if dissyetrical_end_size>0: path0 has been extended more than path1
-        // if dissyetrical_end_size<0: path1 has been extended more than path0
+        // if disymetrical_end_size>0: path0 has been extended more than path1
+        // if disymetrical_end_size<0: path1 has been extended more than path0
         int p0=path_0.length(),p1=path_1.length();
         int bes0=bubble.extended_string[0].length(), bes1=bubble.extended_string[1].length();
-        if (dissyetrical_end_size>0){
-            p0-=dissyetrical_end_size;
-            bes0-=dissyetrical_end_size;
+        if (disymetrical_end_size>0){
+            p0-=disymetrical_end_size;
+            bes0-=disymetrical_end_size;
         }
-        if (dissyetrical_end_size<0){
-            p1+=dissyetrical_end_size;
-            bes1+=dissyetrical_end_size;
+        if (disymetrical_end_size<0){
+            p1+=disymetrical_end_size;
+            bes1+=disymetrical_end_size;
         }
         const int insert_size = p0<p1?p1-p0:p0-p1;
         const int size_repeat = sizeKmer-2-min(bes0,bes1); // SEE checkRepeatSize function for explanations
@@ -1037,14 +1038,18 @@ IProperties* BubbleFinder::getConfig () const
     IProperties* props = new Properties();
     
     /** We aggregate information for user. */
-    props->add (0, "config",   "");
-    props->add (1, "kmer_size",        "%d", sizeKmer);
-    props->add (1, "auth_branch",      "%d", authorised_branching);
-    props->add (1, "max_indel_size",     "%d", max_indel_size);
-    props->add (1, "max_polymorphism", "%d", max_polymorphism);
-    props->add (1, "low",              "%d", accept_low);
-    props-> add (1, "rad",              "%d", accept_truncated_bubbles);
-    props->add (1, "traversal",        "%s", toString (traversalKind).c_str());
+    props->add (0, "config",                                    "");
+    props->add (1, "kmer_size",                                 "%d", sizeKmer);
+    props->add (1, "auth_branch",                               "%d", authorised_branching);
+    props->add (1, "max_indel_size",                            "%d", max_indel_size);
+    props->add (1, "max_polymorphism",                          "%d", max_polymorphism);
+    props->add (1, "low",                                       "%d", accept_low);
+    props-> add (1, "rad",                                      "%d", accept_truncated_bubbles);
+    props->add (1, "traversal",                                 "%s", toString (traversalKind).c_str());
+    if (accept_truncated_bubbles){
+        props->add(1, "radseq mode",                           "");
+        props->add(2, "max_truncated_path_length_difference",   "%d", accept_truncated_bubbles);
+    }
     
     return props;
 }

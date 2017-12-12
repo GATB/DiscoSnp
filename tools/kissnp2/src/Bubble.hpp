@@ -27,18 +27,19 @@
 /********************************************************************************/
 
 /** We define string constants for command line options. */
-#define STR_MAX_AMBIGOUS_INDELS             "-max_ambigous_indel"
-#define STR_DISCOSNP_LOW_COMPLEXITY         "-l"
-#define STR_DISCOSNP_AUTHORISED_BRANCHING   "-b"
-#define STR_DISCOSNP_TRAVERSAL_UNITIG       "-t"
-#define STR_DISCOSNP_TRAVERSAL_CONTIG       "-T"
-#define STR_KISSNP2_COVERAGE_FILE_NAME      "-coverage_file"
-#define STR_KISSNP2_DONT_OUTPUT_FIRST_COV   "-dont_output_first_coverage"
+#define STR_MAX_AMBIGOUS_INDELS                     "-max_ambigous_indel"
+#define STR_DISCOSNP_LOW_COMPLEXITY                 "-l"
+#define STR_DISCOSNP_AUTHORISED_BRANCHING           "-b"
+#define STR_DISCOSNP_TRAVERSAL_UNITIG               "-t"
+#define STR_DISCOSNP_TRAVERSAL_CONTIG               "-T"
+#define STR_KISSNP2_COVERAGE_FILE_NAME              "-coverage_file"
+#define STR_KISSNP2_DONT_OUTPUT_FIRST_COV           "-dont_output_first_coverage"
 
-#define STR_MAX_INDEL_SIZE                  "-D"
-#define STR_MAX_POLYMORPHISM                "-P"
-#define STR_MAX_SYMMETRICAL_CROSSROADS      "-max_symmetrical_crossroads"
-#define STR_RADSEQ                          "-x"
+#define STR_MAX_INDEL_SIZE                          "-D"
+#define STR_MAX_POLYMORPHISM                        "-P"
+#define STR_MAX_SYMMETRICAL_CROSSROADS              "-max_symmetrical_crossroads"
+#define STR_RADSEQ                                  "-x"
+#define STR_MAX_TRUNCATED_PATH_LENGTH_DIFFERENCE    "-max_truncated_path_length_difference"
 
 
 /********************************************************************************/
@@ -246,6 +247,9 @@ protected:
     
     /** In b 2: maximaml number of symetrically branches traversed while walking the bubble**/
     int max_sym_branches;
+    
+    /** RAD MODE: Longest accepted difference length between two paths of a truncated bubble */
+    int max_truncated_path_length_difference;
     
     
     

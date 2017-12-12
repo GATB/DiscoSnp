@@ -30,8 +30,9 @@
 
 
 
-EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 function myrealpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
+
 
 option_cores_gatb=""
 option_cores_post_analysis=""
@@ -65,7 +66,8 @@ genotyping="-genotype"
 remove=1
 verbose=1
 short_read_connector_path=""
-EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+#EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
     read_file_names_bin=$EDIR/build/bin/read_file_names
@@ -83,10 +85,9 @@ fi
 chmod u+x $EDIR/scripts/*.sh $EDIR/scripts_RAD/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
-genome=""
 bwa_path_option=""
 bwa_distance=4
-
+max_truncated_path_length_difference=0
 #######################################################################
 #################### END HEADER                 #######################
 #######################################################################
@@ -112,6 +113,7 @@ function help {
     echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
     echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=100"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+    echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
     echo -e "\t\t -P value. discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
     echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRad\""
     echo -e "\t\t -l: remove low complexity bubbles"
@@ -127,7 +129,6 @@ function help {
 
     echo 
     echo -e "\t\t -h: Prints this message and exist"
-    # echo -e "\t\t -e: map SNP predictions on reference genome with their extensions. - Forced usage when using discoSnpRad"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
@@ -135,9 +136,11 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:S:htTlgu:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTlgu:a:v:" opt; do
     case $opt in
- 
+    L)
+        max_truncated_path_length_difference=$OPTARG
+        ;;
     S)
         short_read_connector_path=$OPTARG
         ;;
@@ -280,20 +283,7 @@ readsFilesDump=${prefix}_read_files_correspondance.txt
 #######################################
 c_dbgh5=$c
 rm -f ${read_sets}_${kissprefix}_removemeplease
-if [[ "$useref" == "true" ]]; then
-
-    if [ -z "$genome" ]; then
-        echo "You can't use option -R without providing a reference genome (-G)"
-        help
-        exit 1
-    fi
-       
-    myrealpath $genome > ${read_sets}_${kissprefix}_removemeplease
-    c_dbgh5="1,"$c
-
-fi
 cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
-
 
 
 #######################################################################
@@ -310,7 +300,7 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
-
+echo -e "\t\t max_truncated_path_length_difference="$max_truncated_path_length_difference
 echo -e -n "\t starting date="
 date
 echo
@@ -364,7 +354,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 

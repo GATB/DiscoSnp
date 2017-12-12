@@ -216,7 +216,7 @@ fi
 #           test the radseq option (-x)              #
 ######################################################
 
-../../run_discoSnp++.sh -r fof_rad.txt -k 31 -b 2 -D 0 -P 4 -p radtest -t -x
+../../run_discoSnpRad.sh -r fof_rad.txt -k 31 -b 2 -D 0 -P 4 -p radtest 
 
 if [ $? -ne 0 ] ; then
        echo "*** With truncated bubbles FAILURE:"
