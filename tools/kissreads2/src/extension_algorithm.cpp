@@ -27,7 +27,7 @@
 
 #include <extension_algorithm.h>
 
-//#define PHASING
+#define PHASING
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -232,11 +232,10 @@ struct Functor
     GlobalValues & gv;
     FragmentIndex& index;
     const int read_set_id;
-//    u_int64_t read_id=0;
-    
     u_int64_t * number_of_mapped_reads;
+    map<string,int> & phased_variants;
     
-    Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads){}
+    Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads, map<string,int> & phased_variants) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads), phased_variants(phased_variants){}
     void operator() (Sequence& seq)
     {
         // Shortcut
@@ -361,11 +360,12 @@ struct Functor
             
 #ifdef PHASING
             if (mapped_prediction.size()>1){
-                cout<<"\nphased ";
+                string phased_variant_ids ="";
                 for (set<u_int64_t> ::iterator it=mapped_prediction.begin(); it!=mapped_prediction.end(); ++it){
-                    cout<<*it<<" ";
+                    phased_variant_ids.append(to_string(*it)+'_');
                 }
-                cout<<endl;
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
 #endif
  
@@ -381,11 +381,8 @@ struct Functor
                 it->second.clear();
             }
             
-//            if (read_id%2==1){ //DEB TEST TEST TEST TO REMOVE !! DIRTY WAY TO SIMULATE PAIREND READS
-                tested_prediction_and_pwis.clear();
-                mapped_prediction.clear();
-//            }
-//            read_id+=1;
+            tested_prediction_and_pwis.clear();
+            mapped_prediction.clear();
             
         } // end both directions
         free(read);
@@ -416,13 +413,16 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     
     
     u_int64_t number_of_mapped_reads = 0;
-
+    map<string,int> phased_variants;
     
     // We create a sequence iterator for the bank with progress information
     ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
     
-    Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads));
+    Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
     
+    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+        std::cout << it->first << " => " << it->second << '\n';
+
     
     return number_of_mapped_reads;
 }
@@ -438,7 +438,6 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
     
     int prediction_id;
     for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
-        
         index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
     } // end all fragments
 }
