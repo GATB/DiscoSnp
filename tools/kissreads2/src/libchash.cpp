@@ -1110,12 +1110,12 @@ static HTItem *Insert(HashTable *ht, ulong key, ulong data, int fOverwrite)
 static int Delete(HashTable *ht, ulong key, int fShrink, int fLastFindSet)
 {
    if ( !fLastFindSet && !Find(ht, key, NULL) )
-      return 0;
+   { return 0; }
    SET_BCK_DELETED(ht, ht->posLastFind);       /* find set this, how nice */
    ht->cItems--; 
    ht->cDeletedItems++;
    if ( ht->cDeltaGoalSize < 0 )  /* heading towards our goal of deletion */
-      ht->cDeltaGoalSize++;
+   { ht->cDeltaGoalSize++; }
 
    if ( fShrink && ht->cItems < ht->cBuckets * OCCUPANCY_PCT*0.4 
         && ht->cDeltaGoalSize >= 0       /* wait until we're done deleting */
@@ -1281,8 +1281,8 @@ HTItem *HashFirstBucket(HashTable *ht)
 
    for ( retval = Table(FirstBucket)(ht->iter, ht->table, ht->cBuckets);
 	 retval;  retval = Table(NextBucket)(ht->iter) )
-      if ( !IS_BCK_DELETED(retval) )
-	 LOAD_AND_RETURN(ht, retval);
+    if ( !IS_BCK_DELETED(retval) )
+    { LOAD_AND_RETURN(ht, retval);}
    return NULL;
 }
 
@@ -1292,7 +1292,7 @@ HTItem *HashNextBucket(HashTable *ht)
 
    while ( (retval=Table(NextBucket)(ht->iter)) )
       if ( !IS_BCK_DELETED(retval) )
-	 LOAD_AND_RETURN(ht, retval);
+      {LOAD_AND_RETURN(ht, retval);}
    return NULL;
 }
 

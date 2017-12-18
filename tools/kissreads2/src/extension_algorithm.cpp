@@ -27,7 +27,7 @@
 
 #include <extension_algorithm.h>
 
-
+//#define PHASING
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -227,11 +227,12 @@ struct Functor
 //    ISynchronizer* synchro;    fstream& file;
     
     map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
-    set<u_int64_t> mapped_prediction;                                    // stores for this read, the succesfully mapped predictions
+    set<u_int64_t> mapped_prediction;                                     // stores for this read, the succesfully mapped predictions
     
     GlobalValues & gv;
     FragmentIndex& index;
     const int read_set_id;
+//    u_int64_t read_id=0;
     
     u_int64_t * number_of_mapped_reads;
     
@@ -246,6 +247,7 @@ struct Functor
         const int minimal_pwi = gv.minimal_read_overlap - seq.getDataSize();
         uint64_t offset_seed;
         uint64_t nb_occurrences;
+
         
         
         // The read must overlap the fragment with at least minimal_read_overlap positions.
@@ -356,6 +358,19 @@ struct Functor
                     }
                 } // end all infos for the current seed
             } // end all seeds of the read
+            
+#ifdef PHASING
+            if (mapped_prediction.size()>1){
+                cout<<"\nphased ";
+                for (set<u_int64_t> ::iterator it=mapped_prediction.begin(); it!=mapped_prediction.end(); ++it){
+                    cout<<*it<<" ";
+                }
+                cout<<endl;
+            }
+#endif
+ 
+            // #phasing
+            
             gv.revcomp(read);
             gv.rev (quality);
             
@@ -365,13 +380,17 @@ struct Functor
                 
                 it->second.clear();
             }
-            tested_prediction_and_pwis.clear();
-            mapped_prediction.clear();
             
+//            if (read_id%2==1){ //DEB TEST TEST TEST TO REMOVE !! DIRTY WAY TO SIMULATE PAIREND READS
+                tested_prediction_and_pwis.clear();
+                mapped_prediction.clear();
+//            }
+//            read_id+=1;
             
         } // end both directions
         free(read);
         free(quality);
+      
     }
 };
 
