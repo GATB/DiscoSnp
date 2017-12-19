@@ -416,7 +416,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
     for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
         cout<<inputBank->getIdNb(subBankId)<<endl;
-        IBank* subbank = inputBank->getBanks()[subBankId];
+        IBank* subbank = BankComposite(inputBank)->getBanks()[subBankId];
         cout<<subbank->getId()<<endl;
     }
     
