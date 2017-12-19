@@ -27,7 +27,6 @@
 
 #include <extension_algorithm.h>
 
-#define PHASING
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -358,26 +357,24 @@ struct Functor
                 } // end all infos for the current seed
             } // end all seeds of the read
             
-#ifdef PHASING
-            if (mapped_prediction.size()>1){
-                string phased_variant_ids ="";
+            
+            /////// PHASING
+            if (mapped_prediction.size()>1){                                            // If two or more variants mapped by the same read
+                string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
                 for (set<u_int64_t> ::iterator it=mapped_prediction.begin(); it!=mapped_prediction.end(); ++it){
                     phased_variant_ids.append(to_string(*it)+'_');
                 }
+                                                                                        // Associate this string to the number of times it is seen when mapping this read set
                 if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
                 else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
-#endif
- 
-            // #phasing
+            /////// PHASING
             
             gv.revcomp(read);
             gv.rev (quality);
-            
-            
+
             // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
             for (std::map<u_int64_t, set<u_int64_t> > ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
-                
                 it->second.clear();
             }
             
@@ -414,6 +411,16 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     
     u_int64_t number_of_mapped_reads = 0;
     map<string,int> phased_variants;
+    
+    // Few tests for finding pair of banks.
+    cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
+    for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
+        cout<<inputBank->getIdNb(subBankId)<<endl;
+        IBank* subbank = inputBank->getBanks()[subBankId];
+        cout<<subbank->getId()<<endl;
+    }
+    
+    
     
     // We create a sequence iterator for the bank with progress information
     ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());

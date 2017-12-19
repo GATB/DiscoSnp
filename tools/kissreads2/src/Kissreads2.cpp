@@ -55,7 +55,7 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     getParser()->push_front (new OptionOneParam (STR_URI_OUTPUT_UNCOHERENT,         "Output uncoherent file name",                      false,"/dev/null"));
     getParser()->push_front (new OptionOneParam (STR_URI_READS_INPUT,               "Input reads",  true));
     getParser()->push_front (new OptionOneParam (STR_URI_PREDICTION_INPUT,          "Input predictions",  true));
-    getParser()->push_front (new OptionNoParam (STR_RADSEQ,          "radseq option, homogeneous read depth along the prediction ",  false)); //CHARLOTTE
+    getParser()->push_front (new OptionNoParam  (STR_RADSEQ,                        "radseq option, homogeneous read depth along the prediction ",  false)); //CHARLOTTE
 }
 
 
