@@ -416,10 +416,13 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
     for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
         cout<<inputBank->getIdNb(subBankId)<<endl;
-        IBank* subbank = BankComposite(inputBank)->getBanks()[subBankId];
+        IBank* subbank = inputBank->getBanks()[subBankId];
         cout<<subbank->getId()<<endl;
     }
-    
+    if (inputBank->getCompositionNb()==2){
+        cout<<"Paired? "<<inputBank->getId()<<endl;
+    }
+
     
     
     // We create a sequence iterator for the bank with progress information
