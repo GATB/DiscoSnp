@@ -74,6 +74,7 @@ fi
 chmod +x $EDIR/scripts/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
+wraith="false"
 genome=""
 bwa_path_option=""
 bwa_distance=4
@@ -113,6 +114,7 @@ function help {
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
     echo -e "\t\t -n: do not compute the genotypes"
+    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
     echo -e "\t\t -u: max number of used threads"
     echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
 
@@ -126,8 +128,8 @@ function help {
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
     echo 
     
+    echo -e "\t\t -w: Wraith mode: only show all discoSnp++ commands without running them"
     echo -e "\t\t -h: Prints this message and exist"
-    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions. - Forced usage when using discoSnpRad"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
@@ -135,10 +137,13 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnXxyeG:B:M:u:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnwXxyeG:B:M:u:a:v:" opt; do
     case $opt in
     X)
         stop_after_kissnp=1
+        ;;
+    w)
+        wraith="true"
         ;;
     R)
         useref="true"
@@ -370,7 +375,9 @@ if [ ! -e $h5prefix.h5 ]; then
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
     echo ${graphCmd}
-    ${graphCmd}
+    if [[ "$wraith" == "false" ]]; then
+        ${graphCmd}
+    fi
 
     if [ $? -ne 0 ]
     then
@@ -395,7 +402,9 @@ echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo ${kissnp2Cmd}
-${kissnp2Cmd}
+if [[ "$wraith" == "false" ]]; then
+    ${kissnp2Cmd}
+fi
 
 if [ $? -ne 0 ]
 then
@@ -408,11 +417,13 @@ echo "Bubble detection time in seconds: ${T}"
 
 if [ ! -f $kissprefix.fa ]
 then
-    echo "No polymorphism predicted by discoSnp++"
-    echo -e -n "\t ending date="
-    date
-    echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
-    exit 
+    if [[ "$wraith" == "false" ]]; then
+        echo "No polymorphism predicted by discoSnp++"
+        echo -e -n "\t ending date="
+        date
+        echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+        exit 
+    fi
 fi
 
 if [ $stop_after_kissnp -eq 1 ]; then
@@ -444,7 +455,9 @@ index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y"
 
 echo $kissreadsCmd
+if [[ "$wraith" == "false" ]]; then
 $kissreadsCmd
+fi
 
 if [ $? -ne 0 ]
 then
@@ -463,22 +476,27 @@ T="$(($(date +%s)-T))"
 echo -e "\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
 echo -e "\t###############################################################"
-sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
+if [[ "$wraith" == "false" ]]; then
+    sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem with the result sorting."
     exit 1
 fi
 
-sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
+if [[ "$wraith" == "false" ]]; then
+    sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
+fi
+
 if [ $? -ne 0 ]
 then
     echo "there was a problem with the result sorting"
     exit 1
 fi
 
-#rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
-rm -rf ${read_sets}_${kissprefix}_removemeplease
+rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
+rm -rf ${read_sets}_${kissprefix}_removemeplease 
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
@@ -501,7 +519,10 @@ echo -e "\t###############################################################"
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
     vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
     echo $vcfCreatorCmd
-    $vcfCreatorCmd
+    if [[ "$wraith" == "false" ]]; then
+        $vcfCreatorCmd
+    fi
+    
     if [ $? -ne 0 ]
     then
         echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
@@ -510,8 +531,10 @@ if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
 else # A Reference genome is provided, vcf creator mode 2
     vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis $e"
     echo $vcfCreatorCmd
-    $vcfCreatorCmd
-
+    if [[ "$wraith" == "false" ]]; then
+        $vcfCreatorCmd
+    fi 
+    
     if [ $? -ne 0 ]
     then
         echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
