@@ -52,8 +52,7 @@ def contigOrUnitig():
             if not elt.startswith("left_contig"): continue
             mode = 1
             break
-
-    return mode
+    	return mode
 
 
 mode = contigOrUnitig()
