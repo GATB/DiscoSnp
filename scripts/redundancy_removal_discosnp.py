@@ -21,11 +21,10 @@ def get_last_kmer(seq,k):
         else: variant_seen=True
     return seq[i-k+1:]
 
-def add_id_if_necessary(kmer_to_var_id,kmer,var_id):
+def add_id(kmer_to_var_id,kmer,var_id):
     if kmer not in kmer_to_var_id:
         kmer_to_var_id[kmer]=[]
-    if var_id not in kmer_to_var_id[kmer]: # Not sure this test is necessary
-        kmer_to_var_id[kmer].append(var_id)
+    kmer_to_var_id[kmer].append(var_id)
         
 def non_empty_intersection(a,b):
     sa = set(a)
@@ -65,10 +64,10 @@ def parse(fafile,k):
             list_var_id_kmer_stop2 = stop_kmer_to_var_id[kmer_stop2]
             if non_empty_intersection(list_var_id_kmer_stop1,list_var_id_kmer_stop2): continue  # this variant has already been seen with another context
         
-        add_id_if_necessary(start_kmer_to_var_id,kmer_start1,var_id)
-        add_id_if_necessary(start_kmer_to_var_id,kmer_start2,var_id)
-        add_id_if_necessary(stop_kmer_to_var_id, kmer_stop1, var_id)
-        add_id_if_necessary(stop_kmer_to_var_id, kmer_stop2, var_id)
+        add_id(start_kmer_to_var_id,kmer_start1,var_id)
+        add_id(start_kmer_to_var_id,kmer_start2,var_id)
+        add_id(stop_kmer_to_var_id, kmer_stop1, var_id)
+        add_id(stop_kmer_to_var_id, kmer_stop2, var_id)
         print (com1)
         print (seq1)
         print (com2)
