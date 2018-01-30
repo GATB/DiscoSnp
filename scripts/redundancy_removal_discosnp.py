@@ -30,7 +30,6 @@ def add_id_if_necessary(kmer_to_var_id,kmer,var_id):
 def non_empty_intersection(a,b):
     sa = set(a)
     sb = set(b)
-    print (sa,sb,sa.intersection(sb))
     if len(sa.intersection(sb)) >0: return True
     return False
     
@@ -52,7 +51,6 @@ def parse(fafile,k):
         # deal with starting kmer
         kmer_start1=get_first_kmer(seq1,k)
         kmer_start2=get_first_kmer(seq2,k)
-        if kmer_start1 in start_kmer_to_var_id: print (start_kmer_to_var_id[kmer_start1])
         if kmer_start1 in start_kmer_to_var_id and kmer_start2 in start_kmer_to_var_id:
             list_var_id_kmer_start1 = start_kmer_to_var_id[kmer_start1]
             list_var_id_kmer_start2 = start_kmer_to_var_id[kmer_start2]
@@ -65,7 +63,6 @@ def parse(fafile,k):
         if kmer_stop1 in stop_kmer_to_var_id and kmer_stop2 in stop_kmer_to_var_id:
             list_var_id_kmer_stop1 = stop_kmer_to_var_id[kmer_stop1]
             list_var_id_kmer_stop2 = stop_kmer_to_var_id[kmer_stop2]
-            print (list_var_id_kmer_stop1,list_var_id_kmer_stop2)
             if non_empty_intersection(list_var_id_kmer_stop1,list_var_id_kmer_stop2): continue  # this variant has already been seen with another context
         
         add_id_if_necessary(start_kmer_to_var_id,kmer_start1,var_id)
