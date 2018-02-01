@@ -355,7 +355,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo ${kissnp2Cmd}
 ${kissnp2Cmd}
 
@@ -368,7 +368,7 @@ fi
 T="$(($(date +%s)-T))"
 echo "Bubble detection time in seconds: ${T}"
 
-if [ ! -f $kissprefix.fa ]
+if [ ! -f ${kissprefix}_r.fa ]
 then
     echo "No polymorphism predicted by discoSnpRad"
     echo -e -n "\t ending date="
@@ -377,7 +377,12 @@ then
     exit 
 fi
 
-
+#######################################################################
+#################### REDUNDANCY REMOVAL         #######################
+#######################################################################
+redundancy_removal_cmd="python $EDIR/scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
+echo ${redundancy_removal_cmd}
+${redundancy_removal_cmd}
 
 #######################################################################
 #################### KISSREADS                  #######################

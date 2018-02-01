@@ -33,10 +33,16 @@ def non_empty_intersection(a,b):
     return False
     
 
-def parse(fafile,k):
+def parse(fafile,k,faout):
     start_kmer_to_var_id={}
     stop_kmer_to_var_id ={}
+    i=1
+    printed=0
     while (True):
+        if i%100==0 : 
+            sys.stdout.write ("\r"+str(i)+ " bubbles treated, "+str(printed)+" bubbles non redundant")
+            sys.stdout.flush()
+        i+=1
         com1=fafile.readline()
         if not com1: break
         com1=com1.rstrip() #>SNP_higher_path_1|P_1:30_T/G|high|nb_pol_1|left_unitig_length_22|right_unitig_length_0
@@ -68,18 +74,20 @@ def parse(fafile,k):
         add_id(start_kmer_to_var_id,kmer_start2,var_id)
         add_id(stop_kmer_to_var_id, kmer_stop1, var_id)
         add_id(stop_kmer_to_var_id, kmer_stop2, var_id)
-        print (com1)
-        print (seq1)
-        print (com2)
-        print (seq2)
-        
+        faout.write(com1+"\n")
+        faout.write(seq1+"\n")
+        faout.write(com2+"\n")
+        faout.write(seq2+"\n")
+        printed+=1
+    sys.stdout.write ("\r"+str(i)+ " bubbles treated, "+str(printed)+" bubbles non redundant\n")
 
-if len(sys.argv) !=3: 
+if len(sys.argv) !=4: 
     print ("Script "+ sys.argv[0].split("/")[-1])
     print ("  From a discoSnp .fa output: from all variants that start or stop with the same kmer, keep only one of their occurrences")
-    print ("  usage: "+ sys.argv[0].split("/")[-1]+ " ..._coherent.fa k_value")
+    print ("  usage: "+ sys.argv[0].split("/")[-1]+ " input.fa k_value output.fa")
     exit(1)
 fafile=open(sys.argv[1],"r")
 k=int(sys.argv[2])
-parse(fafile,k)
+faout=open(sys.argv[3],"w")
+parse(fafile,k,faout)
 
