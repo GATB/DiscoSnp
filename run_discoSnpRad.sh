@@ -49,14 +49,14 @@ read_sets="" # A file of file(s)
 prefix="discoRad" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=2 # all bubbles accepted"
-c=3 # minimal coverage
+c=auto # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
-D=100 # maximal size of searched deletions
+D=10 # maximal size of searched deletions
 max_ambigous_indel=20
 P=5 # number of polymorphsim per bubble
-option_max_symmetrical_crossroads="3"
+option_max_symmetrical_crossroads="0"
 l="-l"
 extend="-t"
 x="-x"
@@ -107,11 +107,9 @@ function help {
     echo -e "\t\t\t -Note2: if this option is missing, discoSnpRad will still however provide a fasta file containing SNPs and INDELS, that won't be clustered by locus" 
     echo -e "\tDISCOSNPRAD OPTIONS:"
     echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '3']"
-#    echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position Default value"
-#   echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-#    echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
-    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=100"
+#    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '5']"
+    echo -e "\t\t -R: high recall mode. With this parameter up to five symmetrical crossroads may be traversed during bubble detection."
+    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=10"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
     echo -e "\t\t -P value. discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
@@ -136,7 +134,7 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:m:P:S:L:htTlgu:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:m:P:S:L:hRtTlgu:a:v:" opt; do
     case $opt in
     L)
         max_truncated_path_length_difference=$OPTARG
@@ -173,8 +171,12 @@ while getopts ":r:p:k:c:C:d:D:m:P:S:L:htTlgu:a:v:" opt; do
         read_sets=$OPTARG
         ;;
 
-
-    m)
+    R)
+        echo "High recall mode" >&2
+        option_max_symmetrical_crossroads=5
+        ;;
+        
+    m) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
         echo "max_symmetrical_crossroads: $OPTARG" >&2
         option_max_symmetrical_crossroads=$OPTARG
         ;;
