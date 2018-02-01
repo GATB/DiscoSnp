@@ -578,8 +578,10 @@ bool BubbleFinder::expand (
     
     size_t i;
     
-    /** We loop over the successors of the two nodes. */
-    
+	/***************************************************/
+	/** authorizng some symetrical croassroads        **/
+    /** We loop over the successors of the two nodes. **/
+	/***************************************************/
     for (i=0; i<successors.size(); i++)
     {
         
@@ -594,7 +596,7 @@ bool BubbleFinder::expand (
         
         // /** Stop as soon as a bubble is dumped */
         // VERSION 2.2.5: commented this break line. Enable to explore all possible symmetrical paths, even in case of success on one of the paths.
-        //if(dumped_bubble) break;
+		        if(dumped_bubble) break;
     }
     
     DEBUG((cout<<"stop try"<<endl));
