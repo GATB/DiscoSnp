@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
+
+# Author :  Claire Lemaitre, Inria.
+# Last modified : Oct. 2017
 
 import sys
 import getopt
@@ -9,6 +11,7 @@ import getopt
 # filter a vcf file by keeping only variants such that :
 #  - each individual with DP < min_cov is replaced by a missing genotype
 #  - the proportion of missing genotype is < max_missing
+#  - the minor allele freq is >= min_maf
 # outputs a vcf
 
 
@@ -20,11 +23,12 @@ def usage():
     print "-----------------------------------------------------------------------------"
     print sys.argv[0]," : vcf filter"
     print "-----------------------------------------------------------------------------"
-    print "usage: ",sys.argv[0]," -i vcf_file -o output_file [-c min_cov -m max_missing -s]"
+    print "usage: ",sys.argv[0]," -i vcf_file -o output_file [-c min_cov -m max_missing -f min_maf -s]"
     print "  -i: input vcf file"
     print "  -o: output vcf file"
     print "  -m: max missing genotype proportion to keep a variant (between 0 and 1, def = 1)"
     print "  -c: min coverage to call a genotype (int, def=0)"
+    print "  -f: min minor allele frequency (maf) (between 0 and 1, def=0)"
     print "  -s: snp only (def= all variants)"
     print "-----------------------------------------------------------------------------"
     sys.exit(2)
@@ -32,7 +36,7 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "i:o:c:m:s", ["in=", "out=","cov=","miss=","snp-only"])
+        opts, args = getopt.getopt(sys.argv[1:], "i:o:c:m:f:s", ["in=", "out=","cov=","miss=", "freq=","snp-only"])
     except getopt.GetoptError, err:
         # print help information and exit:
         print str(err)  # will print something like "option -a not recognized"
@@ -45,6 +49,7 @@ def main():
     min_cov = 0
     max_missing_prop = 1
     snp_only = 0
+    min_maf = 0
     for opt, arg in opts:
         if opt in ("-i", "--in"):
             input_file = arg
@@ -54,6 +59,8 @@ def main():
             min_cov = int(arg)
         elif opt in ("-m", "--miss"):
             max_missing_prop = float(arg)
+        elif opt in ("-f", "--freq"):
+            min_maf = float(arg)
         elif opt in ("-s", "--snp-only"):
             snp_only=1
         else:
@@ -100,6 +107,9 @@ def main():
 
             line_towrite = "\t".join(splitted[:start_geno])
             missing_count = 0
+            
+            ref_count = 0
+            alt_count = 0
 
             for geno in splitted[start_geno:]:
                 geno_info = geno.split(":")
@@ -113,15 +123,32 @@ def main():
                         genotype = "./."
                         missing_count += 1
                         new_na_count += 1
+                    else:
+                        #count ref and alt alleles
+                        allele1 = genotype[0]
+                        allele2 = genotype[2]
+                        if allele1 == "0":
+                            ref_count += 1
+                        else:
+                            alt_count += 1
+                        if allele2 == "0":
+                            ref_count += 1
+                        else:
+                            alt_count += 1
+                        
                 #rewrite geno info
                 geno_new = genotype+":"+":".join(geno_info[1:])
                 line_towrite += "\t"+geno_new
 
-            ## Filter on missing count
-            if missing_count <= max_missing:
-                filout.write(line_towrite)
-                var_written += 1
-                selected_na_count += missing_count
+            maf = 0
+            # Should we also remove variants that are no longer variable if min_maf = 0, ie alt_count == 0 and ref_count ==0 ??
+            if ref_count+alt_count>0:
+                maf = (float) (min(ref_count,alt_count))/(ref_count+alt_count)
+                ## Filter on missing count and maf
+                if missing_count <= max_missing and maf >= min_maf:
+                    filout.write(line_towrite)
+                    var_written += 1
+                    selected_na_count += missing_count
 
         filin.close()
         filout.close()

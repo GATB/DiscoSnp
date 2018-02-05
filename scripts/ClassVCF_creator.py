@@ -477,7 +477,9 @@ class PATH():
                                         break                #no need to search for XA in other fields
                         i=1
                         while i<len(alternative_positions): #Runs through the list 4 by 4 to get all the positions 
-                                if alternative_positions[i-1]==variant_chromosome and abs(int(alternative_positions[i])) > variant_position-4 and abs(int(alternative_positions[i]))<variant_position+4: continue #Checks if the position is not too close to the main one
+                                if alternative_positions[i-1]==variant_chromosome and abs(int(alternative_positions[i])) > variant_position-4 and abs(int(alternative_positions[i]))<variant_position+4: 
+                                    i+=4
+                                    continue #Checks if the position is not too close to the main one
                                 # if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
                                 self.dicoMappingPos[alternative_positions[i-1]+"_"+alternative_positions[i]]=[int(alternative_positions[i+2]), alternative_positions[i+1]]#the position is associated to the number of mismatch in a dictionary
                                 i+=4

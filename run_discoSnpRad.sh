@@ -48,15 +48,15 @@ version="2.3.X"
 read_sets="" # A file of file(s)
 prefix="discoRad" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
-b=1 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
-c=3 # minimal coverage
+b=2 # all bubbles accepted"
+c=auto # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
-D=100 # maximal size of searched deletions
+D=10 # maximal size of searched deletions
 max_ambigous_indel=20
 P=5 # number of polymorphsim per bubble
-option_max_symmetrical_crossroads=""
+option_max_symmetrical_crossroads="0"
 l="-l"
 extend="-t"
 x="-x"
@@ -108,11 +108,9 @@ function help {
     echo -e "\t\t\t -Note2: if this option is missing, discoSnpRad will still however provide a fasta file containing SNPs and INDELS, that won't be clustered by locus" 
     echo -e "\tDISCOSNPRAD OPTIONS:"
     echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t\t -b value. "
-    echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position Default value"
-    echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-    echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical croasroads traversed while trying to close a bubble. Default: no limit"
-    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=100"
+#    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '5']"
+    echo -e "\t\t -R: high recall mode. With this parameter up to five symmetrical crossroads may be traversed during bubble detection."
+    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=10"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
     echo -e "\t\t -P value. discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
@@ -140,6 +138,7 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
+
 while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
     case $opt in
     L)
@@ -156,10 +155,10 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
         verbose=$OPTARG
         ;;
 
-    s)
-        option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
-        echo ${option_max_symmetrical_crossroads}
-        ;;
+#    s)
+#        option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
+#        echo ${option_max_symmetrical_crossroads}
+#        ;;
     g)
         remove=0
         ;;
@@ -180,11 +179,14 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
         read_sets=$OPTARG
         ;;
 
-
-    b)
-        # TODO B0 FORBIDEN
-        echo "use branching strategy: $OPTARG" >&2
-        b=$OPTARG
+    R)
+        echo "High recall mode" >&2
+        option_max_symmetrical_crossroads=5
+        ;;
+        
+    m) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
+        echo "max_symmetrical_crossroads: $OPTARG" >&2
+        option_max_symmetrical_crossroads=$OPTARG
         ;;
 
     p)
@@ -283,7 +285,7 @@ else
     h5prefix=${prefix}_k_${k}_c_${c_filename}
 
 fi
-kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
+kissprefix=${h5prefix}_D_${D}_P_${P}_m_${option_max_symmetrical_crossroads}
 readsFilesDump=${prefix}_read_files_correspondance.txt
 
 
@@ -363,7 +365,7 @@ T="$(date +%s)"
 echo -e "\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
+kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo ${kissnp2Cmd}
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}
@@ -377,7 +379,7 @@ fi
 T="$(($(date +%s)-T))"
 echo "Bubble detection time in seconds: ${T}"
 
-if [ ! -f $kissprefix.fa ]
+if [ ! -f ${kissprefix}_r.fa ]
 then
         if [[ "$wraith" == "false" ]]; then
         echo "No polymorphism predicted by discoSnpRad"
@@ -388,7 +390,12 @@ then
     fi
 fi
 
-
+#######################################################################
+#################### REDUNDANCY REMOVAL         #######################
+#######################################################################
+redundancy_removal_cmd="python $EDIR/scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
+echo ${redundancy_removal_cmd}
+${redundancy_removal_cmd}
 
 #######################################################################
 #################### KISSREADS                  #######################
