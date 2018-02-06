@@ -362,7 +362,55 @@ struct Functor
     }
     
     void operator() (std::pair<Sequence,Sequence>& pair){
-        // TODO
+        
+        // Shortcut
+        char *read1 = strdup(pair.first.toString().c_str());
+        char * quality1 = strdup(pair.first.getQuality().c_str());
+        char *read2 = strdup(pair.second.toString().c_str());
+        char * quality2 = strdup(pair.second.getQuality().c_str());
+        
+        // for both dirrections of the read
+        for(int direction=0;direction<2;direction++) // try the two possible directions of the read
+        {
+            core_mapping(read1, quality1);
+//            mapped_prediction_as_list.push_back(0);
+            core_mapping(read2, quality2);
+//            mapped_prediction_as_list.push_back(0);
+
+            
+            // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+            for (std::map<u_int64_t, set<u_int64_t> > ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
+                it->second.clear();
+            }
+            tested_prediction_and_pwis.clear();
+            gv.revcomp(read1);
+            gv.rev (quality1);
+            gv.revcomp(read2);
+            gv.rev (quality2);
+        } // end both directions
+        
+        /////// PHASING
+        if (mapped_prediction_as_set.size()>1){                                     // If two or more variants mapped by the same read
+            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+            for (list<u_int64_t> ::iterator it=mapped_prediction_as_list.begin(); it!=mapped_prediction_as_list.end(); ++it){
+                phased_variant_ids.append(to_string(*it)+'_');
+            }
+            // Associate this string to the number of times it is seen when mapping this read set
+            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+        }
+        
+        
+        mapped_prediction_as_set.clear();
+        mapped_prediction_as_list.clear();
+        /////// PHASING
+        
+        
+        free(read1);
+        free(quality1);
+        free(read2);
+        free(quality2);
+
     }
     
     
