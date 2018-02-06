@@ -226,7 +226,9 @@ struct Functor
 //    ISynchronizer* synchro;    fstream& file;
     
     map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
-    set<u_int64_t> mapped_prediction;                                     // stores for this read, the succesfully mapped predictions
+    set<u_int64_t> mapped_prediction_as_set;                              // stores for this read, the succesfully mapped predictions - enables a quick existance testing of an element
+    list<u_int64_t> mapped_prediction_as_list;                            // stores for this read, the succesfully mapped predictions - conserve the predictions order.
+
     
     GlobalValues & gv;
     FragmentIndex& index;
@@ -234,7 +236,21 @@ struct Functor
     u_int64_t * number_of_mapped_reads;
     map<string,int> & phased_variants;
     
+    
+  
+    
     Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads, map<string,int> & phased_variants) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads), phased_variants(phased_variants){}
+    
+    
+    void core_mapping(){
+        
+    }
+    
+    void operator() (std::pair<Sequence,Sequence>& pair){
+        // TODO
+    }
+    
+    
     void operator() (Sequence& seq)
     {
         // Shortcut
@@ -259,8 +275,6 @@ struct Functor
         // pwi >= minimal_read_overlap-|read|
         // pwi >= 7-10 = -3
         // minimal_pwi = minimal_read_overlap-|read|
-        
-        
 		const int stop = read_len-gv.size_seeds+1;
 		
         int direction;
@@ -284,7 +298,7 @@ struct Functor
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
                         couple * value = &(index.seed_table[occurrence_id]);
-                        if (mapped_prediction.count(value->a)!=0) {
+                        if (mapped_prediction_as_set.count(value->a)!=0) {
                             continue; // This prediction was already mapped with this read.
                         }
                         
@@ -344,8 +358,15 @@ struct Functor
                         
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
+                            /// PHASING
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
-                            mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
+                            mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
+                            if (direction==0)
+                                mapped_prediction_as_list.push_back (value->a);     // This prediction whould not be mapped again with the same read
+                            else
+                                mapped_prediction_as_list.push_back (-value->a);
+                            ////// END PHASING
+                            
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
@@ -359,9 +380,9 @@ struct Functor
             
             
             /////// PHASING
-            if (mapped_prediction.size()>1){                                            // If two or more variants mapped by the same read
+            if (mapped_prediction_as_set.size()>1){                                            // If two or more variants mapped by the same read
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-                for (set<u_int64_t> ::iterator it=mapped_prediction.begin(); it!=mapped_prediction.end(); ++it){
+                for (list<u_int64_t> ::iterator it=mapped_prediction_as_list.begin(); it!=mapped_prediction_as_list.end(); ++it){
                     phased_variant_ids.append(to_string(*it)+'_');
                 }
                                                                                         // Associate this string to the number of times it is seen when mapping this read set
@@ -379,7 +400,8 @@ struct Functor
             }
             
             tested_prediction_and_pwis.clear();
-            mapped_prediction.clear();
+            mapped_prediction_as_set.clear();
+            mapped_prediction_as_list.clear();
             
         } // end both directions
         free(read);
@@ -388,6 +410,8 @@ struct Functor
     }
 };
 
+// We a define a functor that will be called during bank parsing
+struct ProgressFunctor : public IteratorListener  {  void inc (u_int64_t current)   {  std::cout << ".";  } };
 
 /**
  * Performs the first extension of the algorithm:
@@ -413,22 +437,36 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     map<string,int> phased_variants;
     
     // Few tests for finding pair of banks.
-    cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
-    for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
-        cout<<inputBank->getIdNb(subBankId)<<endl;
-        IBank* subbank = inputBank->getBanks()[subBankId];
-        cout<<subbank->getId()<<endl;
-    }
-    if (inputBank->getCompositionNb()==2){
-        cout<<"Paired? "<<inputBank->getId()<<endl;
-    }
+//    cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
+//    for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
+//        cout<<"sub " <<inputBank->getIdNb(subBankId)<<endl;
+//        IBank* subbank = inputBank->getBanks()[subBankId];
+//        cout<<"subank id "<<subbank->getId()<<endl;
+//    }
 
+    cout <<inputBank->getId()<<endl;
+    const std::vector<IBank*>& subbanks = inputBank->getBanks();
+    // Test if a bank is composed of two read files.
+    if (inputBank->getCompositionNb()==2 && subbanks[0]->getCompositionNb()==1 && subbanks[1]->getCompositionNb()==1){ // PAIRED END
+        cout<<"PAIRED"<<endl;
+        IBank* bank1 =subbanks[0]; LOCAL(bank1);
+        IBank* bank2 =subbanks[1]; LOCAL(bank2);
+        PairedIterator<Sequence> *  itPair  = new  PairedIterator<Sequence> (bank1->iterator(), bank2->iterator());
+        LOCAL(itPair);
+        
+        ProgressIterator< std::pair <Sequence, Sequence>> prog_iter (itPair, Stringify::format ("Mapping pairend read set %d", read_set_id).c_str(), bank1->estimateNbItems());
+
+        
+//        PairedIterator<Sequence> itPair (bank1->iterator(), bank2->iterator());
+//        ProgressIterator<std::pair<Sequence,Sequence>> iterPair (&itPair, Stringify::format ("Mapping pairend read set %d", read_set_id).c_str(), bank1->estimateNbItems());
+        Dispatcher(nbCores,2047).iterate (prog_iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
+    }
     
-    
-    // We create a sequence iterator for the bank with progress information
-    ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
-    
-    Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
+    else{ // SINGLE END
+        // We create a sequence iterator for the bank with progress information
+        ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
+        Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
+    }
     
     for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
         std::cout << it->first << " => " << it->second << '\n';
