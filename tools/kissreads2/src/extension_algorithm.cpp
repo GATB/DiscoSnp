@@ -243,8 +243,8 @@ struct Functor
     Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads, map<string,int> & phased_variants) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads), phased_variants(phased_variants){}
     
     
-    map<int,u_int64_t> core_mapping(char *read, char * quality){
-        map<int,u_int64_t> pwi_and_mapped_predictions;                        // stores for this reads the succesfully mapped predictions together with their pwi.
+    map<int,int64_t> core_mapping(char *read, char * quality){
+        map<int,int64_t> pwi_and_mapped_predictions;                        // stores for this reads the succesfully mapped predictions together with their pwi.
         
         const uint64_t read_len = strlen(read);
         
@@ -351,8 +351,10 @@ struct Functor
                             // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
                             if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
                                 //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
+                                int sign=direction==0?1:-1;
+                                
                                 if (direction == 0){
-                                    if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = value->a;
+                                    if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = sign*value->a;
                                     // TODO what if this read maps already a variant at the same position ?
                                 }
                                 else{
@@ -376,7 +378,7 @@ struct Functor
                                      * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
                                      */
                                     const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                    if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = value->a;
+                                    if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = sign*value->a;
                                     // TODO what if this read maps already a variant at the same position ?
                                     ///
                                 }
@@ -419,8 +421,8 @@ struct Functor
         char *read2 = strdup(pair.second.toString().c_str());
         char * quality2 = strdup(pair.second.getQuality().c_str());
         
-        map<int,u_int64_t> pwi_and_mapped_predictions1 = core_mapping(read1, quality1);
-        map<int,u_int64_t> pwi_and_mapped_predictions2 = core_mapping(read2, quality2);
+        map<int,int64_t> pwi_and_mapped_predictions1 = core_mapping(read1, quality1);
+        map<int,int64_t> pwi_and_mapped_predictions2 = core_mapping(read2, quality2);
         
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
@@ -428,26 +430,36 @@ struct Functor
         if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
-            for (map<int,u_int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
-                const u_int64_t var_id =it->second;
-                string phased_variant_id = to_string(int((var_id+2)/2));
-                if (((var_id)%2)==0)   phased_variant_id = "higher_path_"+phased_variant_id;
-                else                   phased_variant_id = "lower_path_"+phased_variant_id;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id +=to_string(int((var_id+2)/2));
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             phased_variant_ids += ' ';
             
-            for (map<int,u_int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
-                const u_int64_t var_id =it->second;
-                string phased_variant_id = to_string(int((var_id+2)/2));
-                if (((var_id)%2)==0)   phased_variant_id = "higher_path_"+phased_variant_id;
-                else                   phased_variant_id = "lower_path_"+phased_variant_id;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id +=to_string(int((var_id+2)/2));
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             
@@ -478,7 +490,7 @@ struct Functor
         char *read = strdup(seq.toString().c_str());
         char * quality = strdup(seq.getQuality().c_str());
         
-        map<int,u_int64_t> pwi_and_mapped_predictions = core_mapping(read, quality);
+        map<int,int64_t> pwi_and_mapped_predictions = core_mapping(read, quality);
         
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
@@ -486,14 +498,25 @@ struct Functor
         if (pwi_and_mapped_predictions.size()>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
-            for (map<int,u_int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
-                const u_int64_t var_id =it->second;
-                string phased_variant_id = to_string(int((var_id+2)/2));
-                if (((var_id)%2)==0)   phased_variant_id = "higher_path_"+phased_variant_id;
-                else                   phased_variant_id = "lower_path_"+phased_variant_id;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id += to_string(int((var_id+2)/2));
+                
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
+                //DEBUG
+//                cout<<phased_variant_id<<endl;
+//                cout<<it->first<<" "<<it->second<<endl;
+//                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                //ENDDEBUG
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             // Associate this string to the number of times it is seen when mapping this read set
@@ -565,8 +588,9 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
     }
     
-    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
-        std::cout << it->first << " => " << it->second << '\n';
+    // UNCOMMENT TO SEE PHASING INFORMATION: 
+//    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+//        std::cout << it->first << " => " << it->second << '\n';
     
     
     return number_of_mapped_reads;

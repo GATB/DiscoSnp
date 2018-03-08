@@ -181,8 +181,9 @@ void Kissnp2::execute ()
     getInfo()->add (2, "nb",   "%lu", nbNodes);
     getInfo()->add (1, "SNP bubbles",  "");
     getInfo()->add (2, "nb",      "%lu", stats.nb_bubbles_snp);
-    getInfo()->add (2, "nb_high", "%lu", stats.nb_bubbles_snp_high);
-    getInfo()->add (2, "nb_low",  "%lu", stats.nb_bubbles_snp_low);
+    getInfo()->add (3, "nb truncated (among all)",      "%lu", stats.nb_bubbles_snp_truncated);
+    getInfo()->add (3, "nb_high", "%lu", stats.nb_bubbles_snp_high);
+    getInfo()->add (3, "nb_low",  "%lu", stats.nb_bubbles_snp_low);
     getInfo()->add (2, "extensions",  "");
     getInfo()->add (3, "none",       "%d", stats.nb_where_to_extend_snp[0]);
     getInfo()->add (3, "left",       "%d", stats.nb_where_to_extend_snp[1]);
