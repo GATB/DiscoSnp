@@ -97,7 +97,7 @@ mv ${percent_missing}missing_${rawdiscofile_base}.fa ERASEME_${percent_missing}m
 original_disco=ERASEME_${percent_missing}missing_${rawdiscofile_base}
 
 before=$( grep 'higher' $rawdiscofile | wc -l )
-after=$( grep 'higher' ${original_disco}.fa | wc -l )
+after=$(grep 'higher' ${original_disco}.fa | wc -l )
 
 echo "Done, "$after"/"$before" variants conserved for clustering"
 

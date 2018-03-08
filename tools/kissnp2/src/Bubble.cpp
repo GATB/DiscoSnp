@@ -326,8 +326,9 @@ void BubbleFinder::start (Bubble& bubble, const BranchingNode& node)
         for (size_t j=i+1; j<successors.size(); j++)
         {
             bubble.begin[1] = successors[j];
-            bubble.isCanonical=false;
+            bubble.isCanonical  =false;
             bubble.closed_bubble=false;
+            bubble.truncated    =false;
             /*************************************************/
             /** Try a SNP                         **/
             /*************************************************/
@@ -551,19 +552,24 @@ bool BubbleFinder::expand (
             if ( graph.getNT(node1, sizeKmer-i-1)!=graph.getNT(node2, sizeKmer-i-1)){
                 return false;
             }
-        bool close_truncated=false;
         int disymetrical_end_size=0;
         // First case: only upper path ends
         if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_truncated_path_length_difference, disymetrical_end_size)) {
             disymetrical_end_size=-disymetrical_end_size;
-            close_truncated=true;
+            bubble.truncated    =true;
         }
+        
         // second case: only lower path ends
-        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_truncated_path_length_difference, disymetrical_end_size)) close_truncated=true;
+        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_truncated_path_length_difference, disymetrical_end_size)) {
+            bubble.truncated    =true;
+        }
+        
         // third case: the both paths end, nothing additional to be checked.
-        if (suc1 == suc2) close_truncated=true;
+        if (suc1 == suc2) {
+            bubble.truncated    =true;
+        }
     
-        if (close_truncated){
+        if (bubble.truncated){
             /** We call expand_heart with a false nextnode **/
             Node notzero = Node(~0);
             dumped_bubble = expand_heart(nb_polymorphism,notzero,notzero,node1,node2,previousNode1,previousNode2,local_extended_string1,local_extended_string2,sym_branches, stack_size,disymetrical_end_size);
@@ -773,8 +779,9 @@ void BubbleFinder::finish (const int disymetrical_end_size)
         //        stats.nb_bubbles++;
         if (bubble.type==0){
             stats.nb_where_to_extend_snp[bubble.where_to_extend] ++;
-            if (bubble.high_complexity)  { stats.nb_bubbles_snp_high++; }
-            else                         { stats.nb_bubbles_snp_low++;  }
+            if (bubble.high_complexity)  { stats.nb_bubbles_snp_high++;         }
+            else                         { stats.nb_bubbles_snp_low++;          }
+            if (bubble.truncated)        { stats.nb_bubbles_snp_truncated++;    }
         }
         if (bubble.type==1){
             stats.nb_where_to_extend_del[bubble.where_to_extend] ++;

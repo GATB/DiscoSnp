@@ -27,7 +27,6 @@
 
 #include <extension_algorithm.h>
 
-//#define PHASING
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -48,7 +47,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
         start_on_prediction=0;
         start_on_read=-pwi;
     }
-
+    
     /*
      *        | pwi (positive)
      *     --------------  fragment
@@ -59,13 +58,13 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
         start_on_prediction=pwi;
         start_on_read=0;
     }
-
+    
     int i;
-
+    
     
     FragmentInfo* the_prediction=predictions[prediction_id];
     FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference?
-	
+    
     if(pwi+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
     
@@ -102,7 +101,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
 #ifdef KMER_SPANNING
     // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
     // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped
-	
+    
     //  -------------------------------------------------------------- prediction
     //            ************************
     //                       <-----k----->
@@ -112,7 +111,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
 #endif
     
     for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[i]);
-	
+    
     
     
 }
@@ -131,66 +130,66 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
  *  returns 1 if true between read and fragment, 0 else
  */
 bool constrained_read_mappable(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions, const int seed_position_on_read, const int size_seed){
-	int substitution_seen=0; // number of seen substitutions for now
-	int pos_on_read, pos_on_fragment; // where to start
+    int substitution_seen=0; // number of seen substitutions for now
+    int pos_on_read, pos_on_fragment; // where to start
     
-//       print_mapping(pwi,fragment,read); //DEB
+    //       print_mapping(pwi,fragment,read); //DEB
     
-	/*
-	 *  | pwi (negative)
-	 *     --------------  fragment
-	 *  *************      read
-	 *     | we start here
-	 */
-	if(pwi<0) {
-		pos_on_fragment=0;
-		pos_on_read=-pwi;
-	}
+    /*
+     *  | pwi (negative)
+     *     --------------  fragment
+     *  *************      read
+     *     | we start here
+     */
+    if(pwi<0) {
+        pos_on_fragment=0;
+        pos_on_read=-pwi;
+    }
     
-	/*
-	 *        | pwi (positive)
-	 *     --------------  fragment
-	 *        *************      read
-	 *        | we start here
-	 */
-	else{
-		pos_on_fragment=pwi;
-		pos_on_read=0;
-	}
+    /*
+     *        | pwi (positive)
+     *     --------------  fragment
+     *        *************      read
+     *        | we start here
+     */
+    else{
+        pos_on_fragment=pwi;
+        pos_on_read=0;
+    }
     
-    //const int snp_pos = strlen(fragment)/2;
-    char snp_pos = SNP_positions[0];
+    int snp_pos = SNP_positions[0];
     
     int id_array_SNP_position=0;
     
-	// walk the read and the fragment together, detecting substitutions.
-	// stop if the number of substitution is too high
-	while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
+    
+    // walk the read and the fragment together, detecting substitutions.
+    // stop if the number of substitution is too high
+    while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
         // we know that the seed has a perfect match. We can skip this positions.
         // TODO: test this latter, i've found a valgrind error (28 oct 2015)
-//        if (pos_on_read==seed_position_on_read){
-//            pos_on_fragment+=size_seed;
-//            pos_on_read+=size_seed;
-//        }
+        //        if (pos_on_read==seed_position_on_read){
+        //            pos_on_fragment+=size_seed;
+        //            pos_on_read+=size_seed;
+        //        }
         if (pos_on_fragment>snp_pos)
         {
             id_array_SNP_position++;
             snp_pos = SNP_positions[id_array_SNP_position];
         }
-		if (fragment[pos_on_fragment]!=toupper(read[pos_on_read]) &&
+        if (fragment[pos_on_fragment]!=toupper(read[pos_on_read]) &&
             fragment[pos_on_fragment]!='*' &&
             fragment[pos_on_fragment]!='?' &&
             fragment[pos_on_fragment]!='N'){ // one subsitution
-			substitution_seen++;
-			if(substitution_seen>subst_allowed) return false; // too much subsitutions
+            substitution_seen++;
+            if(substitution_seen>subst_allowed) return false; // too much subsitutions
             if(pos_on_fragment==snp_pos) {
                 return false; // substition should not be on the snp
             }
-		}
-		pos_on_fragment++;
-		pos_on_read++;
-	}
-	return true;
+        }
+        pos_on_fragment++;
+        pos_on_read++;
+    }
+    return true;
 }
 
 
@@ -211,7 +210,7 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
 //int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
-    
+
 //    int i, val_min=INT_MAX;
 //    const  int stopi=the_prediction.upperCaseSequence.size();
 //    for(i=0;i<stopi;i++){ // for each position on the read
@@ -224,30 +223,35 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
 // We define a functor that will be cloned by the dispatcher
 struct Functor
 {
-//    ISynchronizer* synchro;    fstream& file;
+    //    ISynchronizer* synchro;    fstream& file;
     
     map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
-    set<u_int64_t> mapped_prediction;                                     // stores for this read, the succesfully mapped predictions
+    set<u_int64_t> mapped_prediction_as_set;                              // stores for this read, the succesfully mapped predictions - enables a quick existance testing of an element
+    //    list<u_int64_t> mapped_prediction_as_list;                            // stores for this read, the succesfully mapped predictions - conserve the predictions order.
+    
+    
     
     GlobalValues & gv;
     FragmentIndex& index;
     const int read_set_id;
-//    u_int64_t read_id=0;
-    
     u_int64_t * number_of_mapped_reads;
+    map<string,int> & phased_variants;
     
-    Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads){}
-    void operator() (Sequence& seq)
-    {
-        // Shortcut
-        char *read = strdup(seq.toString().c_str());
-        const uint64_t read_len = strlen(read);
-        char * quality = strdup(seq.getQuality().c_str());
+    
+    
+    
+    Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads, map<string,int> & phased_variants) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads), phased_variants(phased_variants){}
+    
+    
+    map<int,int64_t> core_mapping(char *read, char * quality){
+        map<int,int64_t> pwi_and_mapped_predictions;                        // stores for this reads the succesfully mapped predictions together with their pwi.
         
-        const int minimal_pwi = gv.minimal_read_overlap - seq.getDataSize();
+        const uint64_t read_len = strlen(read);
+        
+        const int minimal_pwi = gv.minimal_read_overlap - read_len;//seq.getDataSize();
         uint64_t offset_seed;
         uint64_t nb_occurrences;
-
+        
         
         
         // The read must overlap the fragment with at least minimal_read_overlap positions.
@@ -261,22 +265,16 @@ struct Functor
         // pwi >= minimal_read_overlap-|read|
         // pwi >= 7-10 = -3
         // minimal_pwi = minimal_read_overlap-|read|
-        
-        
-		const int stop = read_len-gv.size_seeds+1;
-		
-        int direction;
+        const int stop = read_len-gv.size_seeds+1;
         kmer_type coded_seed;
         
-        bool toinit=true;
         // for both dirrections of the read
-        for(direction=0;direction<2;direction++){ // try the two possible directions of the read
-            toinit=true; // we have to init a new seed
+        for(int direction=0;direction<2;direction++) // try the two possible directions of the read
+        {
             // read all seeds present on the read:
             for (int seed_position=0;seed_position<stop;seed_position++){ // for all possible seed on the read
-                if(toinit) {
+                if(seed_position==0) {
                     coded_seed=gv.codeSeed(read+seed_position); // init the seed
-                    toinit=false;
                 }
                 else { // previous seed was correct, we extend it.
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
@@ -286,7 +284,7 @@ struct Functor
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
                         couple * value = &(index.seed_table[occurrence_id]);
-                        if (mapped_prediction.count(value->a)!=0) {
+                        if (mapped_prediction_as_set.count(value->a)!=0) {
                             continue; // This prediction was already mapped with this read.
                         }
                         
@@ -306,10 +304,10 @@ struct Functor
                         
                         
                         const int pwi = value->b-seed_position; // starting position of the read on the prediction.
-                        if (tested_positions.count(pwi) != 0) continue; // this reads was already (unsuccessfuly) tested with this prediction at this position. No need to try it again.
+                        if (tested_positions.count(pwi) != 0) continue; // this reads was already tested with this prediction at this position. No need to try it again.
                         tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
                         
-            
+                        
                         
                         
                         
@@ -339,15 +337,55 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-
+                        
                         const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
-
                         
-                        
+#ifdef DEBUG_MAPPING
+                        if (is_read_mapped) cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->a<<" pos "<<pwi<<endl;
+#endif
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
-                            mapped_prediction.insert(value->a); // This prediction whould not be mapped again with the same read
+                            /// PHASING
+                            mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
+                            // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
+                            if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
+                                //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
+                                int sign=direction==0?1:-1;
+                                
+                                if (direction == 0){
+                                    if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = sign*value->a;
+                                    // TODO what if this read maps already a variant at the same position ?
+                                }
+                                else{
+                                    
+                                    //        ;;;;;;;;;;;  prediction (11)
+                                    //             ******************************       read (30)
+                                    //             <----> minimal_read_overlap (6)
+                                    //        <---> pwi (5)
+                                    //                   <----------------------> rc_pwi (-24)
+                                    // we have : |read_overlap| = |prediction|-pwi
+                                    // we have : rc_pwi = |read_overlap|-|read|
+                                    // we have : rc_pwi = |prediction|-pwi-read
+                                    // rc_pwi = 11-5-30 = -24.
+                                    
+                                    // Validation with pwi<0:
+                                    /*
+                                     *  <-> pwi (-3)
+                                     *     --------------  prediction (14)
+                                     *  ***********        read (11)
+                                     *             <----> rc_pwi=6
+                                     * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
+                                     */
+                                    const int rc_pwi = strlen(prediction) - pwi - read_len;
+                                    if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = sign*value->a;
+                                    // TODO what if this read maps already a variant at the same position ?
+                                    ///
+                                }
+                            }
+                            
+                            ////// END PHASING
+                            
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
                             cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
@@ -359,41 +397,146 @@ struct Functor
                 } // end all infos for the current seed
             } // end all seeds of the read
             
-#ifdef PHASING
-            if (mapped_prediction.size()>1){
-                cout<<"\nphased ";
-                for (set<u_int64_t> ::iterator it=mapped_prediction.begin(); it!=mapped_prediction.end(); ++it){
-                    cout<<*it<<" ";
-                }
-                cout<<endl;
-            }
-#endif
- 
-            // #phasing
-            
-            gv.revcomp(read);
-            gv.rev (quality);
-            
-            
-            // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+            // Clean the temp mapping positions and tested pwi //
             for (std::map<u_int64_t, set<u_int64_t> > ::iterator it=tested_prediction_and_pwis.begin(); it!=tested_prediction_and_pwis.end(); ++it){
-                
                 it->second.clear();
             }
+            tested_prediction_and_pwis.clear();
+            mapped_prediction_as_set.clear();
             
-//            if (read_id%2==1){ //DEB TEST TEST TEST TO REMOVE !! DIRTY WAY TO SIMULATE PAIREND READS
-                tested_prediction_and_pwis.clear();
-                mapped_prediction.clear();
-//            }
-//            read_id+=1;
+            // Return the read if necessary //
+            if (direction == 0){
+                gv.revcomp(read);
+                gv.rev (quality);
+            }
             
         } // end both directions
+        return pwi_and_mapped_predictions;
+    }
+    
+    void operator() (std::pair<Sequence,Sequence>& pair){
+        // Shortcut
+        char *read1 = strdup(pair.first.toString().c_str());
+        char * quality1 = strdup(pair.first.getQuality().c_str());
+        char *read2 = strdup(pair.second.toString().c_str());
+        char * quality2 = strdup(pair.second.getQuality().c_str());
+        
+        map<int,int64_t> pwi_and_mapped_predictions1 = core_mapping(read1, quality1);
+        map<int,int64_t> pwi_and_mapped_predictions2 = core_mapping(read2, quality2);
+        
+        // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+        
+        /////// PHASING
+        if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
+            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+            
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
+                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                // TODO: optimize this
+                //                const int pwi = it->first;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id +=to_string(int((var_id+2)/2));
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
+                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+            }
+            phased_variant_ids += ' ';
+            
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
+                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                // TODO: optimize this
+                //                const int pwi = it->first;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id +=to_string(int((var_id+2)/2));
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
+                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+            }
+            
+            // Associate this string to the number of times it is seen when mapping this read set
+            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+        }
+        
+        pwi_and_mapped_predictions1.clear();
+        pwi_and_mapped_predictions2.clear();
+        /////// PHASING
+        
+        
+        
+        free(read1);
+        free(quality1);
+        free(read2);
+        free(quality2);
+        
+    }
+    
+    
+    
+    
+    void operator() (Sequence& seq)
+    {
+        // Shortcut
+        char *read = strdup(seq.toString().c_str());
+        char * quality = strdup(seq.getQuality().c_str());
+        
+        map<int,int64_t> pwi_and_mapped_predictions = core_mapping(read, quality);
+        
+        // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+        
+        /////// PHASING
+        if (pwi_and_mapped_predictions.size()>1){                                            // If two or more variants mapped by the same read
+            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+            
+            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                // TODO: optimize this
+                //                const int pwi = it->first;
+                int64_t var_id =it->second;
+                string phased_variant_id = "";
+                if (var_id<0){
+                    phased_variant_id ="-";
+                    var_id=-var_id;
+                }
+                phased_variant_id += to_string(int((var_id+2)/2));
+                
+                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+                else                   phased_variant_id = phased_variant_id+"l";
+                //DEBUG
+//                cout<<phased_variant_id<<endl;
+//                cout<<it->first<<" "<<it->second<<endl;
+//                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                //ENDDEBUG
+                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+            }
+            // Associate this string to the number of times it is seen when mapping this read set
+            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+        }
+        
+        pwi_and_mapped_predictions.clear();
+        /////// PHASING
+        
+        
+        
         free(read);
         free(quality);
-      
+        
     }
 };
 
+// We a define a functor that will be called during bank parsing
+struct ProgressFunctor : public IteratorListener  {  void inc (u_int64_t current)   {  std::cout << ".";  } };
 
 /**
  * Performs the first extension of the algorithm:
@@ -408,20 +551,46 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
                                                  const int read_set_id
                                                  ){
     //////////////////////////////////////////////////////////////////////////
-	/////////////// read all reads - storing those coherent with reads ///////
-	//////////////////////////////////////////////////////////////////////////
+    /////////////// read all reads - storing those coherent with reads ///////
+    //////////////////////////////////////////////////////////////////////////
     
     
     
     
     
     u_int64_t number_of_mapped_reads = 0;
-
+    map<string,int> phased_variants;
     
-    // We create a sequence iterator for the bank with progress information
-    ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
+    // Few tests for finding pair of banks.
+    //    cout <<inputBank->getId()<<" "<<inputBank->getCompositionNb()<<endl;
+    //    for (int subBankId=0; subBankId<inputBank->getCompositionNb(); subBankId++){
+    //        cout<<"sub " <<inputBank->getIdNb(subBankId)<<endl;
+    //        IBank* subbank = inputBank->getBanks()[subBankId];
+    //        cout<<"subank id "<<subbank->getId()<<endl;
+    //    }
     
-    Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads));
+    cout <<inputBank->getId()<<endl;
+    const std::vector<IBank*>& subbanks = inputBank->getBanks();
+    // Test if a bank is composed of two read files.
+    if (inputBank->getCompositionNb()==2 && subbanks[0]->getCompositionNb()==1 && subbanks[1]->getCompositionNb()==1){ // PAIRED END
+        IBank* bank1 =subbanks[0]; LOCAL(bank1);
+        IBank* bank2 =subbanks[1]; LOCAL(bank2);
+        PairedIterator<Sequence> *  itPair  = new  PairedIterator<Sequence> (bank1->iterator(), bank2->iterator());
+        LOCAL(itPair);
+        
+        ProgressIterator< std::pair <Sequence, Sequence>> prog_iter (itPair, Stringify::format ("Mapping pairend read set %d", read_set_id).c_str(), bank1->estimateNbItems());
+        Dispatcher(nbCores,2047).iterate (prog_iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
+    }
+    
+    else{ // SINGLE END
+        // We create a sequence iterator for the bank with progress information
+        ProgressIterator<Sequence> iter (*inputBank, Stringify::format ("Mapping read set %d", read_set_id).c_str());
+        Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
+    }
+    
+    // UNCOMMENT TO SEE PHASING INFORMATION: 
+//    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+//        std::cout << it->first << " => " << it->second << '\n';
     
     
     return number_of_mapped_reads;
@@ -438,7 +607,6 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
     
     int prediction_id;
     for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
-        
         index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
     } // end all fragments
 }

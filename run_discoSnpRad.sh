@@ -85,6 +85,7 @@ fi
 chmod u+x $EDIR/scripts/*.sh $EDIR/scripts_RAD/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
+wraith="false"
 bwa_path_option=""
 bwa_distance=4
 max_truncated_path_length_difference=0
@@ -120,6 +121,9 @@ function help {
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
     echo -e "\t\t -u: max number of used threads"
+    
+    
+    echo -e "\t\t -w: Wraith mode: only show all discoSnp++ commands without running them"
     echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
     # echo -e "\t\t -x: variant detection radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
     # echo -e "\t\t -y: variant coverage radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
@@ -134,7 +138,8 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:m:P:S:L:hRtTlgu:a:v:" opt; do
+
+while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
     case $opt in
     L)
         max_truncated_path_length_difference=$OPTARG
@@ -158,6 +163,9 @@ while getopts ":r:p:k:c:C:d:D:m:P:S:L:hRtTlgu:a:v:" opt; do
         remove=0
         ;;
 
+    w)
+        wraith="true"
+        ;;
     l)
         l=""
         ;;
@@ -332,8 +340,10 @@ if [ ! -e $h5prefix.h5 ]; then
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
     echo ${graphCmd}
-    ${graphCmd}
-
+    if [[ "$wraith" == "false" ]]; then
+        ${graphCmd}
+    fi
+    
     if [ $? -ne 0 ]
     then
         echo "there was a problem with graph construction"
@@ -357,8 +367,9 @@ echo -e "\t#################### KISSNP2 MODULE  #######################"
 echo -e "\t############################################################"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo ${kissnp2Cmd}
-${kissnp2Cmd}
-
+if [[ "$wraith" == "false" ]]; then
+    ${kissnp2Cmd}
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem with kissnp2"
@@ -370,11 +381,13 @@ echo "Bubble detection time in seconds: ${T}"
 
 if [ ! -f ${kissprefix}_r.fa ]
 then
-    echo "No polymorphism predicted by discoSnpRad"
-    echo -e -n "\t ending date="
-    date
-    echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/"
-    exit 
+        if [[ "$wraith" == "false" ]]; then
+        echo "No polymorphism predicted by discoSnpRad"
+        echo -e -n "\t ending date="
+        date
+        echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/"
+        exit 
+    fi
 fi
 
 #######################################################################
@@ -404,8 +417,9 @@ index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose"
 
 echo $kissreadsCmd
-$kissreadsCmd
-
+if [[ "$wraith" == "false" ]]; then
+    $kissreadsCmd
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem with kissreads2":
@@ -423,21 +437,25 @@ T="$(($(date +%s)-T))"
 echo -e "\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
 echo -e "\t###############################################################"
-sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
+if [[ "$wraith" == "false" ]]; then
+    sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem with the result sorting."
     exit 1
 fi
-
-sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
+if [[ "$wraith" == "false" ]]; then
+    sort -rg ${kissprefix}_uncoherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_uncoherent.fa
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem with the result sorting"
     exit 1
 fi
 
-rm -f ${read_sets}_${kissprefix}_removemeplease
+rm -f ${read_sets}_${kissprefix}_removemeplease 
+rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
@@ -460,7 +478,9 @@ T="$(date +%s)"
 if [ -f "$src_file" ]; then
     cmd="$EDIR/scripts_RAD/discoRAD_finalization.sh ${kissprefix}_coherent.fa $short_read_connector_path" 
     echo $cmd
-    $cmd
+    if [[ "$wraith" == "false" ]]; then
+        $cmd
+    fi  
     T="$(($(date +%s)-T))"
     echo "RAD clustering per locus time in seconds: ${T}"
 else
