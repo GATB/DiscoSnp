@@ -29,6 +29,7 @@
 
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
+//#define PHASING
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
@@ -346,7 +347,9 @@ struct Functor
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
+                            
                             /// PHASING
+#ifdef PHASING
                             mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
                             // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
                             if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
@@ -385,6 +388,7 @@ struct Functor
                             }
                             
                             ////// END PHASING
+#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
@@ -427,6 +431,7 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
+        #ifdef PHASING
         if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
@@ -470,7 +475,8 @@ struct Functor
         
         pwi_and_mapped_predictions1.clear();
         pwi_and_mapped_predictions2.clear();
-        /////// PHASING
+#endif // Phasing
+        /////// END PHASING
         
         
         
@@ -495,6 +501,7 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
+        #ifdef PHASING
         if (pwi_and_mapped_predictions.size()>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
@@ -525,8 +532,8 @@ struct Functor
         }
         
         pwi_and_mapped_predictions.clear();
-        /////// PHASING
-        
+        /////// END PHASING
+#endif // phasing
         
         
         free(read);
@@ -588,9 +595,12 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         Dispatcher(nbCores,2047).iterate (iter, Functor(gv, index, read_set_id, &number_of_mapped_reads, phased_variants));
     }
     
-    // UNCOMMENT TO SEE PHASING INFORMATION: 
-//    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
-//        std::cout << it->first << " => " << it->second << '\n';
+    // PHASING:
+    #ifdef PHASING
+    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+        std::cout << it->first << " => " << it->second << '\n';
+#endif // PHASING
+    // ENDPHASING
     
     
     return number_of_mapped_reads;
