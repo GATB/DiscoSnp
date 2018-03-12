@@ -139,7 +139,7 @@ function help {
 #################### GET OPTIONS                #######################
 #######################################################################
 
-while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTRwlgu:a:v:" opt; do
     case $opt in
     L)
         max_truncated_path_length_difference=$OPTARG
@@ -187,6 +187,11 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTwlgu:a:v:" opt; do
     m) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
         echo "max_symmetrical_crossroads: $OPTARG" >&2
         option_max_symmetrical_crossroads=$OPTARG
+        ;;
+    
+    R) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
+        echo "High recall mode: max_symmetrical_crossroads: $OPTARG" >&2
+        option_max_symmetrical_crossroads=5
         ;;
 
     p)
