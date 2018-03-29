@@ -481,7 +481,7 @@ echo -e "\t###############################################################"
 
 T="$(date +%s)"
 if [ -f "$src_file" ]; then
-    cmd="$EDIR/scripts_RAD/discoRAD_finalization.sh ${kissprefix}_coherent.fa $short_read_connector_path" 
+    cmd="$EDIR/scripts_RAD/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s $short_read_connector_path" 
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
         $cmd
@@ -490,7 +490,7 @@ if [ -f "$src_file" ]; then
     echo "RAD clustering per locus time in seconds: ${T}"
 else
     echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
-    echo "  $EDIR/scripts_RAD/discoRAD_finalization.sh ${kissprefix}_coherent.fa short_read_connector_path"
+    echo "  $EDIR/scripts_RAD/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s short_read_connector_path"
     echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
 fi
 

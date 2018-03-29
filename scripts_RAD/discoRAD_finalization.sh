@@ -3,14 +3,7 @@
 # REQUIRES:
 ## Python 3
 ## short_read_connector: installed and compiled: https://github.com/GATB/short_read_connector
-## quick_hierarchical_clustering compiled:
-### c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering     # WITH LINUX
-### clang++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering # WITH MACOS
-
-# echo "WARNING1: short_read_connector must have been compiled"
-# echo "WARNING2: quick_hierarchical_clustering.cpp must have been compiled :"
-# echo "  c++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering     # WITH LINUX"
-# echo "  clang++ -std=gnu++11 quick_hierarchical_clustering.cpp -o quick_hierarchical_clustering # WITH MACOS"
+# echo "WARNING: short_read_connector must have been compiled"
 
 
 function help {
@@ -67,7 +60,7 @@ done
 # Detect the directory path
 
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-
+BINDIR=$EDIR"/../build/bin"
 rawdiscofile_base=$( basename  "${rawdiscofile}" .fa)
 
 #################### PARAMETERS VALUES #######################
@@ -115,6 +108,7 @@ ls ${discofile}.fa > ${discofile}.fof
 
 # Compute sequence similarities
 cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}"
+echo $cmdSRC
 $cmdSRC
 
 if [ $? -ne 0 ]
@@ -124,11 +118,24 @@ then
 fi
 
 # Compute the clustering
-${EDIR}/quick_hierarchical_clustering ${discofile}.txt > ${discofile}.cluster
+cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}.txt"
+echo $cmdqhc " > ${discofile}.cluster"
+$cmdqhc > ${discofile}.cluster
+if [ $? -ne 0 ]
+then
+    echo "there was a problem with quick_hierarchical_clustering, exit"
+    exit 1
+fi
 
 # Generate a .fa file with clustering information
-python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster > ${original_disco}_with_clusters.fa
-
+cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster"
+echo $cmd "> ${original_disco}_with_clusters.fa"
+$cmd > ${original_disco}_with_clusters.fa
+if [ $? -ne 0 ]
+then
+    echo "there was a problem when generating a .fa file with clustering information, exit"
+    exit 1
+fi
 
 ######################### VCF generation with cluster information ###########################
 
@@ -137,6 +144,7 @@ echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
 cmdVCF="${EDIR}/../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
+echo $cmdVCF
 $cmdVCF
 
 if [ $? -ne 0 ]
@@ -152,6 +160,7 @@ echo "################### FILTER PARALOGS ########################"
 echo "############################################################"
 
 cmdpara="python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}"
+echo $cmdpara
 $cmdpara
 
 if [ $? -ne 0 ]
@@ -163,6 +172,7 @@ fi
 # Remove low ranked variants
 
 cmdrk="python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}"
+echo $cmdrk
 $cmdrk
 
 if [ $? -ne 0 ]
@@ -177,6 +187,7 @@ grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_cl
 # Format chromosome Names in the VCF
 python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf > ${original_disco}_with_sorted_formatted_clusters.vcf
 
+
 # Clean results
 mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf
 
@@ -184,7 +195,7 @@ rm -f *ERASEME*
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
 echo "============================"
-echo " DISCORAD FINALIZATION DONE"
+echo " DISCORAD FINALIZATION DONE "
 echo "============================"
 echo " Results in ${rawdiscofile_base}_sorted_with_clusters.vcf"
 echo " Logs in log_${rawdiscofile_base}_sorted_with_clusters.txt"
