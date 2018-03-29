@@ -198,10 +198,11 @@ if [ -z "$samfile" ];then
        fi
        #Ghost mode
        if [ -z "$genome" ]; then
-              if [[ "$discoSNPs" =~ sam ]]; then
-                     echo "!!! Disco file can't be a sam file !!!"
-                     exit 1
-              fi
+              # if [[ "$discoSNPs" =~ sam ]]; then
+              #     echo "$discoSNPs"
+              #        echo "!!! Disco file can't be a sam file !!!"
+              #        exit 1
+              # fi
               echo -e "...Ghost mode..."
               echo -e "...Creation of a vcf without alignment..."
               if [ -z "$discoSNPs" ] && [ -z "$vcffile" ];then
