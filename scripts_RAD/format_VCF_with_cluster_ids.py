@@ -6,7 +6,7 @@ import sys
 
 #
 #input: disco.vcf
-#output : new disco.vcf transforming "cluster_4651_size_14_SNP_higher_path_826058	31	826058	A	G	" into "cluster_4651_size_14	.	826058_SNP_higher_path_826058	A	G"	
+#output : new disco.vcf transforming "cluster_4651_size_14_SNP_higher_path_826058	31	826058_2	A	G	" into "cluster_4651_size_14	.	SNP_higher_path_826058_2	A	G"	
 #Warning: the mapping position becomes erroneous as we are not able to map on a cluster. This is why ti is silented
 #
 #usage : python format_VCF_with_cluster_ids.py disco.vcf
@@ -41,9 +41,10 @@ def output_newvcf(vcf_file):
             cluster_id_and_size+="_"+cluster_and_size_and_path_ids[i]
         
         # generate the path id
-        path_id = cluster_and_size_and_path_ids[4]
-        for i in range(5,len(cluster_and_size_and_path_ids)):
-            path_id+="_"+cluster_and_size_and_path_ids[i]
+        path_id = ""
+        for i in range(4,len(cluster_and_size_and_path_ids)-1):
+            path_id+=cluster_and_size_and_path_ids[i]+"_"
+        path_id+=splitline[2]
             
         
         print (cluster_id_and_size+"\t.\t"+path_id, end='')
