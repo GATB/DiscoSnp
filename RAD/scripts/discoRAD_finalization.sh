@@ -60,7 +60,7 @@ done
 # Detect the directory path
 
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-BINDIR=$EDIR"/../build/bin"
+BINDIR=$EDIR"/../../build/bin"
 rawdiscofile_base=$( basename  "${rawdiscofile}" .fa)
 
 #################### PARAMETERS VALUES #######################
@@ -143,7 +143,7 @@ echo "############################################################"
 echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
-cmdVCF="${EDIR}/../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
+cmdVCF="${EDIR}/../../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
 echo $cmdVCF
 $cmdVCF
 

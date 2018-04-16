@@ -69,20 +69,20 @@ short_read_connector_path=""
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
-if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
-    read_file_names_bin=$EDIR/build/bin/read_file_names
-    dbgh5_bin=$EDIR/build/ext/gatb-core/bin/dbgh5
-    kissnp2_bin=$EDIR/build/bin/kissnp2
-    kissreads2_bin=$EDIR/build/bin/kissreads2
+if [ -d "$EDIR/../build/" ] ; then # VERSION SOURCE COMPILED
+    read_file_names_bin=$EDIR/../build/bin/read_file_names
+    dbgh5_bin=$EDIR/../build/ext/gatb-core/bin/dbgh5
+    kissnp2_bin=$EDIR/../build/bin/kissnp2
+    kissreads2_bin=$EDIR/../build/bin/kissreads2
 else # VERSION BINARY
-    read_file_names_bin=$EDIR/bin/read_file_names
-    dbgh5_bin=$EDIR/bin/dbgh5
-    kissnp2_bin=$EDIR/bin/kissnp2
-    kissreads2_bin=$EDIR/bin/kissreads2
+    read_file_names_bin=$EDIR/../bin/read_file_names
+    dbgh5_bin=$EDIR/../bin/dbgh5
+    kissnp2_bin=$EDIR/../bin/kissnp2
+    kissreads2_bin=$EDIR/../bin/kissreads2
 fi
 
 
-chmod u+x $EDIR/scripts/*.sh $EDIR/scripts_RAD/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
+chmod u+x $EDIR/../scripts/*.sh $EDIR/scripts/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
 useref=""
 wraith="false"
@@ -327,7 +327,11 @@ echo
 #################### DUMP READ FILES  #######################
 #############################################################
 ${read_file_names_bin} -in $read_sets > $readsFilesDump
-
+if [ $? -ne 0 ]
+then
+    echo "there was a problem with readFileName Dumping":
+    exit 1
+fi
 
 
 ############################################################
@@ -398,7 +402,7 @@ fi
 #######################################################################
 #################### REDUNDANCY REMOVAL         #######################
 #######################################################################
-redundancy_removal_cmd="python $EDIR/scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
+redundancy_removal_cmd="python $EDIR/../scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
 echo ${redundancy_removal_cmd}
 ${redundancy_removal_cmd}
 
@@ -481,7 +485,7 @@ echo -e "\t###############################################################"
 
 T="$(date +%s)"
 if [ -f "$src_file" ]; then
-    cmd="$EDIR/scripts_RAD/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s $short_read_connector_path" 
+    cmd="$EDIR/scripts/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s $short_read_connector_path" 
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
         $cmd
@@ -490,7 +494,7 @@ if [ -f "$src_file" ]; then
     echo "RAD clustering per locus time in seconds: ${T}"
 else
     echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
-    echo "  $EDIR/scripts_RAD/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s short_read_connector_path"
+    echo "  $EDIR/scripts/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s short_read_connector_path"
     echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
 fi
 
