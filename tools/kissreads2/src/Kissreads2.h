@@ -34,6 +34,7 @@
 #define STR_URI_READS_INPUT                "-reads"
 #define STR_URI_PREDICTION_INPUT           "-predictions"
 #define STR_RADSEQ                         "-x"
+#define STR_PHASING                        "-phasing"
 
 /** \brief Tool class that looks for SNP
  *

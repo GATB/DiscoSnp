@@ -56,9 +56,8 @@ Kissreads2::Kissreads2 () : Tool ("Kissreads2")
     getParser()->push_front (new OptionOneParam (STR_URI_READS_INPUT,               "Input reads",  true));
     getParser()->push_front (new OptionOneParam (STR_URI_PREDICTION_INPUT,          "Input predictions",  true));
     getParser()->push_front (new OptionNoParam  (STR_RADSEQ,                        "radseq option, homogeneous read depth along the prediction ",  false)); //CHARLOTTE
+    getParser()->push_front (new OptionNoParam  (STR_PHASING,                       "[Experimental] Phase alleles mapped by the same (pair of) read(s)",  false)); //CHARLOTTE
 }
-
-
 
 
 /*********************************************************************
@@ -115,9 +114,10 @@ void Kissreads2::execute ()
         for (iterInt->first(); !iterInt->isDone(); iterInt->next())  {  gv.min_coverage.push_back(iterInt->item().toInt());  sstring_cutoffs<<iterInt->item().toInt()<<" ";}
     }
     
-    gv.compute_genotypes=       props->get    (STR_KISSREADS_GENOTYPE) != 0;
-    gv.standard_fasta=          props->get    (STR_KISSREADS_OUTPUT_FASTA) != 0;
-    gv.radseq_option=           props->get    (STR_RADSEQ) != 0; //CHARLOTTE
+    gv.compute_genotypes=       props->get    (STR_KISSREADS_GENOTYPE)      != 0;
+    gv.standard_fasta=          props->get    (STR_KISSREADS_OUTPUT_FASTA)  != 0;
+    gv.radseq_option=           props->get    (STR_RADSEQ)                  != 0; //CHARLOTTE
+    gv.phasing=                 props->get    (STR_PHASING)                 != 0;
     gv.set_mask_code_seed();
     
     

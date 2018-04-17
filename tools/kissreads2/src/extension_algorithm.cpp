@@ -29,7 +29,6 @@
 
 //#define DEBUG_MAPPING
 //#define DEBUG_QUALITY
-//#define PHASING
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
@@ -348,8 +347,8 @@ struct Functor
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
                             
-                            /// PHASING
-#ifdef PHASING
+//    #ifdef PHASING
+                            if(gv.phasing){
                             mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
                             // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
                             if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
@@ -386,9 +385,9 @@ struct Functor
                                     ///
                                 }
                             }
-                            
+                            }
                             ////// END PHASING
-#endif //PHASING
+//#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
@@ -431,7 +430,8 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-        #ifdef PHASING
+//        #ifdef PHASING
+        if (gv.phasing){
         if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
@@ -475,7 +475,8 @@ struct Functor
         
         pwi_and_mapped_predictions1.clear();
         pwi_and_mapped_predictions2.clear();
-#endif // Phasing
+        }
+//#endif // Phasing
         /////// END PHASING
         
         
@@ -501,14 +502,12 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-        #ifdef PHASING
+//        #ifdef PHASING
+        if (gv.phasing){
         if (pwi_and_mapped_predictions.size()>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                // TODO: optimize this
-                //                const int pwi = it->first;
                 int64_t var_id =it->second;
                 string phased_variant_id = "";
                 if (var_id<0){
@@ -532,8 +531,9 @@ struct Functor
         }
         
         pwi_and_mapped_predictions.clear();
+        }
         /////// END PHASING
-#endif // phasing
+//#endif // phasing
         
         
         free(read);
@@ -576,7 +576,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     //        cout<<"subank id "<<subbank->getId()<<endl;
     //    }
     
-    cout <<inputBank->getId()<<endl;
     const std::vector<IBank*>& subbanks = inputBank->getBanks();
     // Test if a bank is composed of two read files.
     if (inputBank->getCompositionNb()==2 && subbanks[0]->getCompositionNb()==1 && subbanks[1]->getCompositionNb()==1){ // PAIRED END
@@ -596,10 +595,18 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     }
     
     // PHASING:
-    #ifdef PHASING
+//    #ifdef PHASING
+    if (gv.phasing){
+    stringstream phasingFileName;
+    phasingFileName<<"phased_alleles_read_set_id_"<<read_set_id<<".txt";
+    cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
+    ofstream phasingFile (phasingFileName.str());
+    phasingFile <<"#"<<inputBank->getId()<<endl;
     for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
-        std::cout << it->first << " => " << it->second << '\n';
-#endif // PHASING
+        phasingFile << it->first << " => " << it->second << '\n';
+    phasingFile.close();
+    }
+//    #endif // PHASING
     // ENDPHASING
     
     
