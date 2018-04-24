@@ -1129,7 +1129,11 @@ class SNPSCLOSE(VARIANT):
          
         def FillVCF(self,VCFfile,nbGeno,table,VCFObject):
                 """print the VCFFile for each line of close snps"""
-                ID=1
+                #ID=1
+                subIDs = range(1,len(table)+1,1) #subIDs for the different SNPs of a given close bubble : ex: 454_1, 454_2 and 454_3 for 3 SNPs inside the bubble of ID 454
+                if VCFObject.reverse == "-1":
+                    # if the bubble of close SNPs is mapped on reverse strand, their subIDs are reversed, this way the subID always correspond to the order of apparition of the SNP in the bubble path
+                    subIDs = range(len(table),0,-1)
                 i=0
                 nucleoRef=None
                 if VCFObject.chrom=="*":
@@ -1139,7 +1143,7 @@ class SNPSCLOSE(VARIANT):
                                 if table[line][1] in VCFObject.nucleoRef[i]:
                                         nucleoRef=VCFObject.nucleoRef[i][0]   
                         table[line][0]=VCFObject.chrom
-                        table[line][2]=str(self.variantID)+"_"+str(ID)
+                        table[line][2]=str(self.variantID)+"_"+str(subIDs[line])
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
                         table[line][7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(nucleoRef)+";Sd="+str(VCFObject.reverse)
@@ -1152,7 +1156,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][7]=table[line][7].replace("=;","=.;")
                         table[line][8]=VCFObject.formatField
                         table[line][9]=VCFObject.genotypes
-                        ID+=1
+                        #ID+=1
                         i+=1
                 error=VCFObject.CheckOutputConsistency(table,self)
                 if error == 0: 
