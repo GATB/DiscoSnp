@@ -52,8 +52,8 @@ b=2 # all bubbles accepted"
 c=auto # minimal coverage
 C=$max_C # maximal coverage
 M=4
-d=1 # estimated number of error per read (used by kissreads only)
-D=10 # maximal size of searched deletions
+d=10 # estimated number of error per read (used by kissreads only)
+D=3 # maximal size of searched deletions
 max_ambigous_indel=20
 P=5 # number of polymorphsim per bubble
 option_max_symmetrical_crossroads="0"
@@ -110,7 +110,7 @@ function help {
     echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 #    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '5']"
     echo -e "\t\t -R: high recall mode. With this parameter up to five symmetrical crossroads may be traversed during bubble detection."
-    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=10"
+    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=3 (for RAD)"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
     echo -e "\t\t -P value. discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
@@ -119,7 +119,7 @@ function help {
     echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
     echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
-    echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+    echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=10 (for RAD)"
     echo -e "\t\t -u: max number of used threads"
     
     

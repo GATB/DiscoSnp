@@ -121,16 +121,15 @@ fi
 cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}.txt"
 echo $cmdqhc " > ${discofile}.cluster"
 $cmdqhc > ${discofile}.cluster
-exit
+
 if [ $? -ne 0 ]
 then
     echo "there was a problem with quick_hierarchical_clustering, exit"
     exit 1
 fi
-
 # Generate a .fa file with clustering information
 cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster"
-echo $cmd "> ${original_disco}_with_clusters.fa"
+echo $cmd " > ${original_disco}_with_clusters.fa"
 $cmd > ${original_disco}_with_clusters.fa
 if [ $? -ne 0 ]
 then
