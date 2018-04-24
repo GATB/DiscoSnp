@@ -121,6 +121,7 @@ fi
 cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}.txt"
 echo $cmdqhc " > ${discofile}.cluster"
 $cmdqhc > ${discofile}.cluster
+exit
 if [ $? -ne 0 ]
 then
     echo "there was a problem with quick_hierarchical_clustering, exit"
