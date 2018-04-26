@@ -25,15 +25,11 @@ u_int64_t maxdepth(0);
 using namespace std;
 unordered_set <u_int64_t> visited; // AVOIDS TO PUT IT IN THE RECURSION STACK.
 unordered_map <u_int64_t, unordered_set<u_int64_t> > nodeToNeighbors; // AVOIDS TO PUT IT IN THE RECURSION STACK.
-unordered_set<u_int64_t> nodesInConnexComp;// AVOIDS TO PUT IT IN THE RECURSION STACK.
-void DFS(u_int64_t n ){
-    if (not visited.count(n)){
-        visited.insert(n);
-        nodesInConnexComp.insert(n);
-            for (auto&& neigh : nodeToNeighbors[n]){
-                DFS(neigh);
-            }
-        
+void DFS(const u_int64_t n ){
+    visited.insert(n);
+    cout<<" "<<n;
+    for (auto&& neigh : nodeToNeighbors[n]){
+        if (not visited.count(neigh)) DFS(neigh);
     }
 }
 
@@ -97,21 +93,11 @@ int main(int argc, char** argv){
         cerr << "Parsing..." << endl;
         parsingSRC(refFile);
         cerr << "Compute CCs..." << endl;
-        u_int64_t nbConnexComp(0);
         for (auto node(nodeToNeighbors.begin()); node != nodeToNeighbors.end(); ++node){
             if (not (visited.count(node->first))){
-                unordered_set<u_int64_t> s;
                 DFS(node->first);
-                ++ nbConnexComp;
+                cout << endl;
             }
-            
-            for (auto&& n : nodesInConnexComp){
-                cout << n << " ";
-            }
-            nodesInConnexComp.clear();
-            cout << endl;
-
         }
-//        cerr << "Connected components: " << nbConnexComp << endl;
     }
 }
