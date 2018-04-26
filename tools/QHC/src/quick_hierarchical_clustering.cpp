@@ -20,17 +20,18 @@
 #include <mutex>
 #include <functional>
 #include <utility>
-
-uint maxdepth(0);
+typedef	unsigned long long	u_int64_t;
+u_int64_t maxdepth(0);
 using namespace std;
-unordered_set<uint> visited; // AVOIDS TO PUT IT IN THE RECURSION STACK.
-unordered_map <uint, unordered_set<uint> > nodeToNeighbors; // AVOIDS TO PUT IT IN THE RECURSION STACK.
-void DFS(uint n, unordered_set<uint>& nodesInConnexComp){
+unordered_set <u_int64_t> visited; // AVOIDS TO PUT IT IN THE RECURSION STACK.
+unordered_map <u_int64_t, unordered_set<u_int64_t> > nodeToNeighbors; // AVOIDS TO PUT IT IN THE RECURSION STACK.
+unordered_set<u_int64_t> nodesInConnexComp;// AVOIDS TO PUT IT IN THE RECURSION STACK.
+void DFS(u_int64_t n ){
     if (not visited.count(n)){
         visited.insert(n);
         nodesInConnexComp.insert(n);
             for (auto&& neigh : nodeToNeighbors[n]){
-                DFS(neigh, nodesInConnexComp);
+                DFS(neigh);
             }
         
     }
@@ -51,17 +52,17 @@ void parsingSRC(ifstream & refFile){
     string listNodes;
     // header
     vector<string> splitted1, splitted2, splitted3;
-    uint read, source;
+    u_int64_t read, source;
     while (not refFile.eof()){
         getline(refFile, listNodes);
         if (listNodes[0]=='#') continue; // HEADER.
         splitted1 = split(listNodes, ':');
         if (splitted1.size() > 1){
             splitted2 = split(splitted1[1], ' ');
-            unordered_set<uint> reads;
+            unordered_set<u_int64_t> reads;
             source = stoi(splitted1[0]);  // source read
             if (not splitted2.empty()){
-                for (uint i(0); i < splitted2.size(); ++i){
+                for (u_int64_t i(0); i < splitted2.size(); ++i){
                     read = stoi(splitted2[i]);  // recruited read
                     if (read != source){
                         reads.insert(read);
@@ -89,8 +90,6 @@ void parsingSRC(ifstream & refFile){
 int main(int argc, char** argv){
 
     if (argc > 1){
-        bool approx(false);
-        //~ string outFileName("final_g_clusters.txt");
 		
         string fileName(argv[1]);
         ifstream refFile(fileName);
@@ -98,23 +97,21 @@ int main(int argc, char** argv){
         cerr << "Parsing..." << endl;
         parsingSRC(refFile);
         cerr << "Compute CCs..." << endl;
-        uint nbConnexComp(0);
-        vector<unordered_set<uint> > nodesInConnexComp;
+        u_int64_t nbConnexComp(0);
         for (auto node(nodeToNeighbors.begin()); node != nodeToNeighbors.end(); ++node){
             if (not (visited.count(node->first))){
-                unordered_set<uint> s;
-                nodesInConnexComp.push_back(s);
-                DFS(node->first, nodesInConnexComp.back());
+                unordered_set<u_int64_t> s;
+                DFS(node->first);
                 ++ nbConnexComp;
             }
-        }
-        cerr<<"Print CCs"<<endl;
-        for (uint i(0); i < nodesInConnexComp.size(); ++i){
-            for (auto&& n : nodesInConnexComp[i]){
+            
+            for (auto&& n : nodesInConnexComp){
                 cout << n << " ";
             }
+            nodesInConnexComp.clear();
             cout << endl;
+
         }
-        cerr << "Connected components: " << nbConnexComp << endl;
+//        cerr << "Connected components: " << nbConnexComp << endl;
     }
 }
