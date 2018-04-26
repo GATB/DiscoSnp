@@ -77,6 +77,7 @@ useref=""
 wraith="false"
 genome=""
 bwa_path_option=""
+option_phase_variants=""
 bwa_distance=4
 
 #######################################################################
@@ -137,8 +138,13 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:htTlRmgnwXxyeG:B:M:u:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:hAtTlRmgnwXxyeG:B:M:u:a:v:" opt; do
     case $opt in
+        A) 
+        option_phase_variants="-phasing"
+        echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
+        echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
+        ;;
     X)
         stop_after_kissnp=1
         ;;
@@ -452,7 +458,7 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
-kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y"
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
 
 echo $kissreadsCmd
 if [[ "$wraith" == "false" ]]; then
