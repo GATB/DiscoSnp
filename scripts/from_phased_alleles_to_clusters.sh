@@ -10,9 +10,14 @@ fi
 filename=$(basename -- "$file")
 path=$(dirname "${file}")
 
+# FIND THE PATH CONTAINING THE SCRIPT: 
+EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) 
+echo $EDIR
+
+
 
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
-cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python from_path_to_edges.py | sort -u | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | python3 format_phased_for_clustering.py "
+cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | sort -u | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | python3 ${EDIR}/format_phased_for_clustering.py "
 echo $cmd "> edge_${filename}"
 eval $cmd "> edge_${filename}"
 #cat ${file} | tr -d "-" | sed '1d' | cut -d "=" -f 1 | python from_path_to_edges.py | sort -u | cut -f 1,2 | tr -d "l" | tr -d "h" | python3 format_phased_for_clustering.py > edge_${filename} 
@@ -24,7 +29,7 @@ then
 fi
 
 # COMPUTE CONNECTED COMPONENTS
-cmd="../build/bin/quick_hierarchical_clustering edge_${filename}"
+cmd="${EDIR}/../build/bin/quick_hierarchical_clustering edge_${filename}"
 echo $cmd "> connected_components_${filename}"
 eval $cmd > connected_components_${filename}
 if [ $? -ne 0 ]
