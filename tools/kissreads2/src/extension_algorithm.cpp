@@ -32,6 +32,22 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
+// Replaces SNP_higher_path_3780|P_1:30_A/G|high|nb_pol_1 by 3780h
+string parse_variant_id(string in){
+    string res="";
+    // push the values while they are in [0-9]
+    for (char c : in){
+        if (c>=int('0') && c<=int('9'))
+            res=res+c;
+        if (c=='|')
+            break;
+    }
+    
+    res=res+in[4]; // h or l.
+    return res;
+}
+
+
 //feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
 
 void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
@@ -440,14 +456,13 @@ struct Functor
                 // TODO: optimize this
                 //                const int pwi = it->first;
                 int64_t var_id =it->second;
-                string phased_variant_id = "";
+                string sign = "";
                 if (var_id<0){
-                    phased_variant_id ="-";
+                    sign ="-";
                     var_id=-var_id;
                 }
-                phased_variant_id +=to_string(int((var_id+2)/2));
-                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
-                else                   phased_variant_id = phased_variant_id+"l";
+                //                phased_variant_id += to_string(int((var_id+2)/2));
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             phased_variant_ids += ' ';
@@ -465,6 +480,7 @@ struct Functor
                 phased_variant_id +=to_string(int((var_id+2)/2));
                 if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
                 else                   phased_variant_id = phased_variant_id+"l";
+                
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             
@@ -509,21 +525,25 @@ struct Functor
             
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 int64_t var_id =it->second;
-                string phased_variant_id = "";
+                string sign = "";
                 if (var_id<0){
-                    phased_variant_id ="-";
+                    sign ="-";
                     var_id=-var_id;
                 }
-                phased_variant_id += to_string(int((var_id+2)/2));
+//                phased_variant_id += to_string(int((var_id+2)/2));
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
                 
-                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
-                else                   phased_variant_id = phased_variant_id+"l";
+//                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
+//                else                   phased_variant_id = phased_variant_id+"l";
                 //DEBUG
-//                cout<<phased_variant_id<<endl;
+//                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
+//                cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
+//                cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
 //                cout<<it->first<<" "<<it->second<<endl;
 //                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
                 //ENDDEBUG
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                
             }
             // Associate this string to the number of times it is seen when mapping this read set
             if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
@@ -612,9 +632,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     
     return number_of_mapped_reads;
 }
-
-
-
 
 
 void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
