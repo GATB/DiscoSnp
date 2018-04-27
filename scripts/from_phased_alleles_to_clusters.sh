@@ -15,12 +15,26 @@ EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BA
 echo $EDIR
 
 
-
+# 1000547h;-2286435h; -1330792h;1152525l; => 1
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
-cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | sort -u | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | python3 ${EDIR}/format_phased_for_clustering.py "
+cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u |  python3 ${EDIR}/format_phased_for_clustering.py "
+# 1/ suppress the '-' sign occurrences 
+# 2/ suppres the first line 
+# 3/ remove what exists after => (included) 
+# 4/ transform n-uplets into couples: 
+#   a;b;c; d;e
+#  becomes (r means mapped by a unique gene and p means mapped by a pair of reads). Each line is ordered (smallest id first)
+#   a b r
+#   b c r
+#   c d p
+#   d e r
+# 5/ remove r/p info
+# 6/ remove h/l info
+# 7/ remove duplicates
+# 8/ prepare for using connected component detection which needs format:
+#   a: a b
 echo $cmd "> edge_${filename}"
 eval $cmd "> edge_${filename}"
-#cat ${file} | tr -d "-" | sed '1d' | cut -d "=" -f 1 | python from_path_to_edges.py | sort -u | cut -f 1,2 | tr -d "l" | tr -d "h" | python3 format_phased_for_clustering.py > edge_${filename} 
 
 if [ $? -ne 0 ]
 then
@@ -39,9 +53,9 @@ then
 fi
 
 # REMOVE INTERMEDIATE FILE
-cmd="rm -f edge_${filename}"
-echo $cmd
-eval $cmd
+# cmd="rm -f edge_${filename}"
+# echo $cmd
+# eval $cmd
 
 # REPLACE THE CREATED FILE IN TIS ORIGINAL DIRECTORY
 cmd="mv connected_components_${filename} $path/connected_components_${filename}"

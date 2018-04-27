@@ -12,6 +12,7 @@ def printLine(line, type='r'):
             print (line[i+1]+'\t'+line[i]+"\t"+type)
 
 
+# 1000547h;2286435h; 1330792h;1152525l;
 for line in file: 
     line=line.strip().rstrip().split(' ')
     line1=line[0].rstrip().split(';')[:-1]
