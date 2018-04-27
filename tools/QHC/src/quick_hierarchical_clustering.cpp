@@ -17,15 +17,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sstream>
-#include <mutex>
-#include <functional>
-#include <utility>
-typedef	unsigned long long	u_int64_t;
-u_int64_t maxdepth(0);
+#include <stack>          // std::stack
+//#include <mutex>
+//#include <functional>
+//#include <utility>
+//typedef	unsigned long long	u_int64_t;
+
 using namespace std;
-unordered_set <u_int64_t> visited; // AVOIDS TO PUT IT IN THE RECURSION STACK.
-unordered_map <u_int64_t, unordered_set<u_int64_t> > nodeToNeighbors; // AVOIDS TO PUT IT IN THE RECURSION STACK.
-void DFS(const u_int64_t n ){
+unordered_set <string> visited; // AVOIDS TO PUT IT IN THE RECURSION STACK.
+unordered_map <string, unordered_set<string> > nodeToNeighbors; // AVOIDS TO PUT IT IN THE RECURSION STACK.
+
+
+// DEPRECATED. Recursion depth is to high and causes the computation fails. 
+void DFS(const string n ){
     visited.insert(n);
     cout<<" "<<n;
     for (auto&& neigh : nodeToNeighbors[n]){
@@ -33,51 +37,42 @@ void DFS(const u_int64_t n ){
     }
 }
 
-vector<string> split(const string &s, char delim){
-    stringstream ss(s);
-    string item;
-    vector<string> elems;
-    while (getline(ss, item, delim)) {
-        elems.push_back(move(item)); 
+
+void nonrecursive_DFS(const string n){
+    stack<string> mystack;
+    mystack.push(n);
+    visited.insert(n);
+    while (not mystack.empty()){
+        auto m = mystack.top();
+        mystack.pop();
+        visited.insert(m);
+        cout<<" "<<m;
+        for (auto&& neigh : nodeToNeighbors[m]){
+            if (not visited.count(neigh))
+                mystack.push(neigh);
+        }
     }
-    return elems;
 }
 
-// awaits  input lines like this 14:12 85834 13 85835 14 12319 15 19508 154886 14536 19509 154887 80595 80603 
+// awaits  input lines like this 12 85834
 void parsingSRC(ifstream & refFile){
     string listNodes;
-    // header
-    vector<string> splitted1, splitted2, splitted3;
-    u_int64_t read, source;
     while (not refFile.eof()){
         getline(refFile, listNodes);
+        if (listNodes.size() == 0) break;
         if (listNodes[0]=='#') continue; // HEADER.
-        splitted1 = split(listNodes, ':');
-        if (splitted1.size() > 1){
-            splitted2 = split(splitted1[1], ' ');
-            unordered_set<u_int64_t> reads;
-            source = stoi(splitted1[0]);  // source read
-            if (not splitted2.empty()){
-                for (u_int64_t i(0); i < splitted2.size(); ++i){
-                    read = stoi(splitted2[i]);  // recruited read
-                    if (read != source){
-                        reads.insert(read);
-                        if (nodeToNeighbors.count(read)){
-                            nodeToNeighbors[read].insert(source);
-                        } else {
-                            nodeToNeighbors.insert({read, {source}});
-                        }
-                    }
-                }
-            }
-            if (nodeToNeighbors.count(source)){
-                for (auto&& n : reads){
-                    nodeToNeighbors[source].insert(n);
-                }
-            } else {
-                nodeToNeighbors.insert({source, reads});
-            }
-        }   
+        
+        string node1, node2;
+        bool firstnode=true;
+        for (char c : listNodes){
+            if (c=='\t' || c==' ') {firstnode=false;continue;}
+            if (firstnode)  node1+=c;
+            else            node2+=c;
+        }
+        if (nodeToNeighbors.count(node1))  nodeToNeighbors[node1].insert(node2);
+        else nodeToNeighbors.insert({node1, {node2}});
+        if (nodeToNeighbors.count(node2))  nodeToNeighbors[node1].insert(node1);
+        else nodeToNeighbors.insert({node2, {node1}});
     }
 }
 
@@ -95,9 +90,10 @@ int main(int argc, char** argv){
         cerr << "Compute CCs..." << endl;
         for (auto node(nodeToNeighbors.begin()); node != nodeToNeighbors.end(); ++node){
             if (not (visited.count(node->first))){
-                DFS(node->first);
+                nonrecursive_DFS(node->first);
                 cout << endl;
             }
         }
     }
+    return 0;
 }

@@ -17,7 +17,7 @@ echo $EDIR
 
 # 1000547h;-2286435h; -1330792h;1152525l; => 1
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
-cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u |  python3 ${EDIR}/format_phased_for_clustering.py "
+cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u "
 # 1/ suppress the '-' sign occurrences 
 # 2/ suppres the first line 
 # 3/ remove what exists after => (included) 
@@ -31,8 +31,6 @@ cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/
 # 5/ remove r/p info
 # 6/ remove h/l info
 # 7/ remove duplicates
-# 8/ prepare for using connected component detection which needs format:
-#   a: a b
 echo $cmd "> edge_${filename}"
 eval $cmd "> edge_${filename}"
 
