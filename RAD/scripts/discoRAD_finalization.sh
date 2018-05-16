@@ -109,7 +109,7 @@ ls ${discofile}.fa > ${discofile}.fof
 # Compute sequence similarities
 cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}"
 echo $cmdSRC
-$cmdSRC
+eval $cmdSRC
 
 if [ $? -ne 0 ]
 then
@@ -117,10 +117,16 @@ then
     exit 1
 fi
 
+# Format one line per edge
+cmd="python3 ${EDIR}/from_SRC_to_edges.py ${discofile}.txt"
+echo $cmd "> ${discofile}_edges.txt"
+eval $cmd "> ${discofile}_edges.txt"
+
+
 # Compute the clustering
-cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}.txt"
+cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}_edges.txt"
 echo $cmdqhc " > ${discofile}.cluster"
-$cmdqhc > ${discofile}.cluster
+eval $cmdqhc "> ${discofile}.cluster"
 
 if [ $? -ne 0 ]
 then
@@ -130,7 +136,7 @@ fi
 # Generate a .fa file with clustering information
 cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster"
 echo $cmd " > ${original_disco}_with_clusters.fa"
-$cmd > ${original_disco}_with_clusters.fa
+eval $cmd "> ${original_disco}_with_clusters.fa"
 if [ $? -ne 0 ]
 then
     echo "there was a problem when generating a .fa file with clustering information, exit"
@@ -145,7 +151,7 @@ echo "############################################################"
 
 cmdVCF="${EDIR}/../../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
 echo $cmdVCF
-$cmdVCF
+eval $cmdVCF
 
 if [ $? -ne 0 ]
 then
@@ -161,7 +167,7 @@ echo "############################################################"
 
 cmdpara="python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}"
 echo $cmdpara
-$cmdpara
+eval $cmdpara
 
 if [ $? -ne 0 ]
 then
@@ -173,7 +179,7 @@ fi
 
 cmdrk="python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}"
 echo $cmdrk
-$cmdrk
+eval $cmdrk
 
 if [ $? -ne 0 ]
 then
@@ -182,16 +188,29 @@ then
 fi
 
 # Sort the .vcf file
-grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf > ${original_disco}_with_sorted_clusters.vcf; grep -v ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf | sort >> ${original_disco}_with_sorted_clusters.vcf;
+cmd="grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf "
+echo $cmd "> ${original_disco}_with_sorted_clusters.vcf; "
+eval $cmd "> ${original_disco}_with_sorted_clusters.vcf; "
+
+cmd="grep -v ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf | sort"
+echo $cmd ">> ${original_disco}_with_sorted_clusters.vcf;"
+eval $cmd ">> ${original_disco}_with_sorted_clusters.vcf;"
 
 # Format chromosome Names in the VCF
-python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf > ${original_disco}_with_sorted_formatted_clusters.vcf
+cmd="python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf"
+echo $cmd "> ${original_disco}_with_sorted_formatted_clusters.vcf"
+eval $cmd "> ${original_disco}_with_sorted_formatted_clusters.vcf"
 
 
 # Clean results
-mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf
+cmd="mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf"
+echo $cmd
+eval $cmd
 
-rm -f *ERASEME*
+cmd="rm -f *ERASEME*"
+echo $cmd
+eval $cmd
+
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
 echo "============================"

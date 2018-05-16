@@ -55,7 +55,7 @@ void nonrecursive_DFS(const string n){
 }
 
 // awaits  input lines like this 12 85834
-void parsingSRC(ifstream & refFile){
+void parsingPairsOfNodes(ifstream & refFile){
     string listNodes;
     while (not refFile.eof()){
         getline(refFile, listNodes);
@@ -78,6 +78,7 @@ void parsingSRC(ifstream & refFile){
 
 
 
+
 int main(int argc, char** argv){
 
     if (argc > 1){
@@ -86,10 +87,11 @@ int main(int argc, char** argv){
         ifstream refFile(fileName);
         // parse SRC's output, for each line we get a node and its neighbors and fill the map nodeToNeighbors
         cerr << "Parsing..." << endl;
-        parsingSRC(refFile);
+        parsingPairsOfNodes(refFile);
         cerr << "Compute CCs..." << endl;
         for (auto node(nodeToNeighbors.begin()); node != nodeToNeighbors.end(); ++node){
             if (not (visited.count(node->first))){
+//                DFS(node->first);
                 nonrecursive_DFS(node->first);
                 cout << endl;
             }

@@ -427,7 +427,7 @@ kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -
 
 echo $kissreadsCmd
 if [[ "$wraith" == "false" ]]; then
-    $kissreadsCmd
+    eval $kissreadsCmd
 fi
 if [ $? -ne 0 ]
 then
@@ -488,7 +488,7 @@ if [ -f "$src_file" ]; then
     cmd="$EDIR/scripts/discoRAD_finalization.sh -f ${kissprefix}_coherent.fa -s $short_read_connector_path" 
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
-        $cmd
+        eval $cmd
     fi  
     T="$(($(date +%s)-T))"
     echo "RAD clustering per locus time in seconds: ${T}"
