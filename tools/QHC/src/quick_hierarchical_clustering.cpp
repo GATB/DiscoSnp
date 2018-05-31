@@ -71,7 +71,7 @@ void parsingPairsOfNodes(ifstream & refFile){
         }
         if (nodeToNeighbors.count(node1))  nodeToNeighbors[node1].insert(node2);
         else nodeToNeighbors.insert({node1, {node2}});
-        if (nodeToNeighbors.count(node2))  nodeToNeighbors[node1].insert(node1);
+        if (nodeToNeighbors.count(node2))  nodeToNeighbors[node2].insert(node1);
         else nodeToNeighbors.insert({node2, {node1}});
     }
 }
