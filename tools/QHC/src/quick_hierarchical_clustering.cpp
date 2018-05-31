@@ -45,11 +45,11 @@ void nonrecursive_DFS(const string n){
     while (not mystack.empty()){
         auto m = mystack.top();
         mystack.pop();
-        visited.insert(m);
         cout<<" "<<m;
         for (auto&& neigh : nodeToNeighbors[m]){
-            if (not visited.count(neigh))
+            if (visited.count(neigh)==0)
                 mystack.push(neigh);
+                visited.insert(neigh);
         }
     }
 }
@@ -90,7 +90,7 @@ int main(int argc, char** argv){
         parsingPairsOfNodes(refFile);
         cerr << "Compute CCs..." << endl;
         for (auto node(nodeToNeighbors.begin()); node != nodeToNeighbors.end(); ++node){
-            if (not (visited.count(node->first))){
+            if (visited.count(node->first)==0){
 //                DFS(node->first);
                 nonrecursive_DFS(node->first);
                 cout << endl;

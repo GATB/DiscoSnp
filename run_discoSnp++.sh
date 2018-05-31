@@ -36,7 +36,7 @@ read_sets="" # A file of file(s)
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
-c=auto # minimal coverage
+c=3 # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=1 # estimated number of error per read (used by kissreads only)
@@ -111,11 +111,10 @@ function help {
     echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
     echo -e "\t\t -t: extend found polymorphisms with unitigs"
     echo -e "\t\t -T: extend found polymorphisms with contigs"
-    echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
+    echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
     echo -e "\t\t -n: do not compute the genotypes"
-    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
     echo -e "\t\t -u: max number of used threads"
     echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
 
@@ -126,6 +125,7 @@ function help {
     echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
     echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
     echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
+    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
     echo 
     
