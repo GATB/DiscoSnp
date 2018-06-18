@@ -2,7 +2,7 @@ import sys
 import gzip
 
 if len(sys.argv)<2:
-    print ("This tool removes from discoSnp VCF locus which are triploids or more")
+    print ("This tool removes from discoSnp sorted VCF the locus which are tri-allelic or more")
     print ("python remove_non_diploids.py \".vcf from discoSnp\" ")
     sys.exit()
 

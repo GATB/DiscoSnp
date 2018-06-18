@@ -1,7 +1,7 @@
 # cf https://www.evernote.com/l/ARUGTnFwaO9Kf7CO5fYJhYXh4T20R54V6eU
 
 '''
-Transforms the phased alleles from kissreads to a K2000 input format:
+Transforms the phased alleles from kissreads to a K2000 input format: (https://github.com/Malfoy/BWISE/blob/master/src/K2000/K2000.py)
 #comments blabla toto
 -1064h;-917l;1880l; => 2
 ...

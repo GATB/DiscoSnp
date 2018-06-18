@@ -1,10 +1,5 @@
 # cf https://www.evernote.com/l/ARWYfQTvvoVFL4sOHvjcJ-AUksvCNp1zz-8
         
-'''
-From phased variants (option -phasing of the kissreads program) to a text file representing the graph of variants. Visible using Cytoscape
-@author  pierre peterlongo pierre.peterlongo@inria.fr
-'''
-
 import sys
 
 def printid(anid):
@@ -49,6 +44,7 @@ def get_phasing_edges(file):
             coverage=int(line[3])
             pairend=True
             
+        if coverage < 1: continue
         
         ids=line[0].split(';')[:-1]
         for i in range(len(ids)-1):
@@ -98,6 +94,20 @@ print_phasing_edges()
 print_pairing_edges()
 print_allele_edges()
             
+#
+# # Print phasing edges
+# for line in file: #-1064h;-917l;1880l; => 2
+#     if line[0]=='#':
+#         continue
+#     line=line.strip().rstrip().split(' ')
+#     ids=line[0].split(';')[:-1]
+#     coverage=line[2]
+#     for i in range(len(ids)-1):
+#         printid(ids[i])
+#         print("\t",end='')
+#         printid(ids[i+1])
+#         print("\t",coverage, "\t p")
+#
         
         
     
