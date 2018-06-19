@@ -518,9 +518,8 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-//        #ifdef PHASING
         if (gv.phasing){
-        if (pwi_and_mapped_predictions.size()>1){                                            // If two or more variants mapped by the same read
+        if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
@@ -530,11 +529,8 @@ struct Functor
                     sign ="-";
                     var_id=-var_id;
                 }
-//                phased_variant_id += to_string(int((var_id+2)/2));
                 string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
                 
-//                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
-//                else                   phased_variant_id = phased_variant_id+"l";
                 //DEBUG
 //                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
 //                cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
@@ -553,8 +549,7 @@ struct Functor
         pwi_and_mapped_predictions.clear();
         }
         /////// END PHASING
-//#endif // phasing
-        
+
         
         free(read);
         free(quality);
@@ -615,7 +610,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     }
     
     // PHASING:
-//    #ifdef PHASING
     if (gv.phasing){
     stringstream phasingFileName;
     phasingFileName<<"phased_alleles_read_set_id_"<<read_set_id<<".txt";
@@ -626,7 +620,6 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
         phasingFile << it->first << " => " << it->second << '\n';
     phasingFile.close();
     }
-//    #endif // PHASING
     // ENDPHASING
     
     
