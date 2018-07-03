@@ -13,7 +13,7 @@ echo "====================================================="
 echo "run discoRAD.sh, this script manages bubble clustering from a discofile.fa file, and the integration of cluster informations in a disco.vcf file"
 echo " 1/ Remove variants with more than 95% genotypes"
 echo " 2/ Clustering variants"
-echo " 3/ Removing heterozygous clusters (paralogs filter)"
+echo " 3/ Removing variant in too large clusters"
 echo " 4/ Removing low ranked variants (those whose rank is < 0.2 \n"
 echo "Usage: ./discoRAD.sh -f discofile -s SRC_directory/"
 echo "nb: all options are MANDATORY\n"
@@ -210,9 +210,9 @@ cmd="mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base
 echo $cmd
 eval $cmd
 
-#cmd="rm -f *ERASEME*"
-#echo $cmd
-#eval $cmd
+cmd="rm -f *ERASEME*"
+echo $cmd
+eval $cmd
 
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
