@@ -461,7 +461,6 @@ struct Functor
                     sign ="-";
                     var_id=-var_id;
                 }
-                //                phased_variant_id += to_string(int((var_id+2)/2));
                 string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
@@ -472,15 +471,12 @@ struct Functor
                 // TODO: optimize this
                 //                const int pwi = it->first;
                 int64_t var_id =it->second;
-                string phased_variant_id = "";
+                string sign = "";
                 if (var_id<0){
-                    phased_variant_id ="-";
+                    sign ="-";
                     var_id=-var_id;
                 }
-                phased_variant_id +=to_string(int((var_id+2)/2));
-                if (((var_id)%2)==0)   phased_variant_id = phased_variant_id+"h";
-                else                   phased_variant_id = phased_variant_id+"l";
-                
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             
