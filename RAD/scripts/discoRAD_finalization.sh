@@ -5,8 +5,6 @@
 ## short_read_connector: installed and compiled: https://github.com/GATB/short_read_connector
 # echo "WARNING: short_read_connector must have been compiled"
 
-OR='\033[0;33m'
-NC='\033[0m' # No Color
 
 function help {
 echo "====================================================="
@@ -15,7 +13,7 @@ echo "====================================================="
 echo "run discoRAD.sh, this script manages bubble clustering from a discofile.fa file, and the integration of cluster informations in a disco.vcf file"
 echo " 1/ Remove variants with more than 95% genotypes"
 echo " 2/ Clustering variants"
-echo " 3/ Removing heterozygous clusters (paralogs filter)"
+echo " 3/ Removing variant in too large clusters"
 echo " 4/ Removing low ranked variants (those whose rank is < 0.2 \n"
 echo "Usage: ./discoRAD.sh -f discofile -s SRC_directory/"
 echo "nb: all options are MANDATORY\n"
@@ -31,7 +29,7 @@ echo "Filtration of $rawdiscofile"
 echo "====================================================="
 echo " 1/ Remove variants with more than ${percent_missing} genotypes"
 echo " 2/ Clustering variants (sharing at least a ${usedk}-mers)"
-echo " 3/ Removing clusters with more than 100*${max_hetero}% heterozygous variants in more than 100*${max_indivs}% individuals"
+echo " 3/ Removing variant in clusters with a size above ${max_cluster_size}"
 echo " 4/ Removing low ranked variants (those whose rank is < ${min_rank}"
 echo " Resulting file is ${rawdiscofile_base}_sorted_with_clusters.vcf"
 }
@@ -74,9 +72,8 @@ usedk=$((originalk-1))
 # rank filter parameter
 min_rank=0.2
 
-# paralogous filter parameters
-max_hetero=0.1
-max_indivs=0.5
+# cluster size parameter
+max_cluster_size=300
 
 percent_missing=0.95
 
@@ -110,7 +107,7 @@ ls ${discofile}.fa > ${discofile}.fof
 
 # Compute sequence similarities
 cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${discofile}.fa -q ${discofile}.fof -s 0 -k ${usedk} -a 1 -l -p ${discofile}"
-echo  $OR $cmdSRC $NC
+echo $cmdSRC
 eval $cmdSRC
 
 if [ $? -ne 0 ]
@@ -121,13 +118,13 @@ fi
 
 # Format one line per edge
 cmd="python3 ${EDIR}/from_SRC_to_edges.py ${discofile}.txt"
-echo $OR  $cmd "> ${discofile}_edges.txt" $NC
+echo $cmd "> ${discofile}_edges.txt"
 eval $cmd "> ${discofile}_edges.txt"
 
 
 # Compute the clustering
 cmdqhc="${BINDIR}/quick_hierarchical_clustering ${discofile}_edges.txt"
-echo $OR $cmdqhc " > ${discofile}.cluster" $NC
+echo $cmdqhc " > ${discofile}.cluster"
 eval $cmdqhc "> ${discofile}.cluster"
 
 if [ $? -ne 0 ]
@@ -137,7 +134,7 @@ then
 fi
 # Generate a .fa file with clustering information
 cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${original_disco}.fa ${discofile}.cluster"
-echo $OR $cmd " > ${original_disco}_with_clusters.fa" $NC
+echo $cmd " > ${original_disco}_with_clusters.fa"
 eval $cmd "> ${original_disco}_with_clusters.fa"
 if [ $? -ne 0 ]
 then
@@ -152,7 +149,7 @@ echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
 cmdVCF="${EDIR}/../../scripts/run_VCF_creator.sh -p  ${original_disco}_with_clusters.fa -o ${original_disco}_with_clusters.vcf"
-echo $OR $cmdVCF $NC
+echo $cmdVCF
 eval $cmdVCF
 
 if [ $? -ne 0 ]
@@ -161,26 +158,26 @@ then
     exit 1
 fi
 
-######################### Filter suspicious paralogous clusters ###########################
+######################### Filter large clusters ###########################
 
 echo "############################################################"
-echo "################### FILTER PARALOGS ########################"
+echo "################### FILTER CLUSTERS ########################"
 echo "############################################################"
 
-cmdpara="python3 ${EDIR}/filter_paralogs.py ${original_disco}_with_clusters.vcf ${max_hetero} ${max_indivs}"
-echo $OR $cmdpara $NC
-eval $cmdpara
+cmdclustsize="${EDIR}/filter_by_cluster_size.sh ${original_disco}_with_clusters.vcf ${max_cluster_size}"
+echo $cmdclustsize
+eval $cmdclustsize
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with paralogs fitlering"
+    echo "there was a problem with cluster size fitlering"
     exit 1
 fi
 
 # Remove low ranked variants
 
-cmdrk="python3 ${EDIR}/filter_rank_vcf.py para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf ${min_rank}"
-echo $OR $cmdrk $NC
+cmdrk="python3 ${EDIR}/filter_rank_vcf.py clustersup${max_cluster_size}_${original_disco}_with_clusters.vcf ${min_rank}"
+echo $cmdrk
 eval $cmdrk
 
 if [ $? -ne 0 ]
@@ -194,28 +191,28 @@ echo "################### SORTS, FORMATS, AND CLEANS ########################"
 echo "#######################################################################"
 
 # Sort the .vcf file
-cmd="grep ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf "
-echo $OR  $cmd "> ${original_disco}_with_sorted_clusters.vcf; " $NC
+cmd="grep ^# ${min_rank}rk_clustersup${max_cluster_size}_${original_disco}_with_clusters.vcf "
+echo $cmd "> ${original_disco}_with_sorted_clusters.vcf; "
 eval $cmd "> ${original_disco}_with_sorted_clusters.vcf; "
 
-cmd="grep -v ^# ${min_rank}rk_para_${max_hetero}_${max_indivs}_${original_disco}_with_clusters.vcf | sort"
-echo $OR $cmd ">> ${original_disco}_with_sorted_clusters.vcf;" $NC
+cmd="grep -v ^# ${min_rank}rk_clustersup${max_cluster_size}_${original_disco}_with_clusters.vcf | sort"
+echo $cmd ">> ${original_disco}_with_sorted_clusters.vcf;"
 eval $cmd ">> ${original_disco}_with_sorted_clusters.vcf;"
 
 # Format chromosome Names in the VCF
 cmd="python3 ${EDIR}/format_VCF_with_cluster_ids.py ${original_disco}_with_sorted_clusters.vcf"
-echo $OR $cmd "> ${original_disco}_with_sorted_formatted_clusters.vcf" $NC
+echo $cmd "> ${original_disco}_with_sorted_formatted_clusters.vcf"
 eval $cmd "> ${original_disco}_with_sorted_formatted_clusters.vcf"
 
 
 # Clean results
 cmd="mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base}_sorted_with_clusters.vcf"
-echo $OR $cmd $NC
+echo $cmd
 eval $cmd
 
 cmd="rm -f *ERASEME*"
-# echo $OR $cmd $NC
-# eval $cmd
+echo $cmd
+eval $cmd
 
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
