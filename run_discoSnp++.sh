@@ -42,10 +42,10 @@ M=4
 d=1 # estimated number of error per read (used by kissreads only)
 D=100 # maximal size of searched deletions
 max_ambigous_indel=20
-P=1 # number of polymorphsim per bubble
+P=3 # number of polymorphsim per bubble
 option_max_symmetrical_crossroads=""
 l="-l"
-extend=""
+extend="-t"
 x=""
 y=""
 output_coverage_option=""
@@ -105,12 +105,11 @@ function help {
     echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
     echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-    echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=1"
+    echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
     echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
     echo -e "\t\t -l: remove low complexity bubbles"
     echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
-    echo -e "\t\t -t: extend found polymorphisms with unitigs"
-    echo -e "\t\t -T: extend found polymorphisms with contigs"
+    echo -e "\t\t -T: extend found polymorphisms with contigs (default: extend with unitigs)"
     echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
     echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
@@ -138,7 +137,7 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:hAtTlRmgnwXxyeG:B:M:u:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:M:u:a:v:" opt; do
     case $opt in
         A) 
         option_phase_variants="-phasing"
@@ -169,9 +168,7 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:hAtTlRmgnwXxyeG:B:M:u:a:v:" opt; do
         echo ${option_max_symmetrical_crossroads}
         ;;
 
-    t)
-        extend="-t"
-        ;;
+
 
     T)
         extend="-T"
