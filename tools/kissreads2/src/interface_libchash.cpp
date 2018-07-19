@@ -96,7 +96,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	 hash_iter iterator=hash_iterator_init(map);
 
 	 /*	 is the hash table empty?  */
-	 if (iterator < 0)
+	 if (iterator < (void*)0)
 		 return;
 
 	char *key;
@@ -130,7 +130,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
 	 hash_iter iterator=hash_iterator_init(map);
 
 	 /*	 is the hash table empty?  */
-	 if (iterator < 0)
+	 if (iterator < (void*)0)
 		 return 0;
 
 	char *key;
