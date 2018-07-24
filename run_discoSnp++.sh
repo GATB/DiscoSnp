@@ -38,7 +38,6 @@ k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
 c=3 # minimal coverage
 C=$max_C # maximal coverage
-M=4
 d=1 # estimated number of error per read (used by kissreads only)
 D=100 # maximal size of searched deletions
 max_ambigous_indel=20
@@ -123,7 +122,6 @@ function help {
     echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
     echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
     echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
-    echo -e "\t\t -M: Maximal number of mapping errors during BWA mapping phase."
     echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
     echo 
@@ -137,7 +135,7 @@ function help {
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:M:u:a:v:" opt; do
+while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:u:a:v:" opt; do
     case $opt in
         A) 
         option_phase_variants="-phasing"
@@ -256,10 +254,6 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:M:u:a:v:" opt; do
         genome=$OPTARG
         ;;
 
-    M)
-        echo "use M=$OPTARG" >&2
-        M=$OPTARG
-        ;;
 
     e)
         e="-e"
