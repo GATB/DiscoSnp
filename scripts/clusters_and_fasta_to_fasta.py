@@ -18,7 +18,7 @@ def store_clusters(cluster_file):
         cluster_id+=1
         cluster_id_to_cluster_size[cluster_id]=len(cluster.rstrip().split())
         for read_id in cluster.rstrip().split():
-            read_id_to_cluster_id[int(read_id)]=cluster_id
+            read_id_to_cluster_id[int(read_id.split('-')[0])]=cluster_id # A line can be formated as 70166 70345-info_about_similarity
     clusters.close()
     return read_id_to_cluster_id, cluster_id_to_cluster_size
         
