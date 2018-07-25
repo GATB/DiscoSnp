@@ -298,8 +298,8 @@ if [ -z "$samfile" ];then
        #---------------------------------------------------------------------------------------------------------------------------
        #---------------------------------------------------------------------------------------------------------------------------
        ##Alignment discosnps on the reference genome
-       echo "ALIGNMENT: $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile"
-       $PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile
+       echo "ALIGNMENT: $PATH_BWA/bwa mem -h 80 $genome $discoSNPsbis > $samfile"
+       $PATH_BWA/bwa mem -h 80 $genome $discoSNPsbis > $samfile
        if [ $? -ne 0 ]
        then
               echo "there was a problem with BWA (command was \"$PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile\""

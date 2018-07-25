@@ -60,7 +60,48 @@ import time
 
 #________________class VCFFIELD():________________
 #      PrintOneLine(self,table,VCF):
+    
+                     
+def shift_from_cigar_code(cigarcode, pospol):
+        # print ("shift",cigarcode,pospol)
+        parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #ParsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
+        # print (parsingCigarCode)
+        listPosRef=[]
+        listShift=[]
+        somme=0
+        shift=0
+        pos=0
+        i=1
+        while i<len(parsingCigarCode):#Goes through the list by twos to get all the letters and to take them into account
+                if parsingCigarCode[i]=="S":
+                        shift-=int(parsingCigarCode[i-1])
+                        pos+=int(parsingCigarCode[i-1])
+                elif parsingCigarCode[i]=="M":
+                        pos+=int(parsingCigarCode[i-1])
+                elif parsingCigarCode[i]=="D":
+                        shift+=int(parsingCigarCode[i-1])
+                elif parsingCigarCode[i]=="I":
+                        shift-=int(parsingCigarCode[i-1])#There is a nucleotide of shift compared to the reference
+                        pos+=int(parsingCigarCode[i-1]) #We advance in the query SEQ
+                #Hard clipping (clipped sequences NOT present in SEQ)
+                elif parsingCigarCode[i]=="H":
+                        shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
+                        pos+=int(parsingCigarCode[i-1])
+                #Padding (silent deletion from padded reference)
+                elif parsingCigarCode[i]=="P":
+                        shift+=int(parsingCigarCode[i-1])
+                        pos+=int(parsingCigarCode[i-1])
+                elif parsingCigarCode[i]=="=":
+                        pos+=int(parsingCigarCode[i-1])
+                elif parsingCigarCode[i]=="X":
+                        pos+=int(parsingCigarCode[i-1])
+                if pos>=pospol:
+                        # print("return", str(pospol+shift))
+                        return pospol+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence                                
+                i+=2
 
+        # print("return", str(pospol+shift))
+        return pospol+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence
 
 class VARIANT():
         """Object corresponding to a discosnp++ bubble"""
@@ -388,15 +429,16 @@ class VARIANT():
                 IDVariantLow= self.lower_path.listSam[0].split("_")[3]
                 bitwiseFlag=int(self.upper_path.listSam[1])                
                 if IDVariantUp != IDVariantLow:
-                        if bitwiseFlag & 2048 : #Checks if it's a supplementary alignment
+                        if bitwiseFlag >0: #& 2048 : #Checks if it's a supplementary alignment
                                 print("Supplementary alignment:")
                                 print(self.upper_path.listSam)
                                 return (2) 
                         else :
                                 print("WARNING two consecutive lines do not store the same variant id: ")
                                 print(self.upper_path.listSam)
+                                print(self.upper_path.listSam[1])
                                 print(self.lower_path.listSam)
-                                return (1)
+                                return (2)
                 
                 else:
                         return (0)                                                                           
@@ -437,12 +479,31 @@ class PATH():
                        self.boolReverse="."                             #We need to define the absence of strand           
 
         def RetrieveXA(self,VCFObject):
+                # print ("RetrieveXA",VCFObject.XA)
+
+                # self.filterField=None
+                # self.variantType=None
+                # self.phased=None #phased genotype
+                # self.formatField=None
+                # self.genotypes="" #genotype field =>put it in the vcf
+                # self.chrom=""
+                # self.ref=""
+                # self.alt=""
+                # self.qual=""
+                # self.nucleoRef=None
+                # self.reverse=""
+                # self.XA=None
+                
                 VCFObject.XA=""
+                # print ("self.dicoMappingPos.items()",self.dicoMappingPos.items())
+                # print ("self.listPosVariantOnPathToKeep", self.listPosVariantOnPathToKeep)
                 for position,(NM,cigarcode) in self.dicoMappingPos.items():
                        if cigarcode!="":
-                                VCFObject.XA+=str(position)+","
+                                VCFObject.XA+=position.split('_')[0]+'_'+str(shift_from_cigar_code(cigarcode,abs(int(position.split('_')[-1]))+self.listPosVariantOnPathToKeep[0]-1))+"," # todo: sens + décalage du variant.
                 if VCFObject.XA:
                         VCFObject.XA=VCFObject.XA.rstrip(',')
+                # print ("And now RetrieveXA",VCFObject.XA)
+                
                             
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
@@ -465,6 +526,7 @@ class PATH():
                 #Creation of a dict with mapping position associated with number of mismatch
                 
                 if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
+                        # print ("hohoho", variant)
                         for item in variant:
                                 if "XA" in item:
                                         #Parsing XA tag
@@ -477,12 +539,15 @@ class PATH():
                                         break                #no need to search for XA in other fields
                         i=1
                         while i<len(alternative_positions): #Runs through the list 4 by 4 to get all the positions 
+                                # print (alternative_positions)
                                 if alternative_positions[i-1]==variant_chromosome and abs(int(alternative_positions[i])) > variant_position-4 and abs(int(alternative_positions[i]))<variant_position+4: 
                                     i+=4
                                     continue #Checks if the position is not too close to the main one
                                 # if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
                                 self.dicoMappingPos[alternative_positions[i-1]+"_"+alternative_positions[i]]=[int(alternative_positions[i+2]), alternative_positions[i+1]]#the position is associated to the number of mismatch in a dictionary
+                                # print ("self.dicoMappingPos["+alternative_positions[i-1]+"_"+alternative_positions[i],"=",int(alternative_positions[i+2]), alternative_positions[i+1])
                                 i+=4
+                                
 
                 if variant_position>0:#adds the main mapping position to the dictionary of all mapping positions
                       posMut,nbMismatch=self.GetTag()
@@ -518,6 +583,7 @@ class PATH():
                 else:  #Forward strand                   
                      self.listPosVariantOnPathToKeep=self.listPosForward
                      self.boolReverse="1"        
+
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------          
         def CigarcodeChecker(self):

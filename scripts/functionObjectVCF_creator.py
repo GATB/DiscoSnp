@@ -19,7 +19,7 @@ from ClassVCF_creator import *
 #############################################################################################
 def InitVariant(line1,line2,fileName,dicoIndex):
         """Initialization of the variant by taking into account its type"""
-        #Object Creation
+        #Object Creation    
         if "SNP" in line1 and "|nb_pol_1|" in line1:
                 variant_object=SNP(line1,line2)
         elif "SNP" in line1 and "|nb_pol_1|" not in line1:
