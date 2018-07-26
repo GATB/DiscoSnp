@@ -608,7 +608,7 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     // PHASING:
     if (gv.phasing){
     stringstream phasingFileName;
-    phasingFileName<<"phased_alleles_read_set_id_"<<read_set_id<<".txt";
+    phasingFileName<<"phased_alleles_read_set_id_"<<(read_set_id+1)<<".txt";
     cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
     ofstream phasingFile (phasingFileName.str());
     phasingFile <<"#"<<inputBank->getId()<<endl;
