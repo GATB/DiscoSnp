@@ -108,39 +108,38 @@ fieldIndex=GetIndex(fileName)
 #---------------------------------------------------------------------------------------------------------------------------
 #Start to read the file two lines by two lines
 if ".sam" in fileName: #Checks if it's a stream_file
-        while True:
-                line1=stream_file.readline()   
-                if not line1: break #End of file
-                if line1.startswith('@'):
-                        if filtered_sam:
-                                filtered_sam_file.write(line1) 
-                        continue #We do not read headers                
-                while True:
-                        listline1=line1.split("\t")  
-                        if int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
-                                line1=stream_file.readline()
-                        else:break
-                line2=stream_file.readline() #Read couple of lines
-                while True:
-                        listline2=line2.split("\t") 
-                        if int(listline2[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
-                                line2=stream_file.readline()
-                        else:break       
-                #Initializes variant object with the samline
-                #if InitVariant(line1,line2)[0]==1:
-                #        continue
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) #Fills the object with the line of the stream_file        
-                if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
-                        sys.exit(1)
-                #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
-                table=MappingTreatement(variant_object,vcf_field_object,nbGeno)
-                #Added by Pierre Peterlongo, Sept 2015. Outputs a new SAM file corresponding to mapped sequences (PASS or MULTIPLE)
-                if(filtered_sam and vcf_field_object.filterField!="."):
-                    filtered_sam_file.write(line1)
-                    filtered_sam_file.write(line2)
+    upper_path = ""
+    lower_path = ""
+    for line in stream_file:
+        if line.startswith('@'):
+            continue  # skip headers
+        alignment_flag = int(line.split('\t')[1])
+        if alignment_flag & 2048:
+            continue  # skip supplementary alignment
+        if upper_path == "":
+            upper_path = line
+        elif lower_path == "":
+            lower_path = line
+            line1 = upper_path
+            line2 = lower_path
+            upper_path = ""
+            lower_path = ""            
+
+            #Initializes variant object with the samline
+            #if InitVariant(line1,line2)[0]==1:
+            #        continue
+            variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) #Fills the object with the line of the stream_file        
+            if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
+                sys.exit(1)
+            #Checks the mapping on reference and determines the shift with the reference, which path is the reference ...
+            table=MappingTreatement(variant_object,vcf_field_object,nbGeno)
+            #Added by Pierre Peterlongo, Sept 2015. Outputs a new SAM file corresponding to mapped sequences (PASS or MULTIPLE)
+            if(filtered_sam and vcf_field_object.filterField!="."):
+                filtered_sam_file.write(line1)
+                filtered_sam_file.write(line2)
                 
-                #Fills the VCF file
-                variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
+            #Fills the VCF file
+            variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
                   
 
             
