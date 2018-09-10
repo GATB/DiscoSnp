@@ -86,9 +86,9 @@ def store_phased_alleles(phased_alleles_file):
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
     
-     for aid in coverages:
-         if aid[:-1] in cc:
-             print("snp(cc"+str(cc[aid[:-1]])+","+aid[:-1]+","+aid[-1]+","+str(coverages[aid])+").")
+    for aid in coverages:
+        if aid[:-1] in cc:
+            print("snp(cc"+str(cc[aid[:-1]])+","+aid[:-1]+","+aid[-1]+","+str(coverages[aid])+").")
          
     for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
 
