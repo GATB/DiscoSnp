@@ -95,7 +95,6 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
         # get the CC: 
         ids=list_as_string.split(';')[:-1]
         abundance = phased_alleles[list_as_string]
-        print(list_as_string,abundance)
         if ids[0][:-1] not in cc: continue
         this_cc=cc[ids[0][:-1]]
         for j in range(1,len(ids)):
