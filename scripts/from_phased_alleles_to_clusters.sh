@@ -1,8 +1,10 @@
 # FROM A FILE GENERATED USING OPTION -phasing FROM KISSREADS, GENERATE CLUSTERS OF VARIANTS WHO TRANSITIVELY CO-OCCUR IN READS
 
 echo "This is \"from_phased_alleles_to_clusters.sh\". Generates clusters of variants who transitively co-occur in reads from a file generated using option -phasing from kissreads"
+echo "Usage: from_phased_alleles_to_clusters.sh phased_alleles_file [minimal edge coverage support (default 0)]"
 
 file=$1
+
 if [ ! -f $file ]; then
     echo "In \"from_phased_alleles_to_clusters.sh\": file \"$file\" does not exist"
    exit 0
@@ -14,10 +16,15 @@ path=$(dirname "${file}")
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) 
 echo $EDIR
 
+edge_coverage_threshold=0
+if ! test -z "$2" 
+then
+       edge_coverage_threshold=$2
+fi
 
 # 1000547h;-2286435h; -1330792h;1152525l; => 1
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
-cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u "
+#cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u "
 # 1/ suppress the '-' sign occurrences 
 # 2/ suppres the first line 
 # 3/ remove what exists after => (included) 
@@ -31,6 +38,11 @@ cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/
 # 5/ remove r/p info
 # 6/ remove h/l info
 # 7/ remove duplicates
+
+### Same command keeping only edges seen at leas edge_coverage_threshold times
+
+cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | uniq -c | awk '\$1>=${edge_coverage_threshold} {print \$2\" \"\$3}'"
+###
 echo $cmd "> edge_${filename}"
 eval $cmd "> edge_${filename}"
 
