@@ -59,7 +59,7 @@ def store_cc(cc_file):
 def store_phased_alleles(phased_alleles_file):
     phased_alleles={}
     for oline in phased_alleles_file: #-1187h;1001h;2178h; => 5
-        oline=oline.rstrip()
+        oline=oline.lstrip().rstrip()
         if oline[0]=='#': continue
         ids = oline.split(' ')[0].split(';')[:-1]
         abundance = int(oline.split(' ')[-1])
@@ -98,7 +98,7 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
         if ids[0][:-1] not in cc: continue
         this_cc=cc[ids[0][:-1]]
         for j in range(1,len(ids)):
-            if cc[ids[j][:-1]] != this_cc:
+            if ids[j][:-1] in cc and cc[ids[j][:-1]] != this_cc:
                 print("impossible all variants from ",list_as_string, "are not in the same CC")
                 sys.exit(0)
         

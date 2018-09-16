@@ -36,7 +36,8 @@ def get_phasing_edges(file):
     for line in file: #-1064h;-917l;1880l; => 2
         if line[0]=='#':
             continue
-        line=line.strip().rstrip().split(' ')
+        line=line.replace("  ", " ") # in pairend files, it happens that a line contains only left or right nodes. In this case, a double space occurs before the '=>' symbol or at the begining of the line. In the first case this is problematic (else it creates empty nodes), thus we consider such lines as non pairend. 
+        line=line.strip().lstrip().rstrip().split(' ')
         pairend=False
         if len(line)==3: 
             coverage=int(line[2])
