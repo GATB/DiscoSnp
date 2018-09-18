@@ -27,7 +27,7 @@ genome=""
 PATH_BWA=""
 discoSNPs=""
 bwa_threads=""
-l=10
+k=19
 n=""
 s=0
 igv=0
@@ -63,7 +63,7 @@ function help {
        echo -e "\t-f: <file>.sam: skip the alignment phases to create the vcf file"
        echo -e "\t\t Optional unless MODE 3: you want the mapping positions of the predicted variants in the VCF file without remapping on a reference genome. -f option must be used together with -n"
 
-       #echo -e "\t-s: bwa option: seed distance"
+       echo -e "\t-k: bwa option: seed size"
        #echo -e "\t\t Optional, default 0"
        #echo -e "\t-l: bwa option: length of the seed for alignment"
        #echo -e "\t\t Optional, default 10"
@@ -80,7 +80,7 @@ function help {
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
 
-while getopts "hB:c:G:p:wIef:o:t:" opt; do
+while getopts "hB:c:G:p:wkIef:o:t:" opt; do
        case $opt in
 
               t)
@@ -126,10 +126,10 @@ while getopts "hB:c:G:p:wIef:o:t:" opt; do
               #	n=$OPTARG
               #	;;
 
-              #	l)
-              #	echo -e "\t##use seed length : $OPTARG" >&2
-              #	l=$OPTARG
-              #	;;
+              k)
+              echo -e "\t##use bwa seed length : $OPTARG" >&2
+              k=$OPTARG
+              ;;
 
               f)
               echo -e "\t##use directly samfile : $OPTARG" >&2
@@ -170,7 +170,7 @@ done
 if [ -z "$vcffile" ];then
        if [ ! -z "$samfile" ];then
               echo -e "..To skip the alignment phase ..."
-              echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-l <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
+              echo -e "\t./run_VCF_creator.sh -f <sam_file> -n <mismatch_number> -o <output> [-k <seed_size>] [-s <bwa_errors_in_seed>] [-w]"
               exit 1
        else
               help
@@ -298,8 +298,8 @@ if [ -z "$samfile" ];then
        #---------------------------------------------------------------------------------------------------------------------------
        #---------------------------------------------------------------------------------------------------------------------------
        ##Alignment discosnps on the reference genome
-       echo "ALIGNMENT: $PATH_BWA/bwa mem -h 80 $genome $discoSNPsbis > $samfile"
-       $PATH_BWA/bwa mem -h 80 $genome $discoSNPsbis > $samfile
+       echo "ALIGNMENT: $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis > $samfile"
+       $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis > $samfile
        if [ $? -ne 0 ]
        then
               echo "there was a problem with BWA (command was \"$PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile\""
