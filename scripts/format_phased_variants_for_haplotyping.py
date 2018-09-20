@@ -56,6 +56,7 @@ def store_cc(cc_file):
     return cc
         
 
+
 def store_phased_alleles(phased_alleles_file):
     phased_alleles={}
     for oline in phased_alleles_file: #-1187h;1001h;2178h; => 5
@@ -65,11 +66,11 @@ def store_phased_alleles(phased_alleles_file):
         abundance = int(oline.split(' ')[-1])
         idlist=[]
         for aid in ids: 
-            if aid[0]=='-': # remove the '-'
-                aid=aid[1:]
+            # if aid[0]=='-': # remove the '-'
+            #     aid=aid[1:]
             idlist.append(aid)
-        # canonical representation: smallest first: 
-        if int(idlist[0][:-1])>int(idlist[-1][:-1]):
+        # canonical representation: smallest first (removing with the strip function the eventual first '-' sign: 
+        if int(idlist[0].strip('-')[:-1])>int(idlist[-1].strip('-')[:-1]):
             idlist.reverse()
         list_as_string = ""
         for aid in idlist:
@@ -85,13 +86,11 @@ def store_phased_alleles(phased_alleles_file):
 
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
-    
     for aid in coverages:
         if aid[:-1] in cc:
             print("snp(cc"+str(cc[aid[:-1]])+","+aid[:-1]+","+aid[-1]+","+str(coverages[aid])+").")
          
     for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
-
         # get the CC: 
         ids=list_as_string.split(';')[:-1]
         abundance = phased_alleles[list_as_string]
