@@ -67,7 +67,6 @@ while True:
     splited_com2=com2.split('|')
     for pol in range(nb_pol): 
         pos_pol=int(all_pos_pol[pol].split(':')[1].split('_')[0])
-        print (com1)
         alt_allele=all_pos_pol[pol].split(':')[1].split('_')[1].split('/')[1]
         subseq1=seq1[pos_pol-delta:pos_pol+delta+1]                                     # get the upper case sequence, including the current variant and containing the sequence surrounding this variant
         subseq2=seq1[pos_pol-delta:pos_pol]+alt_allele+seq1[pos_pol+1:pos_pol+delta+1]  # get the upper case sequence, including the current variant and containing the sequence from sequence1 containing this variant. 
