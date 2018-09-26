@@ -28,8 +28,8 @@ def store_abundances(coherent_fa_file,set_id):
     for oline in coherent_fa_file: #>SNP_higher_path_991|P_1:30_C/G|high|nb_pol_1|C1_38|C2_0|Q1_0|Q2_0|G1_0/0:6,119,764|G2_1/1:664,104,6|rank_1
         if oline[0] != '>': continue
         line=oline.rstrip().split('|')
-        id=line[0].split('_')[-1]
-        id+=line[0].split('_')[1][0]
+        id=line[0].split('_')[-1]    #here 991
+        id+=line[0].split('_')[1][0] #'h' or 'l'
         if not pos_coverage_determined:
             for pos_coverage in range(len(line)):
                 if line[pos_coverage][0]=='C':
@@ -41,7 +41,7 @@ def store_abundances(coherent_fa_file,set_id):
                 print ("Set id", set_id, "not findable in header like ", oline.rstrip())
                 print ("ciao")
                 sys.exit(0)
-        coverages[id]=line[pos_coverage].split('_')[1]
+        coverages[id]=line[pos_coverage].split('_')[1] # get the right coverage corresponding to the searche read set
     return coverages
     
 
@@ -50,6 +50,7 @@ def store_cc(cc_file):
     for i,oline in enumerate (cc_file): # 852 1891 3484 2641 5758 3247
         oline=oline.rstrip().split()
         for idf in oline: 
+            idf=int(idf)
             if idf in cc:
                 print("ERROR, idf is in more than one connected component")
             cc[idf]=i
@@ -69,9 +70,14 @@ def store_phased_alleles(phased_alleles_file):
             # if aid[0]=='-': # remove the '-'
             #     aid=aid[1:]
             idlist.append(aid)
-        # canonical representation: smallest first (removing with the strip function the eventual first '-' sign: 
+        # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
         if int(idlist[0].strip('-')[:-1])>int(idlist[-1].strip('-')[:-1]):
             idlist.reverse()
+            # change the ortientation = change the sign: 
+            for i in range(len(idlist)):
+                if idlist[i][0]=='-': idlist[i]=idlist[i][1:]
+                else: idlist[i]='-'+idlist[i]
+
         list_as_string = ""
         for aid in idlist:
             list_as_string+=aid+';'
@@ -87,28 +93,30 @@ def store_phased_alleles(phased_alleles_file):
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
     for aid in coverages:
-        if aid[:-1] in cc:
-            print("snp(cc"+str(cc[aid[:-1]])+","+aid[:-1]+","+aid[-1]+","+str(coverages[aid])+").")
-         
+        current_snp_id=int(aid[:-1])
+        if current_snp_id in cc:
+            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")
     for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
         # get the CC: 
         ids=list_as_string.split(';')[:-1]
         abundance = phased_alleles[list_as_string]
-        if ids[0][:-1] not in cc: continue
-        this_cc=cc[ids[0][:-1]]
+        first_id=abs(int(ids[0][:-1]))
+        if first_id not in cc: continue
+        this_cc=cc[first_id]
         for j in range(1,len(ids)):
-            if ids[j][:-1] in cc and cc[ids[j][:-1]] != this_cc:
+            if abs(int(ids[j][:-1])) in cc and cc[abs(int(ids[j][:-1]))] != this_cc:
                 print("impossible all variants from ",list_as_string, "are not in the same CC")
                 sys.exit(0)
         
             
-        for aid in ids:
-            print("fact(cc"+str(this_cc)+","+str(i)+","+aid[:-1]+","+aid[-1]+").")
+        for node_order,aid in enumerate(ids):
+            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid[:-1]+","+aid[-1]+").")
         print("count("+str(i)+","+str(abundance)+").")
         
             
 
 coverages=store_abundances(coherent_fa_file,set_id)
+
 cc=store_cc(cc_file)
 phased_alleles=store_phased_alleles(phased_alleles_file)
 print_djack_formated_phased_variants(coverages,cc,phased_alleles)
