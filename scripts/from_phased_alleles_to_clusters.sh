@@ -22,14 +22,14 @@ then
        edge_coverage_threshold=$2
 fi
 
-# 1000547h;-2286435h; -1330792h;1152525l; => 1
+#-129h_0;552l_38;-449h_33; => 2
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
 #cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u "
 # 1/ suppress the '-' sign occurrences 
 # 2/ suppres the first line 
 # 3/ remove what exists after => (included) 
-# 4/ transform n-uplets into couples: 
-#   a;b;c; d;e
+# 4/ transform n-uplets into couples and remove distances to first variant (eg _38): 
+#   a_0;b_13;c_42; d_0;e_8
 #  becomes (r means mapped by a unique gene and p means mapped by a pair of reads). Each line is ordered (smallest id first)
 #   a b r
 #   b c r

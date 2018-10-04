@@ -60,7 +60,7 @@ def store_cc(cc_file):
 
 def store_phased_alleles(phased_alleles_file):
     phased_alleles={}
-    for oline in phased_alleles_file: #-1187h;1001h;2178h; => 5
+    for oline in phased_alleles_file: #-129h_0;552l_38;-449h_33; => 2
         oline=oline.lstrip().rstrip()
         if oline[0]=='#': continue
         ids = oline.split(' ')[0].split(';')[:-1]
@@ -71,7 +71,7 @@ def store_phased_alleles(phased_alleles_file):
             #     aid=aid[1:]
             idlist.append(aid)
         # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
-        if int(idlist[0].strip('-')[:-1])>int(idlist[-1].strip('-')[:-1]):
+        if int(idlist[0].split('_')[0].strip('-')[:-1])>int(idlist[-1].split('_')[0].strip('-')[:-1]):
             idlist.reverse()
             # change the ortientation = change the sign: 
             for i in range(len(idlist)):
@@ -98,19 +98,20 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
             print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")
     for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
         # get the CC: 
-        ids=list_as_string.split(';')[:-1]
+        ids=list_as_string.split(';')[:-1] # ['261l_51', '-212h_54', '-3553l_0']
+        print(ids)
         abundance = phased_alleles[list_as_string]
-        first_id=abs(int(ids[0][:-1]))
+        first_id=abs(int(ids[0].split('_')[0][:-1]))
         if first_id not in cc: continue
         this_cc=cc[first_id]
         for j in range(1,len(ids)):
-            if abs(int(ids[j][:-1])) in cc and cc[abs(int(ids[j][:-1]))] != this_cc:
+            if abs(int(ids[j].split('_')[0][:-1])) in cc and cc[abs(int(ids[j].split('_')[0][:-1]))] != this_cc:
                 print("impossible all variants from ",list_as_string, "are not in the same CC")
                 sys.exit(0)
         
             
         for node_order,aid in enumerate(ids):
-            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid[:-1]+","+aid[-1]+").")
+            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid.split('_')[0][:-1]+","+aid.split('_')[0][-1]+","+aid.split('_')[1]+").")
         print("count("+str(i)+","+str(abundance)+").")
         
             
