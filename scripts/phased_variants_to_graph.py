@@ -7,6 +7,7 @@ def printid(anid):
     else:               print(anid,end='')
 
 def formatid(anid):
+    return anid
     if anid[0]=='-':    return anid[1:]
     else:               return anid
 
@@ -18,10 +19,10 @@ nodes={}
 def id1id2 (id1,id2,coverage,pairend):
     if pairend: struct=node2paired_nodes
     else:       struct=node2nodes
-    if id2<id1:
-        tmp=id1
-        id1=id2
-        id2=tmp
+    # if id2<id1:
+    #     tmp=id1
+    #     id1=id2
+    #     id2=tmp
     if id1 not in struct:
         struct[id1]={}
     if id2 not in struct[id1]:
