@@ -34,7 +34,7 @@ def id1id2 (id1,id2,coverage,pairend):
 def get_phasing_edges(file):
     
     # Print phasing edges
-    for line in file: #-1064h;-917l;1880l; => 2
+    for line in file: #-1064h_0;-917l_28;1880l_39; => 2
         if line[0]=='#':
             continue
         line=line.replace("  ", " ") # in pairend files, it happens that a line contains only left or right nodes. In this case, a double space occurs before the '=>' symbol or at the begining of the line. In the first case this is problematic (else it creates empty nodes), thus we consider such lines as non pairend. 
@@ -70,12 +70,12 @@ def get_phasing_edges(file):
 def print_phasing_edges():
     for id1 in node2nodes:
         for id2 in node2nodes[id1]:
-            print(str(id1)+"\t"+str(id2)+"\t"+str(node2nodes[id1][id2])+"\th")
+            print(str(id1.split('_')[0])+"\t"+str(id2.split('_')[0])+"\t"+id2.split('_')[1]+"\t"+str(node2nodes[id1][id2])+"\th")
 
 def print_pairing_edges():
     for id1 in node2paired_nodes:
         for id2 in node2paired_nodes[id1]:
-            print(str(id1)+"\t"+str(id2)+"\t"+str(node2paired_nodes[id1][id2])+"\tp")
+            print(str(id1.split('_')[0])+"\t"+str(id2.split('_')[0])+"\tNone\t"+str(node2paired_nodes[id1][id2])+"\tp")
             
 def print_allele_edges():
     for id1 in nodes:
@@ -91,7 +91,7 @@ else:
     file=sys.stdin
 
 get_phasing_edges(file)    
-print("source\ttarget\tcoverage\ttype")
+print("source\ttarget\tlength\tcoverage\ttype")
 print_phasing_edges()
 print_pairing_edges()
 print_allele_edges()

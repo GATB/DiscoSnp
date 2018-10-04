@@ -77,6 +77,17 @@ def store_phased_alleles(phased_alleles_file):
             for i in range(len(idlist)):
                 if idlist[i][0]=='-': idlist[i]=idlist[i][1:]
                 else: idlist[i]='-'+idlist[i]
+            # change the orientation = change the distance to the previous one. 
+            # -d_0;-c_5;-b_2;-a_4 is reversed into a_4;b_2_c_5_d_0 which is false. 
+            # In fact a and b separated by 4, b and c by 2 and c and d by 5. 
+            # d....c.b...a
+            # Thus the final order is a_0;b_4;c_2;d_5
+            previous="0"
+            for i in range(len(idlist)):
+                future_previous=idlist[i].split('_')[-1]
+                idlist[i]=idlist[i].split('_')[0]+'_'+previous
+                previous=future_previous
+
 
         list_as_string = ""
         for aid in idlist:
@@ -99,7 +110,6 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
     for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
         # get the CC: 
         ids=list_as_string.split(';')[:-1] # ['261l_51', '-212h_54', '-3553l_0']
-        print(ids)
         abundance = phased_alleles[list_as_string]
         first_id=abs(int(ids[0].split('_')[0][:-1]))
         if first_id not in cc: continue
