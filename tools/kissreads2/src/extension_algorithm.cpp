@@ -450,33 +450,56 @@ struct Functor
         if (gv.phasing){
         if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            
+            int previous_pwi;                                                       // position of the previous pwi snp on the read
+            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
                 int64_t var_id =it->second;
+                int pwi = it->first;
                 string sign = "";
                 if (var_id<0){
                     sign ="-";
                     var_id=-var_id;
                 }
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
+                
+                int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                if (first_snp){
+                    relative_position=0;
+                    first_snp=false;
+                }
+                else
+                    relative_position=pwi-previous_pwi;
+                previous_pwi=pwi;
+
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             phased_variant_ids += ' ';
-            
+            first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
                 int64_t var_id =it->second;
+                int pwi = it->first;
                 string sign = "";
                 if (var_id<0){
                     sign ="-";
                     var_id=-var_id;
                 }
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
+                
+                int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                if (first_snp){
+                    relative_position=0;
+                    first_snp=false;
+                }
+                else
+                    relative_position=pwi-previous_pwi;
+                previous_pwi=pwi;
+                
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
                 phased_variant_ids = phased_variant_ids+phased_variant_id+';';
             }
             
@@ -517,15 +540,25 @@ struct Functor
         if (gv.phasing){
         if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            
+            int previous_pwi;                                                       // position of the previous pwi snp on the read
+            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
             for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 int64_t var_id =it->second;
+                int pwi=it->first;                                                  // Position on the read of the current variant
                 string sign = "";
                 if (var_id<0){
                     sign ="-";
                     var_id=-var_id;
                 }
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment());
+                int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                if (first_snp){
+                    relative_position=0;
+                    first_snp=false;
+                }
+                else
+                    relative_position=pwi-previous_pwi;
+                previous_pwi=pwi;
+                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
                 
                 //DEBUG
 //                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
