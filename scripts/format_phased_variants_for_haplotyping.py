@@ -37,7 +37,7 @@ def store_abundances(coherent_fa_file,set_id):
                     if value==set_id:
                         pos_coverage_determined=True
                         break
-            if not pos_coverage_determined:
+            #if not pos_coverage_determined:
             assert pos_coverage_determined, "Set id "+ str(set_id)+ " not findable in header like "+ oline.rstrip()
         coverages[id]=line[pos_coverage].split('_')[1] # get the right coverage corresponding to the searche read set
     return coverages
@@ -115,7 +115,7 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
         this_cc=cc[first_id]                                                                                            # eg 555
         for j in range(1,len(ids)):                                                                                     # all other allele ids
             assert abs(int(ids[j].split('_')[0][:-1])) in cc, "SNP"+str(first_id)+"in facts but not in connected components"
-            assert cc[abs(int(ids[j].split('_')[0][:-1]))] == this_cc, "impossible all variants from "+list_as_string≠ "are not in the same CC"
+            assert cc[abs(int(ids[j].split('_')[0][:-1]))] == this_cc, "impossible all variants from "+list_as_string+ "are not in the same CC"
             # if abs(int(ids[j].split('_')[0][:-1])) in cc and cc[abs(int(ids[j].split('_')[0][:-1]))] != this_cc:        #
                 # print("impossible all variants from ",list_as_string, "are not in the same CC")
                 # sys.exit(0)
