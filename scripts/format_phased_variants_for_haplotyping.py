@@ -100,6 +100,36 @@ def store_phased_alleles(phased_alleles_file):
                 
     return phased_alleles
 
+def check_phased_alleles_integrity_and_return_cc_only_assert(phased_alleles):
+    snp_ids=set()
+    first_id=abs(int(phased_alleles[0].split('_')[0][:-1]))                                                             # 129
+    snp_ids.add(first_id)
+    assert first_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+    this_cc=cc[first_id]                                                                                                # eg 555
+    for j in range(1,len(phased_alleles)):                                                                              # all other allele ids
+        cur_id = abs(int(phased_alleles[j].split('_')[0][:-1]))
+        assert cur_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+        assert cc[cur_id] == this_cc, "impossible all variants from "+list_as_string+ "are not in the same CC"
+        assert cur_id not in snp_ids, "impossible, "+str(cur_id)+" exists several times in phased variants "+str(phased_alleles)
+        snp_ids.add(cur_id)
+    return this_cc
+
+def check_phased_alleles_integrity_and_return_cc(phased_alleles):
+    snp_ids=set()
+    first_id=abs(int(phased_alleles[0].split('_')[0][:-1]))                                                             # 129
+    snp_ids.add(first_id)
+    assert first_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+    this_cc=cc[first_id]                                                                                                # eg 555
+    for j in range(1,len(phased_alleles)):                                                                              # all other allele ids
+        cur_id = abs(int(phased_alleles[j].split('_')[0][:-1]))
+        assert cur_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+        assert cc[cur_id] == this_cc, "impossible all variants from "+list_as_string+ "are not in the same CC"
+        if cur_id in snp_ids:
+            print ("Warning, "+str(cur_id)+" exists several times in phased variants "+str(phased_alleles)+". We skill this phased variants list", file=sys.stderr)
+            return -1
+        snp_ids.add(cur_id)
+    return this_cc
+
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
     for aid in coverages:                                                                                               #snp id (991h) -> coverage 
@@ -109,16 +139,10 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
             
     for i,list_as_string in enumerate(phased_alleles):                                                                  #'-129h_0;552l_38;-449h_33;': 2
         ids=list_as_string.split(';')[:-1]                                                                              # ['-129h_0', '552l_38',  '-449h_33']
+        this_cc=check_phased_alleles_integrity_and_return_cc(ids)
+        if this_cc==-1: continue                                                                                        # There was a problem with this fact
         abundance = phased_alleles[list_as_string]                                                                      # 2
-        first_id=abs(int(ids[0].split('_')[0][:-1]))                                                                    # 129
-        assert first_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
-        this_cc=cc[first_id]                                                                                            # eg 555
-        for j in range(1,len(ids)):                                                                                     # all other allele ids
-            assert abs(int(ids[j].split('_')[0][:-1])) in cc, "SNP"+str(first_id)+"in facts but not in connected components"
-            assert cc[abs(int(ids[j].split('_')[0][:-1]))] == this_cc, "impossible all variants from "+list_as_string+ "are not in the same CC"
-            # if abs(int(ids[j].split('_')[0][:-1])) in cc and cc[abs(int(ids[j].split('_')[0][:-1]))] != this_cc:        #
-                # print("impossible all variants from ",list_as_string, "are not in the same CC")
-                # sys.exit(0)
+
         
         
         for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
