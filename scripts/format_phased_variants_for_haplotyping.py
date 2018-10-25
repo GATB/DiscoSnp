@@ -24,8 +24,8 @@ phased_alleles_file = open(sys.argv[4])
 def store_abundances(coherent_fa_file,set_id):
     pos_coverage_determined=False
     pos_coverage=-1
-    coverages={}
-    for oline in coherent_fa_file: #>SNP_higher_path_991|P_1:30_C/G|high|nb_pol_1|C1_38|C2_0|Q1_0|Q2_0|G1_0/0:6,119,764|G2_1/1:664,104,6|rank_1
+    coverages={}                    #snp id (991h) -> coverage in the right read set 
+    for oline in coherent_fa_file:  #>SNP_higher_path_991|P_1:30_C/G|high|nb_pol_1|C1_38|C2_0|Q1_0|Q2_0|G1_0/0:6,119,764|G2_1/1:664,104,6|rank_1
         if oline[0] != '>': continue
         line=oline.rstrip().split('|')
         id=line[0].split('_')[-1]    #here 991
@@ -38,9 +38,7 @@ def store_abundances(coherent_fa_file,set_id):
                         pos_coverage_determined=True
                         break
             if not pos_coverage_determined:
-                print ("Set id", set_id, "not findable in header like ", oline.rstrip())
-                print ("ciao")
-                sys.exit(0)
+            assert pos_coverage_determined, "Set id "+ str(set_id)+ " not findable in header like "+ oline.rstrip()
         coverages[id]=line[pos_coverage].split('_')[1] # get the right coverage corresponding to the searche read set
     return coverages
     
@@ -51,8 +49,7 @@ def store_cc(cc_file):
         oline=oline.rstrip().split()
         for idf in oline: 
             idf=int(idf)
-            if idf in cc:
-                print("ERROR, idf is in more than one connected component")
+            assert idf not in cc, "ERROR, idf is in more than one connected component"
             cc[idf]=i
     return cc
         
@@ -60,16 +57,18 @@ def store_cc(cc_file):
 
 def store_phased_alleles(phased_alleles_file):
     phased_alleles={}
-    for oline in phased_alleles_file: #-129h_0;552l_38;-449h_33; => 2
+    for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
         oline=oline.lstrip().rstrip()
         if oline[0]=='#': continue
-        ids = oline.split(' ')[0].split(';')[:-1]
-        abundance = int(oline.split(' ')[-1])
-        idlist=[]
+        ids = oline.split(' ')[0].split(';')[:-1]   # -129h_0552l_38 -449h_33
+        abundance = int(oline.split(' ')[-1])       # 2
+        idlist=[]                                   # -129h_0552l_38 -449h_33 (as list)
+        
         for aid in ids: 
             # if aid[0]=='-': # remove the '-'
             #     aid=aid[1:]
             idlist.append(aid)
+            
         # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
         if int(idlist[0].split('_')[0].strip('-')[:-1])>int(idlist[-1].split('_')[0].strip('-')[:-1]):
             idlist.reverse()
@@ -103,24 +102,27 @@ def store_phased_alleles(phased_alleles_file):
 
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
-    for aid in coverages:
-        current_snp_id=int(aid[:-1])
-        if current_snp_id in cc:
-            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")
-    for i,list_as_string in enumerate(phased_alleles):#'2686l;4324h;5375h;': 3
-        # get the CC: 
-        ids=list_as_string.split(';')[:-1] # ['261l_51', '-212h_54', '-3553l_0']
-        abundance = phased_alleles[list_as_string]
-        first_id=abs(int(ids[0].split('_')[0][:-1]))
-        if first_id not in cc: continue
-        this_cc=cc[first_id]
-        for j in range(1,len(ids)):
-            if abs(int(ids[j].split('_')[0][:-1])) in cc and cc[abs(int(ids[j].split('_')[0][:-1]))] != this_cc:
-                print("impossible all variants from ",list_as_string, "are not in the same CC")
-                sys.exit(0)
-        
+    for aid in coverages:                                                                                               #snp id (991h) -> coverage 
+        current_snp_id=int(aid[:-1])                                                                                    #991
+        if current_snp_id in cc:                                                                                        #necessary test?
+            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
             
-        for node_order,aid in enumerate(ids):
+    for i,list_as_string in enumerate(phased_alleles):                                                                  #'-129h_0;552l_38;-449h_33;': 2
+        ids=list_as_string.split(';')[:-1]                                                                              # ['-129h_0', '552l_38',  '-449h_33']
+        abundance = phased_alleles[list_as_string]                                                                      # 2
+        first_id=abs(int(ids[0].split('_')[0][:-1]))                                                                    # 129
+        assert first_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+        this_cc=cc[first_id]                                                                                            # eg 555
+        for j in range(1,len(ids)):                                                                                     # all other allele ids
+            assert abs(int(ids[j].split('_')[0][:-1])) in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+            assert cc[abs(int(ids[j].split('_')[0][:-1]))] == this_cc, "impossible all variants from "+list_as_string≠ "are not in the same CC"
+            # if abs(int(ids[j].split('_')[0][:-1])) in cc and cc[abs(int(ids[j].split('_')[0][:-1]))] != this_cc:        #
+                # print("impossible all variants from ",list_as_string, "are not in the same CC")
+                # sys.exit(0)
+        
+        
+        for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
+            # fact(cc_id, fact number, allele number in the fact, allele snp id, allele path (h/l), distance wrt to previous variant in the path)
             print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid.split('_')[0][:-1]+","+aid.split('_')[0][-1]+","+aid.split('_')[1]+").")
         print("count("+str(i)+","+str(abundance)+").")
         
