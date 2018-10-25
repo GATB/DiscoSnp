@@ -39,7 +39,7 @@ def store_abundances(coherent_fa_file,set_id):
                         break
             #if not pos_coverage_determined:
             assert pos_coverage_determined, "Set id "+ str(set_id)+ " not findable in header like "+ oline.rstrip()
-        coverages[id]=line[pos_coverage].split('_')[1] # get the right coverage corresponding to the searche read set
+        coverages[id]=int(line[pos_coverage].split('_')[1]) # get the right coverage corresponding to the searche read set
     return coverages
     
 
@@ -114,7 +114,7 @@ def check_phased_alleles_integrity_and_return_cc_only_assert(phased_alleles):
         snp_ids.add(cur_id)
     return this_cc
 
-def check_phased_alleles_integrity_and_return_cc(phased_alleles):
+def check_phased_alleles_integrity_and_return_cc(phased_alleles):                                                       # ['-129h_0', '552l_38',  '-449h_33']
     snp_ids=set()
     first_id=abs(int(phased_alleles[0].split('_')[0][:-1]))                                                             # 129
     snp_ids.add(first_id)
@@ -129,6 +129,32 @@ def check_phased_alleles_integrity_and_return_cc(phased_alleles):
             return -1
         snp_ids.add(cur_id)
     return this_cc
+    
+def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):                                                             # ['-129h_0', '552l_38',  '-449h_33']
+    """ Often a SNP is detected in one read set and used in a phased fact from an other read set in which it is not variable.
+    In this case one of its higher or lower allele as a coeverage 0.
+    If this happens, we remove this SNP and we update the distance to previous one accordingly
+    """
+    distance_to_add_to_previous=0
+    returned_list=[]
+    for aid in phased_alleles:
+        cud_allele = abs(int(aid.split('_')[0][:-1]))
+        to_remove = False
+        if str(cud_allele)+'h' not in coverages or coverages[str(cud_allele)+'h']==0: to_remove = True
+        if str(cud_allele)+'l' not in coverages or coverages[str(cud_allele)+'l']==0: to_remove = True
+        
+        if not to_remove: 
+            id_snp=aid.split('_')[0]
+            distance_to_revious = int(aid.split('_')[-1])+distance_to_add_to_previous
+            returned_list.append(id_snp+'_'+str(distance_to_revious))
+            distance_to_add_to_previous=0
+        else: 
+            distance_to_add_to_previous=int(aid.split('_')[-1])
+            # print ("Warning, SNP "+aid+" does not exist. It was removed from list "+str(phased_alleles), file=sys.stderr)
+    return returned_list
+            
+        
+    
 
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
@@ -143,7 +169,7 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles):
         if this_cc==-1: continue                                                                                        # There was a problem with this fact
         abundance = phased_alleles[list_as_string]                                                                      # 2
 
-        
+        ids = remove_non_existing_or_non_variable_variants(ids, coverages)
         
         for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
             # fact(cc_id, fact number, allele number in the fact, allele snp id, allele path (h/l), distance wrt to previous variant in the path)
