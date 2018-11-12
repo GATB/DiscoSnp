@@ -56,47 +56,42 @@ def store_cc(cc_file):
         
 
 
-def store_phased_alleles(phased_alleles_file):
+def store_phased_alleles(phased_alleles_file): ## ISSUE: Does not take right part of the pair information. # TODO
     phased_alleles={}
     for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
         oline=oline.lstrip().rstrip()
         if oline[0]=='#': continue
-        ids = oline.split(' ')[0].split(';')[:-1]   # -129h_0552l_38 -449h_33
         abundance = int(oline.split(' ')[-1])       # 2
-        idlist=[]                                   # -129h_0552l_38 -449h_33 (as list)
-        
-        for aid in ids: 
-            # if aid[0]=='-': # remove the '-'
-            #     aid=aid[1:]
-            idlist.append(aid)
+
+        for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
+            ids = oline.split(' ')[pair_id].split(';')[:-1]     # -129h_0552l_38 -449h_33                
+            # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
+            if int(ids[0].split('_')[0].strip('-')[:-1])>int(ids[-1].split('_')[0].strip('-')[:-1]):
+                ids.reverse()
+                # change the ortientation = change the sign: 
+                for i in range(len(ids)):
+                    if ids[i][0]=='-': ids[i]=ids[i][1:]
+                    else: ids[i]='-'+ids[i]
+                # change the orientation = change the distance to the previous one. 
+                # -d_0;-c_5;-b_2;-a_4 is reversed into a_4;b_2_c_5_d_0 which is false. 
+                # In fact a and b separated by 4, b and c by 2 and c and d by 5. 
+                # d....c.b...a
+                # Thus the final order is a_0;b_4;c_2;d_5
+                previous="0"
+                for i in range(len(ids)):
+                    future_previous=ids[i].split('_')[-1]
+                    ids[i]=ids[i].split('_')[0]+'_'+previous
+                    previous=future_previous
             
-        # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
-        if int(idlist[0].split('_')[0].strip('-')[:-1])>int(idlist[-1].split('_')[0].strip('-')[:-1]):
-            idlist.reverse()
-            # change the ortientation = change the sign: 
-            for i in range(len(idlist)):
-                if idlist[i][0]=='-': idlist[i]=idlist[i][1:]
-                else: idlist[i]='-'+idlist[i]
-            # change the orientation = change the distance to the previous one. 
-            # -d_0;-c_5;-b_2;-a_4 is reversed into a_4;b_2_c_5_d_0 which is false. 
-            # In fact a and b separated by 4, b and c by 2 and c and d by 5. 
-            # d....c.b...a
-            # Thus the final order is a_0;b_4;c_2;d_5
-            previous="0"
-            for i in range(len(idlist)):
-                future_previous=idlist[i].split('_')[-1]
-                idlist[i]=idlist[i].split('_')[0]+'_'+previous
-                previous=future_previous
-
-
-        list_as_string = ""
-        for aid in idlist:
-            list_as_string+=aid+';'
-        # add the list to the phased_alleles or increase its count if not existing:
-        if list_as_string in phased_alleles: 
-            phased_alleles[list_as_string]+=abundance
-        else: 
-            phased_alleles[list_as_string]=abundance
+            
+            list_as_string = ""
+            for aid in ids:
+                list_as_string+=aid+';'
+            # add the list to the phased_alleles or increase its count if not existing:
+            if list_as_string in phased_alleles: 
+                phased_alleles[list_as_string]+=abundance
+            else: 
+                phased_alleles[list_as_string]=abundance
 
                 
     return phased_alleles
@@ -133,7 +128,7 @@ def check_phased_alleles_integrity_and_return_cc(phased_alleles,cc):            
     
 def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):                                                             # ['-129h_0', '552l_38',  '-449h_33']
     """ Often a SNP is detected in one read set and used in a phased fact from an other read set in which it is not variable.
-    In this case one of its higher or lower allele as a coeverage 0.
+    In this case one of its higher or lower allele as a coverage 0.
     If this happens, we remove this SNP and we update the distance to previous one accordingly
     """
     distance_to_add_to_previous=0
@@ -150,7 +145,7 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
             returned_list.append(id_snp+'_'+str(distance_to_revious))
             distance_to_add_to_previous=0
         else: 
-            distance_to_add_to_previous=int(aid.split('_')[-1])
+            distance_to_add_to_previous+=int(aid.split('_')[-1])
             # print ("Warning, SNP "+aid+" does not exist. It was removed from list "+str(phased_alleles), file=sys.stderr)
     return returned_list
             
@@ -159,10 +154,10 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
 
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
-    for aid in coverages:                                                                                               #snp id (991h) -> coverage 
-        current_snp_id=int(aid[:-1])                                                                                    #991
-        if current_snp_id in cc:                                                                                        #necessary test?
-            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
+    # for aid in coverages:                                                                                               #snp id (991h) -> coverage
+    #     current_snp_id=int(aid[:-1])                                                                                    #991
+    #     if current_snp_id in cc:                                                                                        #necessary test?
+    #         print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
             
     for i,list_as_string in enumerate(phased_alleles):                                                                  #'-129h_0;552l_38;-449h_33;': 2
         ids=list_as_string.split(';')[:-1]                                                                              # ['-129h_0', '552l_38',  '-449h_33']
@@ -170,8 +165,7 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVa
         if this_cc==-1: continue                                                                                        # There was a problem with this fact
         abundance = phased_alleles[list_as_string]                                                                      # 2
 
-        if RemoveNonVariableSNPS: ids = remove_non_existing_or_non_variable_variants(ids, coverages)
-        
+        if RemoveNonVariableSNPS: ids = remove_non_existing_or_non_variable_variants(ids, coverages)        
         for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
             # fact(cc_id, fact number, allele number in the fact, allele snp id, allele path (h/l), distance wrt to previous variant in the path)
             print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid.split('_')[0][:-1]+","+aid.split('_')[0][-1]+","+aid.split('_')[1]+").")
