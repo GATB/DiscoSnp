@@ -133,6 +133,7 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
     """
     distance_to_add_to_previous=0
     returned_list=[]
+    first=True
     for aid in phased_alleles:
         cud_allele = abs(int(aid.split('_')[0][:-1]))
         to_remove = False
@@ -142,6 +143,9 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
         if not to_remove: 
             id_snp=aid.split('_')[0]
             distance_to_revious = int(aid.split('_')[-1])+distance_to_add_to_previous
+            if first: 
+                distance_to_revious=0
+                first=False
             returned_list.append(id_snp+'_'+str(distance_to_revious))
             distance_to_add_to_previous=0
         else: 
@@ -154,11 +158,11 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
 
     
 def print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
-    # for aid in coverages:                                                                                               #snp id (991h) -> coverage
-    #     current_snp_id=int(aid[:-1])                                                                                    #991
-    #     if current_snp_id in cc:                                                                                        #necessary test?
-    #         print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
-            
+    for aid in coverages:                                                                                               #snp id (991h) -> coverage
+        current_snp_id=int(aid[:-1])                                                                                    #991
+        if current_snp_id in cc:                                                                                        #necessary test?
+            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
+          
     for i,list_as_string in enumerate(phased_alleles):                                                                  #'-129h_0;552l_38;-449h_33;': 2
         ids=list_as_string.split(';')[:-1]                                                                              # ['-129h_0', '552l_38',  '-449h_33']
         this_cc=check_phased_alleles_integrity_and_return_cc(ids,cc)
