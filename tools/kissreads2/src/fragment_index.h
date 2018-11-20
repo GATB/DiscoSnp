@@ -42,7 +42,8 @@
 class FragmentIndex{
 public:
     hash_t seeds_count;
-    couple * seed_table;
+    couple * seed_table;    //  a = fragment_id; b = position_on_fragment;
+
     u_int64_t nb_coherent;
     u_int64_t nb_uncoherent;
     

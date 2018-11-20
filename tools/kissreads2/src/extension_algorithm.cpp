@@ -241,8 +241,8 @@ struct Functor
 {
     //    ISynchronizer* synchro;    fstream& file;
     
-    map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;          // stores for this read, the pwi positions tested for each prediction.
-    set<u_int64_t> mapped_prediction_as_set;                              // stores for this read, the succesfully mapped predictions - enables a quick existance testing of an element
+    map<u_int64_t, set<u_int64_t> >  tested_prediction_and_pwis;                // stores for this read, the pwi positions tested for each prediction.
+    set<u_int64_t> mapped_prediction_as_set;                                    // stores for this read, the succesfully mapped predictions - enables a quick existance testing of an element
     //    list<u_int64_t> mapped_prediction_as_list;                            // stores for this read, the succesfully mapped predictions - conserve the predictions order.
     
     
@@ -264,11 +264,6 @@ struct Functor
         
         const uint64_t read_len = strlen(read);
         
-        const int minimal_pwi = gv.minimal_read_overlap - read_len;//seq.getDataSize();
-        uint64_t offset_seed;
-        uint64_t nb_occurrences;
-        
-        
         
         // The read must overlap the fragment with at least minimal_read_overlap positions.
         // here is the first position on which the read may map :
@@ -281,6 +276,11 @@ struct Functor
         // pwi >= minimal_read_overlap-|read|
         // pwi >= 7-10 = -3
         // minimal_pwi = minimal_read_overlap-|read|
+
+        const int minimal_pwi = gv.minimal_read_overlap - read_len;
+        uint64_t offset_seed;
+        uint64_t nb_occurrences;
+        
         const int stop = read_len-gv.size_seeds+1;
         kmer_type coded_seed;
         
@@ -300,7 +300,7 @@ struct Functor
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
                         couple * value = &(index.seed_table[occurrence_id]);
-                        if (mapped_prediction_as_set.count(value->a)!=0) {
+                        if (mapped_prediction_as_set.count(value->a)!=0) {                      //  a = fragment_id; b = position_on_fragment;
                             continue; // This prediction was already mapped with this read.
                         }
                         
@@ -325,17 +325,6 @@ struct Functor
                         
                         
                         
-                        
-                        
-                        
-                        // overview general situation:
-                        
-                        //        ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  prediction
-                        //        <---------> b
-                        //                   [--------]                     seed
-                        //             ******************************       read
-                        //             <----> i
-                        //        <---> pwi
                         
                         const int maximal_pwi = strlen(prediction)-gv.minimal_read_overlap;
                         
@@ -363,47 +352,47 @@ struct Functor
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
                             
-//    #ifdef PHASING
+                            //    #ifdef PHASING
                             if(gv.phasing){
-                            mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
-                            // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
-                            if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
-                                //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
-                                int sign=direction==0?1:-1;
-                                
-                                if (direction == 0){
-                                    if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = sign*value->a;
-                                    // TODO what if this read maps already a variant at the same position ?
-                                }
-                                else{
+                                mapped_prediction_as_set.insert     (value->a);     // This prediction would not be mapped again with the same read
+                                // currently the phasing works only with SNPs, as boths paths of  an indel may be mapped by a same read
+                                if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
+                                    //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
+                                    int sign=direction==0?1:-1;
                                     
-                                    //        ;;;;;;;;;;;  prediction (11)
-                                    //             ******************************       read (30)
-                                    //             <----> minimal_read_overlap (6)
-                                    //        <---> pwi (5)
-                                    //                   <----------------------> rc_pwi (-24)
-                                    // we have : |read_overlap| = |prediction|-pwi
-                                    // we have : rc_pwi = |read_overlap|-|read|
-                                    // we have : rc_pwi = |prediction|-pwi-read
-                                    // rc_pwi = 11-5-30 = -24.
-                                    
-                                    // Validation with pwi<0:
-                                    /*
-                                     *  <-> pwi (-3)
-                                     *     --------------  prediction (14)
-                                     *  ***********        read (11)
-                                     *             <----> rc_pwi=6
-                                     * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
-                                     */
-                                    const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                    if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = sign*value->a;
-                                    // TODO what if this read maps already a variant at the same position ?
-                                    ///
+                                    if (direction == 0){
+                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = sign*value->a;
+                                        // TODO what if this read maps already a variant at the same position ?
+                                    }
+                                    else{
+                                        
+                                        //        ;;;;;;;;;;;  prediction (11)
+                                        //             ******************************       read (30)
+                                        //             <----> minimal_read_overlap (6)
+                                        //        <---> pwi (5)
+                                        //                   <----------------------> rc_pwi (-24)
+                                        // we have : |read_overlap| = |prediction|-pwi
+                                        // we have : rc_pwi = |read_overlap|-|read|
+                                        // we have : rc_pwi = |prediction|-pwi-read
+                                        // rc_pwi = 11-5-30 = -24.
+                                        
+                                        // Validation with pwi<0:
+                                        /*
+                                         *  <-> pwi (-3)
+                                         *     --------------  prediction (14)
+                                         *  ***********        read (11)
+                                         *             <----> rc_pwi=6
+                                         * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
+                                         */
+                                        const int rc_pwi = strlen(prediction) - pwi - read_len;
+                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = sign*value->a;
+                                        // TODO what if this read maps already a variant at the same position ?
+                                        ///
+                                    }
                                 }
-                            }
                             }
                             ////// END PHASING
-//#endif //PHASING
+                            //#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
@@ -446,72 +435,77 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-//        #ifdef PHASING
+        ////////////// OVERVIEW /////////////////
+        // variant1 **********x**********                       pwi7
+        // variant2      **********x**********                  pwi2
+        // variant3              **********x**********          pwi -6
+        // variant4                   **********x**********     pwi -11
+        // read            --------------------------------------
+        // relative order: v1:0, v2:5, v3:8, v4:5
+        // Computation:
+        //  first variant: 0
+        //  Then from highest (7) to smallest (-11) pwi: relative order = previous_pwi-pwi (eg 7-2 for variant2, 2-(-6) for variant3, -6-(-11) for variant4
+        
         if (gv.phasing){
-        if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
-            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            int previous_pwi;                                                       // position of the previous pwi snp on the read
-            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
-                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                // TODO: optimize this
-                //                const int pwi = it->first;
-                int64_t var_id =it->second;
-                int pwi = it->first;
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
+            if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same pair of reads
+                string phased_variant_ids ="";                                          // Create a string containing the ordered set of variant ids.
+                int previous_pwi;                                                       // position of the previous pwi snp on the read
+                bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
+                for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions1.rbegin(); it!=pwi_and_mapped_predictions1.rend(); ++it){ // Iterate first item of the paired reads
+                    int64_t var_id =it->second;
+                    int pwi = it->first;
+                    string sign = "";
+                    if (var_id<0){
+                        sign ="-";
+                        var_id=-var_id;
+                    }
+                    
+                    int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                    if (first_snp){
+                        relative_position=0;
+                        first_snp=false;
+                    }
+                    else
+                        relative_position=previous_pwi-pwi;
+                    previous_pwi=pwi;
+                    
+                    string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
                 }
-                
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=pwi-previous_pwi;
-                previous_pwi=pwi;
 
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
-            }
-            phased_variant_ids += ' ';
-            first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
-                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                // TODO: optimize this
-                //                const int pwi = it->first;
-                int64_t var_id =it->second;
-                int pwi = it->first;
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
+                phased_variant_ids += ' ';
+                first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
+                for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions2.rbegin(); it!=pwi_and_mapped_predictions2.rend(); ++it){ // Iterate second item of the paired reads
+                    int64_t var_id =it->second;
+                    int pwi = it->first;
+                    string sign = "";
+                    if (var_id<0){
+                        sign ="-";
+                        var_id=-var_id;
+                    }
+                    
+                    int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                    if (first_snp){
+                        relative_position=0;
+                        first_snp=false;
+                    }
+                    else
+                        relative_position=previous_pwi-pwi;
+                    previous_pwi=pwi;
+                    
+                    string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
                 }
                 
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=pwi-previous_pwi;
-                previous_pwi=pwi;
-                
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                // Associate this string to the number of times it is seen when mapping this read set
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
             
-            // Associate this string to the number of times it is seen when mapping this read set
-            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+            pwi_and_mapped_predictions1.clear();
+            pwi_and_mapped_predictions2.clear();
         }
-        
-        pwi_and_mapped_predictions1.clear();
-        pwi_and_mapped_predictions2.clear();
-        }
-//#endif // Phasing
+        //#endif // Phasing
         /////// END PHASING
         
         
@@ -538,47 +532,57 @@ struct Functor
         
         /////// PHASING
         if (gv.phasing){
-        if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
-            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            int previous_pwi;                                                       // position of the previous pwi snp on the read
-            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                int64_t var_id =it->second;
-                int pwi=it->first;                                                  // Position on the read of the current variant
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
+            if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
+                string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+                int previous_pwi;                                                       // position of the previous pwi snp on the read
+                bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
+                ////////////// OVERVIEW /////////////////
+                // variant1 **********x**********                       pwi7
+                // variant2      **********x**********                  pwi2
+                // variant3              **********x**********          pwi -6
+                // variant4                   **********x**********     pwi -11
+                // read            --------------------------------------
+                // relative order: v1:0, v2:5, v3:8, v4:5
+                // Computation:
+                //  first variant: 0
+                //  Then from highest (7) to smallest (-11) pwi: relative order = previous_pwi-pwi (eg 7-2 for variant2, 2-(-6) for variant3, -6-(-11) for variant4
+                for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions.rbegin(); it!=pwi_and_mapped_predictions.rend(); ++it){
+                    int64_t var_id =it->second;
+                    int pwi=it->first;                                                  // Position on the read of the current variant
+                    string sign = "";
+                    if (var_id<0){
+                        sign ="-";
+                        var_id=-var_id;
+                    }
+                    int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                    if (first_snp){
+                        relative_position=0;
+                        first_snp=false;
+                    }
+                    else
+                        relative_position=previous_pwi-pwi;
+                    previous_pwi=pwi;
+                    string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
+                    
+                    //DEBUG
+                    //                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
+                    //                cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
+                    //                cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
+                    //                cout<<it->first<<" "<<it->second<<endl;
+                    //                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                    //ENDDEBUG
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                    
                 }
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=pwi-previous_pwi;
-                previous_pwi=pwi;
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                
-                //DEBUG
-//                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
-//                cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
-//                cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
-//                cout<<it->first<<" "<<it->second<<endl;
-//                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
-                //ENDDEBUG
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
-                
+                // Associate this string to the number of times it is seen when mapping this read set
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
-            // Associate this string to the number of times it is seen when mapping this read set
-            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
-        }
-        
-        pwi_and_mapped_predictions.clear();
+            
+            pwi_and_mapped_predictions.clear();
         }
         /////// END PHASING
-
+        
         
         free(read);
         free(quality);
@@ -640,14 +644,14 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     
     // PHASING:
     if (gv.phasing){
-    stringstream phasingFileName;
-    phasingFileName<<"phased_alleles_read_set_id_"<<(read_set_id+1)<<".txt";
-    cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
-    ofstream phasingFile (phasingFileName.str());
-    phasingFile <<"#"<<inputBank->getId()<<endl;
-    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
-        phasingFile << it->first << " => " << it->second << '\n';
-    phasingFile.close();
+        stringstream phasingFileName;
+        phasingFileName<<"phased_alleles_read_set_id_"<<(read_set_id+1)<<".txt";
+        cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
+        ofstream phasingFile (phasingFileName.str());
+        phasingFile <<"#"<<inputBank->getId()<<endl;
+        for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+            phasingFile << it->first << " => " << it->second << '\n';
+        phasingFile.close();
     }
     // ENDPHASING
     

@@ -67,6 +67,11 @@ def store_phased_alleles(phased_alleles_file): ## ISSUE: Does not take right par
             ids = oline.split(' ')[pair_id].split(';')[:-1]     # -129h_0552l_38 -449h_33                
             # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
             if int(ids[0].split('_')[0].strip('-')[:-1])>int(ids[-1].split('_')[0].strip('-')[:-1]):
+                tp=False
+                if("1104471" in ids[0]): 
+                    tp=True
+                if tp:
+                    print("avant",ids)
                 ids.reverse()
                 # change the ortientation = change the sign: 
                 for i in range(len(ids)):
@@ -77,11 +82,23 @@ def store_phased_alleles(phased_alleles_file): ## ISSUE: Does not take right par
                 # In fact a and b separated by 4, b and c by 2 and c and d by 5. 
                 # d....c.b...a
                 # Thus the final order is a_0;b_4;c_2;d_5
-                previous="0"
-                for i in range(len(ids)):
-                    future_previous=ids[i].split('_')[-1]
-                    ids[i]=ids[i].split('_')[0]+'_'+previous
-                    previous=future_previous
+                # previous="0"
+                # for i in range(len(ids)):
+                #     future_previous=ids[i].split('_')[-1]
+                #     ids[i]=ids[i].split('_')[0]+'_'+previous
+                #     previous=future_previous
+
+                if tp:
+                    print("pendant",ids)
+                for i in range(len(ids)-1,0,-1):
+                    ids[i]=ids[i].split('_')[0]+'_'+ids[i-1].split('_')[1] # each value is replaced by the previous one
+                ids[0]=ids[0].split('_')[0]+'_0'
+
+
+                if tp:
+                    print("apres",ids)
+                    sys.exit(0)
+                    
             
             
             list_as_string = ""
