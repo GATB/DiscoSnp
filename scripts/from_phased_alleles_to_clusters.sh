@@ -23,7 +23,7 @@ then
 fi
 
 # REMOVE GHOST SNPs
-cmd=python3 ${EDIR}/remove_ghost_phased_SNPs.py ${file} 
+cmd="python3 ${EDIR}/remove_ghost_phased_SNPs.py ${file}"
 echo $cmd "> non_ghost_${file}"
 eval $cmd "> non_ghost_${file}"
 
