@@ -22,6 +22,10 @@ then
        edge_coverage_threshold=$2
 fi
 
+# REMOVE GHOST SNPs
+python3 ${EDIR}/remove_ghost_phased_SNPs.py ${file} > ${file}_non_ghost
+
+
 #-129h_0;552l_38;-449h_33; => 2
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION
 #cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort -u "
@@ -41,7 +45,7 @@ fi
 
 ### Same command keeping only edges seen at leas edge_coverage_threshold times
 
-cmd="cat ${file} | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort | uniq -c | awk '\$1>=${edge_coverage_threshold} {print \$2\" \"\$3}'"
+cmd="cat ${file}_non_ghost | tr -d \"-\" | sed '1d' | cut -d \"=\" -f 1 | python3 ${EDIR}/from_path_to_edges.py | cut -f 1,2 | tr -d \"l\" | tr -d \"h\" | sort | uniq -c | awk '\$1>=${edge_coverage_threshold} {print \$2\" \"\$3}'"
 ###
 echo $cmd "> edge_${filename}"
 eval $cmd "> edge_${filename}"
