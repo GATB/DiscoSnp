@@ -174,7 +174,7 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
     
 
     
-def print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
+def print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
     for aid in coverages:                                                                                               #snp id (991h) -> coverage
         current_snp_id=int(aid[:-1])                                                                                    #991
         if current_snp_id in cc:                                                                                        #necessary test?
@@ -188,8 +188,18 @@ def print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVa
 
         if RemoveNonVariableSNPS: ids = remove_non_existing_or_non_variable_variants(ids, coverages)        
         for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
-            # fact(cc_id, fact number, allele number in the fact, allele snp id, allele path (h/l), distance wrt to previous variant in the path)
-            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+aid.split('_')[0][:-1]+","+aid.split('_')[0][-1]+","+aid.split('_')[1]+").")
+
+            split_id    =aid.split('_')
+            path_id     =split_id[0][:-1]
+            # direction (p or m)
+            direction   ='p'
+            if path_id[0]=='-':
+                direction='n'
+                path_id=path_id[1:]
+            path_hl     =split_id[0][-1]
+            distance_to_previous=split_id[1]
+            # fact(cc_id, fact number, allele number in the fact, allele snp id, allele direction (p/n), allele path (h/l), distance wrt to previous variant in the path)
+            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+path_id+","+direction+","+path_hl+","+distance_to_previous+").")
         if len(ids)>0:
             print("count("+str(i)+","+str(abundance)+").")
         
@@ -263,7 +273,7 @@ def main():
     
     cc=store_cc(cc_file)
     phased_alleles=store_phased_alleles(phased_alleles_file)
-    print_djack_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS)
+    print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS)
     
 if __name__ == "__main__":
     main()
