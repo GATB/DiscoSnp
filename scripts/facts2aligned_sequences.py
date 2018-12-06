@@ -130,14 +130,14 @@ def usage():
     --coherent_file:            <file>.fa:  coherent fa file from discoSnp    [Mandatory]
     --uncoherent_file:          <file>.fa:  uncoherent fa file from discoSnp  [Optional]
     --fact_file:                <file>.txt: file generated from format_phased_variants_for_haplotyping.py
-    --consensus                Boolean:    It set: print a consensus per fact instead of stacked sequences
+    --consensus:                Boolean:    It set: print a consensus per fact instead of stacked sequences
     """
     print(usage,file=sys.stderr)
 def main():
     uncoherent_fa_file=None
     print_consensus=False
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hc:u:f:C",["help","coherent_file=","uncoherent_file=","fact_file=","consensus="])
+        opts, args = getopt.getopt(sys.argv[1:],"hc:u:f:C",["help","coherent_file=","uncoherent_file=","fact_file=","consensus"])
         if not opts:
             usage()
             sys.exit(2)
