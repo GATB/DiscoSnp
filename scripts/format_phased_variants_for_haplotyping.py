@@ -9,23 +9,24 @@ import getopt
 
 
 
-def remove_non_variable_snps_from_coverages(coverages):
-    coverages_bis={}
-    for allele_id in coverages:
-        if allele_id in coverages_bis: continue                     # SNP id already treated
+def remove_non_variable_snps_from_set(my_set):
+    my_set_bis={}
+    for allele_id in my_set:
+        if allele_id in my_set_bis: continue                     # SNP id already treated
         snp_id=allele_id[:-1]
-        if coverages[snp_id+'l']>0 and coverages[snp_id+'h']>0:
-            coverages_bis[snp_id+'l'] = coverages[snp_id+'l']
-            coverages_bis[snp_id+'h'] = coverages[snp_id+'h']
-    return coverages_bis
+        if my_set[snp_id+'l']>0 and my_set[snp_id+'h']>0:
+            my_set_bis[snp_id+'l'] = my_set[snp_id+'l']
+            my_set_bis[snp_id+'h'] = my_set[snp_id+'h']
+    return my_set_bis
             
 
-def store_abundances(coherent_fa_file,set_id, RemoveNonVariableSNPS, coverages=None):
+def store_abundances(fa_file_name,set_id, RemoveNonVariableSNPS, coverages=None):
+    fa_file = open(fa_file_name)
     pos_coverage_determined=False
     pos_coverage=-1
     if not coverages:
         coverages={}                    #snp id (991h) -> coverage in the right read set 
-    for oline in coherent_fa_file:  #>SNP_higher_path_991|P_1:30_C/G|high|nb_pol_1|C1_38|C2_0|Q1_0|Q2_0|G1_0/0:6,119,764|G2_1/1:664,104,6|rank_1
+    for oline in fa_file:  #>SNP_higher_path_991|P_1:30_C/G|high|nb_pol_1|C1_38|C2_0|Q1_0|Q2_0|G1_0/0:6,119,764|G2_1/1:664,104,6|rank_1
         if oline[0] != '>': continue
         line=oline.rstrip().split('|')
         id=line[0].split('_')[-1]    #here 991
@@ -40,8 +41,34 @@ def store_abundances(coherent_fa_file,set_id, RemoveNonVariableSNPS, coverages=N
             #if not pos_coverage_determined:
             assert pos_coverage_determined, "Set id "+ str(set_id)+ " not findable in header like "+ oline.rstrip()
         coverages[id]=int(line[pos_coverage].split('_')[1]) # get the right coverage corresponding to the searche read set
-    if RemoveNonVariableSNPS: coverages=remove_non_variable_snps_from_coverages(coverages)
+    if RemoveNonVariableSNPS: coverages=remove_non_variable_snps_from_set(coverages)
+    fa_file.close()
     return coverages
+    
+
+def get_upper_sequence_size(sequence):
+    upper_sequence_size=0
+    for l in sequence:
+        if l>='A' and l<='Z':
+            upper_sequence_size+=1
+    return upper_sequence_size
+
+def store_variant_sizes(fa_file_name,set_id, RemoveNonVariableSNPS, sizes=None):
+    fa_file = open(fa_file_name)
+    if not sizes:
+        sizes={}                    #snp id (991h) -> coverage in the right read set 
+    while True:
+        header = fa_file.readline()
+        if not header: break
+        header=header.rstrip().split('|')
+        sequence = fa_file.readline()
+        id=header[0].split('_')[-1]    #here 991
+        id+=header[0].split('_')[1][0] #'h' or 'l'
+        sizes[id]=get_upper_sequence_size(sequence)
+    if RemoveNonVariableSNPS: coverages=remove_non_variable_snps_from_set(sizes)
+    fa_file.close()
+    return sizes
+
     
 
 def store_cc(cc_file):
@@ -56,7 +83,7 @@ def store_cc(cc_file):
         
 
 
-def store_phased_alleles(phased_alleles_file): ## ISSUE: Does not take right part of the pair information. # TODO
+def store_phased_alleles(phased_alleles_file,sizes): ## ISSUE: Does not take right part of the pair information. # TODO
     phased_alleles={}
     for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
         oline=oline.lstrip().rstrip()
@@ -87,11 +114,24 @@ def store_phased_alleles(phased_alleles_file): ## ISSUE: Does not take right par
                 #     future_previous=ids[i].split('_')[-1]
                 #     ids[i]=ids[i].split('_')[0]+'_'+previous
                 #     previous=future_previous
+                # In addition, what is indicated here is true, iif the variants are of equal size, else this is false. 
+                # Thus 
 
                 if tp:
                     print("pendant",ids)
                 for i in range(len(ids)-1,0,-1):
-                    ids[i]=ids[i].split('_')[0]+'_'+ids[i-1].split('_')[1] # each value is replaced by the previous one
+#                    ids[i]=ids[i].split('_')[0]+'_'+ids[i-1].split('_')[1] # each value is replaced by the previous one
+                    id_R1=ids[i-1].split('_')[0]
+                    if id_R1[0]=='-': id_R1=id_R1[1:]
+                    id_R2=ids[i].split('_')[0]
+                    if id_R2[0]=='-': id_R2=id_R2[1:]
+                    
+                    new_distance = int(ids[i-1].split('_')[1])+sizes[id_R1]-sizes[id_R2]
+                    ids[i]=ids[i].split('_')[0]+'_'+str(new_distance) # each value is replaced by the previous one, but taking into account variant sizes: 
+                    #---------R1-----------<---------x------->
+                    #<-l->----------------R2------------------
+                    #x=l+|R2|-|R1|
+                    
                 ids[0]=ids[0].split('_')[0]+'_0'
 
 
@@ -242,10 +282,10 @@ def main():
             usage()
             sys.exit(2)
         elif opt in ("-c","--coherent_file"):
-            coherent_fa_file = open(arg)
+            coherent_fa_file_name = arg
         elif opt in ("-u","--uncoherent_file"):
             use_uncoherent=True
-            uncoherent_fa_file = open(arg)
+            uncoherent_fa_file_name = arg
         elif opt in ("-s","--set_id"):
             set_id = arg
         elif opt in ("-C","--connected_components_file"):
@@ -260,19 +300,16 @@ def main():
             sys.exit(2)
             
             
-    # coherent_fa_file = open(sys.argv[1])
-    # uncoherent_fa_file = open(sys.argv[2])
-    # set_id = sys.argv[3]
-    # cc_file = open(sys.argv[4])
-    # phased_alleles_file = open(sys.argv[5])
     
     
-    coverages=store_abundances(coherent_fa_file,set_id,RemoveNonVariableSNPS)                   # Store abundances from coherent snps
+    coverages=store_abundances(coherent_fa_file_name,set_id,RemoveNonVariableSNPS)                      # Store abundances from coherent snps
+    sizes=store_variant_sizes(coherent_fa_file_name,set_id,RemoveNonVariableSNPS)                       # Store sizes from coherent snps
     if use_uncoherent:
-        coverages=store_abundances(uncoherent_fa_file,set_id,RemoveNonVariableSNPS,coverages)   # Add abundances from uncoherent snps
+        coverages=store_abundances(uncoherent_fa_file_name,set_id,RemoveNonVariableSNPS,coverages)      # Add abundances from uncoherent snps
+        sizes=store_variant_sizes(uncoherent_fa_file_name,set_id,RemoveNonVariableSNPS,sizes)           # Add sizes from uncoherent snps
     
     cc=store_cc(cc_file)
-    phased_alleles=store_phased_alleles(phased_alleles_file)
+    phased_alleles=store_phased_alleles(phased_alleles_file,sizes)
     print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS)
     
 if __name__ == "__main__":
