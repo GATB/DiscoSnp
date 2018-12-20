@@ -166,14 +166,11 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
     
 def print_distances(phased_alleles_file_name,sizes):
         distances={}                                    #-129 -> 552 -> 38 (for each value: a list of right hand pair with its distance)
-        
-
         phased_alleles_file = open(phased_alleles_file_name)
         phased_alleles={}
         for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
             oline=oline.lstrip().rstrip()
             if oline[0]=='#': continue
-
             for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
                 ids=oline.split(' ')[pair_id].split(';')[:-1]       # -129h_0 0552l_38 -449h_33         
                 for phasing_pair_id in range(len(ids)-1):
@@ -192,7 +189,7 @@ def print_distances(phased_alleles_file_name,sizes):
                     
                     pos_R1=variant_R1.split('_')[1]                 # 0
                     pos_R2=variant_R2.split('_')[1]                 # 38
-                    dist_R1_to_R2=int(pos_R2)-int(pos_R1)           # 38
+                    dist_R1_to_R2=int(pos_R2)                       # 38
                         #---------R1-----------<---------x------->
                         #<-l->----------------R2------------------
                         #x=l+|R2|-|R1|
@@ -208,10 +205,9 @@ def print_distances(phased_alleles_file_name,sizes):
                     else: rc_id_R2='-'+id_R2
                     if rc_id_R2 not in distances: distances[rc_id_R2]=set()
                     distances[rc_id_R2].add((rc_id_R1,dist_R2_to_R1))
-            # print (oline)
-            # print (distances)
-            # break
-        # print (distances)
+                # print (ids)
+                # print (distances)
+
         for id_first in distances: # {'-1003': {('-492', 38)}, '492': {('1003', 38)}}
             if id_first[0]=='-' :
                 direction_first   ='n'
@@ -233,11 +229,10 @@ def print_distances(phased_alleles_file_name,sizes):
         
     
 def print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
-    for aid in coverages:                                                                                               #snp id (991h) -> coverage
-        current_snp_id=int(aid[:-1])                                                                                    #991
-        if current_snp_id in cc:                                                                                        #necessary test?
-            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
-          
+    """
+    Prints paths : 
+    a fact is composed of all pairwise links (fact) (one per line) and a count
+    """          
     for i,list_as_string in enumerate(phased_alleles):                                                                  #'-129h_0;552l_38;-449h_33;': 2
         ids=list_as_string.split(';')[:-1]                                                                              # ['-129h_0', '552l_38',  '-449h_33']
         this_cc=check_phased_alleles_integrity_and_return_cc(ids,cc)
@@ -257,7 +252,16 @@ def print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariable
             print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+path_id+","+direction+","+path_hl+").")#+","+distance_to_previous+").")
         if len(ids)>0:
             print("count("+str(i)+","+str(abundance)+").")
-        
+            
+            
+def print_variants(coverages,cc):
+    """
+    Prints all variants that are in connected components 
+    """
+    for aid in coverages:                                                                                               #snp id (991h) -> coverage
+        current_snp_id=int(aid[:-1])                                                                                    #991
+        if current_snp_id in cc:                                                                                        #necessary test?
+            print("snp(cc"+str(cc[current_snp_id])+","+str(current_snp_id)+","+aid[-1]+","+str(coverages[aid])+").")    #"snp(cc_12,991h,coverage)"
             
 def usage():
     usage= """
@@ -325,6 +329,7 @@ def main():
     
     cc=store_cc(cc_file)
     phased_alleles=store_phased_alleles(phased_alleles_file_name)
+    print_variants(coverages,cc)
     print_distances(phased_alleles_file_name,sizes)
     print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS)
     
