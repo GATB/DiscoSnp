@@ -83,74 +83,35 @@ def store_cc(cc_file):
         
 
 
-def store_phased_alleles(phased_alleles_file,sizes): ## ISSUE: Does not take right part of the pair information. # TODO
+def store_phased_alleles(phased_alleles_file_name): 
+    phased_alleles_file = open(phased_alleles_file_name)
     phased_alleles={}
     for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
         oline=oline.lstrip().rstrip()
         if oline[0]=='#': continue
         abundance = int(oline.split(' ')[-1])       # 2
-
+        
         for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
-            ids = oline.split(' ')[pair_id].split(';')[:-1]     # -129h_0552l_38 -449h_33                
-            # canonical representation: smallest first (removing with the strip function the eventual first '-' sign): 
+            ids = oline.split(' ')[pair_id].split(';')[:-1]     # -129h_0 0552l_38 -449h_33                
+            # canonical representation: smallest first (removing with the strip function the eventual first '-' sign):
             if int(ids[0].split('_')[0].strip('-')[:-1])>int(ids[-1].split('_')[0].strip('-')[:-1]):
-                tp=False
-                if("1104471" in ids[0]): 
-                    tp=True
-                if tp:
-                    print("avant",ids)
                 ids.reverse()
-                # change the ortientation = change the sign: 
+                # change the ortientation = change the sign:
                 for i in range(len(ids)):
                     if ids[i][0]=='-': ids[i]=ids[i][1:]
                     else: ids[i]='-'+ids[i]
-                # change the orientation = change the distance to the previous one. 
-                # -d_0;-c_5;-b_2;-a_4 is reversed into a_4;b_2_c_5_d_0 which is false. 
-                # In fact a and b separated by 4, b and c by 2 and c and d by 5. 
-                # d....c.b...a
-                # Thus the final order is a_0;b_4;c_2;d_5
-                # previous="0"
-                # for i in range(len(ids)):
-                #     future_previous=ids[i].split('_')[-1]
-                #     ids[i]=ids[i].split('_')[0]+'_'+previous
-                #     previous=future_previous
-                # In addition, what is indicated here is true, iif the variants are of equal size, else this is false. 
-                # Thus 
 
-                if tp:
-                    print("pendant",ids)
-                for i in range(len(ids)-1,0,-1):
-#                    ids[i]=ids[i].split('_')[0]+'_'+ids[i-1].split('_')[1] # each value is replaced by the previous one
-                    id_R1=ids[i-1].split('_')[0]
-                    if id_R1[0]=='-': id_R1=id_R1[1:]
-                    id_R2=ids[i].split('_')[0]
-                    if id_R2[0]=='-': id_R2=id_R2[1:]
-                    
-                    new_distance = int(ids[i-1].split('_')[1])+sizes[id_R1]-sizes[id_R2]
-                    ids[i]=ids[i].split('_')[0]+'_'+str(new_distance) # each value is replaced by the previous one, but taking into account variant sizes: 
-                    #---------R1-----------<---------x------->
-                    #<-l->----------------R2------------------
-                    #x=l+|R2|-|R1|
-                    
-                ids[0]=ids[0].split('_')[0]+'_0'
-
-
-                if tp:
-                    print("apres",ids)
-                    sys.exit(0)
-                    
-            
             
             list_as_string = ""
             for aid in ids:
-                list_as_string+=aid+';'
+                list_as_string+=aid.split('_')[0]+';' # concatenation of ids 
             # add the list to the phased_alleles or increase its count if not existing:
             if list_as_string in phased_alleles: 
                 phased_alleles[list_as_string]+=abundance
             else: 
                 phased_alleles[list_as_string]=abundance
 
-                
+    phased_alleles_file.close()
     return phased_alleles
 
 # def check_phased_alleles_integrity_and_return_cc_only_assert(phased_alleles):
@@ -171,7 +132,7 @@ def check_phased_alleles_integrity_and_return_cc(phased_alleles,cc):            
     snp_ids=set()
     first_id=abs(int(phased_alleles[0].split('_')[0][:-1]))                                                             # 129
     snp_ids.add(first_id)
-    assert first_id in cc, "SNP"+str(first_id)+"in facts but not in connected components"
+    assert first_id in cc, "SNP "+str(first_id)+" in facts but not in connected components"
     this_cc=cc[first_id]                                                                                                # eg 555
     for j in range(1,len(phased_alleles)):                                                                              # all other allele ids
         cur_id = abs(int(phased_alleles[j].split('_')[0][:-1]))
@@ -183,7 +144,7 @@ def check_phased_alleles_integrity_and_return_cc(phased_alleles,cc):            
         snp_ids.add(cur_id)
     return this_cc
     
-def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):                                                             # ['-129h_0', '552l_38',  '-449h_33']
+def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):                                                             # ['-129h', '552l',  '-449h']
     """ Often a SNP is detected in one read set and used in a phased fact from an other read set in which it is not variable.
     In this case one of its higher or lower allele as a coverage 0.
     If this happens, we remove this SNP and we update the distance to previous one accordingly
@@ -192,27 +153,84 @@ def remove_non_existing_or_non_variable_variants(phased_alleles,coverages):     
     returned_list=[]
     first=True
     for aid in phased_alleles:
-        cud_allele = abs(int(aid.split('_')[0][:-1]))
+        cud_allele = abs(int(aid[:-1]))
         to_remove = False
         if str(cud_allele)+'h' not in coverages or coverages[str(cud_allele)+'h']==0: to_remove = True
         if str(cud_allele)+'l' not in coverages or coverages[str(cud_allele)+'l']==0: to_remove = True
         
         if not to_remove: 
-            id_snp=aid.split('_')[0]
-            distance_to_revious = int(aid.split('_')[-1])+distance_to_add_to_previous
-            if first: 
-                distance_to_revious=0
-                first=False
-            returned_list.append(id_snp+'_'+str(distance_to_revious))
-            distance_to_add_to_previous=0
-        else: 
-            distance_to_add_to_previous+=int(aid.split('_')[-1])
-            # print ("Warning, SNP "+aid+" does not exist. It was removed from list "+str(phased_alleles), file=sys.stderr)
+            returned_list.append(aid)
     return returned_list
             
         
     
+def print_distances(phased_alleles_file_name,sizes):
+        distances={}                                    #-129 -> 552 -> 38 (for each value: a list of right hand pair with its distance)
+        
 
+        phased_alleles_file = open(phased_alleles_file_name)
+        phased_alleles={}
+        for oline in phased_alleles_file:               #-129h_0;552l_38;-449h_33; => 2
+            oline=oline.lstrip().rstrip()
+            if oline[0]=='#': continue
+
+            for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
+                ids=oline.split(' ')[pair_id].split(';')[:-1]       # -129h_0 0552l_38 -449h_33         
+                for phasing_pair_id in range(len(ids)-1):
+                    
+                    variant_R1=ids[phasing_pair_id]                 # -129h_0
+                    variant_R2=ids[phasing_pair_id+1]               # 0552l_38
+                    id_R1=variant_R1.split('_')[0]                  # -129h
+                    id_R2=variant_R2.split('_')[0]                  # 0552l
+                    
+                    abs_id_R1_allele=variant_R1.split('_')[0]       # 129h
+                    abs_id_R2_allele=variant_R2.split('_')[0]       # 0552l
+                    if(id_R1[0]=='-'): abs_id_R1_allele=id_R1[1:]
+                    else: abs_id_R1_allele=id_R1
+                    if(id_R2[0]=='-'): abs_id_R2_allele=id_R2[1:]
+                    else: abs_id_R2_allele=id_R2
+                    
+                    pos_R1=variant_R1.split('_')[1]                 # 0
+                    pos_R2=variant_R2.split('_')[1]                 # 38
+                    dist_R1_to_R2=int(pos_R2)-int(pos_R1)           # 38
+                        #---------R1-----------<---------x------->
+                        #<-l->----------------R2------------------
+                        #x=l+|R2|-|R1|
+                        # here x is dist_R2_to_R1
+                        # here l is dist_R1_to_R2
+                    dist_R2_to_R1=dist_R1_to_R2+int(sizes[abs_id_R2_allele]-sizes[abs_id_R1_allele])
+                    # store values
+                    if id_R1 not in distances: distances[id_R1]=set()
+                    distances[id_R1].add((id_R2,dist_R1_to_R2))
+                    if id_R1[0]=='-': rc_id_R1=id_R1[1:]
+                    else: rc_id_R1='-'+id_R1
+                    if id_R2[0]=='-': rc_id_R2=id_R2[1:]
+                    else: rc_id_R2='-'+id_R2
+                    if rc_id_R2 not in distances: distances[rc_id_R2]=set()
+                    distances[rc_id_R2].add((rc_id_R1,dist_R2_to_R1))
+            # print (oline)
+            # print (distances)
+            # break
+        # print (distances)
+        for id_first in distances: # {'-1003': {('-492', 38)}, '492': {('1003', 38)}}
+            if id_first[0]=='-' :
+                direction_first   ='n'
+                abs_id_first=id_first[1:]
+            else:
+                direction_first   ='p'
+                abs_id_first=id_first
+            for values in distances[id_first]:
+                id_second=values[0]
+                if id_second[0]=='-' :
+                    direction_second   ='n'
+                    abs_id_second=id_second[1:]
+                else:
+                    direction_second   ='p'
+                    abs_id_second=id_second
+                print("dist("+abs_id_first[:-1]+","+direction_first+","+abs_id_first[-1]+","+abs_id_second[:-1]+","+direction_second+","+abs_id_second[-1]+","+str(values[1])+")")
+        # sys.exit(0)
+        
+        
     
 def print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS):
     for aid in coverages:                                                                                               #snp id (991h) -> coverage
@@ -227,19 +245,16 @@ def print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariable
         abundance = phased_alleles[list_as_string]                                                                      # 2
 
         if RemoveNonVariableSNPS: ids = remove_non_existing_or_non_variable_variants(ids, coverages)        
-        for node_order,aid in enumerate(ids):                                                                           # ['-129h_0', '552l_38',  '-449h_33']
-
-            split_id    =aid.split('_')
-            path_id     =split_id[0][:-1]
+        for node_order,aid in enumerate(ids):                                                                           # ['-129h', '552l',  '-449h']
+            path_id     =aid[:-1]
             # direction (p or m)
             direction   ='p'
             if path_id[0]=='-':
                 direction='n'
                 path_id=path_id[1:]
-            path_hl     =split_id[0][-1]
-            distance_to_previous=split_id[1]
+            path_hl     =aid[-1]
             # fact(cc_id, fact number, allele number in the fact, allele snp id, allele direction (p/n), allele path (h/l), distance wrt to previous variant in the path)
-            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+path_id+","+direction+","+path_hl+","+distance_to_previous+").")
+            print("fact(cc"+str(this_cc)+","+str(i)+","+str(node_order+1)+","+path_id+","+direction+","+path_hl+").")#+","+distance_to_previous+").")
         if len(ids)>0:
             print("count("+str(i)+","+str(abundance)+").")
         
@@ -291,7 +306,7 @@ def main():
         elif opt in ("-C","--connected_components_file"):
             cc_file = open(arg)
         elif opt in ("-p","--phased_alleles_file"):
-            phased_alleles_file = open(arg)
+            phased_alleles_file_name = arg
         elif opt in ("-k","--keep_useless_SNPs"):
             RemoveNonVariableSNPS=False
         else:
@@ -309,7 +324,8 @@ def main():
         sizes=store_variant_sizes(uncoherent_fa_file_name,set_id,RemoveNonVariableSNPS,sizes)           # Add sizes from uncoherent snps
     
     cc=store_cc(cc_file)
-    phased_alleles=store_phased_alleles(phased_alleles_file,sizes)
+    phased_alleles=store_phased_alleles(phased_alleles_file_name)
+    print_distances(phased_alleles_file_name,sizes)
     print_formated_phased_variants(coverages,cc,phased_alleles,RemoveNonVariableSNPS)
     
 if __name__ == "__main__":
