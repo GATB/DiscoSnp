@@ -65,7 +65,7 @@ def store_variant_sizes(fa_file_name,set_id, RemoveNonVariableSNPS, sizes=None):
         id=header[0].split('_')[-1]    #here 991
         id+=header[0].split('_')[1][0] #'h' or 'l'
         sizes[id]=get_upper_sequence_size(sequence)
-    if RemoveNonVariableSNPS: coverages=remove_non_variable_snps_from_set(sizes)
+    if RemoveNonVariableSNPS: sizes=remove_non_variable_snps_from_set(sizes)
     fa_file.close()
     return sizes
 
@@ -223,7 +223,7 @@ def print_distances(phased_alleles_file_name,sizes):
                 else:
                     direction_second   ='p'
                     abs_id_second=id_second
-                print("dist("+abs_id_first[:-1]+","+direction_first+","+abs_id_first[-1]+","+abs_id_second[:-1]+","+direction_second+","+abs_id_second[-1]+","+str(values[1])+")")
+                print("dist("+abs_id_first[:-1]+","+direction_first+","+abs_id_first[-1]+","+abs_id_second[:-1]+","+direction_second+","+abs_id_second[-1]+","+str(values[1])+").")
         # sys.exit(0)
         
         

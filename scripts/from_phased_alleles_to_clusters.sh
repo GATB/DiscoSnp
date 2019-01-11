@@ -23,9 +23,12 @@ then
 fi
 
 # REMOVE GHOST SNPs
-cmd="python3 ${EDIR}/remove_ghost_phased_SNPs.py ${file}"
+cmd="sh ${EDIR}/iterative_remove_ghost.sh ${file}"
+#cmd="python3 ${EDIR}/remove_ghost_phased_SNPs.py ${file}"
 echo $cmd "> non_ghost_${file}"
 eval $cmd "> non_ghost_${file}"
+
+
 
 #-129h_0;552l_38;-449h_33; => 2
 # FORMAT PHASED ALLELE IDS INTO SIMPLER FORMAT FOR CONNECTED COMPONENT DETECTION

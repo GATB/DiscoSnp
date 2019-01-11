@@ -22,6 +22,8 @@ def index_SNPs(phased_snps_file_name):
     biallelic_snps=set()
     
     for id_snp in snps2allele:
+        if id_snp=="2791159":
+            print (snps2allele[id_snp])
         if len(snps2allele[id_snp])==2:
             biallelic_snps.add(id_snp)
     
@@ -53,7 +55,7 @@ def print_phased_snps(phased_snps, biallelic_snps):
                 
 
 def print_biallelic_snps(phased_snps_file_name,biallelic_snps):
-    print ("# SNPs having only one of their allele present in the original file were removed ")
+    # print ("# SNPs having only one of their allele present in the original file were removed ")
     phased_snps_file = open(phased_snps_file_name)
     
     for line in phased_snps_file:
@@ -76,7 +78,7 @@ def print_biallelic_snps(phased_snps_file_name,biallelic_snps):
             if id_snp_only in biallelic_snps:
                 biallelics.add(id_snp_only)
         #print(biallelics)
-        if len(biallelics)<2: continue
+        if len(biallelics)<2: continue 
         
         
         #print first set of phased SNPs:
