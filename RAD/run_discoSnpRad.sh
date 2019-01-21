@@ -23,7 +23,6 @@
 # echo "I run discoSnpRad with following command line: " ${cmd}
 # ${cmd}
 
-#TODO: call automatically the clustering +radseq filters. 
 
 
 
@@ -49,7 +48,7 @@ read_sets="" # A file of file(s)
 prefix="discoRad" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=2 # all bubbles accepted"
-c=auto # minimal coverage
+c=3 # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=10 # estimated number of error per read (used by kissreads only)
