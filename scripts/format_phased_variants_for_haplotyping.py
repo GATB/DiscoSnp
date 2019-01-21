@@ -10,6 +10,7 @@ import getopt
 
 
 def remove_non_variable_snps_from_set(my_set):
+    return my_set # Useless now as input is non ghost in the pipeline
     my_set_bis={}
     for allele_id in my_set:
         if allele_id in my_set_bis: continue                     # SNP id already treated
