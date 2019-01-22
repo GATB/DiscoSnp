@@ -4,79 +4,80 @@
 # change extensions in uppercase and replace relative positions of SNPs in the header
 # usage : keep_extensions_disco_file.py <disco_snps_file>.fa
 
-import os
 import sys
-import getopt
-import time
 
 
-fichier = sys.argv[1]
-output = sys.argv[2]
+def contigOrUnitig(fa_file):
+    #return "unitig" or "contig"
+    mode = "unitig"
 
-snp_file = open(fichier,"r")
-snp_discobis = open(output, "w")
-left_shift = 0
+    for line in fa_file:
+        headerComp = line.split("\n")[0].split("|")
+    
+        for elt in headerComp:
+            if elt.startswith("left_contig"): 
+                mode = "contig"
+                break
+
+        #back to the first line
+        fa_file.seek(0, 0)
+        return mode
 
 def findShift(line, mode):
     headerComp = line.split("\n")[0].split("|")
-    left_shift = 0
-    prefix = 'left_unitig'
-
-    if mode == 1: prefix = 'left_contig'
+    left_shift = 0    
+    prefix = 'left_'+mode
 
     for elt in headerComp:
-
         if not elt.startswith(prefix): continue
         left_shift = int(elt.split("_")[-1])
         break
 
     return left_shift
 
-def replacePos(snp, left_shift):
-    new_pos = int(snp.split(":")[1].split("_")[0]) + left_shift
-    return snp.split(":")[0] + ":" + str(new_pos) + "_" + snp.split(":")[1].split("_")[1]
+def replacePos(position, left_shift):
+    # SNP: P_1:30_C/T
+    # INDEL: P_1:30_2_11
+    new_pos = int(position.split(":")[1].split("_")[0]) + left_shift
+    res = position.split(":")[0] + ":" + str(new_pos)
+    for i in range (1,len(position.split(":")[1].split("_"))):
+        res += "_" + position.split(":")[1].split("_")[i]
+    return res
 
 def replaceHeader(elt, left_shift):
     if elt.startswith("P_"):
-        elt = ",".join([replacePos(snp, left_shift) for snp in elt.split(",")])
+        elt = ",".join([replacePos(position, left_shift) for position in elt.split(",")])
     return elt
 
-def contigOrUnitig():
-    #return 0 if unitig mode, 1 if contig mode
-    mode = 0
-
-    for line in snp_file:
-        headerComp = line.split("\n")[0].split("|")
-    
-        for elt in headerComp:
-            if not elt.startswith("left_contig"): continue
-            mode = 1
-            break
-        return mode
 
 
-mode = contigOrUnitig()
 
-#back to the first line
-snp_file.seek(0, 0)
+fa_file_name = sys.argv[1]
+output_file_name = sys.argv[2]
 
-for line in snp_file:
+fa_file = open(fa_file_name,"r")
+fa_file_output = open(output_file_name, "w")
+left_shift = 0
+
+mode = contigOrUnitig(fa_file)
+
+
+for line in fa_file:
     if not line.startswith(">"):
-        snp_discobis.write(line.upper())
+        fa_file_output.write(line.upper())
         continue
     
     left_shift = findShift(line, mode)
 
     if left_shift == 0:
-        snp_discobis.write(line)
+        fa_file_output.write(line)
         continue
-
     new_header = "|".join([replaceHeader(elt, left_shift) for elt in line.split("|")])
 
-    snp_discobis.write(new_header)
+    fa_file_output.write(new_header)
 
-snp_file.close()
-snp_discobis.close()
+fa_file.close()
+fa_file_output.close()
 
 
 
