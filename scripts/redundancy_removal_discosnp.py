@@ -1,8 +1,9 @@
 #!/bin/python
 # -*- coding: utf-8 -*-
 ###################################
-#Transforms a 1-based vcf into 0-based vcf
-# usage : one2zeroBased_vcf.py vcf_file
+# from kissnp output: 
+#   check pair of variants that start with the same kmer and keep only one bubble
+#   check pair of variants that end with the same kmer and keep only one bubble
 import sys
 
 def get_first_kmer(seq,k):

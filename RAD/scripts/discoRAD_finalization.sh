@@ -70,10 +70,10 @@ originalk=$( echo $rawdiscofile | awk -F k_ '{ print $2 }' | cut -d "_" -f 1)
 usedk=$((originalk-1))
 
 # rank filter parameter
-min_rank=0.2
+min_rank=0
 
 # cluster size parameter
-max_cluster_size=300
+max_cluster_size=3000000
 
 percent_missing=0.95
 
@@ -210,9 +210,9 @@ cmd="mv ${original_disco}_with_sorted_formatted_clusters.vcf ${rawdiscofile_base
 echo $cmd
 eval $cmd
 
-cmd="rm -f *ERASEME*"
-echo $cmd
-eval $cmd
+#cmd="rm -f *ERASEME*"
+#echo $cmd
+#eval $cmd
 
 sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
