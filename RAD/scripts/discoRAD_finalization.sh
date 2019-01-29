@@ -70,7 +70,7 @@ originalk=$( echo $rawdiscofile | awk -F k_ '{ print $2 }' | cut -d "_" -f 1)
 usedk=$((originalk-1))
 
 # rank filter parameter
-min_rank=0
+min_rank=0.0
 
 # cluster size parameter
 max_cluster_size=3000000
