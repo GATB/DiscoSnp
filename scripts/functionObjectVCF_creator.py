@@ -253,7 +253,7 @@ def PrintVCFHeader(VCF,listName,fileName,boolmyname):
         VCF.write('##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">\n')
         VCF.write('##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">\n')
         VCF.write('##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">\n')        
-        VCF.write('##INFO=<ID=XA,Number=0/1,Type=String,Description="Other mapping positions (chromosome_position). Position is negative in case of Reverse alignment. The position designs the starting position of the alignment, not the position of the variant itself.">\n')        
+        VCF.write('##INFO=<ID=XA,Number=.,Type=String,Description="Other mapping positions (chromosome_position). Position is negative in case of Reverse alignment. The position designs the starting position of the alignment, not the position of the variant itself.">\n')        # cf issue #11
         
         
 

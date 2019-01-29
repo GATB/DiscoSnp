@@ -122,8 +122,8 @@ function help {
     echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
     echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
     echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
-    echo -e "\t\t -e: map SNP predictions on reference genome with their extensions."
-    echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). Default=4. "
+    echo -e "\t\t -e: map variant predictions on reference genome with their unitig or contig extensions."
+    echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). "
     echo 
     
     echo -e "\t\t -w: Wraith mode: only show all discoSnp++ commands without running them"

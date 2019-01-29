@@ -23,7 +23,6 @@
 # echo "I run discoSnpRad with following command line: " ${cmd}
 # ${cmd}
 
-#TODO: call automatically the clustering +radseq filters. 
 
 
 
@@ -49,16 +48,16 @@ read_sets="" # A file of file(s)
 prefix="discoRad" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=2 # all bubbles accepted"
-c=auto # minimal coverage
+c=3 # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=10 # estimated number of error per read (used by kissreads only)
 D=3 # maximal size of searched deletions
 max_ambigous_indel=20
 P=5 # number of polymorphsim per bubble
-option_max_symmetrical_crossroads="0"
+option_max_symmetrical_crossroads="5"
 l="-l"
-extend="-t"
+extend="-T"
 x="-x"
 e="-e"
 output_coverage_option=""
@@ -110,7 +109,7 @@ function help {
     echo -e "\tDISCOSNPRAD OPTIONS:"
     echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
 #    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '5']"
-    echo -e "\t\t -R: high recall mode. With this parameter up to five symmetrical crossroads may be traversed during bubble detection."
+    echo -e "\t\t -R: low recall / high precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
     echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=3 (for RAD)"
     echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
@@ -187,8 +186,8 @@ while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTRwlgAu:a:v:" opt; do
         ;;
 
     R)
-        echo "High recall mode" >&2
-        option_max_symmetrical_crossroads=5
+        echo "Low recall mode" >&2
+        option_max_symmetrical_crossroads=0
         ;;
         
     m) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
@@ -333,7 +332,12 @@ echo
 #############################################################
 #################### DUMP READ FILES  #######################
 #############################################################
-${read_file_names_bin} -in $read_sets > $readsFilesDump
+dumpCmd="${read_file_names_bin} -in $read_sets"
+    echo ${dumpCmd} "> $readsFilesDump"
+    if [[ "$wraith" == "false" ]]; then
+        ${dumpCmd} > $readsFilesDump
+    fi
+
 if [ $? -ne 0 ]
 then
     echo "there was a problem with readFileName Dumping":
