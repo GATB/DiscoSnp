@@ -119,13 +119,13 @@ def print_existing_edges(phased_alleles_file_name,connected_component_nodes):
             print (transform_to_mp(key)+" "+transform_to_mp(value))
     
 
-def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_id=False):
+def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_abundance=False):
     phased_alleles_file = open(phased_alleles_file_name)
     # NOTE: this function does not print the full path when pairend data are used. In this case it output two distinct paths and looses the link.
-    fact_id=1
-    printed_fact_id=""
-    if print_fact_id:   print ("param l:=")
-    else:               print ("set facts:=")
+    fact_id=0
+    printed_abundance=""
+    if print_fact_abundance:    print ("param l:=")
+    else:                       print ("set facts:=")
     for line in phased_alleles_file:
         line=line.strip()
         if line[0]=='#': continue       # ./fof_unpaired.txt : comment
@@ -135,14 +135,14 @@ def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_
         for i in range(len(line)-2):     # either only one pass or two passes if the line contains pairend data
             all_infos = line[i][:-1].split(';')
 
-            if print_fact_id: 
-                printed_fact_id=str(fact_id)+" "
-                fact_id+=1
+
+            if print_fact_abundance: printed_abundance=" "+str(path_abundance)
+            fact_id+=1
             for i in range(len(all_infos)-1):
-                print(printed_fact_id+transform_to_mp(all_infos[i].split("_")[0])+" "+transform_to_mp(all_infos[i+1].split("_")[0])+" "+path_abundance)
+                print(str(fact_id)+" "+transform_to_mp(all_infos[i].split("_")[0])+" "+transform_to_mp(all_infos[i+1].split("_")[0])+printed_abundance)
                 
         
-    if print_fact_id: print(";\nparam nb_facts := "+str(fact_id-1))
+    if print_fact_abundance: print(";\nparam nb_facts := "+str(fact_id))
     phased_alleles_file.close()
     
 
