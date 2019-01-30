@@ -94,6 +94,7 @@ def store_phased_alleles(phased_alleles_file_name):
         
         for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
             ids = oline.split(' ')[pair_id].split(';')[:-1]     # -129h_0 0552l_38 -449h_33                
+            if len(ids)==0: continue                            # case  -129h_0;552l_38;-449h_33;  => 2 (with two spaces, indicating the second pair empty)
             # canonical representation: smallest first (removing with the strip function the eventual first '-' sign):
             if int(ids[0].split('_')[0].strip('-')[:-1])>int(ids[-1].split('_')[0].strip('-')[:-1]):
                 ids.reverse()
@@ -173,7 +174,8 @@ def print_distances(phased_alleles_file_name,sizes):
             oline=oline.lstrip().rstrip()
             if oline[0]=='#': continue
             for pair_id in range(len(oline.split(' '))-2):          # Only one loop if data unpaired, two loops else
-                ids=oline.split(' ')[pair_id].split(';')[:-1]       # -129h_0 0552l_38 -449h_33         
+                ids=oline.split(' ')[pair_id].split(';')[:-1]       # -129h_0 0552l_38 -449h_33                        
+                if len(ids)==0: continue                            # case  -129h_0;552l_38;-449h_33;  => 2 (with two spaces, indicating the second pair empty)
                 for phasing_pair_id in range(len(ids)-1):
                     
                     variant_R1=ids[phasing_pair_id]                 # -129h_0
