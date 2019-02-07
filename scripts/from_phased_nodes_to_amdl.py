@@ -64,7 +64,8 @@ def print_existing_nodes(existing_ids):
 def print_existing_nodes_and_coverage(existing_ids, node_coverages):
     print ("param s:=")
     for node_id in existing_ids:
-        print (node_id, node_coverages[node_id])
+        print ('p'+node_id, node_coverages[node_id])
+        print ('m'+node_id, node_coverages[node_id])
     
 def line_in_connected_component(line, connected_component_nodes):
     # -1000183h_0;3224567l_287; -10183h_0;267l_287; => 1
@@ -76,6 +77,12 @@ def line_in_connected_component(line, connected_component_nodes):
             if current in connected_component_nodes: return True
     return False
     
+    
+    
+def transform_to_reverse_mp(id_var):
+
+    if id_var[0]=='-':  return 'p'+id_var[1:]
+    else:               return 'm'+id_var
     
 def transform_to_mp(id_var):
 
@@ -117,6 +124,7 @@ def print_existing_edges(phased_alleles_file_name,connected_component_nodes):
     for key in edges:
         for value in edges[key]:
             print (transform_to_mp(key)+" "+transform_to_mp(value))
+            print (transform_to_reverse_mp(value)+" "+transform_to_reverse_mp(key))
     
 
 def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_abundance=False):
@@ -140,6 +148,7 @@ def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_
             fact_id+=1
             for i in range(len(all_infos)-1):
                 print(str(fact_id)+" "+transform_to_mp(all_infos[i].split("_")[0])+" "+transform_to_mp(all_infos[i+1].split("_")[0])+printed_abundance)
+                print(str(fact_id)+" "+transform_to_reverse_mp(all_infos[i+1].split("_")[0])+" "+transform_to_reverse_mp(all_infos[i].split("_")[0])+printed_abundance)
                 
         
     if print_fact_abundance: print(";\nparam nb_facts := "+str(fact_id))
