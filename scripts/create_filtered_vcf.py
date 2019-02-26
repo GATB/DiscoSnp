@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# 
+
+
+''' ***********************************************
+    
+    Script to filter and format discoSnp raw output file (.fa) into a vcf format file (.vcf)
+    Author - Claire Lemaitre
+    
+    Usage:
+    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa [-o disco_bubbles_coherent.vcf -m 0.95 -r 0.4]
+    
+    *********************************************** '''
+
+
+import sys
+import getopt
+import random
+import re #regular expressions
+
+
+# IMPORTANT : for the moment only SNPs to test time saving.
+
+def usage():
+    '''Usage'''
+    print("-----------------------------------------------------------------------------")
+    print(sys.argv[0]," : discoSnp output filtering and formatting in vcf")
+    print("-----------------------------------------------------------------------------")
+    print("usage: ",sys.argv[0]," -i disco_bubbles.fa")
+    print("  -r: min rank value filter (default = 0)")
+    print("  -m: max missing value filter (default = 1)")
+    print("  -o: output vcf file path (default = input file with vcf extension)")
+    print("  -f: output a filtered fasta file instead of a vcf file")
+    print("  -h: help")
+    print("-----------------------------------------------------------------------------")
+    sys.exit(2)
+
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:r:m:o:f", ["help", "in=", "rank=", "miss=", "out=", "fastaout"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(str(err))  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    
+    # Default parameters
+    fasta_file = 0
+    fasta_only = 0
+    min_rank = 0
+    max_miss = 1
+    k = 31
+    out_file = ""
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-i", "--in"):
+            fasta_file = arg
+        elif opt in ("-r", "--rank"):
+            min_rank = float(arg)
+        elif opt in ("-m", "--miss"):
+            max_miss = float(arg)
+        elif opt in ("-o", "--out"):
+            out_file = arg
+        elif opt in ("-f", "--fastaout"):
+            fasta_only = 1
+        else:
+            assert False, "unhandled option"
+
+    if fasta_file == 0:
+        print("option -i (--in) is mandatory")
+        usage()
+        sys.exit(2)
+    else:
+
+        if out_file == "":
+            #TODO
+            #Defining the output file name:
+            #getting input file name without extension
+            #test if writtable, if not change the path to the current dir ? + warning 
+            pass
+        
+       
+        with open(fasta_file, 'r') as filin, open(out_file,'w') as filout:
+            if not fasta_only:
+                # Write vcf comment lines
+                VCF_COMMENTS = '''##fileformat=VCFv4.1
+##filedate=TODO
+##source=filter_and_format_vcf.py
+##SAMPLE=file://TODO
+##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">
+##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">
+##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">
+##INFO=<ID=Rk,Number=1,Type=Float,Description="SNP rank">
+##INFO=<ID=UL,Number=1,Type=Integer,Description="length of the unitig left">
+##INFO=<ID=UR,Number=1,Type=Integer,Description="length of the unitig right">
+##INFO=<ID=CL,Number=1,Type=Integer,Description="length of the contig left">
+##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">
+##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">
+##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">
+##INFO=<ID=XA,Number=.,Type=String,Description="Other mapping positions (chromosome_position). Position is negative in case of Reverse alignment. The position designs the starting position of the alignment, not the position of the variant itself.">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">
+##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">
+##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">'''
+                #TODO : correct the date, the input file name
+                filout.write(VCF_COMMENTS + "\n")
+
+            nb_samples = 0
+            nb_fixed_fields = 0 #nb fields before C1_X|C2_Y|... depends if unitig and/or contig lengths have been output
+            nb_kept_variants = 0
+            nb_analyzed_variants = 0 # to check if all variants are seen (to compare with nb_tot_variants)
+            #nb_tot_variants = 0
+            line_count = 0
+            fasta_4lines = ""
+            keep_variant = False
+            for line in filin:
+
+                ## Remembering 4 consecutive lines for kept variants to write in a fasta file if fasta_only mode
+                if fasta_only:
+                    if line_count == 0:
+                        fasta_4lines = line
+                        keep_variant = False
+                    else:
+                        fasta_4lines += line
+                    line_count += 1
+                    if line_count == 4: # and keep_variant:
+                        line_count = 0
+                        if keep_variant:
+                            filout.write(fasta_4lines)
+
+                #if line.startswith(">"):
+                #if re.match(">(.*)_higher_path_",line):
+                if re.match(">SNP_higher_path_",line):
+                    line = line.strip()
+                    splitted_1 = line.split("|")
+                    if nb_samples == 0:
+                        #done only for the first line:
+                        nb_tig_len = len(re.findall("left_\w+_length",line))
+                        nb_fixed_fields = 4 + 2*nb_tig_len
+                        nb_samples = (len(splitted_1) - (nb_fixed_fields + 1))/3
+                        if nb_samples % 1 != 0:
+                            print(f"Warning: could not detect the correct nb of samples : {nb_samples}")
+                            sys.exit(2)
+                        nb_samples = int(nb_samples)
+                        HEADER = "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]+["G"+str(i+1) for i in range(nb_samples)])
+                        if not fasta_only:
+                            filout.write(HEADER + "\n")
+                #if re.match(">(.*)_lower_path_",line):
+                if re.match(">SNP_lower_path_",line):
+                    nb_analyzed_variants += 1
+                    line = line.strip()
+                    splitted_2 = line.split("|")
+                    
+                    ## FILTERING
+                    #filter rank
+                    rank = float(splitted_2[-1].split("rank_")[1])
+                    if rank < min_rank:
+                        continue
+                    
+                    # filter missing genotype ratio
+                    nb_missing = len(re.findall(r"G\d+_\./\.",line))
+                    missing_ratio = nb_missing / nb_samples
+                    if missing_ratio >= max_miss:
+                        continue
+                    
+                    keep_variant = True  # for fasta_only mode
+                    nb_kept_variants += 1
+
+                    if not fasta_only:
+                        #now format in vcf format
+                        filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank))
+
+        #print(f"{nb_lost_variants} variant bubbles filtered out")
+        #print(f"{nb_kept_variants} variant bubbles output out of {nb_tot_variants} ({nb_analyzed_variants} analyzed)")
+        print(f"{nb_kept_variants} variant bubbles output out of {nb_analyzed_variants}")
+
+def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster = False):
+    '''
+        Format information extracted from the fasta headers of a single bubble into one or several vcf lines
+        '''
+
+    ''' With cluster :
+    cluster_0_size_6762    .    SNP_higher_path_1001188    A    C    .    .    Ty=SNP;Rk=0.87534;UL=5;UR=0;CL=5;CR=0;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/0:20:5,64,404:20,0:71,0    0/0:25:5,80,504:25,0:71,0    0/0:20:5,64,404:20,0:71,0    0/0:17:5,55,344:17,0:71,0    0/0:20:5,64,404:20,0:71,0
+    '''
+    
+    ''' Without cluster :
+        SNP_higher_path_1487    34    1487    A    G    .    .    Ty=SNP;Rk=0.00072476;UL=4;UR=60;CL=.;CR=.;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/1:53:194,32,613:37,16:71,71    0/1:83:296,44,955:58,25:71,71
+        '''
+    
+    # INFO = Ty=SNP;Rk=0.44073;UL=0;UR=0;CL=0;CR=0;Genome=.;Sd=.
+    # FORMAT = GT:DP:PL:AD:HQ
+    FORMAT = "GT:DP:PL:AD:HQ"
+    
+    vcf_line = ""
+    nb_pol = int(splitted_1[3].split("nb_pol_")[1])
+    path_name = splitted_1[0]
+    ty = re.findall(">(\w+)_higher_path",path_name)[0]
+    path_name = path_name.lstrip(">")
+    id = path_name.split("_")[3]
+
+    unitig_len = re.findall("_unitig_length_(\d+)","|".join(splitted_1[4:(nb_fixed_fields)]))
+    if len(unitig_len)<2:
+        unitig_len = [0,0]
+    contig_len = re.findall("_contig_length_(\d+)","|".join(splitted_1[4:(nb_fixed_fields)]))
+    if len(contig_len)<2:
+        contig_len = [0,0]
+    INFO = f"Ty={ty};Rk={rank};UL={unitig_len[0]};UR={unitig_len[1]};CL={contig_len[0]};CR={contig_len[1]};Genome=.;Sd=."
+
+    # Genotype info (same for all polymorphisms)
+    GENO = ""
+    for indiv in range(nb_samples):
+        ad_1 = splitted_1[nb_fixed_fields + indiv].split("_")[1]
+        ad_2 = splitted_2[nb_fixed_fields + indiv].split("_")[1]
+        dp = int(ad_1) + int(ad_2)
+        qual_1 = splitted_1[nb_fixed_fields + nb_samples + indiv].split("_")[1]
+        qual_2 = splitted_2[nb_fixed_fields + nb_samples + indiv].split("_")[1] #necessary : is qual_2 always == qual_1 ???
+
+        geno_fields = splitted_1[nb_fixed_fields + 2*nb_samples + indiv].split("_")[1].split(":")
+        genotype = geno_fields[0]
+        likelihood = geno_fields[1]
+        GENO += "\t" + ":".join([genotype,str(dp),likelihood,",".join([ad_1,ad_2]),",".join([qual_1,qual_2])])
+
+    GENO = GENO.strip()
+
+    cigar = splitted_1[1].split(",")
+    isolated = False
+    if len(cigar) == 1:
+        isolated = True
+    i = 1
+    for pol in cigar:
+        CHROM = path_name
+        POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0]
+        POS = int(POS) + int(unitig_len[0])
+        ID = id
+        if not isolated:
+            ID += f"_{i}"
+        my_line = "\t".join([CHROM, str(POS), ID, REF, ALT, ".", ".", INFO, FORMAT, GENO])
+        vcf_line += my_line + "\n"
+        i += 1
+
+    return vcf_line
+
+
+if __name__ == "__main__":
+    main()
+                      
+
+
