@@ -82,8 +82,29 @@ def main():
             #getting input file name without extension
             #test if writtable, if not change the path to the current dir ? + warning 
             pass
+
+        # First identifying what kind of fasta we have with the first line
+        tig_type = 0 # 0 : no extension, 1 unitig, 2 contig (ie. unitig and contig length are output)
+        nb_samples = 0
+        nb_fixed_fields = 0 #nb fields before C1_X|C2_Y|... depends if unitig and/or contig lengths have been output
+        with_cluster = False
+        with open(fasta_file, 'r') as filin:
+            for line in filin:
+                splitted_1 = line.split("|")
+                #cluster :
+                if re.match(">cluster_",splitted_1[0]):
+                    with_cluster = True
+                #nb_samples:
+                tig_type = len(re.findall("left_\w+_length",line))
+                nb_fixed_fields = 4 + 2*tig_type
+                nb_samples = (len(splitted_1) - (nb_fixed_fields + 1))/3
+                if nb_samples % 1 != 0:
+                    print(f"Warning: could not detect the correct nb of samples : {nb_samples}")
+                    sys.exit(2)
+                nb_samples = int(nb_samples)
+                break
         
-       
+        # Now going through all lines
         with open(fasta_file, 'r') as filin, open(out_file,'w') as filout:
             if not fasta_only:
                 # Write vcf comment lines
@@ -109,12 +130,11 @@ def main():
 ##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">'''
                 #TODO : correct the date, the input file name
                 filout.write(VCF_COMMENTS + "\n")
+                HEADER = "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]+["G"+str(i+1) for i in range(nb_samples)])
+                filout.write(HEADER + "\n")
 
-            nb_samples = 0
-            nb_fixed_fields = 0 #nb fields before C1_X|C2_Y|... depends if unitig and/or contig lengths have been output
             nb_kept_variants = 0
-            nb_analyzed_variants = 0 # to check if all variants are seen (to compare with nb_tot_variants)
-            #nb_tot_variants = 0
+            nb_analyzed_variants = 0
             line_count = 0
             fasta_4lines = ""
             keep_variant = False
@@ -138,18 +158,7 @@ def main():
                 if re.match(">SNP_higher_path_",line):
                     line = line.strip()
                     splitted_1 = line.split("|")
-                    if nb_samples == 0:
-                        #done only for the first line:
-                        nb_tig_len = len(re.findall("left_\w+_length",line))
-                        nb_fixed_fields = 4 + 2*nb_tig_len
-                        nb_samples = (len(splitted_1) - (nb_fixed_fields + 1))/3
-                        if nb_samples % 1 != 0:
-                            print(f"Warning: could not detect the correct nb of samples : {nb_samples}")
-                            sys.exit(2)
-                        nb_samples = int(nb_samples)
-                        HEADER = "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]+["G"+str(i+1) for i in range(nb_samples)])
-                        if not fasta_only:
-                            filout.write(HEADER + "\n")
+
                 #if re.match(">(.*)_lower_path_",line):
                 if re.match(">SNP_lower_path_",line):
                     nb_analyzed_variants += 1
@@ -173,22 +182,26 @@ def main():
 
                     if not fasta_only:
                         #now format in vcf format
-                        filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank))
+                        filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster, tig_type))
 
         #print(f"{nb_lost_variants} variant bubbles filtered out")
         #print(f"{nb_kept_variants} variant bubbles output out of {nb_tot_variants} ({nb_analyzed_variants} analyzed)")
         print(f"{nb_kept_variants} variant bubbles output out of {nb_analyzed_variants}")
 
-def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster = False):
+def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster = False, tig_type = 0):
     '''
         Format information extracted from the fasta headers of a single bubble into one or several vcf lines
+        
+        tig_type :  0 no extension, 1 unitig, 2 contig (ie. unitig and contig length are present)
         '''
 
     ''' With cluster :
-    cluster_0_size_6762    .    SNP_higher_path_1001188    A    C    .    .    Ty=SNP;Rk=0.87534;UL=5;UR=0;CL=5;CR=0;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/0:20:5,64,404:20,0:71,0    0/0:25:5,80,504:25,0:71,0    0/0:20:5,64,404:20,0:71,0    0/0:17:5,55,344:17,0:71,0    0/0:20:5,64,404:20,0:71,0
+        >cluster_0_size_6762_SNP_higher_path_1001188|P_1:30_A/C|high|nb_pol_1|left
+        cluster_0_size_6762    .    SNP_higher_path_1001188    A    C    .    .    Ty=SNP;Rk=0.87534;UL=5;UR=0;CL=5;CR=0;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/0:20:5,64,404:20,0:71,0    0/0:25:5,80,504:25,0:71,0    0/0:20:5,64,404:20,0:71,0    0/0:17:5,55,344:17,0:71,0    0/0:20:5,64,404:20,0:71,0
     '''
     
     ''' Without cluster :
+        >SNP_higher_path_1487|P_1:30_A/G|low|nb_pol_1|left_unitig_length_
         SNP_higher_path_1487    34    1487    A    G    .    .    Ty=SNP;Rk=0.00072476;UL=4;UR=60;CL=.;CR=.;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/1:53:194,32,613:37,16:71,71    0/1:83:296,44,955:58,25:71,71
         '''
     
@@ -198,18 +211,32 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
     
     vcf_line = ""
     nb_pol = int(splitted_1[3].split("nb_pol_")[1])
-    path_name = splitted_1[0]
-    ty = re.findall(">(\w+)_higher_path",path_name)[0]
-    path_name = path_name.lstrip(">")
-    id = path_name.split("_")[3]
-
-    unitig_len = re.findall("_unitig_length_(\d+)","|".join(splitted_1[4:(nb_fixed_fields)]))
-    if len(unitig_len)<2:
-        unitig_len = [0,0]
-    contig_len = re.findall("_contig_length_(\d+)","|".join(splitted_1[4:(nb_fixed_fields)]))
-    if len(contig_len)<2:
-        contig_len = [0,0]
-    INFO = f"Ty={ty};Rk={rank};UL={unitig_len[0]};UR={unitig_len[1]};CL={contig_len[0]};CR={contig_len[1]};Genome=.;Sd=."
+    if with_cluster:
+        sp = splitted_1[0].split("_")
+        CHROM = "_".join(sp[:4]).lstrip(">")
+        path_name = "_".join(sp[4:])
+        id = path_name
+    else:
+        path_name = splitted_1[0].lstrip(">")
+        CHROM = path_name
+        id = path_name.split("_")[3]
+    ty = re.findall("(\w+)_higher_path",path_name)[0]
+    
+    INFO = f"Ty={ty};Rk={rank};"
+    position_offset = 0
+    if tig_type >0:
+        unitig_len = re.findall("_unitig_length_(\d+)","|".join(splitted_1[4:6]))
+        position_offset = int(unitig_len[0])
+        INFO += f"UL={unitig_len[0]};UR={unitig_len[1]};";
+        if tig_type == 2:
+            contig_len = re.findall("_contig_length_(\d+)","|".join(splitted_1[6:8]))
+            position_offset = int(contig_len[0]) # if contig POS = POS + left_contig_len
+            INFO += f"CL={contig_len[0]};CR={contig_len[1]};"
+        else:
+            INFO += "CL=.;CR=.;"
+    else:
+        INFO += "UL=.;UR=.;CL=.;CR=.;"
+    INFO += "Genome=.;Sd=."
 
     # Genotype info (same for all polymorphisms)
     GENO = ""
@@ -233,9 +260,8 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
         isolated = True
     i = 1
     for pol in cigar:
-        CHROM = path_name
         POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0]
-        POS = int(POS) + int(unitig_len[0])
+        POS = int(POS) + position_offset
         ID = id
         if not isolated:
             ID += f"_{i}"
