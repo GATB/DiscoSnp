@@ -136,41 +136,25 @@ def main():
             nb_kept_variants = 0
             nb_analyzed_variants = 0
             line_count = 0
-            fasta_4lines = ""
+            fasta_4lines = ""  ## Remembering 4 consecutive lines for kept variants to write in a fasta file if fasta_only mode
             keep_variant = False
             for line in filin:
+                line_count += 1
+                
+                if line_count == 1:
+                    fasta_4lines = line
+                    keep_variant = False
+                    nb_analyzed_variants += 1
 
-                ## Remembering 4 consecutive lines for kept variants to write in a fasta file if fasta_only mode
-                if fasta_only:
-                    if line_count == 0:
-                        fasta_4lines = line
-                        keep_variant = False
-                    else:
-                        fasta_4lines += line
-                    line_count += 1
-                    if line_count == 4: # and keep_variant:
-                        line_count = 0
-                        if keep_variant:
-                            filout.write(fasta_4lines)
-
-                #if line.startswith(">"):
-                #if re.match(">(.*)_higher_path_",line):
-                if re.match(">SNP_higher_path_",line):
+                    # Header higher path
                     line = line.strip()
                     splitted_1 = line.split("|")
 
-                #if re.match(">(.*)_lower_path_",line):
-                if re.match(">SNP_lower_path_",line):
-                    nb_analyzed_variants += 1
-                    line = line.strip()
-                    splitted_2 = line.split("|")
-                    
                     ## FILTERING
                     #filter rank
-                    rank = float(splitted_2[-1].split("rank_")[1])
+                    rank = float(splitted_1[-1].split("rank_")[1])
                     if rank < min_rank:
                         continue
-                    
                     # filter missing genotype ratio
                     nb_missing = len(re.findall(r"G\d+_\./\.",line))
                     missing_ratio = nb_missing / nb_samples
@@ -179,10 +163,23 @@ def main():
                     
                     keep_variant = True  # for fasta_only mode
                     nb_kept_variants += 1
+                else:
+                    fasta_4lines += line
+                
+                if keep_variant and line_count == 3:
+                    #Header lower path
+                    line = line.strip()
+                    splitted_2 = line.split("|")
 
-                    if not fasta_only:
-                        #now format in vcf format
-                        filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster, tig_type))
+                if line_count == 4:
+                    line_count = 0
+                    if keep_variant:
+                        if fasta_only:
+                            filout.write(fasta_4lines)
+                        else:
+                            #now format in vcf format
+                            filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster, tig_type))
+
 
         #print(f"{nb_lost_variants} variant bubbles filtered out")
         #print(f"{nb_kept_variants} variant bubbles output out of {nb_tot_variants} ({nb_analyzed_variants} analyzed)")
@@ -215,12 +212,14 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
         sp = splitted_1[0].split("_")
         CHROM = "_".join(sp[:4]).lstrip(">")
         path_name = "_".join(sp[4:])
-        id = path_name
     else:
         path_name = splitted_1[0].lstrip(">")
         CHROM = path_name
-        id = path_name.split("_")[3]
+    id = path_name.split("_")[3]
     ty = re.findall("(\w+)_higher_path",path_name)[0]
+
+    if ty != "SNP":
+        return vcf_line  ## TODO deal with INDELS
     
     INFO = f"Ty={ty};Rk={rank};"
     position_offset = 0
@@ -260,7 +259,7 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
         isolated = True
     i = 1
     for pol in cigar:
-        POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0]
+        POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0] # error if INDEL
         POS = int(POS) + position_offset
         ID = id
         if not isolated:
