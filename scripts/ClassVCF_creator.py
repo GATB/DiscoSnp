@@ -80,7 +80,7 @@ class VARIANT():
                 self.mappingPositionCouple=0#mapping position of the bubble after correction
                 self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
 
-                self.char2char = dict() # for fast reverse complement computations
+                self.char2char = dict() # for fast reverse complement computations #TODO Pierre March 2019: Done for each variant?
                 self.char2char['A'] = 'T'
                 self.char2char['T'] = 'A'
                 self.char2char['C'] = 'G'
@@ -825,6 +825,9 @@ class INDEL(VARIANT):
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                     
         def RetrievePolymorphismFromHeader(self):
+                left_extended_sequence_length=0
+                if int(self.contigLeft)>0:      left_extended_sequence_length=int(self.contigLeft)
+                else:                           left_extended_sequence_length=int(self.unitigLeft)
                 #Test which is the samllest sequence
                 if len(self.upper_path.seq)<len(self.lower_path.seq):
                         self.smallestSequence=self.upper_path.seq
@@ -850,9 +853,13 @@ class INDEL(VARIANT):
                         self.lower_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         self.upper_path.listPosReverse.append(len(self.smallestSequence)-int(posD))
                         
-                        self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
+                        # BUG HERE We should take the size of the contig or unitig into account (added left_extended_sequence_length by pierre march 2019) 
+                        # self.insertForward=self.longestSequenceForward[(int(posD)-1-int(amb)):(int(posD)-int(amb)+int(ind))]
+                        self.insertForward=self.longestSequenceForward[(left_extended_sequence_length+int(posD)-1-int(amb)):(left_extended_sequence_length+int(posD)-int(amb)+int(ind))]
+                        
+                        #TODO:  BUG SOLVED FOR NON REVERTED SEQUENCES
                         self.insertReverse=self.longestSequenceReverse[len(self.smallestSequence)-int(posD)-1:(len(self.smallestSequence)-int(posD)+int(ind))]
-                        self.ntStartForward=self.longestSequenceForward[(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
+                        self.ntStartForward=self.longestSequenceForward[left_extended_sequence_length+(int(posD)-1)-int(amb)]#We get the nucleotide just before the insertion by taking into acount the possible ambiguity for the position of the indel
                         self.ntStartReverse=self.longestSequenceReverse[(len(self.smallestSequence)-int(posD)-1)]
                         self.lower_path.nucleo="."
                         self.upper_path.nucleo="."
@@ -861,7 +868,7 @@ class INDEL(VARIANT):
         def WhichPathIsTheRef(self,VCFObject):
                 #Finds the path identical to the reference
                 VARIANT.WhichPathIsTheRef(self,VCFObject)
-                posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the length of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
                 old_boolRef_Up=None
                 old_boolRef_Low=None
                 #In case of unmapped variant : we have to define a reference
@@ -928,7 +935,7 @@ class INDEL(VARIANT):
                                 VCFObject.nucleoRef=self.lower_path.nucleoRef
                 # Unmapped variants or too much soft clipped (=> the variant will be considered as unmapped)
                 if (self.upper_path.mappingPosition<=0 and self.lower_path.mappingPosition<=0) or (old_boolRef_Low==False and old_boolRef_Up==False):
-                        if self.lower_path.boolRef==True:
+                        if self.lower_path.boolRef==True: #Todo pierre march 2019: useless if else.
                                 self.mappingPositionCouple=int(posUnmapped)
                         else:
                                 self.mappingPositionCouple=int(posUnmapped)

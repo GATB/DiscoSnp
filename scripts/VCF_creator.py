@@ -149,11 +149,11 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
         while True:
                 line1=stream_file.readline()
                 if not line1: break #End of file
-                seq1=stream_file.readline() #Reads the seq associate to the SNP
+                seq1=stream_file.readline() #Reads the seq associate to the variant
                 line2=stream_file.readline() #Reads a couple of line
                 seq2=stream_file.readline()
                 #Initializes variant object with the samline
-                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) 
+                variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex)
                 table=UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2)
                 variant_object.FillVCF(VCFFile,nbGeno,table,vcf_field_object)
 

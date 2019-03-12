@@ -25,9 +25,6 @@ def InitVariant(line1,line2,fileName,dicoIndex):
         elif "SNP" in line1 and "|nb_pol_1|" not in line1:
                 variant_object=SNPSCLOSE(line1,line2)
         elif "INDEL" in line1:
-                #Supression of indel when the ambiguity is greater than 20
-                #if int(line1.split("\t")[0].split("|")[1].split("_")[3])>=20:
-                #        return 1,1
                 variant_object=INDEL(line1,line2)
         else :
                 print("!!!!Undefined Variant!!!!")
