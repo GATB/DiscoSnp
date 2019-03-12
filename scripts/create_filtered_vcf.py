@@ -199,13 +199,25 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, sequen
         '''
 
     ''' With cluster :
-        >cluster_0_size_6762_SNP_higher_path_1001188|P_1:30_A/C|high|nb_pol_1|left
-        cluster_0_size_6762    .    SNP_higher_path_1001188    A    C    .    .    Ty=SNP;Rk=0.87534;UL=5;UR=0;CL=5;CR=0;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/0:20:5,64,404:20,0:71,0    0/0:25:5,80,504:25,0:71,0    0/0:20:5,64,404:20,0:71,0    0/0:17:5,55,344:17,0:71,0    0/0:20:5,64,404:20,0:71,0
+        >cluster_61447_size_44_SNP_higher_path_999|P_1:30_A/C,P_2:59_A/G|high|nb_pol_2|left_unitig_length_3
+        SNP_higher_path_999     33      999_1   A       C       .       .       Ty=SNP;Rk=1.0;UL=3;UR=5;CL=3;CR=5;Genome=.;Sd=.;Cluster=61447;ClSize=44 GT:DP:PL:AD:HQ  0/0:19:5,61,384:19,0:71,0
+        POS = UL + POS (1-based)
     '''
     
     ''' Without cluster :
         >SNP_higher_path_1487|P_1:30_A/G|low|nb_pol_1|left_unitig_length_
-        SNP_higher_path_1487    34    1487    A    G    .    .    Ty=SNP;Rk=0.00072476;UL=4;UR=60;CL=.;CR=.;Genome=.;Sd=.    GT:DP:PL:AD:HQ    0/1:53:194,32,613:37,16:71,71    0/1:83:296,44,955:58,25:71,71
+        SNP_higher_path_1487    34    1487    A    G    .    .    Ty=SNP;Rk=0.00072476;UL=4;UR=60;CL=.;CR=.;Genome=.;Sd=.;Cluster=.;ClSize=.    GT:DP:PL:AD:HQ    0/1:53:194,32,613:37,16:71,71    0/1:83:296,44,955:58,25:71,71
+        '''
+    
+    ''' INDEL :
+        >INDEL_higher_path_3205|P_1:30_27_3|high|nb_pol_1|left_unitig_length_14|right_unitig_length_6|C1_14|C2_17|Q1_71|Q2_71|G1_0/1:243,13,203|G2_0/1:268,13,248|rank_0.019011
+        aaggcagcggccagTCCAGGATGTCCAAGAATTCAACCAATTCGAACAATTCTAAAGGATCGTTTAATTCAagcggc
+        >INDEL_lower_path_3205|P_1:30_27_3|high|nb_pol_1|left_unitig_length_14|right_unitig_length_6|C1_16|C2_18|Q1_71|Q2_71|G1_0/1:243,13,203|G2_0/1:268,13,248|rank_0.019011
+        aaggcagcggccagTCCAGGATGTCCAAGAATTCAACCAATTCG GGACAGTCCAGATAGTCGTATAACTCG AACAATTCTAAAGGATCGTTTAATTCAagcggc
+        aaggcagcggccagTCCAGGATGTCCAAGAATTCAACCAAT TCGGGACAGTCCAGATAGTCGTATAAC TCGAACAATTCTAAAGGATCGTTTAATTCAagcggc
+        INDEL_higher_path_3205    41    3205    T    TTCGGGACAGTCCAGATAGTCGTATAAC    .    .    Ty=INS;Rk=0.019011;UL=14;UR=6;CL=.;CR=.;Genome=.;Sd=.;Cluster=.;ClSize=.    GT:DP:PL:AD:HQ    0/1:30:243,13,203:14,16:71,71    0/1:35:268,13,248:17,18:71,71
+        
+        POS = UL + POS - fuzziness (here = 3 = 3 possible positions for the 27 bp insertion) : 1-based, left-normalized
         '''
     
     # INFO = Ty=SNP;Rk=0.44073;UL=0;UR=0;CL=0;CR=0;Genome=.;Sd=.
