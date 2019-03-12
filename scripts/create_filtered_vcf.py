@@ -18,6 +18,7 @@ import sys
 import getopt
 import random
 import re #regular expressions
+import time
 
 
 # IMPORTANT : for the moment only SNPs to test time saving.
@@ -75,7 +76,9 @@ def main():
         usage()
         sys.exit(2)
     else:
-
+        today = time.localtime()
+        date = str(today.tm_year) + str(today.tm_mon) + str(today.tm_mday)
+        
         if out_file == "":
             #TODO
             #Defining the output file name:
@@ -103,15 +106,15 @@ def main():
                     sys.exit(2)
                 nb_samples = int(nb_samples)
                 break
-        
+
         # Now going through all lines
         with open(fasta_file, 'r') as filin, open(out_file,'w') as filout:
             if not fasta_only:
                 # Write vcf comment lines
-                VCF_COMMENTS = '''##fileformat=VCFv4.1
-##filedate=TODO
-##source=filter_and_format_vcf.py
-##SAMPLE=file://TODO
+                VCF_COMMENTS = f'''##fileformat=VCFv4.1
+##filedate={date}
+##source=create_filtered_vcf.py
+##SAMPLE=file://{fasta_file}
 ##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">
 ##FILTER=<ID=MULTIPLE,Description="Mapping type : PASS or MULTIPLE or .">
 ##INFO=<ID=Ty,Number=1,Type=String,Description="SNP, INS, DEL or .">
@@ -122,13 +125,14 @@ def main():
 ##INFO=<ID=CR,Number=1,Type=Integer,Description="length of the contig right">
 ##INFO=<ID=Genome,Number=1,Type=String,Description="Allele of the reference;for indel reference is . ">
 ##INFO=<ID=Sd,Number=1,Type=Integer,Description="Reverse (-1) or Forward (1) Alignement">
+##INFO=<ID=Cluster,Number=1,Type=Integer,Description="Cluster ID when variants have been clustered (RAD-seq mode)">
+##INFO=<ID=ClSize,Number=1,Type=Integer,Description="Cluster size (RAD-seq mode)">
 ##INFO=<ID=XA,Number=.,Type=String,Description="Other mapping positions (chromosome_position). Position is negative in case of Reverse alignment. The position designs the starting position of the alignment, not the position of the variant itself.">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Cumulated depth accross samples (sum)">
 ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Phred-scaled Genotype Likelihoods">
 ##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">
 ##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">'''
-                #TODO : correct the date, the input file name
                 filout.write(VCF_COMMENTS + "\n")
                 HEADER = "\t".join(["#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT"]+["G"+str(i+1) for i in range(nb_samples)])
                 filout.write(HEADER + "\n")
@@ -178,18 +182,20 @@ def main():
                             filout.write(fasta_4lines)
                         else:
                             #now format in vcf format
-                            filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster, tig_type))
+                            line = line.strip()
+                            filout.write(format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, line, with_cluster, tig_type))
 
 
         #print(f"{nb_lost_variants} variant bubbles filtered out")
         #print(f"{nb_kept_variants} variant bubbles output out of {nb_tot_variants} ({nb_analyzed_variants} analyzed)")
         print(f"{nb_kept_variants} variant bubbles output out of {nb_analyzed_variants}")
 
-def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_cluster = False, tig_type = 0):
+def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, sequence, with_cluster = False, tig_type = 0):
     '''
         Format information extracted from the fasta headers of a single bubble into one or several vcf lines
         
         tig_type :  0 no extension, 1 unitig, 2 contig (ie. unitig and contig length are present)
+        sequence : DNA sequence of the lower path : usefull for INDELs (longest sequnce)
         '''
 
     ''' With cluster :
@@ -208,19 +214,22 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
     
     vcf_line = ""
     nb_pol = int(splitted_1[3].split("nb_pol_")[1])
+    cluster_id = "."
+    cluster_size = "."
     if with_cluster:
         sp = splitted_1[0].split("_")
-        CHROM = "_".join(sp[:4]).lstrip(">")
+        cluster_id = sp[1].lstrip(">")
+        cluster_size = sp[3]
         path_name = "_".join(sp[4:])
     else:
         path_name = splitted_1[0].lstrip(">")
-        CHROM = path_name
+    CHROM = path_name
     id = path_name.split("_")[3]
     ty = re.findall("(\w+)_higher_path",path_name)[0]
 
     if ty != "SNP":
-        return vcf_line  ## TODO deal with INDELS
-    
+        ty = "INS"
+
     INFO = f"Ty={ty};Rk={rank};"
     position_offset = 0
     if tig_type >0:
@@ -235,7 +244,7 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
             INFO += "CL=.;CR=.;"
     else:
         INFO += "UL=.;UR=.;CL=.;CR=.;"
-    INFO += "Genome=.;Sd=."
+    INFO += f"Genome=.;Sd=.;Cluster={cluster_id};ClSize={cluster_size}"
 
     # Genotype info (same for all polymorphisms)
     GENO = ""
@@ -259,8 +268,14 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, with_c
         isolated = True
     i = 1
     for pol in cigar:
-        POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0] # error if INDEL
-        POS = int(POS) + position_offset
+        if ty == "SNP":
+            POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0]
+            POS = int(POS) + position_offset  # POS is 1-based
+        else:  # INDEL
+            POS, indel_size, fuzziness = re.findall("P_\d+:(\d+)_(\d+)_(\d+)",pol)[0]
+            POS = int(POS) + position_offset - int(fuzziness)  # left-normalization, 1-based
+            ALT = sequence[(POS-1):(POS+int(indel_size))]
+            REF = ALT[0]
         ID = id
         if not isolated:
             ID += f"_{i}"
