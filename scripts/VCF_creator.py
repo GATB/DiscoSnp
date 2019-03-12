@@ -149,7 +149,7 @@ elif ".fa" in fileName: #Treatement of the fasta file (no mapping information)
         while True:
                 line1=stream_file.readline()
                 if not line1: break #End of file
-                seq1=stream_file.readline() #Reads the seq associate to the SNP
+                seq1=stream_file.readline() #Reads the seq associate to the variant
                 line2=stream_file.readline() #Reads a couple of line
                 seq2=stream_file.readline()
                 #Initializes variant object with the samline
