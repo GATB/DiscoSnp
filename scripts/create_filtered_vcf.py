@@ -31,7 +31,7 @@ def usage():
     print("usage: ",sys.argv[0]," -i disco_bubbles.fa")
     print("  -r: min rank value filter (default = 0)")
     print("  -m: max missing value filter (default = 1)")
-    print("  -o: output vcf file path (default = input file with vcf extension)")
+    print("  -o: output vcf file path (default = stdout)")
     print("  -f: output a filtered fasta file instead of a vcf file")
     print("  -h: help")
     print("-----------------------------------------------------------------------------")
@@ -53,7 +53,7 @@ def main():
     min_rank = 0
     max_miss = 1
     k = 31
-    out_file = ""
+    out_file = None
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
@@ -79,12 +79,6 @@ def main():
         today = time.localtime()
         date = str(today.tm_year) + str(today.tm_mon) + str(today.tm_mday)
         
-        if out_file == "":
-            #TODO
-            #Defining the output file name:
-            #getting input file name without extension
-            #test if writtable, if not change the path to the current dir ? + warning 
-            pass
 
         # First identifying what kind of fasta we have with the first line
         tig_type = 0 # 0 : no extension, 1 unitig, 2 contig (ie. unitig and contig length are output)
@@ -107,8 +101,9 @@ def main():
                 nb_samples = int(nb_samples)
                 break
 
+        sys.stdout.close = lambda: None  #make stdout unclosable, to use with and handle both `with open(…)` and `sys.stdout` nicely. cf. https://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
         # Now going through all lines
-        with open(fasta_file, 'r') as filin, open(out_file,'w') as filout:
+        with open(fasta_file, 'r') as filin, (open(out_file,'w') if out_file else sys.stdout) as filout:
             if not fasta_only:
                 # Write vcf comment lines
                 VCF_COMMENTS = f'''##fileformat=VCFv4.1
@@ -188,7 +183,7 @@ def main():
 
         #print(f"{nb_lost_variants} variant bubbles filtered out")
         #print(f"{nb_kept_variants} variant bubbles output out of {nb_tot_variants} ({nb_analyzed_variants} analyzed)")
-        print(f"{nb_kept_variants} variant bubbles output out of {nb_analyzed_variants}")
+        sys.stderr.write(f"{nb_kept_variants} variant bubbles output out of {nb_analyzed_variants}\n")
 
 def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, sequence, with_cluster = False, tig_type = 0):
     '''
