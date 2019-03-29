@@ -45,6 +45,7 @@ def store_existing_nodes(phased_alleles_file_name,connected_component_nodes):
         line = line.split(' ')          # -1000183h_0;3224567l_287; -10183h_0;267l_287; => 1
         for i in range(len(line)-2):     # either only one pass or two passed if the line contains pairend data
             all_infos = line[i][:-1].split(';')
+            
             for all_info in all_infos:
                 if all_info[0]=='-':
                     all_info=all_info[1:]
@@ -58,7 +59,8 @@ def print_existing_nodes(existing_ids):
     # print ("param n := "+str(len(existing_ids))+";")
     print ("set V:=")
     for node_id in existing_ids:
-        print (node_id)
+        print ('p'+node_id)
+        print ('m'+node_id)
     
 
 def print_existing_nodes_and_coverage(existing_ids, node_coverages):
@@ -155,6 +157,27 @@ def print_paths(phased_alleles_file_name, connected_component_nodes, print_fact_
     phased_alleles_file.close()
     
 
+
+def print_paths_with_distances(phased_alleles_file_name, connected_component_nodes):
+    phased_alleles_file = open(phased_alleles_file_name)
+    fact_id=0
+    print ("param d:=")
+    for line in phased_alleles_file:
+        line=line.strip()
+        if line[0]=='#': continue       # ./fof_unpaired.txt : comment
+        line = line.split(' ')          # -1000183h_0;3224567l_287; -10183h_0;267l_287; => 1
+        if not line_in_connected_component(line, connected_component_nodes): continue
+        for i in range(len(line)-2):     # either only one pass or two passes if the line contains pairend data
+            all_infos = line[i][:-1].split(';')
+            fact_id+=1
+            for i in range(len(all_infos)-1):
+                distance = all_infos[i+1].split("_")[-1]
+                print(str(fact_id)+" "+transform_to_mp(all_infos[i].split("_")[0])+" "+transform_to_mp(all_infos[i+1].split("_")[0])+" "+distance)
+                print(str(fact_id)+" "+transform_to_reverse_mp(all_infos[i+1].split("_")[0])+" "+transform_to_reverse_mp(all_infos[i].split("_")[0])+" "+distance)
+
+    phased_alleles_file.close()
+    
+
         
         
 def usage():
@@ -233,6 +256,9 @@ def main():
     print(';')
         
     print_paths(phased_alleles_file_name,connected_component_nodes, True)
+    print(';')
+    
+    print_paths_with_distances(phased_alleles_file_name, connected_component_nodes)
     print(';')
     
 if __name__ == "__main__":
