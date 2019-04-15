@@ -18,7 +18,10 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
- 
+die() {
+    printf '%s\n' "$1" >&2
+    exit 1
+}
 function myrealpath { echo $(cd $(dirname $1); pwd)/$(basename $1); }
 
 option_cores_gatb=""
@@ -91,191 +94,446 @@ function help {
     echo "Version "$version
     echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
     echo -e "\tMANDATORY:"
-    echo -e "\t\t -r read_file_of_files"
+    echo -e "\t\t -r|--fof read_file_of_files"
     echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
-    echo -e "\tDISCOSNP++ OPTIONS:"
-    echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t\t -X: Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
-    echo -e "\t\t -b value. "
-    echo -e "\t\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
-    echo -e "\t\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
-    echo -e "\t\t\t 2: No limitation on branching (lowers the precision, high recall)"
-    echo -e "\t\t -s value. In b2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
-    echo -e "\t\t -D value. discoSnp++ will search for deletions of size from 1 to D included. Default=100"
-    echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-    echo -e "\t\t -P value. discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
-    echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRes\""
-    echo -e "\t\t -l: remove low complexity bubbles"
-    echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
-    echo -e "\t\t -T: extend found polymorphisms with contigs (default: extend with unitigs)"
-    echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
-    echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
-    echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
-    echo -e "\t\t -n: do not compute the genotypes"
-    echo -e "\t\t -u: max number of used threads"
-    echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+    echo -e "\tOPTIONS:"
+    echo -e "\t\t -g | --graph                      reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t\t -X                                Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
+    echo -e "\t\t -b | --branching value. "
+    echo -e "\t\t                                   0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
+    echo -e "\t\t                                   1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
+    echo -e "\t\t                                   2: No limitation on branching (lowers the precision, high recall)"
+    echo -e "\t\t -s | --symmetrical value.         In b2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
+    echo -e "\t\t -D | --deletion_max_size value    discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t\t -a | --ambiguity_max_size value   Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+    echo -e "\t\t -P | --max_snp_per_bubble value   discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
+    echo -e "\t\t -p | --prefix string.             All out files will start with this prefix. Default=\"discoRes\""
+    echo -e "\t\t -l | --no_low_complexity          Remove low complexity bubbles"
+    echo -e "\t\t -k | --k_size value               Set the length of used kmers. Must fit the compiled value. Default=31"
+    echo -e "\t\t -T | --contigs                    Extend found polymorphisms with contigs (default: extend with unitigs)"
+    echo -e "\t\t -c | --min_coverage value         Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
+    echo -e "\t\t -C | --max_coverage value         Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
+    echo -e "\t\t -d | --max_substitutions value    Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+    echo -e "\t\t -n | --no_genotype                Do not compute the genotypes"
+    echo -e "\t\t -u | --max_threads                Max number of used threads"
+    echo -e "\t\t -v                                Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
 
 
-    echo -e "\t REFERENCE GENOME AND/OR VCF CREATION OPTIONS"
-    echo -e "\t\t -G: reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
-    echo -e "\t\t -R: use the reference file also in the variant calling, not only for mapping results"
-    echo -e "\t\t -B: bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+    echo -e "\tREFERENCE GENOME AND/OR VCF CREATION OPTIONS"
+    echo -e "\t\t -G | --reference_genome           Reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
+    echo -e "\t\t -R                                Use the reference file also in the variant calling, not only for mapping results"
+    echo -e "\t\t -B | --bwa_path                   bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
     echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
-    echo -e "\t\t -e: map variant predictions on reference genome with their unitig or contig extensions."
+    echo -e "\t\t -e                                Map variant predictions on reference genome with their unitig or contig extensions."
     echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). "
     echo 
     
-    echo -e "\t\t -w: Wraith mode: only show all discoSnp++ commands without running them"
-    echo -e "\t\t -h: Prints this message and exist"
+    echo -e "\t\t -w                                Wraith mode: only show all discoSnp++ commands without running them"
+    echo -e "\t\t -h | --help                       Prints this message and exist\n"
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
+
+
+
+
+
+
+while :; do
+    case $1 in
+    -A) 
+        option_phase_variants="-phasing"
+        echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
+        echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
+        ;;
+    -X)
+        stop_after_kissnp=1
+        ;;
+    -w)
+        wraith="true"
+        ;;
+    -R)
+        useref="true"
+        output_coverage_option="-dont_output_first_coverage"
+        ;;
+
+    -a|--ambiguity_max_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+            max_ambigous_indel=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+       
+    -v)        
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            verbose=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -s|--symmetrical)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+
+
+    -T|--contigs)
+        extend="-T"
+        ;;
+
+    -g|--graph)
+        remove=0
+        ;;
+
+
+    -n|--no_genotype)
+        genotyping=""
+        ;;
+
+    -l|--no_low_complexity)
+        l=""
+        ;;
+    -h|-\?|--help)
+        help
+        exit 
+        ;;
+
+    -r|--fof)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            read_sets=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+
+    -b|--branching)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            b=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -p|--prefix)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            prefix=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -k | --k_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            k=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+
+    -P|--max_snp_per_bubble)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            P=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -c|--min_coverage)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            c=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -C|--max_coverage)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            C=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -d|--max_substitutions)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            d=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -D|--deletion_max_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            D=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    B|--bwa_path)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            bwa_path_option="-B "$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -x)
+        x="-x" ##CHARLOTTE
+        ;;
+
+    -y)
+        y="-x" ##CHARLOTTE
+        ;;
+
+    -G|--reference_genome)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            genome=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+
+    -e)
+        e="-e"
+        ;;
+
+    -u|--max_threads)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            option_cores_gatb="-nb-cores $2"
+            option_cores_post_analysis="-t $2"
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -?*)
+        printf 'WARN: Unknown option (exit): %s\n' "$1" >&2
+        exit 1
+        ;;
+
+    :)
+        echo "Option $1 requires an argument." >&2
+        exit 1
+        ;;
+        #
+        #
+        #
+        #
+        #
+        #
+        # -h|-\?|--help)
+        #     show_help    # Display a usage synopsis.
+        #     exit
+        #     ;;
+        # -f|--file)       # Takes an option argument; ensure it has been specified.
+        #     if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+        #         file=$2
+        #         shift
+        #     else
+        #         die 'ERROR: "--file" requires a non-empty option argument.'
+        #     fi
+        #     ;;
+        # --file=?*)
+        #     file=${1#*=} # Delete everything up to "=" and assign the remainder.
+        #     ;;
+        # --file=)         # Handle the case of an empty --file=
+        #     die 'ERROR: "--file" requires a non-empty option argument.'
+        #     ;;
+        # -v|--verbose)
+        #     verbose=$((verbose + 1))  # Each -v adds 1 to verbosity.
+        #     ;;
+        --)              # End of all options.
+            shift
+            break
+            ;;
+        -?*)
+            printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+            ;;
+        *)               # Default case: No more options, so break out of the loop.
+            break
+    esac
+
+    shift
+done
+
+
+
+
+
+
+
+
 
 
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
-while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:u:a:v:" opt; do
-    case $opt in
-        A) 
-        option_phase_variants="-phasing"
-        echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
-        echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
-        ;;
-    X)
-        stop_after_kissnp=1
-        ;;
-    w)
-        wraith="true"
-        ;;
-    R)
-        useref="true"
-        output_coverage_option="-dont_output_first_coverage"
-        ;;
-
-    a)
-        max_ambigous_indel=$OPTARG
-        ;;
-       
-    v)
-        verbose=$OPTARG
-        ;;
-
-    s)
-        option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
-        echo ${option_max_symmetrical_crossroads}
-        ;;
-
-
-
-    T)
-        extend="-T"
-        ;;
-
-    g)
-        remove=0
-        ;;
-
-
-    n)
-        genotyping=""
-        ;;
-
-    l)
-        l=""
-        ;;
-    h)
-        help
-        exit 
-        ;;
-
-    r)
-        echo "use read set: $OPTARG" >&2
-        read_sets=$OPTARG
-        ;;
-
-
-    b)
-        echo "use branching strategy: $OPTARG" >&2
-        b=$OPTARG
-        ;;
-
-    p)
-        echo "use prefix=$OPTARG" >&2
-        prefix=$OPTARG
-        ;;
-
-    k)
-        echo "use k=$OPTARG" >&2
-        k=$OPTARG
-        ;;
-
-
-    P)
-        echo "use P=$OPTARG" >&2
-        P=$OPTARG
-        ;;
-
-    c)
-        echo "use c=$OPTARG" >&2
-        c=$OPTARG
-        ;;
-
-    C)
-        echo "use C=$OPTARG" >&2
-        C=$OPTARG
-        ;;
-
-    d)
-        echo "use d=$OPTARG" >&2
-        d=$OPTARG
-        ;;
-
-    D)
-        echo "use D=$OPTARG" >&2
-        D=$OPTARG
-        ;;
-
-    B)
-        echo -e "BWA directory: $OPTARG" >&2
-        bwa_path_option="-B "$OPTARG
-        ;;
-
-    x)
-        x="-x" ##CHARLOTTE
-        ;;
-
-    y)
-        y="-x" ##CHARLOTTE
-        ;;
-
-    G)
-        echo -e "use genome : $OPTARG" >&2
-        genome=$OPTARG
-        ;;
-
-
-    e)
-        e="-e"
-        ;;
-
-    u)
-        echo "use at most $OPTARG cores" >&2
-        option_cores_gatb="-nb-cores $OPTARG"
-        option_cores_post_analysis="-t $OPTARG"
-        ;;
-
-    \?)
-        echo "Invalid option: -$OPTARG" >&2
-        exit 1
-        ;;
-
-    :)
-        echo "Option -$OPTARG requires an argument." >&2
-        exit 1
-        ;;
-    esac
-done
+# while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:u:a:v:" opt; do
+#     case $opt in
+#         A)
+#         option_phase_variants="-phasing"
+#         echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
+#         echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
+#         ;;
+#     X)
+#         stop_after_kissnp=1
+#         ;;
+#     w)
+#         wraith="true"
+#         ;;
+#     R)
+#         useref="true"
+#         output_coverage_option="-dont_output_first_coverage"
+#         ;;
+#
+#     a)
+#         max_ambigous_indel=$OPTARG
+#         ;;
+#
+#     v)
+#         verbose=$OPTARG
+#         ;;
+#
+#     s)
+#         option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
+#         echo ${option_max_symmetrical_crossroads}
+#         ;;
+#
+#
+#
+#     T)
+#         extend="-T"
+#         ;;
+#
+#     g)
+#         remove=0
+#         ;;
+#
+#
+#     n)
+#         genotyping=""
+#         ;;
+#
+#     l)
+#         l=""
+#         ;;
+#     h)
+#         help
+#         exit
+#         ;;
+#
+#     r)
+#         echo "use read set: $OPTARG" >&2
+#         read_sets=$OPTARG
+#         ;;
+#
+#
+#     b)
+#         echo "use branching strategy: $OPTARG" >&2
+#         b=$OPTARG
+#         ;;
+#
+#     p)
+#         echo "use prefix=$OPTARG" >&2
+#         prefix=$OPTARG
+#         ;;
+#
+#     k)
+#         echo "use k=$OPTARG" >&2
+#         k=$OPTARG
+#         ;;
+#
+#
+#     P)
+#         echo "use P=$OPTARG" >&2
+#         P=$OPTARG
+#         ;;
+#
+#     c)
+#         echo "use c=$OPTARG" >&2
+#         c=$OPTARG
+#         ;;
+#
+#     C)
+#         echo "use C=$OPTARG" >&2
+#         C=$OPTARG
+#         ;;
+#
+#     d)
+#         echo "use d=$OPTARG" >&2
+#         d=$OPTARG
+#         ;;
+#
+#     D)
+#         echo "use D=$OPTARG" >&2
+#         D=$OPTARG
+#         ;;
+#
+#     B)
+#         echo -e "BWA directory: $OPTARG" >&2
+#         bwa_path_option="-B "$OPTARG
+#         ;;
+#
+#     x)
+#         x="-x" ##CHARLOTTE
+#         ;;
+#
+#     y)
+#         y="-x" ##CHARLOTTE
+#         ;;
+#
+#     G)
+#         echo -e "use genome : $OPTARG" >&2
+#         genome=$OPTARG
+#         ;;
+#
+#
+#     e)
+#         e="-e"
+#         ;;
+#
+#     u)
+#         echo "use at most $OPTARG cores" >&2
+#         option_cores_gatb="-nb-cores $OPTARG"
+#         option_cores_post_analysis="-t $OPTARG"
+#         ;;
+#
+#     \?)
+#         echo "Invalid option: -$OPTARG" >&2
+#         exit 1
+#         ;;
+#
+#     :)
+#         echo "Option -$OPTARG requires an argument." >&2
+#         exit 1
+#         ;;
+#     esac
+# done
 #######################################################################
 #################### END GET OPTIONS            #######################
 #######################################################################
