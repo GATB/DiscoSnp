@@ -36,6 +36,7 @@ max_C=2147483647 #$((2**31-1))
 ###########################################################
 version="2.3.X"
 read_sets="" # A file of file(s)
+read_sets_kissreads=""
 prefix="discoRes" # all intermediate and final files will be written will start with this prefix
 k=31 # size of kmers
 b=0 # smart branching approach: bubbles in which both paths are equaly branching are  discarded, all others are accepted
@@ -52,7 +53,6 @@ x=""
 y=""
 output_coverage_option=""
 genotyping="-genotype"
-paired=""
 remove=1
 verbose=1
 stop_after_kissnp=0
@@ -98,22 +98,23 @@ function help {
     echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
     echo -e "\tOPTIONS:"
-    echo -e "\t\t -g | --graph                      reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t\t -X                                Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
+    echo -e "\t\t -k | --k_size value               Set the length of used kmers. Must fit the compiled value. Default=31"
+    echo -e "\t\t -c | --min_coverage value         Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
+    echo -e "\t\t -C | --max_coverage value         Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -b | --branching value. "
     echo -e "\t\t                                   0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
     echo -e "\t\t                                   1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
     echo -e "\t\t                                   2: No limitation on branching (lowers the precision, high recall)"
-    echo -e "\t\t -s | --symmetrical value.         In b2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
+    echo -e "\t\t -s | --symmetrical value.         In -b 2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
+    echo -e "\t\t -g | --graph                      reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t\t -X                                Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
     echo -e "\t\t -D | --deletion_max_size value    discoSnp++ will search for deletions of size from 1 to D included. Default=100"
     echo -e "\t\t -a | --ambiguity_max_size value   Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t\t -P | --max_snp_per_bubble value   discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
-    echo -e "\t\t -p | --prefix string.             All out files will start with this prefix. Default=\"discoRes\""
+    echo -e "\t\t --fof_mapping read_file_of_files  If this option is used this fof is used when mapping back reads on the predicted variants instead of the original file"     
+    echo -e "\t\t -p | --prefix string              All out files will start with this prefix. Default=\"discoRes\""
     echo -e "\t\t -l | --no_low_complexity          Remove low complexity bubbles"
-    echo -e "\t\t -k | --k_size value               Set the length of used kmers. Must fit the compiled value. Default=31"
     echo -e "\t\t -T | --contigs                    Extend found polymorphisms with contigs (default: extend with unitigs)"
-    echo -e "\t\t -c | --min_coverage value         Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
-    echo -e "\t\t -C | --max_coverage value         Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
     echo -e "\t\t -d | --max_substitutions value    Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
     echo -e "\t\t -n | --no_genotype                Do not compute the genotypes"
     echo -e "\t\t -u | --max_threads                Max number of used threads"
@@ -216,7 +217,15 @@ while :; do
         fi
         ;;
 
-
+    --fof_mapping)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            read_sets_kissreads=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+        
     -b|--branching)
         if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
             b=$2
@@ -340,33 +349,6 @@ while :; do
         echo "Option $1 requires an argument." >&2
         exit 1
         ;;
-        #
-        #
-        #
-        #
-        #
-        #
-        # -h|-\?|--help)
-        #     show_help    # Display a usage synopsis.
-        #     exit
-        #     ;;
-        # -f|--file)       # Takes an option argument; ensure it has been specified.
-        #     if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
-        #         file=$2
-        #         shift
-        #     else
-        #         die 'ERROR: "--file" requires a non-empty option argument.'
-        #     fi
-        #     ;;
-        # --file=?*)
-        #     file=${1#*=} # Delete everything up to "=" and assign the remainder.
-        #     ;;
-        # --file=)         # Handle the case of an empty --file=
-        #     die 'ERROR: "--file" requires a non-empty option argument.'
-        #     ;;
-        # -v|--verbose)
-        #     verbose=$((verbose + 1))  # Each -v adds 1 to verbosity.
-        #     ;;
         --)              # End of all options.
             shift
             break
@@ -382,164 +364,8 @@ while :; do
 done
 
 
-
-
-
-
-
-
-
-
-#######################################################################
-#################### GET OPTIONS                #######################
-#######################################################################
-# while getopts ":r:p:k:c:C:d:D:b:s:P:hATlRmgnwXxyeG:B:u:a:v:" opt; do
-#     case $opt in
-#         A)
-#         option_phase_variants="-phasing"
-#         echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
-#         echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
-#         ;;
-#     X)
-#         stop_after_kissnp=1
-#         ;;
-#     w)
-#         wraith="true"
-#         ;;
-#     R)
-#         useref="true"
-#         output_coverage_option="-dont_output_first_coverage"
-#         ;;
-#
-#     a)
-#         max_ambigous_indel=$OPTARG
-#         ;;
-#
-#     v)
-#         verbose=$OPTARG
-#         ;;
-#
-#     s)
-#         option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
-#         echo ${option_max_symmetrical_crossroads}
-#         ;;
-#
-#
-#
-#     T)
-#         extend="-T"
-#         ;;
-#
-#     g)
-#         remove=0
-#         ;;
-#
-#
-#     n)
-#         genotyping=""
-#         ;;
-#
-#     l)
-#         l=""
-#         ;;
-#     h)
-#         help
-#         exit
-#         ;;
-#
-#     r)
-#         echo "use read set: $OPTARG" >&2
-#         read_sets=$OPTARG
-#         ;;
-#
-#
-#     b)
-#         echo "use branching strategy: $OPTARG" >&2
-#         b=$OPTARG
-#         ;;
-#
-#     p)
-#         echo "use prefix=$OPTARG" >&2
-#         prefix=$OPTARG
-#         ;;
-#
-#     k)
-#         echo "use k=$OPTARG" >&2
-#         k=$OPTARG
-#         ;;
-#
-#
-#     P)
-#         echo "use P=$OPTARG" >&2
-#         P=$OPTARG
-#         ;;
-#
-#     c)
-#         echo "use c=$OPTARG" >&2
-#         c=$OPTARG
-#         ;;
-#
-#     C)
-#         echo "use C=$OPTARG" >&2
-#         C=$OPTARG
-#         ;;
-#
-#     d)
-#         echo "use d=$OPTARG" >&2
-#         d=$OPTARG
-#         ;;
-#
-#     D)
-#         echo "use D=$OPTARG" >&2
-#         D=$OPTARG
-#         ;;
-#
-#     B)
-#         echo -e "BWA directory: $OPTARG" >&2
-#         bwa_path_option="-B "$OPTARG
-#         ;;
-#
-#     x)
-#         x="-x" ##CHARLOTTE
-#         ;;
-#
-#     y)
-#         y="-x" ##CHARLOTTE
-#         ;;
-#
-#     G)
-#         echo -e "use genome : $OPTARG" >&2
-#         genome=$OPTARG
-#         ;;
-#
-#
-#     e)
-#         e="-e"
-#         ;;
-#
-#     u)
-#         echo "use at most $OPTARG cores" >&2
-#         option_cores_gatb="-nb-cores $OPTARG"
-#         option_cores_post_analysis="-t $OPTARG"
-#         ;;
-#
-#     \?)
-#         echo "Invalid option: -$OPTARG" >&2
-#         exit 1
-#         ;;
-#
-#     :)
-#         echo "Option -$OPTARG requires an argument." >&2
-#         exit 1
-#         ;;
-#     esac
-# done
-#######################################################################
-#################### END GET OPTIONS            #######################
-#######################################################################
-
 if [ -z "$read_sets" ]; then
-    echo "You must provide at least one read set (-r)"
+    echo "You must provide at least one read set (-r|--fof)"
     help
     exit 1
 fi
@@ -565,6 +391,7 @@ else
 fi
 kissprefix=${h5prefix}_D_${D}_P_${P}_b_${b}
 readsFilesDump=${prefix}_read_files_correspondance.txt
+mapped_readsFilesDump=${prefix}_mapped_read_files_correspondance.txt
 
 
 #######################################
@@ -599,6 +426,16 @@ echo -e "\t\t k="$k
 echo -e "\t\t b="$b
 echo -e "\t\t d="$d
 echo -e "\t\t D="$D
+echo -e "\t\t s="$option_max_symmetrical_crossroads
+echo -e "\t\t P="$P
+if [ ! -z "${read_sets_kissreads}" ]; then
+    echo -e "\t\t fof_mapping read_file_of_files="${read_sets_kissreads}
+fi
+echo -e "\t\t p="$prefix
+echo -e "\t\t G="$genome
+echo -e "\t\t e="$e
+
+
 
 echo -e -n "\t starting date="
 date
@@ -612,7 +449,9 @@ echo
 #################### DUMP READ FILES  #######################
 #############################################################
 ${read_file_names_bin} -in $read_sets > $readsFilesDump
-
+if [ ! -z "${read_sets_kissreads}" ]; then
+    ${read_file_names_bin} -in ${read_sets_kissreads} > $mapped_readsFilesDump
+fi
 
 
 ############################################################
@@ -707,6 +546,9 @@ fi
 i=5 #avoid modidy this (or increase this if memory needed by kissread is too high. Min 1. Large i (7-10) decreases memory and increases time).
 index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
+if [ ! -z "${read_sets_kissreads}" ]; then
+    read_sets=${read_sets_kissreads}
+fi
 kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
 
 echo $kissreadsCmd
