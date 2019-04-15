@@ -93,45 +93,72 @@ function help {
     echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
     echo "Version "$version
     echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
-    echo -e "\tMANDATORY:"
-    echo -e "\t\t -r|--fof read_file_of_files"
-    echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
+    echo -e "MANDATORY"
+    echo -e "\t -r|--fof <file name of a file of file(s)>"
+    echo -e "\t\t The input read files indicated in a file of file(s)"
+    echo -e "\t\t Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
-    echo -e "\tOPTIONS:"
-    echo -e "\t\t -k | --k_size value               Set the length of used kmers. Must fit the compiled value. Default=31"
-    echo -e "\t\t -c | --min_coverage value         Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation. Default=3"
-    echo -e "\t\t -C | --max_coverage value         Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
-    echo -e "\t\t -b | --branching value. "
-    echo -e "\t\t                                   0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes). Default value"
-    echo -e "\t\t                                   1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
-    echo -e "\t\t                                   2: No limitation on branching (lowers the precision, high recall)"
-    echo -e "\t\t -s | --symmetrical value.         In -b 2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
-    echo -e "\t\t -g | --graph                      reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t\t -X                                Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
-    echo -e "\t\t -D | --deletion_max_size value    discoSnp++ will search for deletions of size from 1 to D included. Default=100"
-    echo -e "\t\t -a | --ambiguity_max_size value   Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-    echo -e "\t\t -P | --max_snp_per_bubble value   discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
-    echo -e "\t\t --fof_mapping read_file_of_files  If this option is used this fof is used when mapping back reads on the predicted variants instead of the original file"     
-    echo -e "\t\t -p | --prefix string              All out files will start with this prefix. Default=\"discoRes\""
-    echo -e "\t\t -l | --no_low_complexity          Remove low complexity bubbles"
-    echo -e "\t\t -T | --contigs                    Extend found polymorphisms with contigs (default: extend with unitigs)"
-    echo -e "\t\t -d | --max_substitutions value    Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
-    echo -e "\t\t -n | --no_genotype                Do not compute the genotypes"
-    echo -e "\t\t -u | --max_threads                Max number of used threads"
-    echo -e "\t\t -v                                Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+    echo -e "\nOPTIONS"
+    echo -e "\t -k | --k_size value <int value>"
+    echo -e "\t\t Set the length of used kmers. Must fit the compiled value."
+    echo -e "\t\t Default=31"
+    echo -e "\t -c | --min_coverage value <int value>"
+    echo -e "\t\t Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold)." 
+    echo -e "\t\t This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation."
+    echo -e "\t\t Default=3"
+    echo -e "\t -C | --max_coverage value <int value in 0, 1 or 2>"
+    echo -e "\t\t Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage)."
+    echo -e "\t\t Default=2^31-1"
+    echo -e "\t -b | --branching value. "
+    echo -e "\t\t 0: forbid variants for which any of the two paths is branching (high precision, lowers the recall in complex genomes)."
+    echo -e "\t\t Default value"
+    echo -e "\t\t 1: (smart branching) forbid SNPs for which the two paths are branching (e.g. the two paths can be created either with a 'A' or a 'C' at the same position"
+    echo -e "\t\t2: No limitation on branching (lowers the precision, high recall)"
+    echo -e "\t -s | --symmetrical value <int value>"
+    echo -e "\t\t In -b 2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
+    echo -e "\t -g | --graph <file name>"
+    echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
+    echo -e "\t -D | --deletion_max_size <int>"
+    echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t -a | --ambiguity_max_size <int>"
+    echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+    echo -e "\t -P | --max_snp_per_bubble <int>"
+    echo -e "\t\t discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
+    echo -e "\t --fof_mapping <file name of a file of file(s)>"
+    echo -e "\t\t If this option is used this fof is used when mapping back reads on the predicted variants instead of the original fof file provided by -r|--fof option"     
+    echo -e "\t -p | --prefix <string>"
+    echo -e "\t\t All out files will start with this prefix. Default=\"discoRes\""
+    echo -e "\t -l | --no_low_complexity"
+    echo -e "\t\t Remove low complexity bubbles"
+    echo -e "\t -T | --contigs"
+    echo -e "\t\t Extend found polymorphisms with contigs (default: extend with unitigs)"
+    echo -e "\t -d | --max_substitutions <int>"
+    echo -e "\t\t Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+    echo -e "\t -n | --no_genotype"
+    echo -e "\t\t Do not compute the genotypes"
+    echo -e "\t -u | --max_threads <int>"
+    echo -e "\t\t Max number of used threads. 0 means all threads"
 
 
-    echo -e "\tREFERENCE GENOME AND/OR VCF CREATION OPTIONS"
-    echo -e "\t\t -G | --reference_genome           Reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
-    echo -e "\t\t -R                                Use the reference file also in the variant calling, not only for mapping results"
-    echo -e "\t\t -B | --bwa_path                   bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
-    echo -e "\t\t\t Optional unless option -G used and bwa is not in the binary path."
-    echo -e "\t\t -e                                Map variant predictions on reference genome with their unitig or contig extensions."
-    echo -e "\t\t\t Useless unless mapping on reference genome is required (option -G). "
+    echo -e "\nREFERENCE GENOME AND/OR VCF CREATION OPTIONS"
+    echo -e "\t -G | --reference_genome <file name>"
+    echo -e "\t\t Reference genome file (fasta, fastq, gzipped or nor). In absence of this file the VCF created by VCF_creator won't contain mapping related results."
+    echo -e "\t -R"
+    echo -e "\t\t Use the reference file also in the variant calling, not only for mapping results"
+    echo -e "\t -B | --bwa_path <directory name>"
+    echo -e "\t\t bwa path. e.g. /home/me/my_programs/bwa-0.7.12/ (note that bwa must be pre-compiled)"
+    echo -e "\t\t Optional unless option -G used and bwa is not in the binary path."
+    echo -e "\t -e\t Map variant predictions on reference genome with their unitig or contig extensions."
+    echo -e "\t\t Useless unless mapping on reference genome is required (option -G). "
     echo 
     
-    echo -e "\t\t -w                                Wraith mode: only show all discoSnp++ commands without running them"
-    echo -e "\t\t -h | --help                       Prints this message and exist\n"
+    echo -e "\t -w\t Wraith mode: only show all discoSnp++ commands without running them"
+    echo -e "\t -v <0 or 1>"
+    echo -e "\t\t Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+    echo -e "\t -h | --help"
+    echo -e "\t\t Prints this message and exist\n"
+    
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
 
@@ -417,23 +444,23 @@ cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
 
-echo -e "\tRunning discoSnp++ "$version", in directory "$EDIR" with following parameters:"
-echo -e "\t\t read_sets="$read_sets
-echo -e "\t\t prefix="$h5prefix
-echo -e "\t\t c="$c
-echo -e "\t\t C="$C
-echo -e "\t\t k="$k
-echo -e "\t\t b="$b
-echo -e "\t\t d="$d
-echo -e "\t\t D="$D
-echo -e "\t\t s="$option_max_symmetrical_crossroads
-echo -e "\t\t P="$P
+echo -e "Running discoSnp++ "$version", in directory "$EDIR" with following parameters:"
+echo -e "\t read_sets="$read_sets
+echo -e "\t prefix="$h5prefix
+echo -e "\t c="$c
+echo -e "\t C="$C
+echo -e "\t k="$k
+echo -e "\t b="$b
+echo -e "\t d="$d
+echo -e "\t D="$D
+echo -e "\t s="$option_max_symmetrical_crossroads
+echo -e "\t P="$P
 if [ ! -z "${read_sets_kissreads}" ]; then
-    echo -e "\t\t fof_mapping read_file_of_files="${read_sets_kissreads}
+    echo -e "\t fof_mapping read_file_of_files="${read_sets_kissreads}
 fi
-echo -e "\t\t p="$prefix
-echo -e "\t\t G="$genome
-echo -e "\t\t e="$e
+echo -e "\t p="$prefix
+echo -e "\t G="$genome
+echo -e "\t e="$e
 
 
 
@@ -463,9 +490,9 @@ fi
 
 if [ ! -e $h5prefix.h5 ]; then
     T="$(date +%s)"
-    echo -e "\t############################################################"
-    echo -e "\t#################### GRAPH CREATION  #######################"
-    echo -e "\t############################################################"
+    echo -e "############################################################"
+    echo -e "#################### GRAPH CREATION  #######################"
+    echo -e "############################################################"
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
     echo ${graphCmd}
@@ -491,9 +518,9 @@ fi
 #################### KISSNP2   #######################
 ######################################################
 T="$(date +%s)"
-echo -e "\t############################################################"
-echo -e "\t#################### KISSNP2 MODULE  #######################"
-echo -e "\t############################################################"
+echo -e "############################################################"
+echo -e "#################### KISSNP2 MODULE  #######################"
+echo -e "############################################################"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo ${kissnp2Cmd}
 if [[ "$wraith" == "false" ]]; then
@@ -515,7 +542,7 @@ then
         echo "No polymorphism predicted by discoSnp++"
         echo -e -n "\t ending date="
         date
-        echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
         exit 
     fi
 fi
@@ -525,7 +552,7 @@ if [ $stop_after_kissnp -eq 1 ]; then
     echo "Results (with no read coverage) are located here: "$kissprefix.fa
     echo -e -n "\t ending date="
     date
-    echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+    echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
     exit 
 fi
 
@@ -535,9 +562,9 @@ fi
 
 T="$(date +%s)"
 echo
-echo -e "\t#############################################################"
-echo -e "\t#################### KISSREADS MODULE #######################"
-echo -e "\t#############################################################"
+echo -e "#############################################################"
+echo -e "#################### KISSREADS MODULE #######################"
+echo -e "#############################################################"
 
 smallk=$k
 if (( $smallk>31 ))  ; then
@@ -570,9 +597,9 @@ T="$(($(date +%s)-T))"
 #################### SORT AND FORMAT  RESULTS #########################
 #######################################################################
 
-echo -e "\t###############################################################"
-echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
-echo -e "\t###############################################################"
+echo -e "###############################################################"
+echo -e "#################### SORT AND FORMAT  RESULTS #################"
+echo -e "###############################################################"
 if [[ "$wraith" == "false" ]]; then
     sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
 fi
@@ -609,9 +636,9 @@ rm -rf ${read_sets}_${kissprefix}_removemeplease
 #######################################################################
 
 T="$(date +%s)"
-echo -e "\t###############################################################"
-echo -e "\t#################### CREATE VCF         #######################"
-echo -e "\t###############################################################"
+echo -e "###############################################################"
+echo -e "#################### CREATE VCF         #######################"
+echo -e "###############################################################"
 
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
     vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
@@ -642,19 +669,19 @@ fi
 T="$(($(date +%s)-T))"
 echo "Vcf creation time in seconds: ${T}"
 
-echo -e "\t###############################################################"
-echo -e "\t#################### DISCOSNP++ FINISHED ######################"
-echo -e "\t###############################################################"
+echo -e "###############################################################"
+echo -e "#################### DISCOSNP++ FINISHED ######################"
+echo -e "###############################################################"
 Ttot="$(($(date +%s)-Ttot))"
 echo "DiscoSnp++ total time in seconds: ${Ttot}"
-echo -e "\t################################################################################################################"
-echo -e "\t fasta of predicted variant is \""${kissprefix}_coherent.fa"\""
+echo -e "################################################################################################################"
+echo -e " fasta of predicted variant is \""${kissprefix}_coherent.fa"\""
 
 if [ -z "$genome" ]; then
-    echo -e "\t Ghost VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
+    echo -e " Ghost VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
 else
-    echo -e "\t VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
-    echo -e "\t An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
+    echo -e " VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
+    echo -e " An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
 fi
-echo -e "\t Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-echo -e "\t################################################################################################################"
+echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
+echo -e "################################################################################################################"
