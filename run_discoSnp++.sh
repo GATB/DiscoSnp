@@ -117,7 +117,7 @@ function help {
     echo -e "\t -s | --symmetrical value <int value>"
     echo -e "\t\t In -b 2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
     echo -e "\t -g | --graph <file name>"
-    echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t\t Reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
     echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
     echo -e "\t -D | --deletion_max_size <int>"
     echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
@@ -139,6 +139,7 @@ function help {
     echo -e "\t\t Do not compute the genotypes"
     echo -e "\t -u | --max_threads <int>"
     echo -e "\t\t Max number of used threads. 0 means all threads"
+    echo -e "\t\t default 0"
 
 
     echo -e "\nREFERENCE GENOME AND/OR VCF CREATION OPTIONS"
@@ -513,6 +514,11 @@ else
     echo -e "File $h5prefix.h5 exists. We use it as input graph"
 fi
 
+cleanCmd="rm -rf trashme_*"
+echo ${cleanCmd}
+if [[ "$wraith" == "false" ]]; then
+    ${cleanCmd}
+fi
 
 ######################################################
 #################### KISSNP2   #######################

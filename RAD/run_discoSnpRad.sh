@@ -25,7 +25,10 @@
 
 
 
-
+die() {
+    printf '%s\n' "$1" >&2
+    exit 1
+}
 
 
 
@@ -83,10 +86,7 @@ fi
 
 chmod u+x $EDIR/../scripts/*.sh $EDIR/scripts/*.sh $EDIR/run_discoSnpRad.sh 2>/dev/null # Usefull for binary distributions
 
-useref=""
 wraith="false"
-bwa_path_option=""
-bwa_distance=4
 max_truncated_path_length_difference=0
 option_phase_variants=""
 #######################################################################
@@ -97,161 +97,261 @@ function help {
     echo " ************"
     echo " *** HELP ***"
     echo " ************"
-    echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
+    echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
     echo "Version "$version
-    echo "Usage: ./run_discoSnpRad.sh -r read_file_of_files [OPTIONS]"
-    echo -e "\tMANDATORY:"
-    echo -e "\t\t -r read_file_of_files"
-    echo -e "\t\t    Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
-    echo -e "\t\t -S **absolute** path to short_read_connector directory, containing the ``short_read_connector.sh'' file. "
-    echo -e "\t\t\t -Note1: short read connector must be compiled."
-    echo -e "\t\t\t -Note2: if this option is missing, discoSnpRad will still however provide a fasta file containing SNPs and INDELS, that won't be clustered by locus" 
-    echo -e "\tDISCOSNPRAD OPTIONS:"
-    echo -e "\t\t -g: reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-#    echo -e "\t\t -m value. Maximal number of symmetrical crossroadsds traversed in one bubble. (-m 0 is equivalent to -b 2 option - -1 is equivalent to unlimited). [default '5']"
-    echo -e "\t\t -R: low recall / high precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
-    echo -e "\t\t -D value. discoSnpRad will search for deletions of size from 1 to D included. Default=3 (for RAD)"
-    echo -e "\t\t -a value. Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-    echo -e "\t\t -L value. Longest accepted difference length between two paths of a truncated bubble [default '0']"
-    echo -e "\t\t -P value. discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
-    echo -e "\t\t -p prefix. All out files will start with this prefix. Default=\"discoRad\""
-    echo -e "\t\t -l: remove low complexity bubbles"
-    echo -e "\t\t -k value. Set the length of used kmers. Must fit the compiled value. Default=31"
-    echo -e "\t\t -c value. Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold). This coverage can be automatically detected per read set or specified per read set, see the documentation. Default=auto"
-    echo -e "\t\t -C value. Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage). Default=2^31-1"
-    echo -e "\t\t -d value. Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=10 (for RAD)"
-    echo -e "\t\t -u: max number of used threads"
-    
-    
-    echo -e "\t\t -w: Wraith mode: only show all discoSnp++ commands without running them"
-    echo -e "\t\t -v: verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
-    # echo -e "\t\t -x: variant detection radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
-    # echo -e "\t\t -y: variant coverage radseq optimization" #CHARLOTTE -- NOW CALLED BY DEFAULT USING SCRIP run_discoSnpRad
+    echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
+    echo -e "MANDATORY"
+    echo -e "\t -r|--fof <file name of a file of file(s)>"
+    echo -e "\t\t The input read files indicated in a file of file(s)"
+    echo -e "\t\t Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
 
+    echo -e "\t -S|--src_path <directory>"
+    echo -e "\t\t **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
+    echo -e "\t\t -Note1: short read connector must be compiled."
+    echo -e "\t\t -Note2: if this option is missing, discoSnpRad will still however provide a fasta file containing SNPs and INDELS, that won't be clustered by locus" 
 
-    echo 
-    echo -e "\t\t -h: Prints this message and exist"
+    echo -e "\nOPTIONS"
+    echo -e "\t -k | --k_size value <int value>"
+    echo -e "\t\t Set the length of used kmers. Must fit the compiled value."
+    echo -e "\t\t Default=31"
+    echo -e "\t -c | --min_coverage value <int value>"
+    echo -e "\t\t Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold)." 
+    echo -e "\t\t This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation."
+    echo -e "\t\t Default=3"
+    echo -e "\t -C | --max_coverage value <int value in 0, 1 or 2>"
+    echo -e "\t\t Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage)."
+    echo -e "\t\t Default=2^31-1"
+    
+    echo -e "\t --high_precision | -R"
+    echo -e "\t\t low recall / high precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
+    
+    echo -e "\t -L | --max_diff_len <integer>"
+    echo -e "\t\t Longest accepted difference length between two paths of a truncated bubble"
+    echo -e "\t\t default 0"
+    
+    echo -e "\t -g | --graph <file name>"
+    echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
+    echo -e "\t -D | --deletion_max_size <int>"
+    echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t -a | --ambiguity_max_size <int>"
+    echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+    echo -e "\t -P | --max_snp_per_bubble <int>"
+    echo -e "\t\t discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
+    echo -e "\t -p | --prefix <string>"
+    echo -e "\t\t All out files will start with this prefix. Default=\"discoRes\""
+    echo -e "\t -l | --no_low_complexity"
+    echo -e "\t\t Remove low complexity bubbles"
+    echo -e "\t -d | --max_substitutions <int>"
+    echo -e "\t\t Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=1"
+    echo -e "\t -u | --max_threads <int>"
+    echo -e "\t\t Max number of used threads. 0 means all threads"
+    echo -e "\t\t default 0"
+
+    
+    echo -e "\t -w\t Wraith mode: only show all discoSnp++ commands without running them"
+    echo -e "\t -v <0 or 1>"
+    echo -e "\t\t Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+    echo -e "\t -h | --help"
+    echo -e "\t\t Prints this message and exist\n"
+    
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
+
+
 
 
 #######################################################################
 #################### GET OPTIONS                #######################
 #######################################################################
 
-while getopts ":r:p:k:c:C:d:D:b:s:P:S:L:htTRwlgAu:a:v:" opt; do
-    case $opt in
-        A) 
-        option_phase_variants="-phasing"
-        echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
-        echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
+
+
+while :; do
+    case $1 in
+    -w)
+        wraith="true"
         ;;
-    
-    L)
-        max_truncated_path_length_difference=$OPTARG
-        ;;
-    S)
-        short_read_connector_path=$OPTARG
-        ;;
-    a)
-        max_ambigous_indel=$OPTARG
-        ;;
-       
-    v)
-        verbose=$OPTARG
+    -S|--src_path)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+            short_read_connector_path=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-#    s)
-#        option_max_symmetrical_crossroads="-max_symmetrical_crossroads "$OPTARG
-#        echo ${option_max_symmetrical_crossroads}
-#        ;;
-    g)
+    -a|--ambiguity_max_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+            max_ambigous_indel=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+       
+    -v)        
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            verbose=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -R|--high_precision)
+        option_max_symmetrical_crossroads=0
+        ;; 
+
+    -L | --max_diff_len)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            max_truncated_path_length_difference=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -g|--graph)
         remove=0
         ;;
 
-    w)
-        wraith="true"
-        ;;
-    l)
+    -l|--no_low_complexity)
         l=""
         ;;
-    h)
+        
+    -h|-\?|--help)
         help
         exit 
         ;;
 
-    r)
-        echo "use read set: $OPTARG" >&2
-        read_sets=$OPTARG
+    -r|--fof)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            read_sets=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    R)
-        echo "Low recall mode" >&2
-        option_max_symmetrical_crossroads=0
-        ;;
         
-    m) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
-        echo "max_symmetrical_crossroads: $OPTARG" >&2
-        option_max_symmetrical_crossroads=$OPTARG
-        ;;
-    
-    R) # Take care, this option is no more in the help, but can by used for development purposes. This must be used without the -R option.
-        echo "High recall mode: max_symmetrical_crossroads: $OPTARG" >&2
-        option_max_symmetrical_crossroads=5
-        ;;
-
-    p)
-        echo "use prefix=$OPTARG" >&2
-        prefix=$OPTARG
+    -p|--prefix)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            prefix=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    k)
-        echo "use k=$OPTARG" >&2
-        k=$OPTARG
+    -k | --k_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            k=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
 
-    P)
-        echo "use P=$OPTARG" >&2
-        P=$OPTARG
+    -P|--max_snp_per_bubble)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            P=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    c)
-        echo "use c=$OPTARG" >&2
-        c=$OPTARG
+    -c|--min_coverage)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            c=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    C)
-        echo "use C=$OPTARG" >&2
-        C=$OPTARG
+    -C|--max_coverage)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            C=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    d)
-        echo "use d=$OPTARG" >&2
-        d=$OPTARG
+    -d|--max_substitutions)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            d=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    D)
-        echo "use D=$OPTARG" >&2
-        D=$OPTARG
+    -D|--deletion_max_size)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            D=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
-    u)
-        echo "use at most $OPTARG cores" >&2
-        option_cores_gatb="-nb-cores $OPTARG"
-        option_cores_post_analysis="-t $OPTARG"
+    -x)
+        x="-x" ##CHARLOTTE
         ;;
 
-    \?)
-        echo "Invalid option: -$OPTARG" >&2
+    -y)
+        y="-x" ##CHARLOTTE
+        ;;
+
+    -G|--reference_genome)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            genome=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+
+    -e)
+        e="-e"
+        ;;
+
+    -u|--max_threads)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            option_cores_gatb="-nb-cores $2"
+            option_cores_post_analysis="-t $2"
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    -?*)
+        printf 'WARN: Unknown option (exit): %s\n' "$1" >&2
         exit 1
         ;;
 
     :)
-        echo "Option -$OPTARG requires an argument." >&2
+        echo "Option $1 requires an argument." >&2
         exit 1
         ;;
+        --)              # End of all options.
+            shift
+            break
+            ;;
+        -?*)
+            printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+            ;;
+        *)               # Default case: No more options, so break out of the loop.
+            break
     esac
+
+    shift
 done
 #######################################################################
 #################### END GET OPTIONS            #######################
@@ -265,6 +365,7 @@ if [ -z "$read_sets" ]; then
 fi
 
 src_file="$short_read_connector_path/short_read_connector.sh"
+echo $src_file
 
 
 if [ -f "$src_file" ]; then
@@ -377,6 +478,11 @@ else
     echo -e "File $h5prefix.h5 exists. We use it as input graph"
 fi
 
+cleanCmd="rm -rf trashme_*"
+echo ${cleanCmd}
+if [[ "$wraith" == "false" ]]; then
+    ${cleanCmd}
+fi
 
 ######################################################
 #################### KISSNP2   #######################
