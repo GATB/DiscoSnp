@@ -97,9 +97,9 @@ function help {
     echo " ************"
     echo " *** HELP ***"
     echo " ************"
-    echo "run_discoSnp++.sh, a pipelining kissnp2 and kissreads for calling SNPs and small indels from NGS reads without the need of a reference genome"
+    echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
     echo "Version "$version
-    echo "Usage: ./run_discoSnp++.sh -r read_file_of_files [OPTIONS]"
+    echo "Usage: ./run_discoSnpRad.sh --fof read_file_of_files --src_path <directory> [OPTIONS]"
     echo -e "MANDATORY"
     echo -e "\t -r|--fof <file name of a file of file(s)>"
     echo -e "\t\t The input read files indicated in a file of file(s)"
@@ -131,13 +131,12 @@ function help {
     
     echo -e "\t -g | --graph <file name>"
     echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
     echo -e "\t -D | --deletion_max_size <int>"
-    echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t\t discoSnpRad will search for deletions of size from 1 to D included. Default=100"
     echo -e "\t -a | --ambiguity_max_size <int>"
     echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t -P | --max_snp_per_bubble <int>"
-    echo -e "\t\t discoSnp++ will search up to P SNPs in a unique bubble. Default=3"
+    echo -e "\t\t discoSnpRad will search up to P SNPs in a unique bubble. Default=3"
     echo -e "\t -p | --prefix <string>"
     echo -e "\t\t All out files will start with this prefix. Default=\"discoRes\""
     echo -e "\t -l | --no_low_complexity"
@@ -149,7 +148,7 @@ function help {
     echo -e "\t\t default 0"
 
     
-    echo -e "\t -w\t Wraith mode: only show all discoSnp++ commands without running them"
+    echo -e "\t -w\t Wraith mode: only show all discoSnpRad commands without running them"
     echo -e "\t -v <0 or 1>"
     echo -e "\t\t Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
     echo -e "\t -h | --help"
