@@ -20,8 +20,20 @@ import random
 import re #regular expressions
 import time
 
+''' Usages in discoSnp pipeline scripts (RAD/scripts/discoRAD_finalization.sh):
 
-# IMPORTANT : for the moment only SNPs to test time saving.
+    If no clustering:
+    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa -o disco_bubbles_coherent.vcf -m 0.95 -r 0.4
+    end of the pipeline
+    
+    If clustering:
+    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa -f -o disco_bubbles_coherent_filtered.fa_removemeplease -m 0.95 -r 0.4
+    clustering with file disco_bubbles_coherent_filtered.fa_removemeplease
+    python3 create_filtered_vcf.py -i disco_bubbles_coherent_filtered_clustered.fa_removemeplease -o disco_bubbles_coherent_clustered.vcf
+    rm -f disco_bubbles_coherent_filtered.fa_removemeplease
+    end of pipeline
+    '''
+
 
 def usage():
     '''Usage'''
@@ -148,6 +160,7 @@ def main():
                     # Header higher path
                     line = line.strip()
                     splitted_1 = line.split("|")
+                    #fasta_4lines = splitted_1[0] + "\n"  #simplified headers for fasta_only and src
 
                     ## FILTERING
                     #filter rank
@@ -164,16 +177,20 @@ def main():
                     nb_kept_variants += 1
                 else:
                     fasta_4lines += line
+                #if keep_variant and line_count == 2: #simplified headers for fasta_only and src
+                    #fasta_4lines += line
                 
                 if keep_variant and line_count == 3:
                     #Header lower path
                     line = line.strip()
                     splitted_2 = line.split("|")
+                    #fasta_4lines += splitted_2[0] + "\n"  #simplified headers for fasta_only and src
 
                 if line_count == 4:
                     line_count = 0
                     if keep_variant:
                         if fasta_only:
+                            #fasta_4lines += line   #simplified headers for fasta_only and src
                             filout.write(fasta_4lines)
                         else:
                             #now format in vcf format
