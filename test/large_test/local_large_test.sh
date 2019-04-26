@@ -10,8 +10,8 @@ if [ $? -ne 0 ] ; then
 fi
 # Test the .fa 
 # The sequence ids and orders are not conserved due to parallelisation. This explains why we separate sequences from headers and why we remove ids
-grep -v ">" ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.fa | sort > ref
-grep -v ">" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.fa | sort > created
+grep -v ">" ref_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.fa | sort > ref
+grep -v ">" discoRes_k_31_c_3_D_100_P_1_b_0_coherent.fa | sort > created
 diff ref created
 if [ $? -ne 0 ] ; then
        echo "*** Default option FAILURE:"
@@ -19,8 +19,8 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 
-grep ">" ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.fa |cut -d "|" -f 2- | sort > ref
-grep ">" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.fa |cut -d "|" -f 2- | sort > created
+grep ">" ref_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.fa |cut -d "|" -f 2- | sort > ref
+grep ">" discoRes_k_31_c_3_D_100_P_1_b_0_coherent.fa |cut -d "|" -f 2- | sort > created
 diff ref created
 if [ $? -ne 0 ] ; then
        echo "*** Default option FAILURE:"
@@ -29,8 +29,8 @@ if [ $? -ne 0 ] ; then
 fi
 
 # Test the .vcf headers 
-grep "^#" ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
+grep "^#" ref_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** Default option FAILURE:"
@@ -40,8 +40,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/' ref_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** Default option FAILURE:"
@@ -61,8 +61,8 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 # Test the .vcf headers 
-grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
+grep "^#" ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -72,8 +72,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/'  ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
-awk '!/#/'  discoRes_k_31_c_auto_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
+awk '!/#/'  discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -84,8 +84,8 @@ fi
 
 
 # Test the for IGV .vcf headers 
-grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | grep -v filedate > created
+grep "^#" ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -95,8 +95,8 @@ fi
 
 
 # Test the for IGV .vcf content
-awk '!/#/' ref_with_mapping_discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_auto_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -118,8 +118,8 @@ if [ $? -ne 0 ] ; then
 fi
 # Test the .fa 
 # The sequence ids and orders are not conserved due to parallelisation. This explains why we separate sequences from headers and why we remove ids
-grep -v ">" ref_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.fa | sort > ref
-grep -v ">" discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.fa | sort > created
+grep -v ">" ref_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.fa | sort > ref
+grep -v ">" discoRes_k_31_c_3_D_100_P_10_b_0_coherent.fa | sort > created
 diff ref created
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS FAILURE:"
@@ -127,8 +127,8 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 
-grep ">" ref_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.fa |cut -d "|" -f 2- | sort > ref
-grep ">" discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.fa |cut -d "|" -f 2- | sort > created
+grep ">" ref_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.fa |cut -d "|" -f 2- | sort > ref
+grep ">" discoRes_k_31_c_3_D_100_P_10_b_0_coherent.fa |cut -d "|" -f 2- | sort > created
 diff ref created
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS FAILURE:"
@@ -137,8 +137,8 @@ if [ $? -ne 0 ] ; then
 fi
 
 # Test the .vcf headers 
-grep "^#" ref_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | grep -v filedate > created
+grep "^#" ref_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS FAILURE:"
@@ -148,8 +148,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/' ref_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS FAILURE:"
@@ -169,8 +169,8 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 # Test the .vcf headers 
-grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | grep -v filedate > created
+grep "^#" ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
@@ -180,8 +180,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/'  ref_with_mapping_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
-awk '!/#/'  discoRes_k_31_c_auto_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
+awk '!/#/'  discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
@@ -192,8 +192,8 @@ fi
 
 
 # Test the for IGV .vcf headers 
-grep "^#" ref_with_mapping_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent_for_IGV.vcf | grep -v filedate > ref
-grep "^#" discoRes_k_31_c_auto_D_100_P_10_b_0_coherent_for_IGV.vcf | grep -v filedate > created
+grep "^#" ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | grep -v filedate > ref
+grep "^#" discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | grep -v filedate > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
@@ -203,8 +203,8 @@ fi
 
 
 # Test the for IGV .vcf content
-awk '!/#/' ref_with_mapping_discoRes_k_31_c_auto_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_auto_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
@@ -226,8 +226,8 @@ fi
 
 # Test the .fa
 # The sequence ids and orders are not conserved due to parallelisation. This explains why we separate sequences from headers and why we remove ids
-grep -v ">" rad_option_test/radref_k_31_c_auto_D_0_P_4_b_2_coherent.fa | sort -n > radref
-grep -v ">" radtest_k_31_c_auto_D_0_P_4_b_2_coherent.fa | sort -n > radtest
+grep -v ">" rad_option_test/radref_k_31_c_3_D_0_P_4_b_2_coherent.fa | sort -n > radref
+grep -v ">" radtest_k_31_c_3_D_0_P_4_b_2_coherent.fa | sort -n > radtest
 diff radref radtest
 if [ $? -ne 0 ] ; then
        echo "*** With truncated bubbles FAILURE:"
@@ -235,8 +235,8 @@ if [ $? -ne 0 ] ; then
        exit 1
 fi
 
-grep ">" rad_option_test/radref_k_31_c_auto_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radref
-grep ">" radtest_k_31_c_auto_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radtest
+grep ">" rad_option_test/radref_k_31_c_3_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radref
+grep ">" radtest_k_31_c_3_D_0_P_4_b_2_coherent.fa |cut -d "|" -f 2- | sort -n > radtest
 diff radref radtest
 if [ $? -ne 0 ] ; then
        echo "*** With truncated bubbles FAILURE:"
