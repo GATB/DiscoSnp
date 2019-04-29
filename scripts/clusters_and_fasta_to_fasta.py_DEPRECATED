@@ -22,7 +22,7 @@ def store_clusters(cluster_file):
     clusters.close()
     return read_id_to_cluster_id, cluster_id_to_cluster_size
         
-def assign_cluster_id_to_sequence_and_print(fasta_file, read_id_to_cluster_id,cluster_id_to_cluster_size):
+def assign_cluster_id_to_sequence_and_print(fasta_file, read_id_to_cluster_id, cluster_id_to_cluster_size):
     fasta=open(fasta_file,"r")
     read_id=-1
     while True: 

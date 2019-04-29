@@ -92,7 +92,7 @@ echo "############################################################"
 echo "#Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
 
 disco_filtered=${rawdiscofile_base}_filtered
-cmdFilter="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
+cmdFilter="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
 echo $cmdFilter
 if [[ "$wraith" == "false" ]]; then
     eval $cmdFilter
@@ -162,36 +162,36 @@ then
     echo "there was a problem with quick_hierarchical_clustering, exit"
     exit 1
 fi
-# Generate a .fa file with clustering information
-disco_final="${disco_filtered}_with_clusters"
-cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${disco_filtered}.fa ${disco_simpler}.cluster"
-echo $cmd " > ${disco_final}.fa"
-if [[ "$wraith" == "false" ]]; then
-    eval $cmd "> ${disco_final}.fa"
-fi
-if [ $? -ne 0 ]
-then
-    echo "there was a problem when generating a .fa file with clustering information, exit"
-    exit 1
-fi
+# # Generate a .fa file with clustering information
+# disco_final="${disco_filtered}_with_clusters"
+# cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${disco_filtered}.fa ${disco_simpler}.cluster"
+# echo $cmd " > ${disco_final}.fa"
+# if [[ "$wraith" == "false" ]]; then
+#     eval $cmd "> ${disco_final}.fa"
+# fi
+# if [ $? -ne 0 ]
+# then
+#     echo "there was a problem when generating a .fa file with clustering information, exit"
+#     exit 1
+# fi
 
 ######################### VCF generation with cluster information ###########################
-
-echo "############################################################"
-echo "###################### OUTPUT VCF ##########################"
-echo "############################################################"
-
-cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file} 2>&1 "
-echo $cmdVCF
-if [[ "$wraith" == "false" ]]; then
-    eval $cmdVCF
-fi
-
-if [ $? -ne 0 ]
-then
-    echo "there was a problem with vcf creation, exit"
-    exit 1
-fi
+#
+# echo "############################################################"
+# echo "###################### OUTPUT VCF ##########################"
+# echo "############################################################"
+#
+# cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file} 2>&1 "
+# echo $cmdVCF
+# if [[ "$wraith" == "false" ]]; then
+#     eval $cmdVCF
+# fi
+#
+# if [ $? -ne 0 ]
+# then
+#     echo "there was a problem with vcf creation, exit"
+#     exit 1
+# fi
 
 ######################### Filter large clusters NO LONGER USED ###########################
 
@@ -209,6 +209,24 @@ fi
 #    exit 1
 #fi
 
+
+######################### VCF generation with cluster information FROM ORIGINAL FASTA ###########################
+
+echo "############################################################"
+echo "###################### OUTPUT VCF ##########################"
+echo "############################################################"
+
+cmdVCF="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster 2>&1 "
+echo $cmdVCF
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdVCF
+fi
+
+if [ $? -ne 0 ]
+then
+    echo "there was a problem with vcf creation, exit"
+    exit 1
+fi
 
 echo "#######################################################################"
 echo "#########################  CLEANING  ##################################"
