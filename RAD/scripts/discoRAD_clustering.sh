@@ -23,18 +23,6 @@ echo "\t -o: output file path (vcf)"
 }
 
 
-function sumup {
-echo "====================================================="
-echo "Filtering of $rawdiscofile"
-echo "====================================================="
-echo " 1/ Remove variants with more than ${percent_missing} missing genotypes and low rank (<${min_rank})"
-echo " 2/ Clustering variants (sharing at least a ${usedk}-mers)"
-#echo " 3/ Removing variant in clusters with a size above ${max_cluster_size}"
-#echo " 4/ Removing low ranked variants (those whose rank is < ${min_rank}"
-echo " Resulting file is ${rawdiscofile_base}_clustered.vcf"
-}
-
-
 if [ "$#" -ne 6 ]; then
 help
 exit
@@ -85,10 +73,12 @@ echo "############################################################"
 echo "######### MISSING DATA AND LOW RANK FILTERING  #############"
 echo "############################################################"
 
-echo "Filtering variants with more than 0.95 missing data and rank<0.4 ..."
+echo "Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
 
 disco_filtered=${rawdiscofile_base}_filtered
-python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank}
+cmdFilter="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
+echo $cmdFilter
+eval $cmdFilter
 
 
 ######################### Clustering ###########################
@@ -97,6 +87,8 @@ echo "############################################################"
 echo "###################### CLUSTERING ##########################"
 echo "############################################################"
 
+echo "Clustering variants (sharing at least a ${usedk}-mers)..."
+
 # Simplify headers (for dsk purposes)
 disco_simpler=${disco_filtered}_simpler
 cat ${disco_filtered}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${disco_simpler}.fa
@@ -104,7 +96,7 @@ cat ${disco_filtered}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${disco_simpler
 ls ${disco_simpler}.fa > ${disco_simpler}.fof
 
 # Compute sequence similarities
-cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}"
+cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
 echo $cmdSRC
 eval $cmdSRC
 
@@ -147,7 +139,7 @@ echo "############################################################"
 echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
-cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file}"
+cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file} 2>&1 "
 echo $cmdVCF
 eval $cmdVCF
 
@@ -175,20 +167,18 @@ fi
 
 
 echo "#######################################################################"
-echo "#########################  CLEANING  ####################################"
+echo "#########################  CLEANING  ##################################"
 echo "#######################################################################"
 
 #TO UNCOMMENT
-#rm -f ${disco_simpler}*
-#rm -f ${disco_filtered}.fa
-#rm -f ${disco_final}.fa
+rm -f ${disco_simpler}*
+rm -f ${disco_filtered}.fa
+rm -f ${disco_final}.fa
 
 
-sumup > log_${rawdiscofile_base}_sorted_with_clusters.txt
 
 echo "============================"
 echo " DISCORAD FINALIZATION DONE "
 echo "============================"
-echo " Results in ${rawdiscofile_base}_sorted_with_clusters.vcf"
-echo " Logs in log_${rawdiscofile_base}_sorted_with_clusters.txt"
+echo " Results in ${output_file}"
 
