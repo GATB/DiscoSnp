@@ -444,30 +444,31 @@ cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 #######################################################################
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
-
-echo -e "Running discoSnp++ "$version", in directory "$EDIR" with following parameters:"
-echo -e "\t read_sets="$read_sets
-echo -e "\t prefix="$h5prefix
-echo -e "\t c="$c
-echo -e "\t C="$C
-echo -e "\t k="$k
-echo -e "\t b="$b
-echo -e "\t d="$d
-echo -e "\t D="$D
-echo -e "\t s="$option_max_symmetrical_crossroads
-echo -e "\t P="$P
-if [ ! -z "${read_sets_kissreads}" ]; then
-    echo -e "\t fof_mapping read_file_of_files="${read_sets_kissreads}
+if [[ "$wraith" == "false" ]]; then
+    echo -e "Running discoSnp++ "$version", in directory "$EDIR" with following parameters:"
+    echo -e "\t read_sets="$read_sets
+    echo -e "\t prefix="$h5prefix
+    echo -e "\t c="$c
+    echo -e "\t C="$C
+    echo -e "\t k="$k
+    echo -e "\t b="$b
+    echo -e "\t d="$d
+    echo -e "\t D="$D
+    echo -e "\t s="$option_max_symmetrical_crossroads
+    echo -e "\t P="$P
+    if [ ! -z "${read_sets_kissreads}" ]; then
+        echo -e "\t fof_mapping read_file_of_files="${read_sets_kissreads}
+    fi
+    echo -e "\t p="$prefix
+    echo -e "\t G="$genome
+    echo -e "\t e="$e
+    
+    
+    
+    echo -e -n "\t starting date="
+    date
+    echo
 fi
-echo -e "\t p="$prefix
-echo -e "\t G="$genome
-echo -e "\t e="$e
-
-
-
-echo -e -n "\t starting date="
-date
-echo
 
 #######################################################################
 #################### END OPTIONS SUMMARY        #######################
@@ -508,10 +509,14 @@ if [ ! -e $h5prefix.h5 ]; then
     fi
 
     T="$(($(date +%s)-T))"
-    echo "Graph creation time in seconds: ${T}"
+    if [[ "$wraith" == "false" ]]; then
+        echo "Graph creation time in seconds: ${T}"
+    fi
 
 else
-    echo -e "File $h5prefix.h5 exists. We use it as input graph"
+    if [[ "$wraith" == "false" ]]; then
+        echo -e "File $h5prefix.h5 exists. We use it as input graph"
+    fi
 fi
 
 cleanCmd="rm -rf trashme_*"
@@ -540,7 +545,9 @@ then
 fi
 
 T="$(($(date +%s)-T))"
-echo "Bubble detection time in seconds: ${T}"
+if [[ "$wraith" == "false" ]]; then
+    echo "Bubble detection time in seconds: ${T}"
+fi
 
 if [ ! -f $kissprefix.fa ]
 then
@@ -554,12 +561,14 @@ then
 fi
 
 if [ $stop_after_kissnp -eq 1 ]; then
-    echo "-X option detected, computation stopped after variant detection."
-    echo "Results (with no read coverage) are located here: "$kissprefix.fa
-    echo -e -n "\t ending date="
-    date
-    echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
-    exit 
+    if [[ "$wraith" == "false" ]]; then
+        echo "-X option detected, computation stopped after variant detection."
+        echo "Results (with no read coverage) are located here: "$kissprefix.fa
+        echo -e -n "\t ending date="
+        date
+        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+        exit 
+    fi  
 fi
 
 #######################################################################
@@ -567,10 +576,11 @@ fi
 #######################################################################
 
 T="$(date +%s)"
-echo
-echo -e "#############################################################"
-echo -e "#################### KISSREADS MODULE #######################"
-echo -e "#############################################################"
+if [[ "$wraith" == "false" ]]; then
+    echo -e "#############################################################"
+    echo -e "#################### KISSREADS MODULE #######################"
+    echo -e "#############################################################"
+fi
 
 smallk=$k
 if (( $smallk>31 ))  ; then
@@ -673,21 +683,23 @@ else # A Reference genome is provided, vcf creator mode 2
 fi
 
 T="$(($(date +%s)-T))"
-echo "Vcf creation time in seconds: ${T}"
-
-echo -e "###############################################################"
-echo -e "#################### DISCOSNP++ FINISHED ######################"
-echo -e "###############################################################"
-Ttot="$(($(date +%s)-Ttot))"
-echo "DiscoSnp++ total time in seconds: ${Ttot}"
-echo -e "################################################################################################################"
-echo -e " fasta of predicted variant is \""${kissprefix}_coherent.fa"\""
-
-if [ -z "$genome" ]; then
-    echo -e " Ghost VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
-else
-    echo -e " VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
-    echo -e " An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
+if [[ "$wraith" == "false" ]]; then
+    echo "Vcf creation time in seconds: ${T}"
+    
+    echo -e "###############################################################"
+    echo -e "#################### DISCOSNP++ FINISHED ######################"
+    echo -e "###############################################################"
+    Ttot="$(($(date +%s)-Ttot))"
+    echo "DiscoSnp++ total time in seconds: ${Ttot}"
+    echo -e "################################################################################################################"
+    echo -e " fasta of predicted variant is \""${kissprefix}_coherent.fa"\""
+    
+    if [ -z "$genome" ]; then
+        echo -e " Ghost VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
+    else
+        echo -e " VCF file (1-based) is \""${kissprefix}_coherent.vcf"\""
+        echo -e " An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
+    fi
+    echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
+    echo -e "################################################################################################################"
 fi
-echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-echo -e "################################################################################################################"

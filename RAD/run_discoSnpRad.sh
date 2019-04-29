@@ -370,13 +370,17 @@ fi
 
 if [[ "$wraith" == "false" ]]; then
     if [ -f "$src_file" ]; then
-        echo "short_read_connector is $src_file"
+        if [[ "$wraith" == "false" ]]; then
+            echo "short_read_connector is $src_file"
+        fi
     else
-        echo -e "\t\t\t**************************************************************************"
-        echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
-        echo -e "\t\t\t** $src_file does not exist"
-        echo -e "\t\t\t** I will not cluster variants per RAD locus"
-        echo -e "\t\t\t**************************************************************************"
+        if [[ "$wraith" == "false" ]]; then
+            echo -e "\t\t\t**************************************************************************"
+            echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
+            echo -e "\t\t\t** $src_file does not exist"
+            echo -e "\t\t\t** I will not cluster variants per RAD locus"
+            echo -e "\t\t\t**************************************************************************"
+        fi
     fi
 fi 
 

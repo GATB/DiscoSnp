@@ -15,20 +15,21 @@ echo " 1/ Remove variants with more than 95% missing genotypes and low rank (<0.
 echo " 2/ Cluster variants per locus"
 echo " 3/ Format the variants in a vcf file with cluster information"
 echo "Usage: ./discoRAD_clustering.sh -f discofile -s SRC_directory/ -o output_file.vcf"
-echo "nb: all options are MANDATORY\n"
+# echo "nb: all options are MANDATORY\n"
 echo "OPTIONS:"
 echo "\t -f: DiscoSnp fasta output containing coherent predictions"
 echo "\t -s: Path to Short Read Connector"
 echo "\t -o: output file path (vcf)"
+echo "\t -w: Wraith mode: only show all discoSnpRad commands without running them"
 }
 
+wraith="false"
+# if [ "$#" -lt 7 ]; then
+# help
+# exit
+# fi
 
-if [ "$#" -ne 6 ]; then
-help
-exit
-fi
-
-while getopts "f:s:o:h" opt; do
+while getopts "f:s:o:hw" opt; do
     case $opt in
         f)
         rawdiscofile=$OPTARG
@@ -42,6 +43,10 @@ while getopts "f:s:o:h" opt; do
         output_file=$OPTARG
         ;;
 
+        w)
+        wraith="true"
+        ;;
+
         h)
         help
         exit
@@ -49,8 +54,19 @@ while getopts "f:s:o:h" opt; do
     esac
 done
 
+if [[ -z "${rawdiscofile}" ]]; then
+    echo "-f is mandatory" >&2
+    exit
+fi
+if [[ -z "${short_read_connector_directory}" ]]; then
+    echo "-s is mandatory" >&2
+    exit
+fi
+if [[ -z "${output_file}" ]]; then
+    echo "-o is mandatory" >&2
+    exit
+fi
 # Detect the directory path
-
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 BINDIR=$EDIR"/../../build/bin"
 rawdiscofile_base=$( basename  "${rawdiscofile}" .fa)
@@ -73,13 +89,20 @@ echo "############################################################"
 echo "######### MISSING DATA AND LOW RANK FILTERING  #############"
 echo "############################################################"
 
-echo "Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
+echo "#Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
 
 disco_filtered=${rawdiscofile_base}_filtered
 cmdFilter="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
 echo $cmdFilter
-eval $cmdFilter
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdFilter
+    
 
+    if [ ! -s ${disco_filtered}.fa ]; then
+        echo "No variant pass the filters, exit"
+        exit 0
+    fi
+fi
 
 ######################### Clustering ###########################
 
@@ -87,18 +110,32 @@ echo "############################################################"
 echo "###################### CLUSTERING ##########################"
 echo "############################################################"
 
-echo "Clustering variants (sharing at least a ${usedk}-mers)..."
+echo "#Clustering variants (sharing at least a ${usedk}-mers)..."
 
 # Simplify headers (for dsk purposes)
-disco_simpler=${disco_filtered}_simpler
-cat ${disco_filtered}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${disco_simpler}.fa
 
-ls ${disco_simpler}.fa > ${disco_simpler}.fof
+disco_simpler=${disco_filtered}_simpler
+cmdCat="cat ${disco_filtered}.fa | cut -d \"|\" -f 1 | sed -e \"s/^ *//g\""
+echo $cmdCat "> ${disco_simpler}.fa"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdCat > ${disco_simpler}.fa
+fi
+
+ 
+#cat ${disco_filtered}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${disco_simpler}.fa
+cmdLs="ls ${disco_simpler}.fa"
+echo $cmdLs "> ${disco_simpler}.fof"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdLs > ${disco_simpler}.fof
+fi
+#ls ${disco_simpler}.fa > ${disco_simpler}.fof
 
 # Compute sequence similarities
 cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
 echo $cmdSRC
-eval $cmdSRC
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdSRC
+fi
 
 if [ $? -ne 0 ]
 then
@@ -109,13 +146,16 @@ fi
 # Format one line per edge
 cmd="python3 ${EDIR}/from_SRC_to_edges.py ${disco_simpler}.txt"
 echo $cmd "> ${disco_simpler}_edges.txt"
-eval $cmd "> ${disco_simpler}_edges.txt"
-
+if [[ "$wraith" == "false" ]]; then
+    eval $cmd "> ${disco_simpler}_edges.txt"
+fi
 
 # Compute the clustering
 cmdqhc="${BINDIR}/quick_hierarchical_clustering ${disco_simpler}_edges.txt"
 echo $cmdqhc " > ${disco_simpler}.cluster"
-eval $cmdqhc "> ${disco_simpler}.cluster"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdqhc "> ${disco_simpler}.cluster"
+fi
 
 if [ $? -ne 0 ]
 then
@@ -126,7 +166,9 @@ fi
 disco_final="${disco_filtered}_with_clusters"
 cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${disco_filtered}.fa ${disco_simpler}.cluster"
 echo $cmd " > ${disco_final}.fa"
-eval $cmd "> ${disco_final}.fa"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmd "> ${disco_final}.fa"
+fi
 if [ $? -ne 0 ]
 then
     echo "there was a problem when generating a .fa file with clustering information, exit"
@@ -141,7 +183,9 @@ echo "############################################################"
 
 cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file} 2>&1 "
 echo $cmdVCF
-eval $cmdVCF
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdVCF
+fi
 
 if [ $? -ne 0 ]
 then
