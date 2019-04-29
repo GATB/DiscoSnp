@@ -364,25 +364,28 @@ if [ -z "$read_sets" ]; then
 fi
 
 src_file="$short_read_connector_path/short_read_connector.sh"
-echo $src_file
-
-
-if [ -f "$src_file" ]; then
-    echo "short_read_connector is $src_file"
-else
-    echo -e "\t\t\t**************************************************************************"
-    echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
-    echo -e "\t\t\t** $src_file does not exist"
-    echo -e "\t\t\t** I will not cluster variants per RAD locus"
-    echo -e "\t\t\t**************************************************************************"
+if [[ "$wraith" == "false" ]]; then
+    echo $src_file
 fi
+
+if [[ "$wraith" == "false" ]]; then
+    if [ -f "$src_file" ]; then
+        echo "short_read_connector is $src_file"
+    else
+        echo -e "\t\t\t**************************************************************************"
+        echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
+        echo -e "\t\t\t** $src_file does not exist"
+        echo -e "\t\t\t** I will not cluster variants per RAD locus"
+        echo -e "\t\t\t**************************************************************************"
+    fi
+fi 
 
 
 ######### CHECK THE k PARITY ##########
 rest=$(( $k % 2 ))
 if [ $rest -eq 0 ]
 then
-    echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
+    echo "# k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
     k=$(($k-1))
 fi
 
@@ -403,27 +406,33 @@ readsFilesDump=${prefix}_read_files_correspondance.txt
 #######################################
 c_dbgh5=$c
 rm -f ${read_sets}_${kissprefix}_removemeplease
-cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
+cmdFofRemove="cat ${read_sets}" > ${read_sets}_${kissprefix}_removemeplease
+echo $cmdFofRemove "> ${read_sets}_${kissprefix}_removemeplease"
+if [[ "$wraith" == "false" ]]; then
+    $cmdFofRemove > ${read_sets}_${kissprefix}_removemeplease
+fi
 
 
 #######################################################################
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
 
-echo -e "\tRunning discoSnpRad "$version", in directory "$EDIR" with following parameters:"
-echo -e "\t\t read_sets="$read_sets
-echo -e "\t\t short_read_connector path="$short_read_connector_path
-echo -e "\t\t prefix="$h5prefix
-echo -e "\t\t c="$c
-echo -e "\t\t C="$C
-echo -e "\t\t k="$k
-echo -e "\t\t b="$b
-echo -e "\t\t d="$d
-echo -e "\t\t D="$D
-echo -e "\t\t max_truncated_path_length_difference="$max_truncated_path_length_difference
-echo -e -n "\t starting date="
-date
-echo
+if [[ "$wraith" == "false" ]]; then
+    echo -e "\tRunning discoSnpRad "$version", in directory "$EDIR" with following parameters:"
+    echo -e "\t\t read_sets="$read_sets
+    echo -e "\t\t short_read_connector path="$short_read_connector_path
+    echo -e "\t\t prefix="$h5prefix
+    echo -e "\t\t c="$c
+    echo -e "\t\t C="$C
+    echo -e "\t\t k="$k
+    echo -e "\t\t b="$b
+    echo -e "\t\t d="$d
+    echo -e "\t\t D="$D
+    echo -e "\t\t max_truncated_path_length_difference="$max_truncated_path_length_difference
+    echo -e -n "\t starting date="
+    date
+    echo
+fi
 
 #######################################################################
 #################### END OPTIONS SUMMARY        #######################
@@ -471,10 +480,13 @@ if [ ! -e $h5prefix.h5 ]; then
     fi
 
     T="$(($(date +%s)-T))"
-    echo "Graph creation time in seconds: ${T}"
-
+    if [[ "$wraith" == "false" ]]; then
+        echo "Graph creation time in seconds: ${T}"
+    fi
 else
-    echo -e "File $h5prefix.h5 exists. We use it as input graph"
+    if [[ "$wraith" == "false" ]]; then
+        echo -e "File $h5prefix.h5 exists. We use it as input graph"
+    fi
 fi
 
 cleanCmd="rm -rf trashme_*"
@@ -502,8 +514,9 @@ then
 fi
 
 T="$(($(date +%s)-T))"
-echo "Bubble detection time in seconds: ${T}"
-
+if [[ "$wraith" == "false" ]]; then
+    echo "Bubble detection time in seconds: ${T}"
+fi
 if [ ! -f ${kissprefix}_r.fa ]
 then
         if [[ "$wraith" == "false" ]]; then
@@ -518,16 +531,25 @@ fi
 #######################################################################
 #################### REDUNDANCY REMOVAL         #######################
 #######################################################################
+echo -e "\t############################################################"
+echo -e "\t#################### REDUNDANCY REMOVAL  ###################"
+echo -e "\t############################################################"
 redundancy_removal_cmd="python $EDIR/../scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
 echo ${redundancy_removal_cmd}
-${redundancy_removal_cmd}
+if [[ "$wraith" == "false" ]]; then
+    ${redundancy_removal_cmd}
+fi
+if [ $? -ne 0 ]
+then
+    echo "there was a problem with redundancy removal":
+    exit 1
+fi
 
 #######################################################################
 #################### KISSREADS                  #######################
 #######################################################################
 
 T="$(date +%s)"
-echo
 echo -e "\t#############################################################"
 echo -e "\t#################### KISSREADS MODULE #######################"
 echo -e "\t#############################################################"
@@ -601,7 +623,9 @@ echo -e "\t###############################################################"
 
 T="$(date +%s)"
 if [ -f "$src_file" ]; then
-    echo "Clustering and vcf formmatting"
+    if [[ "$wraith" == "false" ]]; then
+        echo "Clustering and vcf formmatting"
+    fi
     final_output="${kissprefix}_coherent_clustered.vcf"
     cmd="$EDIR/scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s $short_read_connector_path -o ${final_output}"
     echo $cmd
@@ -609,13 +633,17 @@ if [ -f "$src_file" ]; then
         eval $cmd
     fi  
     T="$(($(date +%s)-T))"
-    echo "RAD clustering per locus time in seconds: ${T}"
+    if [[ "$wraith" == "false" ]]; then
+        echo "RAD clustering per locus time in seconds: ${T}"
+    fi
 else
-    echo "NO CLUSTERING (missing -s option)"
-    echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
-    echo "  $EDIR/scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
-    #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
-    echo "Filtering and vcf formatting"
+    if [[ "$wraith" == "false" ]]; then
+        echo "NO CLUSTERING (missing -s option)"
+        echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
+        echo "  $EDIR/scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
+        #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
+        echo "Filtering and vcf formatting"
+    fi
     final_output="${kissprefix}_coherent.vcf"
     cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_coherent_raw.fa -o ${final_output} -m 0.95 -r 0.4"
     echo $cmd
@@ -623,20 +651,22 @@ else
         eval $cmd
     fi
     T="$(($(date +%s)-T))"
-    echo "Filtering and vcf formatting time in seconds: ${T}"
+    if [[ "$wraith" == "false" ]]; then
+        echo "Filtering and vcf formatting time in seconds: ${T}"
+    fi
 fi
 
-
-echo -e "\t###############################################################"
-echo -e "\t#################### DISCOSNPRAD FINISHED ######################"
-echo -e "\t###############################################################"
-Ttot="$(($(date +%s)-Ttot))"
-echo "DiscoSnpRad total time in seconds: ${Ttot}"
-echo -e "\t################################################################################################################"
-echo -e "\t fasta of predicted variant is \""${kissprefix}_coherent_raw.fa"\""
-echo -e "\t Ghost VCF file (1-based) is \""${final_output}"\""
-echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-echo -e "\t################################################################################################################"
-
+if [[ "$wraith" == "false" ]]; then
+    echo -e "\t###############################################################"
+    echo -e "\t#################### DISCOSNPRAD FINISHED ######################"
+    echo -e "\t###############################################################"
+    Ttot="$(($(date +%s)-Ttot))"
+    echo "DiscoSnpRad total time in seconds: ${Ttot}"
+    echo -e "\t################################################################################################################"
+    echo -e "\t fasta of predicted variant is \""${kissprefix}_coherent_raw.fa"\""
+    echo -e "\t Ghost VCF file (1-based) is \""${final_output}"\""
+    echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
+    echo -e "\t################################################################################################################"
+fi
 
 
