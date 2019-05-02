@@ -104,13 +104,13 @@ function help {
     echo -e "\t -r|--fof <file name of a file of file(s)>"
     echo -e "\t\t The input read files indicated in a file of file(s)"
     echo -e "\t\t Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
-
+    
+    echo -e "\nOPTIONS"
     echo -e "\t -S|--src_path <directory>"
     echo -e "\t\t **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
     echo -e "\t\t -Note1: short read connector must be compiled."
-    echo -e "\t\t -Note2: if this option is missing, discoSnpRad will still however provide a fasta file containing SNPs and INDELS, that won't be clustered by locus" 
+    echo -e "\t\t -Note2: with this option, discoSnpRad provide a vcf file containing SNPs and INDELS, clustered by locus" 
 
-    echo -e "\nOPTIONS"
     echo -e "\t -k | --k_size value <int value>"
     echo -e "\t\t Set the length of used kmers. Must fit the compiled value."
     echo -e "\t\t Default=31"
