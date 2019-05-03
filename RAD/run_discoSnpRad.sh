@@ -541,7 +541,7 @@ echo -e "\t############################################################"
 redundancy_removal_cmd="python $EDIR/../scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
 echo ${redundancy_removal_cmd}
 if [[ "$wraith" == "false" ]]; then
-    ${redundancy_removal_cmd}
+   eval ${redundancy_removal_cmd}
 fi
 if [ $? -ne 0 ]
 then
