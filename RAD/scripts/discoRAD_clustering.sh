@@ -77,6 +77,12 @@ rawdiscofile_base=$( basename  "${rawdiscofile}" .fa)
 originalk=$( echo $rawdiscofile | awk -F k_ '{ print $2 }' | cut -d "_" -f 1)
 usedk=$((originalk-1))
 
+## Short Read Connector is limited to kmers of size at most 31 (u_int64). 
+if [ ${usedk} -gt 31 ]
+then
+usedk=31
+fi
+
 # rank filter parameter
 min_rank=0.4
 
@@ -233,9 +239,9 @@ echo "#########################  CLEANING  ##################################"
 echo "#######################################################################"
 
 #TO UNCOMMENT
-rm -f ${disco_simpler}*
-rm -f ${disco_filtered}.fa
-rm -f ${disco_final}.fa
+#rm -f ${disco_simpler}*
+#rm -f ${disco_filtered}.fa
+#rm -f ${disco_final}.fa
 
 
 
