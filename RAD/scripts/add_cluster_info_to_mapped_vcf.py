@@ -53,7 +53,7 @@ def output_newvcf(unmapped_file, mapped_file, out_file):
             id = splitted[2]
             cluster_info = id_to_cluster_info[id]
             INFO = splitted[7] + ";" + cluster_info
-            tojoin = splitted[1:7] + [INFO] + splitted[8:]
+            tojoin = splitted[:7] + [INFO] + splitted[8:]
             filout.write ("\t".join(tojoin))
 
     filin.close()
