@@ -315,8 +315,8 @@ def format_vcf(splitted_1, splitted_2, nb_samples, nb_fixed_fields, rank, sequen
             POS, REF, ALT = re.findall("P_\d+:(\d+)_(\w)/(\w)",pol)[0]
             POS = int(POS) + position_offset  # POS is 1-based
         else:  # INDEL
-            POS, indel_size, fuzziness = re.findall("P_\d+:(\d+)_(\d+)_(\d+)",pol)[0]
-            POS = int(POS) + position_offset - int(fuzziness)  # left-normalization, 1-based
+            POS, indel_size = re.findall("P_\d+:(\d+)_(\d+)",pol)[0]
+            POS = int(POS) + position_offset # 1-based
             ALT = sequence[(POS-1):(POS+int(indel_size))]
             REF = ALT[0]
         ID = id
