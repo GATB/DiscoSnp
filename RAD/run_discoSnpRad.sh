@@ -68,6 +68,7 @@ genotyping="-genotype"
 remove=1
 verbose=1
 short_read_connector_path=""
+option_phase_variants=""
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
@@ -168,6 +169,11 @@ function help {
 
 while :; do
     case $1 in
+    -A) 
+        option_phase_variants="-phasing"
+        echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
+        echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
+        ;;
     -w)
         wraith="true"
         ;;
