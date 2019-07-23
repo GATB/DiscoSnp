@@ -454,6 +454,16 @@ struct Functor
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             int previous_pwi;                                                       // position of the previous pwi snp on the read
             bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
+            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+            // _________________________                prediction1
+            //  --------                                read
+            // __________________                       prediction2
+            //         --------                         read
+            // means that
+            //                --------                  read
+            //        __________________                prediction2
+            //               _________________________  prediction1
+            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
             for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions1.rbegin(); it!=pwi_and_mapped_predictions1.rend(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
@@ -480,6 +490,16 @@ struct Functor
             }
             phased_variant_ids += ' ';
             first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
+            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+            // _________________________                prediction1
+            //  --------                                read
+            // __________________                       prediction2
+            //         --------                         read
+            // means that
+            //                --------                  read
+            //        __________________                prediction2
+            //               _________________________  prediction1
+            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
             for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions2.rbegin(); it!=pwi_and_mapped_predictions2.rend(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
@@ -544,6 +564,16 @@ struct Functor
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             int previous_pwi;                                                       // position of the previous pwi snp on the read
             bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
+            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+            // _________________________                prediction1
+            //  --------                                read
+            // __________________                       prediction2
+            //         --------                         read
+            // means that
+            //                --------                  read
+            //        __________________                prediction2
+            //               _________________________  prediction1
+            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
             for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions.rbegin(); it!=pwi_and_mapped_predictions.rend(); ++it){
                 int64_t var_id =it->second;
                 int pwi=it->first;                                                  // Position on the read of the current variant
