@@ -1,0 +1,39 @@
+rule all:
+    input:
+        "graph_plus.gfa"
+
+
+rule compact_paths:
+	input:
+		"phased_alleles_read_set_id_1.txt"
+	output:
+		temp("compacted_facts_int.txt")
+	shell:
+		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/K3000.py {input} >  {output}"
+
+rule GFA_construction:
+	input: 
+		"compacted_facts_int.txt"
+	output: 
+		temp("compacted_facts.gfa")
+	shell:
+		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/K3000_msr_to_gfa.py {input} > {output}"
+
+rule enhance_graph:
+	input: 
+		"phased_alleles_read_set_id_1.txt",
+		"compacted_facts.gfa"
+	output:
+		temp("graph.gfa")
+	shell:
+		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/enhance_gfa.py compacted_facts.gfa {input} > {output}"
+		
+rule detect_snp_succesion:
+	input: 
+		"graph.gfa",
+		"discoRad_k_31_c_3_D_0_P_5_m_5_coherent_raw.fa"
+		# "discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa"
+	output:
+		"graph_plus.gfa"
+	shell:
+		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/find_unitig_connected_pairs_of_facts.py {input} > {output}"
