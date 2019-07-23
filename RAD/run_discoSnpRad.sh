@@ -55,7 +55,7 @@ c=3 # minimal coverage
 C=$max_C # maximal coverage
 M=4
 d=10 # estimated number of error per read (used by kissreads only)
-D=3 # maximal size of searched deletions
+D=0 # maximal size of searched deletions
 max_ambigous_indel=20
 P=5 # number of polymorphsim per bubble
 option_max_symmetrical_crossroads="5"
@@ -132,11 +132,11 @@ function help {
     echo -e "\t -g | --graph <file name>"
     echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
     echo -e "\t -D | --deletion_max_size <int>"
-    echo -e "\t\t discoSnpRad will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t\t discoSnpRad will search for deletions of size from 1 to D included. Default=0"
     echo -e "\t -a | --ambiguity_max_size <int>"
     echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t -P | --max_snp_per_bubble <int>"
-    echo -e "\t\t discoSnpRad will search up to P SNPs in a unique bubble. Default=3"
+    echo -e "\t\t discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
     echo -e "\t -p | --prefix <string>"
     echo -e "\t\t All out files will start with this prefix. Default=\"discoRes\""
     echo -e "\t -l | --no_low_complexity"
