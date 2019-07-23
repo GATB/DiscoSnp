@@ -179,7 +179,7 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
     
     
     // walk the read and the fragment together, detecting substitutions.
-    // stop if the number of substitution is too high
+    // stop if the number of substitution is too high or if a substitution is detected on a SNP position.
     while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
         // we know that the seed has a perfect match. We can skip this positions.
         // TODO: test this latter, i've found a valgrind error (28 oct 2015)
@@ -287,7 +287,6 @@ struct Functor
         // for both dirrections of the read
         for(int direction=0;direction<2;direction++) // try the two possible directions of the read
         {
-            // read all seeds present on the read:
             for (int seed_position=0;seed_position<stop;seed_position++){ // for all possible seed on the read
                 if(seed_position==0) {
                     coded_seed=gv.codeSeed(read+seed_position); // init the seed
@@ -295,7 +294,8 @@ struct Functor
                 else { // previous seed was correct, we extend it.
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
-                
+
+            
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
@@ -367,7 +367,9 @@ struct Functor
                             if(gv.phasing){
                             mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
                             // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
-                            if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
+                            if (index.all_predictions[value->a]->nbOfSnps ==1){      // If this is not an indel (todo phase also indels)
+                                // phasing of multiple SNPs is buggy. I changed (02/07/2019) the previous test which was !=0 to ==1 to conserve only simple snps. 
+ 
                                 //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
                                 int sign=direction==0?1:-1;
                                 
@@ -452,7 +454,7 @@ struct Functor
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             int previous_pwi;                                                       // position of the previous pwi snp on the read
             bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions1.begin(); it!=pwi_and_mapped_predictions1.end(); ++it){
+            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions1.rbegin(); it!=pwi_and_mapped_predictions1.rend(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
@@ -470,7 +472,7 @@ struct Functor
                     first_snp=false;
                 }
                 else
-                    relative_position=pwi-previous_pwi;
+                    relative_position=-(pwi-previous_pwi);
                 previous_pwi=pwi;
 
                 string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
@@ -478,7 +480,7 @@ struct Functor
             }
             phased_variant_ids += ' ';
             first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions2.begin(); it!=pwi_and_mapped_predictions2.end(); ++it){
+            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions2.rbegin(); it!=pwi_and_mapped_predictions2.rend(); ++it){
                 //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
                 // TODO: optimize this
                 //                const int pwi = it->first;
@@ -496,7 +498,7 @@ struct Functor
                     first_snp=false;
                 }
                 else
-                    relative_position=pwi-previous_pwi;
+                    relative_position=-(pwi-previous_pwi);
                 previous_pwi=pwi;
                 
                 string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
@@ -542,7 +544,7 @@ struct Functor
             string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
             int previous_pwi;                                                       // position of the previous pwi snp on the read
             bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
-            for (map<int,int64_t>::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions.rbegin(); it!=pwi_and_mapped_predictions.rend(); ++it){
                 int64_t var_id =it->second;
                 int pwi=it->first;                                                  // Position on the read of the current variant
                 string sign = "";
@@ -556,7 +558,7 @@ struct Functor
                     first_snp=false;
                 }
                 else
-                    relative_position=pwi-previous_pwi;
+                    relative_position=-(pwi-previous_pwi);
                 previous_pwi=pwi;
                 string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
                 
