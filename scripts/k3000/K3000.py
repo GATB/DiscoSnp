@@ -25,7 +25,7 @@ def is_subsequence(x,y,position_suffix):
             return True  # All y was read, it is included in x 
         if pos_on_x == len_x: 
             return False # All x was read, thus y is not included in x
-        if x[pos_on_x] == y[pos_on_y]:
+        if kc.allele_value(x[pos_on_x]) == kc.allele_value(y[pos_on_y]): 
             pos_on_x += 1
             pos_on_y += 1
         else:
@@ -34,7 +34,8 @@ def is_subsequence(x,y,position_suffix):
 
 def remove_y_subsequence_of_x(x_ref,SR):
     ''' remove all y that are subsequence of x
-    Exemple 1,4,5 is a subsequence of 0,1,2,3,4,5,6
+    Do not care about distances. 
+    Exemple 3_0,4_1,5_10 is a subsequence of 0_0,1_12,2_13,3_13,4_12,5_123,6_1
     '''
     if len(x_ref) == 1: return # as we removed strict equalities, no read can be included in a read of size one.
     n = len(x_ref)
@@ -44,8 +45,9 @@ def remove_y_subsequence_of_x(x_ref,SR):
         for position_suffix in range(0,n):
             u = x[position_suffix]
             Y = SR.get_lists_starting_with_given_prefix([u])
-            # print (position_suffix, "-", x,"-",  u, "-" , Y)
+
             if x in Y: Y.remove(x)
+
             for y in Y:
                 if len(y)+position_suffix <= n and is_subsequence(x,y,position_suffix):
                     SR.remove(y)
@@ -106,9 +108,6 @@ def right_unique_extention(SR,sr):#, unitig_lengths,k,min_conflict_overlap):
     return None,None
 
 
-
-debug_id_node=57513
-
 def  fusion    (SR,x):
     '''Main function. For a given super read x, we find y that overlap x with the highest overlap, such that :
     1/ there exists no other y' right overlapping x that is not collinear with y
@@ -130,7 +129,7 @@ def  fusion    (SR,x):
     # 2/ if y is not x (x==y is possible if x is repeated 2,2,2,2 for instance or if prefix = suffix (1,2,1 for instance)), remove y and its reverse complement if not palindromic
     # 3/ create the new xy SR and add it (sorted fashion)
 
-    isthere = SR.contains(debug_id_node) #DEBUG
+    # isthere = SR.contains(debug_id_node) #DEBUG
 
     # 1
     SR.remove(x)
@@ -218,6 +217,7 @@ def main():
     sys.stderr.write("  Load phased alleles \r")
     SR = kc.generate_SR_from_disco_pashing(input_file)
     sys.stderr.write("  Load phased alleles.  Done          - nb SR="+ str(len(SR))+"\n")
+    
 
     sys.stderr.write("  Add reverse complements \r")
     kc.add_reverse_SR(SR)

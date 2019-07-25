@@ -38,17 +38,7 @@ def get_uppercase_sequence(sequence):
         if l>='A' and l<='Z':
             res+=l
     return res
-    
-def get_complement(char):
-    complement = {"A" : "T", "T" : "A", "G" : "C", "C" : "G", "a" : "t", "t" : "a", "g" : "c" , "c" : "g"}
-    return complement[char]
-
-    
-def get_reverse_complement(seq):
-    s = ""
-    for i in range(len(seq)):
-        s = get_complement(seq[i]) + s
-    return s
+ 
 
 def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_snp_to_fact_id):
     """
@@ -120,7 +110,7 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
         # This SNP (reverse) is the starting of at least one compacted fact. Thus we store its remakable left (k-1)mers and we associate them to the corresponding facts
         if -snp_id in leftmost_snp_to_fact_id:
             # stored = True
-            line2 = get_reverse_complement(line2)
+            line2 = kc.get_reverse_complement(line2)
             LO = line2[:k-1].upper()            # get the first (k-1)mer 
             central_sequence = get_uppercase_sequence(line2)
             LI = central_sequence[:k-1]
@@ -136,7 +126,7 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
         # This SNP (reverse) is the ending of at least one compacted fact. Thus we store its remakable right (k-1)mers and we associate them to the corresponding facts
         if -snp_id in rightmost_snp_to_fact_id:
             # stored = True
-            line2 = get_reverse_complement(line2)
+            line2 = kc.get_reverse_complement(line2)
             RO = line2[-k+1:].upper()           # get the last (k-1)mer
             if not central_sequence:
                 central_sequence = get_uppercase_sequence(line2)
@@ -198,8 +188,8 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id,fa_file_nam
                         print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t"+str(-1)+"M")                          # -1 enables to detect those links
 
             # CASE 2.
-            if get_reverse_complement(RIA) in ROs and get_reverse_complement(ROA) in RIs:
-                set_of_left_facts_compatible = ROs[get_reverse_complement(RIA)].intersection(RIs[get_reverse_complement(ROA)])  # select all facts ids both whose RIA == rc(ROB) and ROA == rc(RIB)     -> A+ -> B-
+            if kc.get_reverse_complement(RIA) in ROs and kc.get_reverse_complement(ROA) in RIs:
+                set_of_left_facts_compatible = ROs[kc.get_reverse_complement(RIA)].intersection(RIs[kc.get_reverse_complement(ROA)])  # select all facts ids both whose RIA == rc(ROB) and ROA == rc(RIB)     -> A+ -> B-
                 for left_fact_id in set_of_left_facts_compatible:
                     for right_fact_id in rightmost_snp_to_fact_id[snp_id]:
                         print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t-\t"+str(-1)+"M")                          # -1 enables to detect those links
@@ -213,20 +203,20 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id,fa_file_nam
 
 def print_original_gfa(gfa_file_name):
     mfile = open(gfa_file_name)
-    print ("#################")
-    print ("# GFA of variants")
-    print ("#################")
-    print ("# Nodes are (compacted) facts with their read mapping coverage. Eg. \"S	2	34156l;-11363l;13698l;-26143h;10014l;	RC:i:144\".")
-    print ("# Three types of edges:")
-    print ("#   1. Overlap between facts. This links have overlap length >0. Eg, \"L	1	-	29384	+	3M\", with:")
-    print ("#       \"S	1	10011l;23229h;-21935l;-8929l;-24397l;10011h;	RC:i:24\", and")
-    print ("#       \"S	29384	21935l;-23229h;-10011l;24397l;-23229l;-25549h;-10011h;	RC:i:43\".")
-    print ("#   2. Facts linked by paired end reads.  Eg \"L	10735	+	29384	+	0M	FC:i:5\".")
-    print ("#       These links are non directed and do no validate the facts orientation. The coverage indicates the number of pairend read linking the two facts")
-    print ("#       These links have an overlap of length 0.")
-    print ("#   3. Facts linked by unitigs. The unitig finishing a fact overlaps the unitig starting another fact. Eg \"L	19946	+	11433	+	-1M\".")
-    print ("#       These links are directed and validate the facts orientation. ")
-    print ("#       These links have an overlap of length -1.")
+    print ("H\t#################")
+    print ("H\t# GFA of variants")
+    print ("H\t#################")
+    print ("H\t# Nodes are (compacted) facts with their read mapping coverage. Eg. \"S	2	34156l;-11363l;13698l;-26143h;10014l;	RC:i:144\".")
+    print ("H\t# Three types of edges:")
+    print ("H\t#   1. Overlap between facts. This links have overlap length >0. Eg, \"L	1	-	29384	+	3M\", with:")
+    print ("H\t#       \"S	1	10011l;23229h;-21935l;-8929l;-24397l;10011h;	RC:i:24\", and")
+    print ("H\t#       \"S	29384	21935l;-23229h;-10011l;24397l;-23229l;-25549h;-10011h;	RC:i:43\".")
+    print ("H\t#   2. Facts linked by paired end reads.  Eg \"L	10735	+	29384	+	0M	FC:i:5\".")
+    print ("H\t#       These links are non directed and do no validate the facts orientation. The coverage indicates the number of pairend read linking the two facts")
+    print ("H\t#       These links have an overlap of length 0.")
+    print ("H\t#   3. Facts linked by unitigs. The unitig finishing a fact overlaps the unitig starting another fact. Eg \"L	19946	+	11433	+	-1M\".")
+    print ("H\t#       These links are directed and validate the facts orientation. ")
+    print ("H\t#       These links have an overlap of length -1.")
     
     
     for l in mfile: 
@@ -234,16 +224,12 @@ def print_original_gfa(gfa_file_name):
     mfile.close()
     
 
-def determine_k(fa_file_name):
-    """ given the output disco file, ie discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa return the k value (ie 31). 
-    """
-    return int(fa_file_name.split("_k_")[1].split("_")[0]) 
 
 
 def main (gfa_file_name, fa_file_name):
     sys.stderr.write("#Store extreme left and right SNP id for each fact\n")
     leftmost_snp_to_fact_id, rightmost_snp_to_fact_id   = store_fact_extreme_snp_ids(gfa_file_name)
-    k                                                   = determine_k(fa_file_name)
+    k                                                   = kc.determine_k(fa_file_name)
     sys.stderr.write("#Store remarkable kmers for each such SNP\n")
     LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name,k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
 

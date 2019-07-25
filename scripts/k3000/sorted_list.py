@@ -1,4 +1,28 @@
 import sys
+import K3000_common as kc
+
+# allele_value = lambda x: int(x.split('_')[0])
+# distance_string_value = lambda x: x.split('_')
+
+# def list_of_list_to_allele_only(ll):
+#     res = []
+#     for list_ in ll:
+#         res.append([allele_value(x) for x in list_])
+#     return res
+
+
+#
+# ad=["0_0","1_12","2_13","3_13","4_12","5_123","6_1"]
+# bd=["0_1","1_12","2_13","3_13","4_12","5_123","6_1"]
+#
+# ll=[ad,bd]
+#
+# print(d_list_sort(ad, bd))
+#
+# print(ll)
+# print(list_of_list_to_allele_only(ll))
+
+zero_d_key = lambda x: x.split('_')[0]+'_0'
 
 def unique(s): # from http://code.activestate.com/recipes/52560-remove-duplicates-from-a-sequence/
     """Return a list of the elements in s, but without duplicates.
@@ -29,15 +53,15 @@ def unique(s): # from http://code.activestate.com/recipes/52560-remove-duplicate
     # work.  If it doesn't work, it will usually fail quickly, so it
     # usually doesn't cost much to *try* it.  It requires that all the
     # sequence elements be hashable, and support equality comparison.
-    u = {}
-    try:
-        for x in s:
-            u[x] = 1
-    except TypeError:
-        del u  # move on to the next method
-    else:
-        return u.keys()
-
+    # u = {}
+    # try:
+    #     for x in s:
+    #         u[x] = 1
+    # except TypeError:
+    #     del u  # move on to the next method
+    # else:
+    #     return u.keys()
+ 
     # We can't hash all the elements.  Second fastest is to sort,
     # which brings the equal elements together; then duplicates are
     # easy to weed out in a single pass.
@@ -45,45 +69,65 @@ def unique(s): # from http://code.activestate.com/recipes/52560-remove-duplicate
     # presence of many duplicate elements.  This isn't true of all
     # sort functions in all languages or libraries, so this approach
     # is more effective in Python than it may be elsewhere.
+
     try:
         t = list(s)
-        t.sort()
+        # print()
+       #  print(t)
+        t.sort(key=kc.allele_values)        # sort only on the allele ids not on their distance
+        # print(t)
+        # sys.exit(0)
     except TypeError:
+        
         del t  # move on to the next method
     else:
-        assert n > 0
+        # assert n > 0
         last = t[0]
         lasti = i = 1
         while i < n:
-            if t[i] != last:
+            if not kc.d_list_equal(t[i],last): # compare only on allele ids not on their distance
+            # if t[i] != last:
                 t[lasti] = last = t[i]
                 lasti += 1
             i += 1
+        # print(t[:lasti])
         return t[:lasti]
-
+ 
+    assert(0==1) # check that we do not pass here.
+    # print("Bla")
+    # sys.exit(0)
     # Brute force is all that's left.
-    u = []
-    for x in s:
-        if x not in u:
-            u.append(x)
+    # u = []
+   #  for x in s:
+   #      if x not in u:
+   #          u.append(x)
     return u
+    
+#ll= [['-30493_13', '-51619_15', '2593_28', '-31345_10'], ['-30493_13', '-51619_15', '2593_28', '-31345_10', '-1959_80'], ['-30493_13', '-51619_15', '2593_28', '-31345_7'], ['-51618_28', '2593_28', '-31345_10'], ['-51619_28', '2593_28', '-31345_10']]
+# ll= [['-30493_13', '-51619_15', '2593_28', '-31345_10'], ['-30493_13', '-51619_15', '2593_28', '-31345_7'], ['-30493_13', '-51619_15', '2593_28', '-31345_10', '-1959_80'], ['-30493_13', '-51619_15', '2593_28', '-31345_7'], ['-51618_28', '2593_28', '-31345_10'], ['-51619_28', '2593_28', '-31345_10']]
+# print(ll)
+# print (unique(ll))
 
-def compare (tuple1,tuple2):
+def compare (tuple1,tuple2): # TOCHECK
     '''
     if tuple1 starts with tuple2: return 0
     if tuple1<tuple2: return -1
     if tuple1>tuple2: return 1
     '''
-    if len(tuple1)>0 and type(tuple1[-1]) is str: tuple1=tuple1[:-1] # TODO: optimization feasible in calling functions for avoiding those systematic tests
-    if len(tuple2)>0 and type(tuple2[-1]) is str: tuple2=tuple2[:-1] # TODO: optimization feasible in calling functions for avoiding those systematic tests
+    # remove path id ("i_indexid")
+    if len(tuple1) > 0 and tuple1[-1][0] == 'i' : 
+        tuple1=tuple1[:-1] # TODO: optimization feasible in calling functions for avoiding those systematic tests
+    if len(tuple2) > 0 and tuple2[-1][0] == 'i' : 
+        tuple2=tuple2[:-1] # TODO: optimization feasible in calling functions for avoiding those systematic tests
     tmp_tuple1=tuple1[0:len(tuple2)]
-    if tmp_tuple1 < tuple2: return    -1
-    if tmp_tuple1 > tuple2: return     1
-    return                             0
+    return kc.d_list_order(tmp_tuple1,tuple2)    #
+    # if tmp_tuple1 < tuple2: return    -1
+    # if tmp_tuple1 > tuple2: return     1
+    # return                             0
 
 class sorted_list(object):
     """Class sorted list
-    Contains a sorted set of list of integers (positives or negatives, not equal to 0)
+    Contains a sorted set of list of allele+distance "a_b" (a is positive or negative, not equal to 0), b is an integer >= 0
     Divided into buckets. Each first value is a bucket.
     """
 
@@ -95,9 +139,10 @@ class sorted_list(object):
     def add(self, mylist):
         """add a new list"""
         self.size+=1
-        if mylist[0] not in self.main_dict: 
-            self.main_dict[mylist[0]]=[]
-        self.main_dict[mylist[0]]+=[mylist[1:]]
+        zdk = zero_d_key(mylist[0])
+        if zdk not in self.main_dict:             # key is always a_0
+            self.main_dict[zdk]=[]
+        self.main_dict[zdk]+=[mylist[1:]]
         
     
     def sorted_add(self,mylist):
@@ -109,7 +154,7 @@ class sorted_list(object):
         # pos_current = 6, previous = 5, 4, 3.  current_list[3]<current_list[6]: yes, so we swap, and obtain 4,N,7,5,N,N,13
         # pos_current = 3, previous = 2         current_list[2]<current_list[3]: yes, so we swap, and obtain 4,N,5,7,N,N,13
         # pos_current = 2, previous = 1, 0      current_list[0]<current_list[2]; no, this is finished. 
-        current_list = self.main_dict[mylist[0]]
+        current_list = self.main_dict[zero_d_key(mylist[0])]
         pos_current = len(current_list)-1
         while True:
             previous = pos_current-1
@@ -118,7 +163,8 @@ class sorted_list(object):
                 
             if previous==-1: break                                          # end of the list, nothing to do.
             
-            if current_list[previous] <= current_list[pos_current] : break  # bubble sort of the last element finished. Note that the "equal case" should not happen in our situation. 
+            if kc.d_list_order(current_list[previous],current_list[pos_current]) <=0: break# bubble sort of the last element finished. Note that the "equal case" should not happen in our situation. 
+            # current_list[previous] <= current_list[pos_current] : break  # bubble sort of the last element finished. Note that the "equal case" should not happen in our situation.
             else :                                                          # we swap the two values
                 current_list[previous], current_list[pos_current] = current_list[pos_current], current_list[previous]
                 pos_current     =   previous;
@@ -129,7 +175,7 @@ class sorted_list(object):
     def sort(self):
         """sort the whole structure - feasible only before removing elements"""
         for key, value in self.main_dict.items():
-            value.sort()
+            value.sort(key=kc.allele_values)
             
     def traverse(self):
         for key, value in self.main_dict.items():
@@ -151,11 +197,13 @@ class sorted_list(object):
     def remove(self,mylist):
         '''remove an element from the structure'''
         ''' if the element is not in a structure a warning is raised'''
+        zero_d_key = mylist[0].split('_')[0]+'_0'
         try:
-            tormindex=self.main_dict[mylist[0]].index(mylist[1:])
-            del self.main_dict[mylist[0]][tormindex]
+            tormindex=self.main_dict[zero_d_key].index(mylist[1:])
+            del self.main_dict[zero_d_key][tormindex]
         except :
-            sys.stderr.write("\n        WARNING: Tried to remove "+str(mylist)+" absent from the list.\n")
+            sys.stderr.write("\n        WARNING: "+str(mylist)+"\n")
+            # sys.stderr.write("\n        WARNING: Tried to remove "+str(mylist)+" absent from the list "+str(self.main_dict[mylist[0]])+".\n")
             return 0
         self.size-=1
         return 1
@@ -165,15 +213,30 @@ class sorted_list(object):
         Dichotomy. log(|self|/size(alphabet)) comparisons
         O(|prefix|*log(|self|/size(alphabet)))
         '''
+        #TODO: optimizable if len(prefix==1): return the self.main_dict[prefix[0]] adding prefix[0] to each value. 
+        # assert prefix[0].split('_')[-1] == "0", prefix
+        zkd = zero_d_key(prefix[0])
+        if zkd not in self.main_dict: return []
+        #OPTIMIZATION IF len(prefix==1): return the self.main_dict[prefix[0]] adding prefix[0] to each value. 
+        if len(prefix)==1: 
+            res = []
+            for l in self.main_dict[zkd]:
+                res.append([prefix[0]]+l)
+            # print()
+            # print(prefix)
+            # print(res)
+            return res
+
         first=prefix[0]
-        if first not in self.main_dict: return []
-        current_list = self.main_dict[first]
+        
+        current_list = self.main_dict[zkd]
+        # print(prefix)
         prefix = prefix[1:]
         start=0
         n=len(current_list)-1
         stop=n
     
-   
+
         # print ("search", prefix, "in ",current_list)
         while start <=stop: 
             # print (start,stop)
@@ -219,6 +282,7 @@ class sorted_list(object):
                     
             # print ("res after all = ",res)
             return res
+        # print ("return rien")
         return []
         
     def contains (self,mylist):

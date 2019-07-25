@@ -48,6 +48,8 @@ def show_right_edges (MSR,x,id_x):#,unitigs,k):
                 strandy='-'
 #                id_y = indexed_nodes.index(kc.get_reverse_msr(y))
                 id_y=kc.get_reverse_msr_id(y,MSR)                                # find the reverse of list y in MSR to grab its id.
+                # print("y is ", y)
+                # print("id_y is", id_y)
                 if id_x>id_y: continue # x_.y is the same as y_.x. Thus we chose one of them. By convention, we print x_.y if x<y.
             # print the edges
             print ("L\t"+str(id_x)+"\t"+strandx+"\t"+str(id_y)+"\t"+strandy+"\t"+str(len_u)+"M")
@@ -86,16 +88,7 @@ def print_GFA_edges(MSR):#,unitigs,k):
     sys.stderr.write("\t100.00%\n")
 
 
-def unitig_id2snp_id(unitig_id):
-    sign=1
-    if unitig_id<0: sign=-1
-    unitig_id=abs(unitig_id)
-    res=str(sign*(unitig_id//2))
-    if unitig_id%2==0:
-        res+="h"
-    else:
-        res+="l"
-    return res
+
 
 def print_GFA_nodes_as_ids(MSR):#, unitigs, k):
     '''print canonical unitigs ids
@@ -108,13 +101,19 @@ def print_GFA_nodes_as_ids(MSR):#, unitigs, k):
         print ("S\t"+str(node_id)+"\t", end="")
 
         for unitig_id in msr:                       
-            print (unitig_id2snp_id(unitig_id)+";", end="")
+            print (kc.unitig_id2snp_id(kc.allele_value(unitig_id))+";", end="")
         print ()
 
 def union(a, b):
     """ return the union of two lists """
     return list(set(a) | set(b))
 
+
+def check(MSR): 
+    """ debug purpose """ 
+    for msr in MSR.traverse(): 
+        assert kc.get_reverse_msr_id(msr,MSR) != None, msr
+            
 
 def main():
     '''
@@ -128,6 +127,7 @@ def main():
     kc.add_reverse_SR(MSR)
     MSR.sort()
     MSR.index_nodes()                          # This adds a final value to each sr, providing its node id.
+    # check(MSR)
     sys.stderr.write("Print GFA Nodes\n")
     print_GFA_nodes_as_ids(MSR)
     sys.stderr.write("Print GFA Edges\n")
