@@ -65,7 +65,7 @@ def check_overlap(s1,s2, int_snp_id_d, allele_id):
 def generate_sequence_paths(sequences, k, compacted_fact_file_name):
 
     mfile = open(compacted_fact_file_name)
-    
+    nb_non_writen=0
     for line in mfile: 
         # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
         header = ">"+line.strip()
@@ -183,9 +183,10 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                 break
         if toprint:
             print(header+"\n"+full_seq)
+        else: nb_non_writen+=1
             
-            
-            
+    if nb_non_writen>0:
+        sys.stderr.write("Warning, "+str(nb_non_writen)+" facts were removed as their sequence concatenation were not coherent or because they contained non coherent predictions\n")
         
     mfile.close()
 
