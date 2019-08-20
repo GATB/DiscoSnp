@@ -27,6 +27,13 @@ allele_value = lambda x: int(x.split('_')[0])
 allele_values = lambda list_: [allele_value(x) for x in list_]
 distance_string_value = lambda x: x.split('_')[1]
 
+def generate_header(raw_int_facts):
+    # from 204_0;201_-23;336_-85; to 102h;100l;168h;
+    res=""
+    for raw_int_fact in raw_int_facts.strip(";").split(';'):
+        res+=unitig_id2snp_id(allele_value(raw_int_fact))+";"
+    return res
+
 def d_list_equal(a_d,b_d):
     a=[allele_value(x) for x in a_d]
     b=[allele_value(x) for x in b_d]

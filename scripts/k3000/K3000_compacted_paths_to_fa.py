@@ -62,6 +62,8 @@ def check_overlap(s1,s2, int_snp_id_d, allele_id):
     # assert s1.upper() == s2.upper()
     # print()
     
+    
+    
 def generate_sequence_paths(sequences, k, compacted_fact_file_name):
 
     mfile = open(compacted_fact_file_name)
@@ -154,10 +156,8 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                                 stop_on_seq=start_on_seq+p
                                 
                             if not check_overlap(full_seq[-p:],seq[start_on_seq:stop_on_seq], int_snp_id_d, allele_id):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
-                                header+=" ZZZZSHIFTED NOT ASSEMBLED"
                                 toprint = False
                                 break
-                                # full_seq=""
                                 
                             full_seq+=seq[-to_be_written:]
                         else:                                           # the to_be_written part is bigger than the length of the new sequence, we fill with Ns and add the full new seq
@@ -177,8 +177,6 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                         previous_bubble_ru = previous_bubble_ru-int(kc.distance_string_value(int_snp_id_d))-len_upper_case
                 
             except KeyError: # in case a variant is in the phasing file but absent from the disco file. This is due to uncoherent prediction
-                header+=" UNCOHERENT"
-                full_seq=""
                 toprint=False
                 break
         if toprint:
