@@ -202,7 +202,7 @@ class sorted_list(object):
             tormindex=self.main_dict[zero_d_key].index(mylist[1:])
             del self.main_dict[zero_d_key][tormindex]
         except :
-            sys.stderr.write("\n        WARNING: "+str(mylist)+"\n")
+            # sys.stderr.write("\n        WARNING: "+str(mylist)+"\n")
             # sys.stderr.write("\n        WARNING: Tried to remove "+str(mylist)+" absent from the list "+str(self.main_dict[mylist[0]])+".\n")
             return 0
         self.size-=1

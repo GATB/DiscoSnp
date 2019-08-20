@@ -75,9 +75,10 @@ def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
         # print("oriented_allele -"+oriented_allele+"-")
         snp_id_only=get_left_clean_snp(oriented_allele).split("_")[0][:-1]      # get the snp id non oriented
         # print("snp_id_only",snp_id_only)
-        subcompacedfacts=subcompacedfacts.union(snp_to_fact_id[snp_id_only])    # fill the subcompacedfacts with all facts in which the snp id non oriented occurs. 
-        # print("subcompacedfacts", subcompacedfacts)
-        raw_fact_snps.add(oriented_allele.split("_")[0])
+        if snp_id_only in snp_to_fact_id: # the snp may be absent in case it was removed by the sequence concatenation process. 
+            subcompacedfacts=subcompacedfacts.union(snp_to_fact_id[snp_id_only])    # fill the subcompacedfacts with all facts in which the snp id non oriented occurs. 
+            # print("subcompacedfacts", subcompacedfacts)
+            raw_fact_snps.add(oriented_allele.split("_")[0])
     # print ("raw_fact_snps", raw_fact_snps)
     for j in subcompacedfacts:
         if compatibles(raw_fact_snps, j, compacted_facts):

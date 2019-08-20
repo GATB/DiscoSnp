@@ -259,8 +259,9 @@ struct Functor
     Functor (GlobalValues & gv, FragmentIndex& index, const int read_set_id, u_int64_t * number_of_mapped_reads, map<string,int> & phased_variants) : gv(gv), index(index), read_set_id(read_set_id), number_of_mapped_reads(number_of_mapped_reads), phased_variants(phased_variants){}
     
     
-    map<int,int64_t> core_mapping(char *read, char * quality){
-        map<int,int64_t> pwi_and_mapped_predictions;                        // stores for this reads the succesfully mapped predictions together with their pwi.
+    map<int,pair<char,int64_t>> core_mapping(char *read, char * quality){
+        map<int,pair<char,int64_t>> pwi_and_mapped_predictions;                        // stores for this reads the succesfully mapped predictions (direction '+' or '-') and their id together with their pwi.
+        // note that we cannot use simply the -id to indicate the orientation, as prediction 0 exists.
         
         const uint64_t read_len = strlen(read);
         
@@ -294,8 +295,8 @@ struct Functor
                 else { // previous seed was correct, we extend it.
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
-
-            
+                
+                
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
@@ -357,55 +358,57 @@ struct Functor
                         const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
                         
 #ifdef DEBUG_MAPPING
-                        if (is_read_mapped) cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->a<<" pos "<<pwi<<endl;
+                        
+                        if (is_read_mapped) {
+                            cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->a<<" pos "<<pwi<<" direction "<<direction<<endl;
+                        }
 #endif
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
                             
-//    #ifdef PHASING
+                            //    #ifdef PHASING
                             if(gv.phasing){
-                            mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
-                            // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
-                            if (index.all_predictions[value->a]->nbOfSnps ==1){      // If this is not an indel (todo phase also indels)
-                                // phasing of multiple SNPs is buggy. I changed (02/07/2019) the previous test which was !=0 to ==1 to conserve only simple snps. 
- 
-                                //                            mapped_prediction_as_list.push_back (value->a);     // Store the prediction in the list (remaining the order)
-                                int sign=direction==0?1:-1;
-                                
-                                if (direction == 0){
-                                    if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = sign*value->a;
-                                    // TODO what if this read maps already a variant at the same position ?
-                                }
-                                else{
+                                mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
+                                // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
+                                if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
                                     
-                                    //        ;;;;;;;;;;;  prediction (11)
-                                    //             ******************************       read (30)
-                                    //             <----> minimal_read_overlap (6)
-                                    //        <---> pwi (5)
-                                    //                   <----------------------> rc_pwi (-24)
-                                    // we have : |read_overlap| = |prediction|-pwi
-                                    // we have : rc_pwi = |read_overlap|-|read|
-                                    // we have : rc_pwi = |prediction|-pwi-read
-                                    // rc_pwi = 11-5-30 = -24.
+                                    char sign=direction==0?'\0':'-';
                                     
-                                    // Validation with pwi<0:
-                                    /*
-                                     *  <-> pwi (-3)
-                                     *     --------------  prediction (14)
-                                     *  ***********        read (11)
-                                     *             <----> rc_pwi=6
-                                     * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
-                                     */
-                                    const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                    if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = sign*value->a;
-                                    // TODO what if this read maps already a variant at the same position ?
-                                    ///
+                                    if (direction == 0){
+                                        
+                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        // TODO what if this read maps already a variant at the same position ?
+                                    }
+                                    else{
+                                        
+                                        //        ;;;;;;;;;;;  prediction (11)
+                                        //             ******************************       reverse read (30)
+                                        //             <----> minimal_read_overlap (6)
+                                        //        <---> pwi (5)
+                                        //                   <----------------------> rc_pwi (-24)
+                                        // we have : |read_overlap| = |prediction|-pwi
+                                        // we have : rc_pwi = |read_overlap|-|read|
+                                        // we have : rc_pwi = |prediction|-pwi-read
+                                        // rc_pwi = 11-5-30 = -24.
+                                        
+                                        // Validation with pwi<0:
+                                        /*
+                                         *  <-> pwi (-3)
+                                         *     --------------  prediction (14)
+                                         *  ***********        read (11)
+                                         *             <----> rc_pwi=6
+                                         * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
+                                         */
+                                        const int rc_pwi = strlen(prediction) - pwi - read_len;
+                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        // TODO what if this read maps already a variant at the same position ?
+                                        ///
+                                    }
                                 }
-                            }
                             }
                             ////// END PHASING
-//#endif //PHASING
+                            //#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
                             printf("SUCCESS %d %d \n", pwi, value->a);
@@ -435,6 +438,95 @@ struct Functor
         return pwi_and_mapped_predictions;
     }
     
+    /// OPERATOR FOR A NON PAIRED SEQUENCE
+    void operator() (Sequence& seq)
+    {
+        // Shortcut
+        char *read = strdup(seq.toString().c_str());
+        char * quality = strdup(seq.getQuality().c_str());
+        
+        map<int,std::pair<char,int64_t>> pwi_and_mapped_predictions = core_mapping(read, quality);
+        
+        // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
+        
+        /////// PHASING
+        if (gv.phasing){
+            if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
+                string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+                int previous_pwi;                                                       // position of the previous pwi snp on the read
+                int previous_upper_case_seq_len=0;                                      // size of the previous upper case sequence
+                bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
+                // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+                // _________________________                prediction1
+                //  --------                                read
+                // __________________                       prediction2
+                //         --------                         read
+                // means that
+                //                --------                  read
+                //        __________________                prediction2
+                //               _________________________  prediction1
+                // prediction1 is after prediction2, while read mapped earlier on it. This explains the reverse order
+                for (map<int,std::pair<char,int64_t>>::reverse_iterator it=pwi_and_mapped_predictions.rbegin(); it!=pwi_and_mapped_predictions.rend(); ++it){
+                    int pwi=it->first;                                                  // Position on the read of the current variant
+                    std::pair<char,int64_t> signed_var_id =it->second;
+                    char sign = signed_var_id.first;
+                    int64_t var_id = signed_var_id.second;
+                    //DEBUG
+                    //                    cout<<"var_id        "<<var_id<<endl;
+                    //
+                    //                    cout<<"pwi        "<<pwi<<endl;
+                    //ENDDEBUG
+                    
+                    int relative_position;                                              // Relative position of the upper case sequence variant with repect to previous upper case sequence start
+                    int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
+                    //  -----[XXXXXXXXXX]---------  previous sequence
+                    //                  ----------[XXXXXX]------------ current sequence
+                    //       <-relative_position->
+                    //                   <-shift->
+                    // the shift value has the advantage to be symetrical. When reverting the phased alleles, the shift is constant while the relative_position would have to be recomputed.
+                    if (first_snp){
+                        relative_position=0;
+                        shift=0;
+                        first_snp=false;
+                    }
+                    else{
+                        relative_position=previous_pwi-pwi;
+                        shift=relative_position-previous_upper_case_seq_len;
+                    }
+                    previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
+                    previous_pwi=pwi;
+                    string phased_variant_id;
+                    if (sign != '\0')
+                        phased_variant_id+=sign;
+                    phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
+                    
+                    //DEBUG
+                    //
+                    //                                    cout<<"phased_variant_id        "<<phased_variant_id<<endl;
+                    //                                    cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
+                    //                                    cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
+                    //                                    cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<endl;
+                    //                                        phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                    //ENDDEBUG
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                    
+                }
+                // Associate this string to the number of times it is seen when mapping this read set
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+            }
+            
+            pwi_and_mapped_predictions.clear();
+        }
+        /////// END PHASING
+        
+        
+        free(read);
+        free(quality);
+        
+    }
+
+    /// OPERATOR FOR A PAIR OF SEQUENCES
     void operator() (std::pair<Sequence,Sequence>& pair){
         // Shortcut
         char *read1 = strdup(pair.first.toString().c_str());
@@ -442,98 +534,119 @@ struct Functor
         char *read2 = strdup(pair.second.toString().c_str());
         char * quality2 = strdup(pair.second.getQuality().c_str());
         
-        map<int,int64_t> pwi_and_mapped_predictions1 = core_mapping(read1, quality1);
-        map<int,int64_t> pwi_and_mapped_predictions2 = core_mapping(read2, quality2);
+        map<int,std::pair<char,int64_t>> pwi_and_mapped_predictions1 = core_mapping(read1, quality1);
+        map<int,std::pair<char,int64_t>> pwi_and_mapped_predictions2 = core_mapping(read2, quality2);
         
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-//        #ifdef PHASING
+        //        #ifdef PHASING
         if (gv.phasing){
-        if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
-            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            int previous_pwi;                                                       // position of the previous pwi snp on the read
-            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
-            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
-            // _________________________                prediction1
-            //  --------                                read
-            // __________________                       prediction2
-            //         --------                         read
-            // means that
-            //                --------                  read
-            //        __________________                prediction2
-            //               _________________________  prediction1
-            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
-            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions1.rbegin(); it!=pwi_and_mapped_predictions1.rend(); ++it){
-                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                // TODO: optimize this
-                //                const int pwi = it->first;
-                int64_t var_id =it->second;
-                int pwi = it->first;
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
+            if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
+                string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+                int previous_pwi;                                                       // position of the previous pwi snp on the read
+                int previous_upper_case_seq_len=0;                                      // size of the previous upper case sequence
+                bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
+                // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+                // _________________________                prediction1
+                //  --------                                read
+                // __________________                       prediction2
+                //         --------                         read
+                // means that
+                //                --------                  read
+                //        __________________                prediction2
+                //               _________________________  prediction1
+                // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
+                for (map<int,std::pair<char,int64_t>>::reverse_iterator it=pwi_and_mapped_predictions1.rbegin(); it!=pwi_and_mapped_predictions1.rend(); ++it){
+                    //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                    // TODO: optimize this
+                    //                const int pwi = it->first;
+                    int pwi = it->first;
+                    std::pair<char,int64_t> signed_var_id =it->second;
+                    char sign = signed_var_id.first;
+                    int64_t var_id = signed_var_id.second;
+                    
+                    int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                    int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
+                    //  -----[XXXXXXXXXX]---------
+                    //                  ----------[XXXXXX]------------
+                    //       <-relative_position->
+                    //                   <-shift->
+                    // the shift value has the advantage to be symetrical. When reverting the phased alleles, the shift is constant while the relative_position would have to be recomputed.
+                    if (first_snp){
+                        relative_position=0;
+                        first_snp=false;
+                        shift = 0;
+                    }
+                    else{
+                        relative_position=-(pwi-previous_pwi);
+                        shift=relative_position-previous_upper_case_seq_len;
+                    }
+                    previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
+                    previous_pwi=pwi;
+                    
+                    string phased_variant_id;
+                    if (sign != '\0')
+                        phased_variant_id+=sign;
+                    phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                }
+                phased_variant_ids += ' ';
+                first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
+                // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
+                // _________________________                prediction1
+                //  --------                                read
+                // __________________                       prediction2
+                //         --------                         read
+                // means that
+                //                --------                  read
+                //        __________________                prediction2
+                //               _________________________  prediction1
+                // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
+                for (map<int,std::pair<char,int64_t>>::reverse_iterator it=pwi_and_mapped_predictions2.rbegin(); it!=pwi_and_mapped_predictions2.rend(); ++it){
+                    //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
+                    // TODO: optimize this
+                    //                const int pwi = it->first;
+                    int pwi = it->first;
+                    std::pair<char,int64_t> signed_var_id =it->second;
+                    char sign = signed_var_id.first;
+                    int64_t var_id = signed_var_id.second;
+                    
+                    int relative_position;                                              // Relative position of the variant with repect to previous SNP
+                    int shift;                                                          // distance between the current upper case sequence start and the previous one. May be negative.
+                    //  -----[XXXXXXXXXX]---------
+                    //                  ----------[XXXXXX]------------
+                    //       <-relative_position->
+                    //                   <-shift->
+                    // the shift value has the advantage to be symetrical. When reverting the phased alleles, the shift is constant while the relative_position would have to be recomputed.
+                    if (first_snp){
+                        relative_position=0;
+                        first_snp=false;
+                        shift=0;
+                    }
+                    else{
+                        relative_position=-(pwi-previous_pwi);
+                        shift=relative_position-previous_upper_case_seq_len;
+                    }
+                    previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
+                    previous_pwi=pwi;
+                    
+                    string phased_variant_id;
+                    if (sign != '\0')
+                        phased_variant_id+=sign;
+                    phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
+                    phased_variant_ids = phased_variant_ids+phased_variant_id+';';
                 }
                 
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=-(pwi-previous_pwi);
-                previous_pwi=pwi;
-
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
-            }
-            phased_variant_ids += ' ';
-            first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
-            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
-            // _________________________                prediction1
-            //  --------                                read
-            // __________________                       prediction2
-            //         --------                         read
-            // means that
-            //                --------                  read
-            //        __________________                prediction2
-            //               _________________________  prediction1
-            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
-            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions2.rbegin(); it!=pwi_and_mapped_predictions2.rend(); ++it){
-                //            for (set<pair<int,u_int64_t>> ::iterator it=pwi_and_mapped_predictions.begin(); it!=pwi_and_mapped_predictions.end(); ++it){
-                // TODO: optimize this
-                //                const int pwi = it->first;
-                int64_t var_id =it->second;
-                int pwi = it->first;
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
-                }
-                
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=-(pwi-previous_pwi);
-                previous_pwi=pwi;
-                
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                // Associate this string to the number of times it is seen when mapping this read set
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
             
-            // Associate this string to the number of times it is seen when mapping this read set
-            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+            pwi_and_mapped_predictions1.clear();
+            pwi_and_mapped_predictions2.clear();
         }
-        
-        pwi_and_mapped_predictions1.clear();
-        pwi_and_mapped_predictions2.clear();
-        }
-//#endif // Phasing
+        //#endif // Phasing
         /////// END PHASING
         
         
@@ -548,75 +661,7 @@ struct Functor
     
     
     
-    void operator() (Sequence& seq)
-    {
-        // Shortcut
-        char *read = strdup(seq.toString().c_str());
-        char * quality = strdup(seq.getQuality().c_str());
-        
-        map<int,int64_t> pwi_and_mapped_predictions = core_mapping(read, quality);
-        
-        // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
-        
-        /////// PHASING
-        if (gv.phasing){
-        if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
-            string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
-            int previous_pwi;                                                       // position of the previous pwi snp on the read
-            bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
-            // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
-            // _________________________                prediction1
-            //  --------                                read
-            // __________________                       prediction2
-            //         --------                         read
-            // means that
-            //                --------                  read
-            //        __________________                prediction2
-            //               _________________________  prediction1
-            // prediction1 is before prediction2, while read mapped earlier on it. This explains the reverse order
-            for (map<int,int64_t>::reverse_iterator it=pwi_and_mapped_predictions.rbegin(); it!=pwi_and_mapped_predictions.rend(); ++it){
-                int64_t var_id =it->second;
-                int pwi=it->first;                                                  // Position on the read of the current variant
-                string sign = "";
-                if (var_id<0){
-                    sign ="-";
-                    var_id=-var_id;
-                }
-                int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                if (first_snp){
-                    relative_position=0;
-                    first_snp=false;
-                }
-                else
-                    relative_position=-(pwi-previous_pwi);
-                previous_pwi=pwi;
-                string phased_variant_id = sign+parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(relative_position);
-                
-                //DEBUG
-//                cout<<"phased_variant_id        "<<phased_variant_id<<endl;
-//                cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
-//                cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
-//                cout<<it->first<<" "<<it->second<<endl;
-//                    phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
-                //ENDDEBUG
-                phased_variant_ids = phased_variant_ids+phased_variant_id+';';
-                
-            }
-            // Associate this string to the number of times it is seen when mapping this read set
-            if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-            else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
-        }
-        
-        pwi_and_mapped_predictions.clear();
-        }
-        /////// END PHASING
-
-        
-        free(read);
-        free(quality);
-        
-    }
-};
+ };
 
 // We a define a functor that will be called during bank parsing
 struct ProgressFunctor : public IteratorListener  {  void inc (u_int64_t current)   {  std::cout << ".";  } };
@@ -672,14 +717,14 @@ u_int64_t ReadMapper::map_all_reads_from_a_file (
     
     // PHASING:
     if (gv.phasing){
-    stringstream phasingFileName;
-    phasingFileName<<"phased_alleles_read_set_id_"<<(read_set_id+1)<<".txt";
-    cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
-    ofstream phasingFile (phasingFileName.str());
-    phasingFile <<"#"<<inputBank->getId()<<endl;
-    for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
-        phasingFile << it->first << " => " << it->second << '\n';
-    phasingFile.close();
+        stringstream phasingFileName;
+        phasingFileName<<"phased_alleles_read_set_id_"<<(read_set_id+1)<<".txt";
+        cout<<"print in phasing information in "<<phasingFileName.str()<<endl;
+        ofstream phasingFile (phasingFileName.str());
+        phasingFile <<"#"<<inputBank->getId()<<endl;
+        for (map<string,int>::iterator it=phased_variants.begin(); it!=phased_variants.end(); ++it)
+            phasingFile << it->first << " => " << it->second << '\n';
+        phasingFile.close();
     }
     // ENDPHASING
     

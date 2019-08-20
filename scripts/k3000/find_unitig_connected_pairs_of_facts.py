@@ -1,4 +1,5 @@
 import sys
+import K3000_common as kc
 
 def store_fact_extreme_snp_ids(gfa_file_name):
     """ Given a gfa file, store the id of each extreme SNP (without h or l)
