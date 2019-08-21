@@ -70,7 +70,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
     nb_non_writen=0
     for line in mfile: 
         # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
-        header = ">"+line.strip()
+        header = ">"+line.strip()+ " "  # add latter the starting and ending positions of each allele on the global sequence. Enables to recover the good overlap length in the final GFA file
         # print(line)         #DEBUG
         line=line.split(';')
         previous_bubble_ru=0
@@ -122,6 +122,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                 if i==0: 
                     full_seq+=seq
                     previous_bubble_ru = ru
+                    header+="0-"+str(len(full_seq))+";"
                     # print("full_seq =",full_seq)
                     
                 else:
@@ -158,12 +159,15 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                             if not check_overlap(full_seq[-p:],seq[start_on_seq:stop_on_seq], int_snp_id_d, allele_id):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
                                 toprint = False
                                 break
-                                
-                            full_seq+=seq[-to_be_written:]
+                            header+=str(len(full_seq)-len(seq)+to_be_written)    # starting position of the new sequence on the full seq that overlaps the full seq by len(seq)-to_be_written
+                            full_seq+=seq[-to_be_written:] 
+                            header+="_"+str(len(full_seq))+";"                           # ending position of the new sequence on the full seq. 
                         else:                                           # the to_be_written part is bigger than the length of the new sequence, we fill with Ns and add the full new seq
                             for i in range(to_be_written-len(seq)):
                                 full_seq+='N'
+                            header+=str(len(full_seq))                           # starting position of the new sequence on the full seq (possibly overlapping the full seq)
                             full_seq+=seq
+                            header+="_"+str(len(full_seq))+";"                           # ending position of the new sequence on the full seq. 
                         previous_bubble_ru = ru
                             
                     else:                                               # the new seq finishes before the already created full_seq. In this case we need to update the previous ru wrt 
@@ -175,6 +179,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                         ### pbru = shift +len(upper) + npbru --> 
                         ### npbru = pbru - shift - len(upper)
                         previous_bubble_ru = previous_bubble_ru-int(kc.distance_string_value(int_snp_id_d))-len_upper_case
+                        header+="X_X;"                                          # this allele is useless we do not store its start and stop positions
                 
             except KeyError: # in case a variant is in the phasing file but absent from the disco file. This is due to uncoherent prediction
                 toprint=False
