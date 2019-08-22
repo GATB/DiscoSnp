@@ -10,10 +10,29 @@ Common file
 
 import sys
 import sorted_list
+def hamming (s1, s2):
+    res=0
+    if len(s1) != len(s2): return 100000
+    for i in range(len(s1)):
+        if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
+            res+=1
+    return res
+            
 
+def check_overlap(s1,s2):
+    # print()
+    # if hamming(s1,s2) >= 5:
+   #      print("s1",s1)
+   #      print("s2",s2,int_snp_id_d,allele_id)
+    # assert hamming(s1,s2) < 5, ""+str(hamming(s1,s2))
+    return  hamming(s1,s2) < 5
+    # assert s1.upper() == s2.upper()
+    # print()
+    
+    
     
 def get_complement(char):
-    complement = {"A" : "T", "T" : "A", "G" : "C", "C" : "G", "a" : "t", "t" : "a", "g" : "c" , "c" : "g"}
+    complement = {"A" : "T", "T" : "A", "G" : "C", "C" : "G", "a" : "t", "t" : "a", "g" : "c" , "c" : "g", "N":"N"}
     return complement[char]
 
     

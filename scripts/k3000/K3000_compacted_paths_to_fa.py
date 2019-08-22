@@ -43,26 +43,7 @@ def index_sequences(fa_file_name):
     return sequences
     
     
-def hamming (s1, s2):
-    res=0
-    if len(s1) != len(s2): return 100000
-    for i in range(len(s1)):
-        if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
-            res+=1
-    return res
-            
 
-def check_overlap(s1,s2, int_snp_id_d, allele_id):
-    # print()
-    # if hamming(s1,s2) >= 5:
-   #      print("s1",s1)
-   #      print("s2",s2,int_snp_id_d,allele_id)
-    # assert hamming(s1,s2) < 5, ""+str(hamming(s1,s2))
-    return  hamming(s1,s2) < 5
-    # assert s1.upper() == s2.upper()
-    # print()
-    
-    
     
 def generate_sequence_paths(sequences, k, compacted_fact_file_name):
 
@@ -156,7 +137,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                                 start_on_seq=0
                                 stop_on_seq=start_on_seq+p
                                 
-                            if not check_overlap(full_seq[-p:],seq[start_on_seq:stop_on_seq], int_snp_id_d, allele_id):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
+                            if not kc.check_overlap(full_seq[-p:],seq[start_on_seq:stop_on_seq]):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
                                 toprint = False
                                 break
                             header+=str(len(full_seq)-len(seq)+to_be_written)    # starting position of the new sequence on the full seq that overlaps the full seq by len(seq)-to_be_written

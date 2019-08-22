@@ -21,6 +21,8 @@ fi
 
 
 # Creating a file where simple paths are compacted
+
+echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP${reset}"
 echo "${green}           ### Creating a file where simple paths are compacted"
 cmd="python3 ${EDIR}/K3000.py ${phased_allele_file}"
 echo "           "$cmd "> compacted_facts_int.txt${cyan}"
@@ -114,7 +116,7 @@ if [ $? -ne 0 ]
 then
     echo "${red}           ###Problem detected, check logs.${reset}"
     echo "${green}           ### You may remove useless files: rm -f compacted_facts_int.txt compacted_facts.gfa graph.gfa compacted_facts.fa graph_plus.gfa "
-    echo "${green}${bold}           ### Phasing ended, the final graph is $(tput blink)${underline}graph_final.gfa${no_underline}.${reset}. "
+    echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is $(tput blink)${underline}graph_final.gfa${no_underline}.${reset}. "
     exit 0
 fi
 
@@ -122,5 +124,4 @@ fi
 echo "${green}           ### You may remove useless files: rm -f compacted_facts_int.txt compacted_facts.gfa graph.gfa compacted_facts.fa graph_plus.gfa "
 #rm -f compacted_facts_int.txt compacted_facts.gfa graph.gfa compacted_facts.fa graph_plus.gfa 
 
-echo "${green}${bold}           ### Phasing ended, the final graph is $(tput blink)${underline}graph_final.gfa${no_underline}${green}${reset} ${green}${bold} stats are available in $(tput blink)${underline}distributions.png${no_underline}${reset}"
-#, stats are available in $(tput blink)${underline}distributions.png${no_underline.${reset}. "
+echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is $(tput blink)${underline}graph_final.gfa${no_underline}${green}${reset} ${green}${bold} stats are available in $(tput blink)${underline}distributions.png${no_underline}${reset}"
