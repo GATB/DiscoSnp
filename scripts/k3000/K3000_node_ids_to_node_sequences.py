@@ -103,6 +103,8 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
         
         if gfa_line[0]=='L':
             split_gfa_line=gfa_line.split()
+            if split_gfa_line[1] == split_gfa_line[3]: #no not print self loops
+                continue
             if split_gfa_line[-1]=="0M" or split_gfa_line[-1]=="-1M": # non overlapping edges, we simply write them
                 print(gfa_line.strip())
                 continue
@@ -116,6 +118,7 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             OL = overlap_length(seqA,seqB)
             assert OL!=-1,seqA+" "+seqB
             if OL!=-2:
+                
                 print (split_gfa_line[0]+"\t"+split_gfa_line[1]+"\t"+split_gfa_line[2]+"\t"+split_gfa_line[3]+"\t"+split_gfa_line[4]+"\t"+str(OL)+"M")
             continue
             
