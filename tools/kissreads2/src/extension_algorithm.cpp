@@ -491,6 +491,7 @@ struct Functor
                     }
                     else{
                         relative_position=previous_pwi-pwi;
+                        assert(relative_position >=0);
                         shift=relative_position-previous_upper_case_seq_len;
                     }
                     previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
@@ -567,7 +568,8 @@ struct Functor
                     int64_t var_id = signed_var_id.second;
                     
                     int relative_position;                                              // Relative position of the variant with repect to previous SNP
-                    int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
+                    int shift=0;                                                        // distance between the current upper case sequence start and the previous one.
+                                                                                        // May be negative if upper sequences overlap. In this case, -shift must be <=previous_upper_case_seq_len
                     //  -----[XXXXXXXXXX]---------
                     //                  ----------[XXXXXX]------------
                     //       <-relative_position->
@@ -580,7 +582,10 @@ struct Functor
                     }
                     else{
                         relative_position=-(pwi-previous_pwi);
+                        assert(relative_position >=0);                      //TODO to remove
                         shift=relative_position-previous_upper_case_seq_len;
+                        if (shift<0)                                        //TODO to remove
+                            assert(-shift>previous_upper_case_seq_len);     //TODO to remove
                     }
                     previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
                     previous_pwi=pwi;
@@ -626,7 +631,10 @@ struct Functor
                     }
                     else{
                         relative_position=-(pwi-previous_pwi);
+                        assert(relative_position >=0);                      //TODO to remove
                         shift=relative_position-previous_upper_case_seq_len;
+                        if (shift<0)                                        //TODO to remove
+                            assert(-shift>previous_upper_case_seq_len);     //TODO to remove
                     }
                     previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
                     previous_pwi=pwi;
