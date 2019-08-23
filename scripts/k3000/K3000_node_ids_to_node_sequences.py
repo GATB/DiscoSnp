@@ -15,7 +15,11 @@ def index_sequences(compacted_facts_fa_file_name):
     '''
     header_to_file_position = {}
     compacted_facts_fa_file=open(compacted_facts_fa_file_name)
+    file_size=kc.file_size(compacted_facts_fa_file)
+    step=0
     while(True):
+        if step%10000==0:        kc.update_progress(compacted_facts_fa_file.tell()/file_size)
+        step+=1
         pos=compacted_facts_fa_file.tell()
         header_fa=compacted_facts_fa_file.readline()
         if not header_fa: break
@@ -23,6 +27,7 @@ def index_sequences(compacted_facts_fa_file_name):
         sequence_fa=compacted_facts_fa_file.readline().strip()
         header_to_file_position[kc.generate_header(header_fa[1:])]=pos
         # print(header_fa[1:]," pos ",pos)
+    kc.update_progress(1)
     compacted_facts_fa_file.close()
     return header_to_file_position
 
@@ -37,10 +42,7 @@ def index_sequences(compacted_facts_fa_file_name):
 def yield_occurring_positions_reverse(kmer, seq):
     k=len(kmer)
     for i in range(len(seq)-k,-1,-1):
-        # print(i)
-        # print(kmer)
-        # print(seq[i:i+k])
-        if kc.hamming(seq[i:i+k],kmer)<3: 
+        if kc.hamming(seq[i:i+k],kmer)<3:
             yield i
 
 def overlap_length(seqA, seqB):
@@ -55,15 +57,17 @@ def overlap_length(seqA, seqB):
     # print("seqA", seqA)
     # print("seqB", seqB)
     # print("last_seqA_kmer", last_seqA_kmer)
+    erro_code=-1
     for i in yield_occurring_positions_reverse(last_seqA_kmer, seqB):
         if len(seqA[-i-k:]) != len(seqB[:i+k]): # a sequence is included into another one, we do not print those edges
-            return -2
+            erro_code=-2
+        if i+k > len(seqA):
+            erro_code=-2
         if kc.check_overlap(seqA[-i-k:], seqB[:i+k]):
             return i
- 
-    return -1           # IMPOSSIBLE IN THEORY
+    return erro_code
     
-# print(overlap_length("TCACGCATCCAGTTAATAAAGCACTCGTGAAATTTTGCAGGACTGATACAGGATACAACTCTGGCAATGGTATCGTGAACAGGAATACCATTTTCAAAATCACCATATTGCTTCAAAAAATCGGGATGTGTTTCCCCAAAATCCTCTATATCTTCCCAACCTTCTGCACCAGAAATAACGGCACAAATA","TCAAAATCACCATATTGCTTCAAAAAATCGAGATGTGTTTCCCCAAAATCCTCTATATCTTCCCAGCCTTCTGCACCAGAAATAACGGCACAAATAGTCAACAGTAGAATATCCGATAACTTATGTTCCATTTTCCAGGCTTGTCTGTAATCGGGGATAATAGAAATATGTCCCATCAATTTTTTAAGTTCCATTTTGTTCTCCTTAATTA"))
+# print(overlap_length("TCAACTACTTATTTGTCGTACAAAACTGTCCCGTACATAGGATGATCTTATTCCCGTACCGGATTTCGTACACAATAACAGGAACAATGTCGATATAAAATTTTCTTCAAATGGCTTCAACCCTTACATTATTATGGCAGACGATGTAAACTCTCTAGTCTTCTCAACTCTATTAATAATACATAGTAGTAGCTATTCAGCCATTTTAAAAACGCAATACAACGTTTGTCCCGTAATATT","CTACTTATTTGTCGTACAAAACTGTCCCGTACATAGGATGATCTTATTCCTGTACCGGATTTCGTACACAATAACAGGAACAATGTCGATATAAAATTTTCTTCAAATGGCTTCAACCCTTACATTATTATGGCAGACGACGTAAACTCTCTAGTCTTCTCAACTCTATTAATAATACATAGTAGTAGCTATTCAGCCATTTTAAAAACGCAATACAACGTTTGTCCCGTAATAT"))
 
 def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_position):
     print ("H\t#################")
@@ -84,7 +88,12 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
     gfa_file=open(gfa_file_name)
     compacted_facts_fa_file=open(compacted_facts_fa_file_name)
     node_id_to_sequence={}
+
+    file_size=kc.file_size(gfa_file)
+    step=0
     while(True):
+        if step%10000==0:        kc.update_progress(gfa_file.tell()/file_size)
+        step+=1
         gfa_line=gfa_file.readline()
         if not gfa_line: break
         gfa_line.strip()
@@ -116,15 +125,15 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             if split_gfa_line[2]=='-': seqA=kc.get_reverse_complement(seqA)
             if split_gfa_line[4]=='-': seqB=kc.get_reverse_complement(seqB)
             OL = overlap_length(seqA,seqB)
-            assert OL!=-1,seqA+" "+seqB
-            if OL!=-2:
-                
+            # assert OL!=-1,seqA+" "+seqB
+            if OL>-1:
                 print (split_gfa_line[0]+"\t"+split_gfa_line[1]+"\t"+split_gfa_line[2]+"\t"+split_gfa_line[3]+"\t"+split_gfa_line[4]+"\t"+str(OL)+"M")
             continue
             
             
         print(gfa_line.strip()) # shold not happend
-        
+
+    kc.update_progress(1)
     gfa_file.close()
     compacted_facts_fa_file.close()
 
@@ -136,7 +145,9 @@ def main():
     if len(sys.argv) !=3:
         sys.stderr.write("Usage: python K3000_node_ids_to_node_sequences.py graph_plus.gfa compacted_facts.fa > graph_final.gfa\n")
         sys.exit(0)
+    sys.stderr.write("Indexing sequence positions\n")
     header_to_file_position = index_sequences(sys.argv[2])
+    sys.stderr.write("Writing the updated gfa file\n")
     modify_gfa_file(sys.argv[1],sys.argv[2], header_to_file_position)
     
 

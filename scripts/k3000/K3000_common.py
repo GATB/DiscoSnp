@@ -10,6 +10,41 @@ Common file
 
 import sys
 import sorted_list
+import os
+
+
+
+# update_progress() : Displays or updates a console progress bar
+## Accepts a float between 0 and 1. Any int will be converted to a float.
+## A value under 0 represents a 'halt'.
+## A value at 1 or bigger represents 100%
+#https://stackoverflow.com/questions/3160699/python-progress-bar 
+def update_progress(progress):
+    barLength = 50 # Modify this to change the length of the progress bar
+    status = ""
+    # if isinstance(progress, int):
+    #     progress = float(progress)
+    # if not isinstance(progress, float):
+    #     progress = 0
+    #     status = "error: progress var must be float\r\n"
+    if progress < 0:
+        progress = 0
+        status = "Halt...\r\n"
+    if progress >= 1:
+        progress = 1
+        status = "Done...\r\n"
+    block = int(round(barLength*progress))
+    text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), round(progress*100,2), status)
+    sys.stderr.write(text)
+    sys.stderr.flush()
+    
+def file_size(f):
+    old_file_position = f.tell()
+    f.seek(0, os.SEEK_END)
+    size = f.tell()
+    f.seek(old_file_position, os.SEEK_SET)
+    return size
+
 def hamming (s1, s2):
     res=0
     if len(s1) != len(s2): return 100000

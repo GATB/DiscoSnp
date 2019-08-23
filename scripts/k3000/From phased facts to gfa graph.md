@@ -1,11 +1,18 @@
 # From phased facts to gfa graph
 ## Raw phased allele
 DiscoSnp++ or DiscoRad can outputs a file named `phased_alleles_read_set_id_X.txt` per input read set (`X` varies from `1` to `N`). This is obtained thanks to the hidden option `-A` of  `run_discoSnp++.sh ` and `run_discoSnpRad.sh`
-This file indicates which SNP alleles overlap in which direction and with which nucleotide numbers between SNPs. It also outputs the number of reads that validated this overlap. 
+This file indicates which SNP alleles overlap in which direction and with which nucleotide numbers between bubble sequences. It also outputs the number of reads that validated this overlap. 
 ```
 -1000610l_0;-2184581l_22;-5049471h_10;6970552l_4;-1621389l_1;344859l_2;763097h_1; => 5
 ```
-Here, lower path of reverse `1000610` is followed by lower path of reverse `2184581`, that occurs 22 nucleotides further, and so on. The 7 alleles shown on this example are validated by 5 reads. 
+Here, lower path of reverse `1000610` is followed by lower path of reverse `2184581`. The two bubble sequences are separated by 22 nucleotides. 
+```
+---XXXXXXXXXXXXXXXX---------------------------  1000610
+         --------------------------XXXXXXXXXXXXXXX------------ 2184581
+                   <--- 22 nuc. -->  
+```
+And so on. The 7 alleles shown on this example are validated by 5 reads. 
+
 
 A run of such phased alleles is called a **fact**.
 
@@ -23,9 +30,12 @@ We propose to create a graph from those phased facts. This consists in several s
 
 1. Detect overlaps between facts (edges)
 2. Compact facts that come from simple paths in the graph
-3. Add Particular edges: 
+3. Find back ACTG sequences corresponding to compacted fact ids. 
+4. Add Particular edges: 
 	1. Edges corresponding to paired links between two facts
 	2. Edges obtained thanks to unitig left and right extensions of SNPs produced by disco. 
+5. Put back sequences in the gfa file 
+6. Compute the real sequence overlap between nodes (removing self looping nodes and nodes included in other ones)
 
 All scripts are located in the `scripts/k3000` directory of discoSnp.
 They can be run at once by running 
@@ -57,7 +67,14 @@ x_path -> 2x+0 if path = h
 
 In the `compacted_facts_int.txt` file we loose the distance between alleles and we loose the paired information. 
 
-### Step 1. Detect overlaps between facts (edges)
+### Step 3.  Find back ACTG sequences corresponding to compacted fact ids. 
+This step is obtained thanks to the command: 
+```
+python3 /Users/ppeterlo/workspace/gatb-discosnp/scripts/k3000/K3000_compacted_paths_to_fa.py discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa compacted_facts_int.txt > compacted_facts.fa 
+```
+This steps outputs a fa file, in which headers contain int-encoded facts and the starting-ending position of each fact in the final sequence. The sequence is the corresponding ACGT sequences, concatenation of the (overlapping) sequences of the facts. 
+During this step some compacted facts are removed as their sequences do not overlap correctly (indel in mapped reads for instance)
+### Step 1 (at least). Detect overlaps between facts (edges)
 ```
 python3 K3000_msr_to_gfa.py compacted_facts_int.txt > compacted_facts.gfa 
 ```
@@ -85,7 +102,7 @@ Overlap: between compacted fact `846` and compacted fact `9` with an overlap of 
                       19386h;-10739l;13694h;-247l;32763h;14702h;17418l;-6878l;
 ```
 
-### Step 3. 1 Edges corresponding to paired links between two facts
+### Step 4. 1 Edges corresponding to paired links between two facts
 ```
 python3 enhance_gfa.py compacted_facts.gfa phased_alleles_read_set_id_1.txt> graph.gfa
 ```
@@ -97,7 +114,7 @@ Each time a paired-fact `f1 f2` perfectly maps two compacted facts (`f1` maps co
 
 **warning** we do not check to orientation of such alleles. They are always `+ +`. Checking orientation is a feature that has to be implemented.
 
-### Step 3.2 Edges obtained thanks to unitig left and right extensions of SNPs produced by disco. 
+### Step 4.2 Edges obtained thanks to unitig left and right extensions of SNPs produced by disco. 
 This step is obtained thanks to unitigs from disco. Option `-t` is thus mandatory.  
 ```
 python3 find_unitig_connected_pairs_of_facts.py graph.gfa disco_k31_..._coherent.fa > graph_plus.gfa
@@ -114,11 +131,22 @@ L	19946	+	11433	+	-1M
 ```
 They are oriented edges, and they all finish with -1M in order to differentiate them from paired edges. 
 
-## TODOs (24/07/2019):
+### Step 5. Put back sequences in the gfa file :
+This step is obtained with : 
+```bash
+python3 K3000_node_ids_to_node_sequences.py graph_plus.gfa compacted_facts.fa > graph_final.gfa
+```
+The `graph_final.gfa` file contains ACGT sequences instead of fact ids. 
+The overlap size of edges  with positive values are the real overlap size of the corresponding sequencs
+
+## TODOs ( 22/08/2019 ):
 - [ ] Orientation of paired edges
 - [ ] Usage of contigs from discoSnp (-T) -> unitigs may be deducted from the header
-- [ ] Nodes: transform allele ids to ACGT sequence  
+- [x] Nodes: transform allele ids to ACGT sequence  
+- [ ] Better implementation of `L`lines in `modify_gfa_file`  of  `K3000_node_ids_to_node_sequences.py`. Use starting and ending positions of facts in compacted facts to retreive the size of the overlaps instead of re-computing sequences overlaps. 
 - [ ] Determine maximal flows to reconstruct haplotypes from uneven covered haplotypes (metaG, polyploids, RAD, ...)
+
+
 
 
 
