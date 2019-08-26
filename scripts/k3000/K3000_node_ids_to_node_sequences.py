@@ -107,7 +107,7 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             sequence_fa=compacted_facts_fa_file.readline().strip()
             # assert gfa_line[2] == allele_header,gfa_line[2]+" is not "+allele_header+" "+header_fa[1:]
             node_id_to_sequence[gfa_line[1]]=sequence_fa                                #TODO: optimize this to avoid memory usage. One may store the position of the node in the file and retreive the sequence latter
-            print(gfa_line[0]+"\t"+gfa_line[1]+"\t"+sequence_fa+"\t"+gfa_line[3]+"\t"+gfa_line[2])
+            print(gfa_line[0]+"\t"+gfa_line[1]+"\t"+sequence_fa+"\t"+gfa_line[3]+"\t"+gfa_line[4]+"\t"+gfa_line[2])
             continue
         
         if gfa_line[0]=='L':

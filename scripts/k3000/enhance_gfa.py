@@ -86,6 +86,81 @@ def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
     
     return result
 
+
+get_allele_id = lambda x: x.split("_")[-1]+x.split("_")[1][0]   #>SNP_higher_path_9 to "9h"
+get_coverage  = lambda x: int(x.split("_")[-1])                 #C1_31 to int(31)
+def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
+    """
+    For each allele name (eg 21112l) provides its coverage in the considered read set)
+    Returns a dictionary: allele_id -> coverage
+    Used only by "detects_allele_coverage"
+    """
+    alleles_coverage = {}                    # Fora each allele, store its read coverage
+    mfile = open(raw_disco_fa_file_name)
+    # first variant rteated appart to recover the position of the coverage in which we are interested
+    coverage_field=-1
+    while True:
+        comment = mfile.readline()
+        if not comment: break
+        if not comment.startswith(">SNP"): continue # do not deal with indels for now
+        comment = comment.strip().split("|")
+        mfile.readline()        # sequence we don't care
+        for i,field_content in enumerate(comment):
+            if field_content.startswith("C"+str(read_set_id)+"_"):
+                coverage_field=i
+                break
+        assert coverage_field != -1, "Read set id "+str(read_set_id)+" not in "+comment
+        allele_id = get_allele_id(comment[0])
+        coverage  = get_coverage(comment[coverage_field])
+        alleles_coverage[allele_id]=coverage
+    
+    
+    
+    # other variants
+    while True:
+        # >SNP_higher_path_9|P_1:30_C/T,P_2:35_T/G|high|nb_pol_2|left_unitig_length_31|right_unitig_length_66|C1_31|Q1_63|G1_0/1:398,14,458|rank_0
+        # ggtgcagacaacccggcaggtgttgatgataAAGATCTGGTTAAATACGCCGATATTGGCGCGACTTACTATTTCAATAAAAACATGTCCACCTACGttgactataaaatcaacctgttggatgaagatgacagcttctacgctgccaatggcatctctaccg
+        # >SNP_lower_path_9|P_1:30_C/T,P_2:35_T/G|high|nb_pol_2|left_unitig_length_31|right_unitig_length_66|C1_28|Q1_63|G1_0/1:398,14,458|rank_0
+        # ggtgcagacaacccggcaggtgttgatgataAAGATCTGGTTAAATACGCCGATATTGGCGTGACTGACTATTTCAATAAAAACATGTCCACCTACGttgactataaaatcaacctgttggatgaagatgacagcttctacgctgccaatggcatctctaccg
+        comment = mfile.readline()
+        if not comment: break
+        if not comment.startswith(">SNP"): continue # do not deal with indels for now
+        comment = comment.strip().split("|")
+        mfile.readline()        # sequence we don't care
+        allele_id = get_allele_id(comment[0])
+        coverage  = get_coverage(comment[coverage_field])
+        alleles_coverage[allele_id]=coverage
+        
+    mfile.close()
+    return alleles_coverage
+    
+    
+
+def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
+    """
+    Given the compacted facts indexed and the raw disco output: for each compacted fact, find all allele that belong to it and compute its estimated coverage (average, min, max)
+    Returns a dictionary: compacted_fact_id -> allele_weight
+    TODO. In fact we use only the "min" value. Thus, no need to compute and to store the mean and max values. 
+    """
+    alleles_coverage = index_allele_coverage(raw_disco_file_name, read_set_id)
+    compacted_fact_allele_weight = {}              # For each compacted fact id, stores its weight
+    for fact_id, fact_value in compacted_facts.items():
+
+        min = sys.maxsize
+        max = -1
+        nb = 0
+        sum=0
+        for allele_id in fact_value: #{'10540l', '4734l', '29633h'}
+            allele_coverage = alleles_coverage[allele_id]
+            if allele_coverage<min: min=allele_coverage
+            if allele_coverage>max: max=allele_coverage
+            sum+=allele_coverage
+            nb+=1
+        compacted_fact_allele_weight[fact_id] = [min,max,sum/float(nb)] #min, max, mean
+        # print(compacted_fact_allele_weight[fact_id])
+    return compacted_fact_allele_weight
+
+
 def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name):
     """
     Given the compacted facts indexed and the raw phasing information: for each compacted fact, find all facts that belong to it and compute its estimated coverage
@@ -95,7 +170,7 @@ def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     mfile = open(raw_facts_file_name)
     for line in mfile.readlines():
         if line[0]=="#" : continue          # comment
-        coverage = int(line.strip().split("=>")[-1])
+        coverage = int(line.strip().split("=>")[-1]) # -10011l_0;13979l_-57;21112l_-22;19270l_-14; => 4
         line=line.strip().split("=>")[0].split(" ")     # remove coverage and split into two facts if needed
         for rawfact in line:
             if len(rawfact)==0: continue
@@ -104,11 +179,11 @@ def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
             for matching_compacted_fact_id in matching_compacted_fact_ids: 
                 if matching_compacted_fact_id not in compacted_fact_weight: 
                     compacted_fact_weight[matching_compacted_fact_id]=0
-                compacted_fact_weight[matching_compacted_fact_id]+=coverage         # TODO: normalise wrt the intra fact distance
+                compacted_fact_weight[matching_compacted_fact_id]+=coverage         
     mfile.close()
     return compacted_fact_weight       
 
-def print_facts(phasing_file,compacted_fact_weight):
+def print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight):
     cpt=0
     mfile=open(phasing_file)
     for line in mfile:
@@ -116,10 +191,13 @@ def print_facts(phasing_file,compacted_fact_weight):
         #S       0       -5001l;-8805h;-12869h;-25834l;-47306l;38133l;
         line=line.strip()
         compacted_fact_id=int(line.split()[1])
-        weight=0
+        fact_weight=0
         if compacted_fact_id in compacted_fact_weight: 
-            weight = compacted_fact_weight[compacted_fact_id]
-        print(line+"\tRC:i:"+str(weight))
+            fact_weight = compacted_fact_weight[compacted_fact_id]
+        alleles_weight=0
+        if str(compacted_fact_id) in compacted_fact_allele_weight: 
+            alleles_weight = compacted_fact_allele_weight[str(compacted_fact_id)]
+        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[0]))
         cpt+=1
     sys.stderr.write(str(cpt)+" facts written\n")
     mfile.close()
@@ -156,9 +234,7 @@ def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw
                     pair_edges[left_compacted_fact_id][right_compacted_fact_id]+=1
 
     mfile.close()
-    return pair_edges
-        
-    
+    return pair_edges 
     
 def print_pair_edges_gfa_style(pair_edges, occurrence_min=1):
     cpt=0
@@ -193,7 +269,7 @@ def print_facts_overlaps(phasing_file):
     sys.stderr.write(str(cpt)+" facts overlaps written\n")
     return fact_overlaps
 
-def main (phasing_file,raw_facts_file_name):
+def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     sys.stderr.write("#INDEX FACTS\n")
     compacted_facts, snp_to_fact_id = set_indexes_from_gfa(phasing_file)
 
@@ -203,9 +279,11 @@ def main (phasing_file,raw_facts_file_name):
     sys.stderr.write("#COMPUTE THE COMPACTED FACT COVERAGES\n")
     compacted_fact_weight=detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     
+    sys.stderr.write("#COMPUTE THE COMPACTED FACT ALLELE COVERAGES\n")
+    compacted_fact_allele_weight=detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id)
     
     sys.stderr.write("#PRINT COMPACTED FACTS \n")
-    print_facts(phasing_file,compacted_fact_weight)
+    print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight)
     
     sys.stderr.write("#PRINT COMPACTED FACT OVERLAPS \n")
     fact_overlaps=print_facts_overlaps(phasing_file)
@@ -218,7 +296,7 @@ def main (phasing_file,raw_facts_file_name):
     
     
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]) # compacted_facts.gfa phased_alleles_read_set_id_1.txt discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa 1
 
     
     

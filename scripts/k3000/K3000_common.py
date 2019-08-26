@@ -60,7 +60,7 @@ def check_overlap(s1,s2):
    #      print("s1",s1)
    #      print("s2",s2,int_snp_id_d,allele_id)
     # assert hamming(s1,s2) < 5, ""+str(hamming(s1,s2))
-    return  hamming(s1,s2) < 5
+    return  hamming(s1,s2) < 1
     # assert s1.upper() == s2.upper()
     # print()
     

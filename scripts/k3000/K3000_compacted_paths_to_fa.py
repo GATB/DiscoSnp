@@ -110,7 +110,6 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                     to_be_written = len_upper_case + ru + int(kc.distance_string_value(int_snp_id_d)) - previous_bubble_ru
                     #DEBUG
                     # print("to_be_written =",to_be_written)
-                    #
                     # print("len seq =",len(seq))
                     # print("previous_bubble_ru =",previous_bubble_ru)
                     # print("len_upper_case =", len_upper_case)
