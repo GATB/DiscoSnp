@@ -88,21 +88,52 @@ def print_GFA_edges(MSR):#,unitigs,k):
     sys.stderr.write("\t100.00%\n")
 
 
-
-
-def print_GFA_nodes_as_ids(MSR):#, unitigs, k):
+def check_msr(msr, fact_int):
+    # msr ['49648_0', '67994_-20', '20000_23']
+    # fact_int 49648_0;67994_-20;20000_23; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;
+    for i,allele_id in enumerate(fact_int.split(" ")[0].split(";")[:-1]):
+        if msr[i] != allele_id:
+            sys.stderr.write("Not corresponding msr and fact_int:\n")
+            sys.stderr.write(str(msr)+"\n")
+            sys.stderr.write(fact_int+"\n")
+            sys.exit(0)
+            
+def index_nodeid_to_distance(MSR, compacted_fact_int_file_name): 
+    """ returns an index nodeid -> distances
+    """
+    compacted_fact_int_file=open(compacted_fact_int_file_name)
+    nodeid_to_distance = {}
+    for fact_line in compacted_fact_int_file.readlines():
+        # 49648_0;67994_-20;20000_23; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;
+        s_fact_line = fact_line.strip().split(" ")
+        node_as_list = [node for node in s_fact_line[0].split(";")[:-1]]
+        # print(s_fact_line[0], node_as_list)
+        if not  kc.is_canonical(node_as_list):                       continue
+        node_id = MSR.get_node_id(node_as_list)
+        assert node_id not in nodeid_to_distance, "node "+str(node_id)+" already in truc, with value "+ nodeid_to_distance[node_id]
+        nodeid_to_distance[node_id]=s_fact_line[1]+" "+s_fact_line[2]
+    compacted_fact_int_file.close() 
+    return nodeid_to_distance
+    
+    
+    
+def print_GFA_nodes_as_ids(MSR, compacted_fact_int_file_name):
     '''print canonical unitigs ids
     WARNING: here each msr in MSR contains as last value its unique id.
     '''
+    nodeid_to_distance = index_nodeid_to_distance(MSR, compacted_fact_int_file_name)
+    # compacted_fact_int_file=open(compacted_fact_int_file_name)
     for msr in MSR.traverse():
+        # fact_int=compacted_fact_int_file.readline().strip() # 49648_0;67994_-20;20000_23; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;
         node_id = kc.get_msr_id(msr)                        # last value is the node id
         msr = msr[:-1]                                      # remove the last value that corresponds to the node id
         if not kc.is_canonical(msr):                       continue
         print ("S\t"+str(node_id)+"\t", end="")
-
         for unitig_id in msr:                       
             print (kc.unitig_id2snp_id(kc.allele_value(unitig_id))+";", end="")
-        print ()
+        # check_msr(msr, fact_int)
+        # assert str(node_id) in nodeid_to_distance, nodeid_to_distance
+        print (" "+nodeid_to_distance[str(node_id)])
 
 def union(a, b):
     """ return the union of two lists """
@@ -113,8 +144,8 @@ def check(MSR):
     """ debug purpose """ 
     for msr in MSR.traverse(): 
         assert kc.get_reverse_msr_id(msr,MSR) != None, msr
-            
-
+   
+    
 def main():
     '''
     Creation of a GFA file from a set of compacted maximal super reads
@@ -129,7 +160,7 @@ def main():
     MSR.index_nodes()                          # This adds a final value to each sr, providing its node id.
     # check(MSR)
     sys.stderr.write("Print GFA Nodes\n")
-    print_GFA_nodes_as_ids(MSR)
+    print_GFA_nodes_as_ids(MSR, sys.argv[1])
     sys.stderr.write("Print GFA Edges\n")
     print_GFA_edges(MSR)#,unitigs,k)
 

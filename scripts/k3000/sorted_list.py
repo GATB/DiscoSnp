@@ -208,6 +208,15 @@ class sorted_list(object):
         self.size-=1
         return 1
 
+    def get_node_id(self, search_sr):
+        list_nodes = self.get_lists_starting_with_given_prefix(search_sr)
+        # print ("search_sr", search_sr,"list_nodes",list_nodes)
+        for node in list_nodes:
+            if node[:-1]==search_sr:
+                return node[-1].split("_")[-1]
+        return None
+            
+
     def get_lists_starting_with_given_prefix(self, prefix):
         ''' given a prefix of a list, return all lists in the set starting with this prefix
         Dichotomy. log(|self|/size(alphabet)) comparisons

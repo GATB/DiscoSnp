@@ -190,12 +190,13 @@ def generate_SR(file_name):
     sl = sorted_list.sorted_list()
     for line in sr_file:
         if line[0]==">": continue # compatible with fasta-file format
-        line = line.rstrip()[:-1].split(';')
+        line = line.split(" ")[0].rstrip()[:-1].split(';')
         sr=[]
         for allele_id in line:
             # sr_val=int(unitig_id)
             sr=sr+[allele_id]
         sl.add(sr)
+        # print(sr)#DEBUG
     return sl
 
 

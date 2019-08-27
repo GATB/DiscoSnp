@@ -51,8 +51,13 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
     nb_non_writen=0
     for line in mfile: 
         # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
-        header = ">"+line.strip()+ " "  # add latter the starting and ending positions of each allele on the global sequence. Enables to recover the good overlap length in the final GFA file
-        # print(line)         #DEBUG
+        header = ">"+line.strip()+ " SP:"  # add latter the starting and ending positions of each allele on the global sequence (SP = Sequence positions). Enables to recover the good overlap length in the final GFA file
+        bubble_facts_position_start_stops = "BP:" # to the header is also added the Bubble positions. For each allele in the fact we store the distance between the bubble start (upper case letter and the end of the previous bubble (also upper case letter). We add the length of the bubble (upper case letter).
+        # EG:
+        # ------XXXXXXXXXXXXXXXXXX------  0_18
+        #                ------------XXXXXXXXXXXXXX----------- 3:14
+        #                         ----------XXXXXXXXXXXXXXXX----------   -7:16 (distance is negative is bubbles overlap 
+        # print("\n NEW LINE ",line)         #DEBUG
         line=line.split(';')
         previous_bubble_ru=0
         full_seq = ""
@@ -103,11 +108,13 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                 if i==0: 
                     full_seq+=seq
                     previous_bubble_ru = ru
-                    header+="0-"+str(len(full_seq))+";"
+                    header+="0_"+str(len(full_seq))+";" # SP==Sequence Positions
+                    bubble_facts_position_start_stops+="0_"+str(len_upper_case)+";"
                     # print("full_seq =",full_seq)
                     
                 else:
                     to_be_written = len_upper_case + ru + int(kc.distance_string_value(int_snp_id_d)) - previous_bubble_ru
+                    bubble_facts_position_start_stops+=kc.distance_string_value(int_snp_id_d)+"_"+str(len_upper_case)+";"
                     #DEBUG
                     # print("to_be_written =",to_be_written)
                     # print("len seq =",len(seq))
@@ -159,13 +166,16 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                         ### pbru = shift +len(upper) + npbru --> 
                         ### npbru = pbru - shift - len(upper)
                         previous_bubble_ru = previous_bubble_ru-int(kc.distance_string_value(int_snp_id_d))-len_upper_case
-                        header+="X_X;"                                          # this allele is useless we do not store its start and stop positions
+                        header+="I_"+str(len(full_seq)+to_be_written-len(seq))+"_"+str(len(full_seq)+to_be_written)+";"                                          # this allele is useless we do not store its start and stop positions
+                        if not kc.check_overlap(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written], seq): toprint=False
+                        # print(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written]+"\n"+seq+"\n")
+                        
                 
             except KeyError: # in case a variant is in the phasing file but absent from the disco file. This is due to uncoherent prediction
                 toprint=False
                 break
         if toprint:
-            print(header+"\n"+full_seq)
+            print(header+" "+bubble_facts_position_start_stops+"\n"+full_seq)
         else: nb_non_writen+=1
             
     if nb_non_writen>0:

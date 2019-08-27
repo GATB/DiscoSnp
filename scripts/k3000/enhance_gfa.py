@@ -103,15 +103,15 @@ def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
         comment = mfile.readline()
         if not comment: break
         if not comment.startswith(">SNP"): continue # do not deal with indels for now
-        comment = comment.strip().split("|")
+        s_comment = comment.strip().split("|")
         mfile.readline()        # sequence we don't care
-        for i,field_content in enumerate(comment):
+        for i,field_content in enumerate(s_comment):
             if field_content.startswith("C"+str(read_set_id)+"_"):
                 coverage_field=i
                 break
         assert coverage_field != -1, "Read set id "+str(read_set_id)+" not in "+comment
-        allele_id = get_allele_id(comment[0])
-        coverage  = get_coverage(comment[coverage_field])
+        allele_id = get_allele_id(s_comment[0])
+        coverage  = get_coverage(s_comment[coverage_field])
         alleles_coverage[allele_id]=coverage
     
     

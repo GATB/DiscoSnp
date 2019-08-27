@@ -6,7 +6,8 @@ reset=`tput sgr0`
 underline=`tput smul`
 no_underline=`tput rmul`
 
-wraith=false # set to true if you only want to see commands without executing them
+
+wraith=$4 # set to true if you only want to see commands without executing them
 phased_allele_file=$1
 disco_fa_file=$2
 read_set_id=$3
@@ -25,6 +26,10 @@ fi
 # Creating a file where simple paths are compacted
 
 echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP${reset}"
+echo "${green}           ### Input phased_allele_file: `sha1sum ${phased_allele_file}`${reset}"
+echo "${green}           ### Input disco_fa_file:      `sha1sum ${disco_fa_file}`${reset}"
+echo "${green}           ### Input read_set_id:        ${read_set_id}${reset}"
+echo ""
 echo "${green}           ### Creating a file where simple paths are compacted"
 cmd="python3 ${EDIR}/K3000.py ${phased_allele_file}"
 echo "           "$cmd "> compacted_facts_int.txt${cyan}"
@@ -51,9 +56,9 @@ then
     exit 1
 fi
 
-echo "${green}           ### Select only valid facts"
+echo "${green}           ### Select only valid facts and add their positions"
 # /usr/bin/grep ">" compacted_facts.fa | cut -d ">" -f 2 | cut -d " " -f 1 > compacted_facts_int.txt
-cmd="/usr/bin/grep \">\" compacted_facts.fa | cut -d \">\" -f 2 | cut -d \" \" -f 1 "
+cmd="/usr/bin/grep \">\" compacted_facts.fa | cut -d \">\" -f 2"
 echo "           "$cmd "> compacted_facts_int.txt${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > compacted_facts_int.txt
@@ -142,4 +147,4 @@ fi
 echo "${green}           ### You may remove useless files: rm -f compacted_facts_int.txt compacted_facts.gfa graph.gfa compacted_facts.fa graph_plus.gfa "
 #rm -f compacted_facts_int.txt compacted_facts.gfa graph.gfa compacted_facts.fa graph_plus.gfa 
 
-echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is $(tput blink)${underline}graph_final.gfa${no_underline}${green}${reset} ${green}${bold} stats are available in $(tput blink)${underline}distributions.png${no_underline}${reset}"
+echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is ${underline}graph_final.gfa${no_underline}${green}${reset} ${green}${bold} stats are available in ${underline}distributions.png${no_underline}${reset}"
