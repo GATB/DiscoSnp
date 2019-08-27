@@ -46,12 +46,22 @@ def file_size(f):
     return size
 
 def hamming (s1, s2):
+    "useless -> replaced by hamming_perfect"
     res=0
+    
     if len(s1) != len(s2): return 100000
     for i in range(len(s1)):
         if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
             res+=1
     return res
+
+def hamming_perfect (s1, s2):
+    " check if two UPPER CASE sequences are exactly equal autorizing N jockers"
+    if len(s1) != len(s2): return False
+    for i in range(len(s1)):       
+        if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
+            return False
+    return True
             
 
 def check_overlap(s1,s2):
@@ -60,7 +70,7 @@ def check_overlap(s1,s2):
    #      print("s1",s1)
    #      print("s2",s2,int_snp_id_d,allele_id)
     # assert hamming(s1,s2) < 5, ""+str(hamming(s1,s2))
-    return  hamming(s1,s2) < 1
+    return  hamming_perfect(s1,s2)
     # assert s1.upper() == s2.upper()
     # print()
     
