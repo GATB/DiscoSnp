@@ -80,7 +80,7 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
     print ("H\t#     - first: the relative position of first nucleotide of the bubble with respect to the position of the last nucleotide of the bubble of the previous allele. This value is equal to zero for the first allele")
     print ("H\t#     - second: the length of the bubble of the allele") 
     
-    print ("H\t# Three types of edges:")
+    print ("H\t# Four types of edges:")
     print ("H\t#   1. Overlap between facts, Overlap length is >0. Eg, \"L	1	-	29384	+	8M\"")
     print ("H\t#       \"S	1	ACGGACGGACCGT	RC:i:24\", and")
     print ("H\t#       \"S	29384	CGGACCGTACGGACGATCCG;	RC:i:43\".")
@@ -90,6 +90,8 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
     print ("H\t#   3. Facts linked by unitigs. The unitig finishing a fact overlaps the unitig starting another fact. Eg \"L	19946	+	11433	+	-1M\".")
     print ("H\t#       These links are directed and validate the facts orientation. ")
     print ("H\t#       These links have a fake overlap of length -1.")
+    print ("H\t#   4. Facts sharing at least one SNP identifier.")
+    print ("H\t#       These links have an overlap of length -2.")
     
     gfa_file=open(gfa_file_name)
     compacted_facts_fa_file=open(compacted_facts_fa_file_name)

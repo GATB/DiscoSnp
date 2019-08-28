@@ -47,7 +47,6 @@ def compatibles(raw_fact,i,compacted_facts):
         if snp[:-1] in compacted_fact_i_dict:
             if compacted_fact_i_dict[snp[:-1]]!=snp[-1]:    # distinct alleles 
                 # print ("            INCOMPATIBLE        ", snp, compacted_facts[i])
-                # sys.exit(0)
                 return False
             else :
                 nb_shared+=1
@@ -133,8 +132,6 @@ def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
         
     mfile.close()
     return alleles_coverage
-    
-    
 
 def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
     """
@@ -159,7 +156,6 @@ def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
         compacted_fact_allele_weight[fact_id] = [min,max,sum/float(nb)] #min, max, mean
         # print(compacted_fact_allele_weight[fact_id])
     return compacted_fact_allele_weight
-
 
 def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name):
     """
@@ -202,7 +198,7 @@ def print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight
     sys.stderr.write(str(cpt)+" facts written\n")
     mfile.close()
 
-def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw_facts_file_name,fact_overlaps):
+def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw_facts_file_name, fact_overlaps):
     """
     given the compacted facts indexed and the raw phasing information, detects pairs of facts that are co-mapped by at least one pair of paired non compacted facts
     returns a dictionary compacted_fact_id -> {compacted_fact_id} such that the key is smaller than all values.
@@ -268,16 +264,49 @@ def print_facts_overlaps(phasing_file):
 
     sys.stderr.write(str(cpt)+" facts overlaps written\n")
     return fact_overlaps
+    
+    
+    
+    
+    
+
+def detects_pairs_of_edges_sharing_snp(compacted_facts, snp_to_fact_id):
+    """ 
+    detects which facts share at least a snp id
+    returns a dictionary fact_id -> set(fact_ids) (key is lower than any fact in the value)
+    """
+    facts_shared_snps = {}
+    for key,values in compacted_facts.items():
+        for oriented_allele in values:
+            snp_id_only=get_left_clean_snp(oriented_allele).split("_")[0][:-1]      # get the snp id non oriented
+            # print("snp_id_only",snp_id_only)
+            if snp_id_only in snp_to_fact_id: # the snp may be absent in case it was removed by the sequence concatenation process. 
+                for fact_id in snp_to_fact_id[snp_id_only]:
+                    if int(fact_id)<=int(key): 
+                        continue
+                    if key not in facts_shared_snps: facts_shared_snps[key] = set() 
+                    facts_shared_snps[key].add(fact_id)
+    # for key, value in facts_shared_snps.items():
+    #     print(key,value)
+    return facts_shared_snps
+            
+def print_pairs_of_edges_sharing_snp(facts_shared_snps):
+    cpt=0
+    for key, values in facts_shared_snps.items():
+        for value in values: 
+            print("L\t"+key+"\t+\t"+value+"\t+\t-2M")
+            cpt+=1
+    sys.stderr.write(str(cpt)+" pairs of facts sharing at least one snp written\n")
+
 
 def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     sys.stderr.write("#INDEX FACTS\n")
     compacted_facts, snp_to_fact_id = set_indexes_from_gfa(phasing_file)
 
-    # print(facts)
-    # print(snp_to_fact_id)
+
     
     sys.stderr.write("#COMPUTE THE COMPACTED FACT COVERAGES\n")
-    compacted_fact_weight=detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
+    compacted_fact_weight = detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     
     sys.stderr.write("#COMPUTE THE COMPACTED FACT ALLELE COVERAGES\n")
     compacted_fact_allele_weight=detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id)
@@ -292,7 +321,11 @@ def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     pair_edges=detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw_facts_file_name,fact_overlaps)
     
     sys.stderr.write("#PRINT EDGES OF COMPACTED FACT GRAPH\n")
-    print_pair_edges_gfa_style(pair_edges,3) 
+    print_pair_edges_gfa_style(pair_edges) 
+    
+    sys.stderr.write("#COMPUTE THE FACTS SHARING AT LEAST ONE SNP\n")
+    facts_shared_snps = detects_pairs_of_edges_sharing_snp(compacted_facts, snp_to_fact_id)
+    print_pairs_of_edges_sharing_snp(facts_shared_snps)
     
     
 if __name__ == "__main__":

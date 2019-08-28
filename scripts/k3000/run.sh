@@ -22,6 +22,12 @@ if [ -z "$disco_fa_file" ]; then
     exit 1
 fi
 
+if [ -z "$read_set_id" ]; then
+    echo "${red}           You must provide a read set id (integer value from 1 to the number of read set used to create file $disco_fa_file ${reset}"
+    exit 1
+fi
+
+
 
 # Creating a file where simple paths are compacted
 
@@ -89,7 +95,7 @@ fi
 # Adding paired edges and counting of compacted facts
 echo "${green}           ### Adding paired edges and counting of compacted facts"
 # python3 ${EDIR}/enhance_gfa.py compacted_facts.gfa ${phased_allele_file} > graph.gfa
-cmd="python3 ${EDIR}/enhance_gfa.py compacted_facts.gfa ${phased_allele_file} ${disco_fa_file} ${read_set_id}"
+cmd="python3 ${EDIR}/K3000_enhance_gfa.py compacted_facts.gfa ${phased_allele_file} ${disco_fa_file} ${read_set_id}"
 echo "           "$cmd" > graph.gfa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > graph.gfa
@@ -104,7 +110,7 @@ fi
 # Detecting snp succesion
 echo "${green}           ### Detecting snp succession"
 # python3 ${EDIR}/find_unitig_connected_pairs_of_facts.py graph.gfa ${disco_fa_file} > graph_plus.gfa
-cmd="python3 ${EDIR}/find_unitig_connected_pairs_of_facts.py graph.gfa ${disco_fa_file}"
+cmd="python3 ${EDIR}/K3000_find_unitig_connected_pairs_of_facts.py graph.gfa ${disco_fa_file}"
 echo "           "$cmd" > graph_plus.gfa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > graph_plus.gfa
