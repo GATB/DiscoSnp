@@ -99,6 +99,11 @@ public:
         
     };
     
+    ~GlobalValues(){
+        free(comp);
+        free(nuc);
+    }
+    
     void set_mask_code_seed(){
         mask_code_seed=1; // don't know why but 1<<(2*k)  does not work with k>32. This is why I made this stupid loop/
         for (int z=0;z<(2*size_seeds);z++){

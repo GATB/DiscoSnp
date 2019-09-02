@@ -289,8 +289,7 @@ void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoheren
     
     
     
-    for(int i=0;i<index.all_predictions.size();i+=2){
-        //        cout<<"HEY "<<one_coherent(index.all_predictions[i],gv.number_of_read_sets)<<" -- "<<one_coherent(index.all_predictions[i+1],gv.number_of_read_sets)<<endl; //DEB
+    for(unsigned long i=0;i<index.all_predictions.size();i+=2){
         if(one_coherent(index.all_predictions[i],gv.number_of_read_sets,gv) && one_coherent(index.all_predictions[i+1],gv.number_of_read_sets,gv))
         {
             index.nb_coherent++;

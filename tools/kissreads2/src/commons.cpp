@@ -124,11 +124,9 @@ static int NT2int(char nt)  {  return (nt>>1)&3;  }
 // update a code of a seed with a new character O(1)
 kmer_type  GlobalValues::updateCodeSeed(const char *seq, kmer_type *x) // update of a seed (shift and adding a new character)
 {
-//    printf("seed2 %" PRIu64 " mask %" PRIu64 "\n", *x, mask_code_seed);
     *x = (*x)*4 + NT2int(seq[size_seeds-1]); // add the code of the new nucleotid
     
     *x = *x & mask_code_seed; // remove the leftmost couple of bits
-//    printf("seed3 %" PRIu64 " mask %" PRIu64 "\n", *x, mask_code_seed);
     return *x;
 }
 

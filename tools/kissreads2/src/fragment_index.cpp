@@ -46,10 +46,10 @@ int line_num(FILE * f)
 char *  strdup_upper_case(char * in){
     // count number of upper case letters in "in"
     int count =0;
-    int i;
+    unsigned long i;
     for(i=0;i<strlen(in);i++) if(in[i]>='A' && in[i]<='Z') count++;
     char * temp = (char *) malloc(sizeof(char)*(count+1)); test_alloc(temp);
-    int j=0;
+    unsigned long  j=0;
     for(i=0;i<strlen(in);i++) if(in[i]>='A' && in[i]<='Z') temp[j++]=in[i];
     temp[j]='\0';
     return temp;
@@ -59,12 +59,12 @@ char *  strdup_upper_case(char * in){
 char * strdup_first_lower(char * in){
     // count number of first lower case letters in "in"
     int count =0;
-    int i;
+    unsigned long  i;
     for(i=0;i<strlen(in);i++)
         if(in[i]>='a' && in[i]<='z') count++;
         else break;
     char * temp = (char *) malloc(sizeof(char)*(count+1)); test_alloc(temp);
-    int j=0;
+    unsigned long  j=0;
     for(i=0;i<strlen(in);i++)
         if(in[i]>='a' && in[i]<='z') temp[j++]=in[i];
         else break;
@@ -95,9 +95,9 @@ char * strdup_last_lower(char * in){
 
 
 void FragmentIndex::empty_coverage(){
-    int prediction_id;
+    unsigned long prediction_id;
     for (prediction_id=0;prediction_id < all_predictions.size();prediction_id++){
-        for(int z=0;z<all_predictions[prediction_id]->upperCaseSequence.size(); z++)
+        for(unsigned long z=0;z<all_predictions[prediction_id]->upperCaseSequence.size(); z++)
             all_predictions[prediction_id]->local_coverage[z]=(unsigned char)0;
     } // end all fragments
 }
@@ -155,7 +155,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
     total_seeds=0;
     ///second loop over fragments  : create the index
-    for(int fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
+    for(unsigned long fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
         
         const char * w = all_predictions[fragment_id  ]->upperCaseSequence.c_str();
 #ifdef DEBUG_INDEXING
@@ -200,10 +200,10 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
     
     ///third loop over fragments : for SNPs, store the SNP positions
-    for(int fragment_id=0;fragment_id<all_predictions.size();fragment_id+=2){
+    for(unsigned long fragment_id=0;fragment_id<all_predictions.size();fragment_id+=2){
         
         if ( all_predictions[fragment_id]->nbOfSnps==0 ) { // This is an indel.
-            all_predictions[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)); // add a dummy contrained positions
+            all_predictions[fragment_id]->SNP_positions = (unsigned int *) malloc (sizeof(unsigned int)); // add a dummy contrained positions
             test_alloc(all_predictions[fragment_id]->SNP_positions);
             all_predictions[fragment_id]->SNP_positions[0] = max(all_predictions[fragment_id  ]->upperCaseSequence.size(), all_predictions[fragment_id+1]->upperCaseSequence.size())+1; // DUMMY SNP
             continue;
@@ -233,14 +233,15 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
             }
         }
         all_predictions[fragment_id]->nbOfSnps=local_number_of_SNPs;
-        all_predictions[fragment_id]->SNP_positions = (char *) malloc (sizeof(char)*(local_number_of_SNPs+1)); // add a dummy SNP
+        all_predictions[fragment_id]->SNP_positions = (unsigned int *) malloc (sizeof(unsigned int)*(local_number_of_SNPs+1)); // add a dummy SNP
         test_alloc(all_predictions[fragment_id]->SNP_positions);
         
         // we do not fill the all_predictions[fragment_id+1] with the same information
         local_number_of_SNPs=0;
         for (i=0; i<size_seq; i++) {
             if (seq1[i]!=seq2[i]) {
-                all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs++]=i;
+                all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs]=i;
+                local_number_of_SNPs++;
             }
         }
         all_predictions[fragment_id]->SNP_positions[local_number_of_SNPs] = max(size_seq1,size_seq2)+1; // DUMMY SNP

@@ -79,7 +79,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     
     
     FragmentInfo* the_prediction=predictions[prediction_id];
-    FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference?
+    FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference
     
     if(pwi+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
@@ -88,7 +88,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     __sync_fetch_and_add ( & the_prediction->number_mapped_reads[read_set_id],1);
     
     if ( quality.length()>0 ){
-        if (the_reference_prediction->nbOfSnps>0) {
+        if (the_reference_prediction->nbOfSnps>0) { // THIS IS A SNP
             int snp_id;
             for(snp_id=0;snp_id<the_reference_prediction->nbOfSnps;snp_id++){ // we only add the qualities of the mapped SNPs
                 i=the_reference_prediction->SNP_positions[snp_id];
@@ -98,7 +98,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
                 }
             }
         }
-        else{ // we sum all qualities and divide by the number of positions
+        else{ // THIS IS NOT A SNP (INDEL). We sum all qualities and divide by the number of positions
             int sum_temp=0;
             int denom=0;
             for(i=start_on_prediction;i<stop_on_prediction;i++) { // to avoid to increase too much the the_prediction->sum_qualities array, we add the average quality of the whole read.
@@ -145,7 +145,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
  * Thus in this function, we return 0 if any substitution occurs on this central position, whatever the number of substitution_seen
  *  returns 1 if true between read and fragment, 0 else
  */
-bool constrained_read_mappable(const int pwi, const char * fragment, const char * read, const int subst_allowed, const char * SNP_positions, const int seed_position_on_read, const int size_seed){
+bool constrained_read_mappable(const int pwi, const char * fragment, const char * read, const int subst_allowed, const unsigned int * SNP_positions, const int seed_position_on_read, const int size_seed){
     int substitution_seen=0; // number of seen substitutions for now
     int pos_on_read, pos_on_fragment; // where to start
     
@@ -173,7 +173,7 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
         pos_on_read=0;
     }
     
-    int snp_pos = SNP_positions[0];
+    unsigned int snp_pos = SNP_positions[0];
     
     int id_array_SNP_position=0;
     
@@ -191,6 +191,8 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
         {
             id_array_SNP_position++;
             snp_pos = SNP_positions[id_array_SNP_position];
+//            cerr<<id_array_SNP_position<<" "<<snp_pos<<endl; //DEBUG
+            
         }
         if (fragment[pos_on_fragment]!=toupper(read[pos_on_read]) &&
             fragment[pos_on_fragment]!='*' &&
@@ -299,7 +301,7 @@ struct Functor
                 
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
-                    for (int occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
+                    for (unsigned long long occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
                         couple * value = &(index.seed_table[occurrence_id]);
                         if (mapped_prediction_as_set.count(value->a)!=0) {
                             continue; // This prediction was already mapped with this read.
@@ -746,7 +748,7 @@ void ReadMapper::set_read_coherency(GlobalValues& gv, FragmentIndex index){
     /////////////// for each prediction: check those fully coherent and store left and right reads covering them ///////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    int prediction_id;
+    unsigned long prediction_id;
     for (prediction_id=0;prediction_id < index.all_predictions.size();prediction_id++){
         index.all_predictions[prediction_id]->set_read_coherent(read_set_id,gv);
     } // end all fragments

@@ -51,8 +51,8 @@ public:
     Sequence sequence;
     string upperCaseSequence;
 	// fixed once at the beggining:
-    char * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
-    char nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
+    unsigned int * SNP_positions; // If the fragment is a SNP, stores the positions of the SNPs in order to avoid to authorize errors at these positions. Coded on char, the SNP positions should not be longer than 255
+    unsigned int nbOfSnps;                  // if zero: the sequence is generic or an indel. Else, number of predicted SNPs
     unsigned char * local_coverage;           //  number of reads covering this position can be a char, min coverage required is low
     bool * read_coherent; // for each read set: is the fragment read coherent?
     unsigned int * sum_qualities; // sum of the mapped qualities for each read set
@@ -107,8 +107,8 @@ public:
     string getUpperCaseOnly(){
         string res="";
         string stringseq=sequence.toString();
-        for (int i=0;i<stringseq.size();i++){
-            if (stringseq.at(i)>=(unsigned int)'A' && stringseq.at(i)<=(unsigned int)'Z')
+        for (unsigned long i=0;i<stringseq.size();i++){
+            if (stringseq.at(i)>=(int)'A' && stringseq.at(i)<=(int)'Z')
                 res+=stringseq.at(i);
         }
         return res;
