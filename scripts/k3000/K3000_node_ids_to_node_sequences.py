@@ -122,7 +122,8 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             split_gfa_line=gfa_line.split()
             if split_gfa_line[1] == split_gfa_line[3]: #no not print self loops
                 continue
-            if split_gfa_line[-1]=="0M" or split_gfa_line[-1]=="-1M" or split_gfa_line[-1]=="-2M": # non overlapping edges, we simply write them
+            # print (split_gfa_line)
+            if split_gfa_line[5]=="0M" or split_gfa_line[5]=="-1M" or split_gfa_line[5]=="-2M": # non overlapping edges, we simply write them
                 print(gfa_line.strip())
                 continue
             # if we are here, this is a true overlapping edge: L	3	+	255	-	2M
