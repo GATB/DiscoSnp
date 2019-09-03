@@ -100,8 +100,8 @@ public:
     };
     
     ~GlobalValues(){
-        free(comp);
-        free(nuc);
+//        free(comp);
+//        free(nuc);
     }
     
     void set_mask_code_seed(){

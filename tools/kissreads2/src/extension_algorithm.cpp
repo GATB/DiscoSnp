@@ -515,8 +515,10 @@ struct Functor
                     
                 }
                 // Associate this string to the number of times it is seen when mapping this read set
-                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+                if (phased_variants.find(phased_variant_ids) == phased_variants.end())
+                    phased_variants[phased_variant_ids] = 1;
+                else
+                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
             }
             
             pwi_and_mapped_predictions.clear();
