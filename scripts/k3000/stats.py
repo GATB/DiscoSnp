@@ -21,13 +21,13 @@ def get_sequence_size_distribution(gfa_file_name):
     gfa_file.close()
     return sizes
     
-def plot_violin(sequence_sizes, nb_alleles):
+def plot_violin(sequence_sizes, nb_alleles, read_set_id):
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 10))
     axes[0].violinplot(sequence_sizes)
     axes[0].set_title('Sequence size distribution')
     axes[1].violinplot(nb_alleles)
     axes[1].set_title('Nb alleles per sequence')
-    plt.savefig('distributions.png')
+    plt.savefig('distributions_'+read_set_id+'.png')
     
     
 
@@ -37,7 +37,7 @@ def main():
     '''
     sequence_sizes=get_sequence_size_distribution(sys.argv[2]) #for each snp id: sequences[snp_id]=[left_unitig_len, right_unitig_len, upperseq, lowerseq] 
     nb_alleles=get_nb_allele_distribution(sys.argv[1])
-    plot_violin(sequence_sizes, nb_alleles)
+    plot_violin(sequence_sizes, nb_alleles, sys.argv[3])
     
     
 
