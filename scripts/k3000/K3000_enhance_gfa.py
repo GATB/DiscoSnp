@@ -272,20 +272,25 @@ def print_facts_overlaps(phasing_file):
 
 def detects_pairs_of_edges_sharing_snp(compacted_facts, snp_to_fact_id):
     """ 
-    detects which facts share at least a snp id
+    detects which facts share at least a snp id with incompatible h/l
     returns a dictionary fact_id -> set(fact_ids) (key is lower than any fact in the value)
     """
     facts_shared_snps = {}
     for key,values in compacted_facts.items():
         for oriented_allele in values:
             snp_id_only=get_left_clean_snp(oriented_allele).split("_")[0][:-1]      # get the snp id non oriented
+            horl = get_left_clean_snp(oriented_allele).split("_")[0][-1]            # get the path 'h' or 'l' of the SNP
             # print("snp_id_only",snp_id_only)
             if snp_id_only in snp_to_fact_id: # the snp may be absent in case it was removed by the sequence concatenation process. 
                 for fact_id in snp_to_fact_id[snp_id_only]:
                     if int(fact_id)<=int(key): 
                         continue
-                    if key not in facts_shared_snps: facts_shared_snps[key] = set() 
-                    facts_shared_snps[key].add(fact_id)
+                    fact = compacted_facts[fact_id]
+                    for snp_id in fact: 
+                        ### checks that h or l values are disctincts between the two facts 
+                        if get_left_clean_snp(snp_id).split("_")[0][:-1] == snp_id_only and get_left_clean_snp(snp_id).split("_")[0][-1]!=horl:
+                            if key not in facts_shared_snps: facts_shared_snps[key] = set()    
+                            facts_shared_snps[key].add(fact_id)
     # for key, value in facts_shared_snps.items():
     #     print(key,value)
     return facts_shared_snps
