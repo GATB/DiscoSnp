@@ -167,7 +167,7 @@ def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     for line in mfile.readlines():
         if line[0]=="#" : continue          # comment
         coverage = int(line.strip().split("=>")[-1]) # -10011l_0;13979l_-57;21112l_-22;19270l_-14; => 4
-        line=line.strip().split("=>")[0].split(" ")     # remove coverage and split into two facts if needed
+        line=line.strip().split("=>")[0].split()     # remove coverage and split into two facts if needed
         for rawfact in line:
             if len(rawfact)==0: continue
             # detects all compacted_facts in which the rawfact occurs: 
@@ -208,7 +208,7 @@ def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw
     for line in mfile.readlines():
         if line[0]=="#" : continue          # comment
         line=line.strip().split("=>")[0]    # remove coverage
-        line=line.strip().split(" ")        # two pairs
+        line=line.strip().split()        # two pairs
         if len(line)<2: continue            # we consider only pairs of facts
         # print(line)
         # for the first fact, detects all compacted_facts in which it occurs: 
@@ -288,7 +288,7 @@ def detects_pairs_of_edges_sharing_snp(compacted_facts, snp_to_fact_id):
                     fact = compacted_facts[fact_id]
                     for snp_id in fact: 
                         ### checks that h or l values are disctincts between the two facts 
-                        if get_left_clean_snp(snp_id).split("_")[0][:-1] == snp_id_only and get_left_clean_snp(snp_id).split("_")[0][-1]!=horl:
+                        if get_left_clean_snp(snp_id).split("_")[0][:-1] == snp_id_only and get_left_clean_snp(snp_id).split("_")[0][-1]!=horl: # TO VALIDATE 9/9/2019
                             if key not in facts_shared_snps: facts_shared_snps[key] = set()    
                             facts_shared_snps[key].add(fact_id)
     # for key, value in facts_shared_snps.items():

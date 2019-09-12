@@ -91,7 +91,7 @@ def print_GFA_edges(MSR):#,unitigs,k):
 def check_msr(msr, fact_int):
     # msr ['49648_0', '67994_-20', '20000_23']
     # fact_int 49648_0;67994_-20;20000_23; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;
-    for i,allele_id in enumerate(fact_int.split(" ")[0].split(";")[:-1]):
+    for i,allele_id in enumerate(fact_int.split()[0].split(";")[:-1]):
         if msr[i] != allele_id:
             sys.stderr.write("Not corresponding msr and fact_int:\n")
             sys.stderr.write(str(msr)+"\n")
@@ -105,13 +105,13 @@ def index_nodeid_to_distance(MSR, compacted_fact_int_file_name):
     nodeid_to_distance = {}
     for fact_line in compacted_fact_int_file.readlines():
         # 49648_0;67994_-20;20000_23; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;
-        s_fact_line = fact_line.strip().split(" ")
+        s_fact_line = fact_line.strip().split()
         node_as_list = [node for node in s_fact_line[0].split(";")[:-1]]
         # print(s_fact_line[0], node_as_list)
         if not  kc.is_canonical(node_as_list):                       continue
         node_id = MSR.get_node_id(node_as_list)
         assert node_id not in nodeid_to_distance, "node "+str(node_id)+" already in truc, with value "+ nodeid_to_distance[node_id]
-        nodeid_to_distance[node_id]=s_fact_line[1]+" "+s_fact_line[2]
+        nodeid_to_distance[node_id]=s_fact_line[1]+"\t"+s_fact_line[2]
     compacted_fact_int_file.close() 
     return nodeid_to_distance
     
@@ -133,7 +133,7 @@ def print_GFA_nodes_as_ids(MSR, compacted_fact_int_file_name):
             print (kc.unitig_id2snp_id(kc.allele_value(unitig_id))+";", end="")
         # check_msr(msr, fact_int)
         # assert str(node_id) in nodeid_to_distance, nodeid_to_distance
-        print (" "+nodeid_to_distance[str(node_id)])
+        print ("\t"+nodeid_to_distance[str(node_id)])
 
 def union(a, b):
     """ return the union of two lists """

@@ -179,7 +179,7 @@ def generate_SR_from_disco_pashing(file_name):
             # print(line,end='')
             continue
         line=line.strip().split("=>")[0]
-        line=line.strip().split(" ")
+        line=line.strip().split()
         for fact in line: 
             facttab=[]
             for variant in fact.split(';')[:-1]:
@@ -200,7 +200,7 @@ def generate_SR(file_name):
     sl = sorted_list.sorted_list()
     for line in sr_file:
         if line[0]==">": continue # compatible with fasta-file format
-        line = line.split(" ")[0].rstrip()[:-1].split(';')
+        line = line.split()[0].rstrip()[:-1].split(';')
         sr=[]
         for allele_id in line:
             # sr_val=int(unitig_id)

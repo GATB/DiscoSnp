@@ -51,7 +51,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
     nb_non_writen=0
     for line in mfile: 
         # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
-        header = ">"+line.strip()+ " SP:"  # add latter the starting and ending positions of each allele on the global sequence (SP = Sequence positions). Enables to recover the good overlap length in the final GFA file
+        header = ">"+line.strip()+ "\tSP:"  # add latter the starting and ending positions of each allele on the global sequence (SP = Sequence positions). Enables to recover the good overlap length in the final GFA file
         bubble_facts_position_start_stops = "BP:" # to the header is also added the Bubble positions. For each allele in the fact we store the distance between the bubble start (upper case letter and the end of the previous bubble (also upper case letter). We add the length of the bubble (upper case letter).
         # EG:
         # ------XXXXXXXXXXXXXXXXXX------  0_18
@@ -175,7 +175,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                 toprint=False
                 break
         if toprint:
-            print(header+" "+bubble_facts_position_start_stops+"\n"+full_seq)
+            print(header+"\t"+bubble_facts_position_start_stops+"\n"+full_seq)
         else: nb_non_writen+=1
             
     if nb_non_writen>0:
