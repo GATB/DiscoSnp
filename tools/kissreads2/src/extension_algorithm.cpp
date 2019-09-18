@@ -177,7 +177,15 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
     
     int id_array_SNP_position=0;
     
+    while(pos_on_fragment>snp_pos) // One may start on the fragment after the first SNP(s) thus we must find the good snp pos that is going to be found.
+    {
+        id_array_SNP_position++;
+        snp_pos = SNP_positions[id_array_SNP_position];
+//        cerr<<id_array_SNP_position<<" "<<snp_pos<<endl; //DEBUG
+//        cerr<<"init snp_pos "<<snp_pos<<" pos_on_fragment "<<pos_on_fragment<<endl; //DEBUG
+    }
     
+//    cerr<<"snp_pos "<<snp_pos<<" pos_on_fragment "<<pos_on_fragment<<endl; //DEBUG
     // walk the read and the fragment together, detecting substitutions.
     // stop if the number of substitution is too high or if a substitution is detected on a SNP position.
     while(fragment[pos_on_fragment]!='\0' && read[pos_on_read]!='\0'){
@@ -192,7 +200,8 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
             id_array_SNP_position++;
             snp_pos = SNP_positions[id_array_SNP_position];
 //            cerr<<id_array_SNP_position<<" "<<snp_pos<<endl; //DEBUG
-            
+//            cerr<<"snp_pos "<<snp_pos<<" pos_on_fragment "<<pos_on_fragment<<endl; //DEBUG
+
         }
         if (fragment[pos_on_fragment]!=toupper(read[pos_on_read]) &&
             fragment[pos_on_fragment]!='*' &&
@@ -317,7 +326,7 @@ struct Functor
                         const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
                         
 #ifdef DEBUG_MAPPING
-                        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
+//        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
 #endif
                         
                         
@@ -413,8 +422,8 @@ struct Functor
                             //#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
-                            printf("SUCCESS %d %d \n", pwi, value->a);
-                            cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
+       //                     printf("SUCCESS %d %d \n", pwi, value->a);
+       //                     cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
                             feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, read_set_id, gv);
                             
@@ -454,6 +463,7 @@ struct Functor
         /////// PHASING
         if (gv.phasing){
             if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
+//                cout<<"PHASED "<<endl;//DEB
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read
                 int previous_upper_case_seq_len=0;                                      // size of the previous upper case sequence
@@ -474,7 +484,7 @@ struct Functor
                     char sign = signed_var_id.first;
                     int64_t var_id = signed_var_id.second;
                     //DEBUG
-                    //                    cout<<"var_id        "<<var_id<<endl;
+//                    cout<<"var_id        "<<var_id<<endl;
                     //
                     //                    cout<<"pwi        "<<pwi<<endl;
                     //ENDDEBUG
