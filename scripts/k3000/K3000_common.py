@@ -106,7 +106,7 @@ def d_list_equal(a_d,b_d):
 def d_list_sup(a_d,b_d):
     a=[allele_value(x) for x in a_d]
     b=[allele_value(x) for x in b_d]
-    return a>b
+    return a>=b
     
     
 def d_list_order(a_d,b_d):

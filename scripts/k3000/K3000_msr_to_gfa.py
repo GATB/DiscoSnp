@@ -10,7 +10,7 @@ import sys
 import K3000_common as kc
 
 
-def show_right_edges (MSR,x,id_x):#,unitigs,k):
+def show_right_edges (MSR,x,id_x):
     ''' Main function. For a given super read x, we find y that overlap x, and we print the links in a GFA style:
     L	11	+	12	-	overlap size
     Note that one treat x only if its canonical.
@@ -48,6 +48,7 @@ def show_right_edges (MSR,x,id_x):#,unitigs,k):
                 strandy='-'
 #                id_y = indexed_nodes.index(kc.get_reverse_msr(y))
                 id_y=kc.get_reverse_msr_id(y,MSR)                                # find the reverse of list y in MSR to grab its id.
+                # assert kc.is_canonical(full_y[:-1]), "not canonical "+str(full_y[-1])+" full = "+str(full_y)
                 # print("y is ", y)
                 # print("id_y is", id_y)
                 if id_x>id_y: continue # x_.y is the same as y_.x. Thus we chose one of them. By convention, we print x_.y if x<y.
@@ -77,14 +78,14 @@ def show_right_edges (MSR,x,id_x):#,unitigs,k):
 
 
 
-def print_GFA_edges(MSR):#,unitigs,k):
+def print_GFA_edges(MSR):
     '''print each potiential edge in GFA format. Note that each edge is printed in one unique direction, the other is implicit
     WARNING: here each msr in MSR contains as last value its unique id.
     '''
     for msr in MSR.traverse():
         x_id = kc.get_msr_id(msr)                                         # last value is the node id
         if x_id%100==0: sys.stderr.write("\t%.2f"%(100*x_id/len(MSR))+"%\r")
-        show_right_edges(MSR,msr,x_id)#,unitigs,k)
+        show_right_edges(MSR,msr,x_id)
     sys.stderr.write("\t100.00%\n")
 
 
@@ -162,7 +163,7 @@ def main():
     sys.stderr.write("Print GFA Nodes\n")
     print_GFA_nodes_as_ids(MSR, sys.argv[1])
     sys.stderr.write("Print GFA Edges\n")
-    print_GFA_edges(MSR)#,unitigs,k)
+    print_GFA_edges(MSR)
 
 
 if __name__ == "__main__":
