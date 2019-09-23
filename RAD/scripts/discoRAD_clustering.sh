@@ -86,8 +86,8 @@ fi
 # rank filter parameter
 min_rank=0.4
 
-# cluster size parameter  -- no longer used
-# max_cluster_size=3000000
+# max cluster size parameter
+max_cluster_size=150
 
 percent_missing=0.95
 
@@ -222,7 +222,7 @@ echo "############################################################"
 echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
-cmdVCF="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster 2>&1 "
+cmdVCF="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster -s ${max_cluster_size} 2>&1 "
 echo $cmdVCF
 if [[ "$wraith" == "false" ]]; then
     eval $cmdVCF

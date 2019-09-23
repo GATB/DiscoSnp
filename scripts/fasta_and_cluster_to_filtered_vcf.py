@@ -9,7 +9,7 @@
     Author - Claire Lemaitre
     
     Usage:
-    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa [-o disco_bubbles_coherent.vcf -m 0.95 -r 0.4]
+    python3 fasta_and_cluster_to_filtered_vcf.py  -i disco_bubbles_coherent.fa [-o disco_bubbles_coherent.vcf -m 0.95 -r 0.4]
     
     *********************************************** '''
 
@@ -20,16 +20,16 @@ import random
 import re #regular expressions
 import time
 
-''' Usages in discoSnp pipeline scripts (RAD/scripts/discoRAD_finalization.sh):
+''' Usages in discoSnp pipeline scripts (RAD/clustering_scripts/discoRAD_clustering.sh):
 
     If no clustering:
-    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa -o disco_bubbles_coherent.vcf -m 0.95 -r 0.4
+    python3 fasta_and_cluster_to_filtered_vcf.py -i disco_bubbles_coherent.fa -o disco_bubbles_coherent.vcf -m 0.95 -r 0.4
     end of the pipeline
     
     If clustering:
-    python3 create_filtered_vcf.py -i disco_bubbles_coherent.fa -f -o disco_bubbles_coherent_filtered.fa_removemeplease -m 0.95 -r 0.4
-    clustering with file disco_bubbles_coherent_filtered.fa_removemeplease
-    python3 create_filtered_vcf.py -i disco_bubbles_coherent_filtered_clustered.fa_removemeplease -o disco_bubbles_coherent_clustered.vcf
+    python3 fasta_and_cluster_to_filtered_vcf.py -i disco_bubbles_coherent.fa -f -o disco_bubbles_coherent_filtered.fa_removemeplease -m 0.95 -r 0.4
+    # then clustering with file disco_bubbles_coherent_filtered.fa_removemeplease
+    python3 fasta_and_cluster_to_filtered_vcf.py -i disco_bubbles_coherent_filtered.fa_removemeplease -c disco_bubbles_coherent_filtered_simpler.cluster -o disco_bubbles_coherent_clustered.vcf -s 150
     rm -f disco_bubbles_coherent_filtered.fa_removemeplease
     end of pipeline
     '''
@@ -65,6 +65,7 @@ def usage():
     print("usage: ",sys.argv[0]," -i disco_bubbles.fa")
     print("  -r: min rank value filter (default = 0)")
     print("  -m: max missing value filter (default = 1)")
+    print("  -s: max cluster size filter (default = 0, ie no size limit)")
     print("  -o: output vcf file path (default = stdout)")
     print("  -f: output a filtered fasta file instead of a vcf file")
     print("  -c: considers a cluster input file. In this situation, prints the cluster_id in the output")
@@ -75,7 +76,7 @@ def usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:r:m:o:fc:", ["help", "in=", "rank=", "miss=", "out=", "fastaout"])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:r:m:s:o:fc:", ["help", "in=", "rank=", "miss=", "size=", "out=", "fastaout", "cluster"])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -87,6 +88,7 @@ def main():
     fasta_only = 0
     min_rank = 0
     max_miss = 1
+    max_cluster_size = 0
     k = 31
     out_file =      None
     cluster_file =  None
@@ -101,6 +103,8 @@ def main():
             min_rank = float(arg)
         elif opt in ("-m", "--miss"):
             max_miss = float(arg)
+        elif opt in ("-s", "--size"):
+            max_cluster_size = int(arg)
         elif opt in ("-o", "--out"):
             out_file = arg
         elif opt in ("-f", "--fastaout"):
@@ -198,6 +202,10 @@ def main():
                     #fasta_4lines = splitted_1[0] + "\n"  #simplified headers for fasta_only and src
 
                     ## FILTERING
+                    #filter cluster size
+                    if max_cluster_size >0 and cluster_id != ".":
+                        if cluster_size > max_cluster_size:
+                            continue
                     #filter rank
                     rank = float(splitted_1[-1].split("rank_")[1])
                     if rank < min_rank:
