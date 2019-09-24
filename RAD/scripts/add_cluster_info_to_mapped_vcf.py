@@ -51,6 +51,8 @@ def output_newvcf(unmapped_file, mapped_file, out_file):
             ##chr3R    26778135     3       C       G       .       PASS       Ty=SNP;Rk=1.0;UL=86;UR=261;CL=169;CR=764;Genome=.;Sd=1  ...
             splitted = line.split("\t")
             id = splitted[2]
+            if id not in id_to_cluster_info:  # if no cluster info, we do not print the variant at all because we assume that if absent means that it has been filtered out for a good reason (typically : too large cluster)
+                continue
             cluster_info = id_to_cluster_info[id]
             INFO = splitted[7] + ";" + cluster_info
             tojoin = splitted[:7] + [INFO] + splitted[8:]
