@@ -1,45 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Author :  Claire Lemaitre, Inria.
-# Last modified : Oct. 2017
+''' ***********************************************
+
+Script to filter out variants in a discoSnp vcf output file (.vcf), according to various features
+Author - Claire Lemaitre, Pierre Peterlongo, Inria
+
+Usage:
+python3 filter_vcf_by_indiv_cov_max_missing_and_maf.py -i vcf_file -o new_vcf_file [-x 0.1 -y 0.5]
+
+Details:
+filter a vcf file by keeping only variants such that :
+  - each individual genotype with DP < min_cov is replaced by a missing genotype
+  - the proportion of missing genotype is < max_missing
+  - the minor allele freq is >= min_maf
+outputs a vcf
+Note : NA are indicated as "./." genotypes.
+*********************************************** '''
+
+
+# Last modified : Oct. 2019
 
 import sys
 import getopt
 
-# 
-# filter a vcf file by keeping only variants such that :
-#  - each individual with DP < min_cov is replaced by a missing genotype
-#  - the proportion of missing genotype is < max_missing
-#  - the minor allele freq is >= min_maf
-# outputs a vcf
-
-
-# Note : NA are indicated as "./." genotypes.
-
 
 def usage():
     '''Usage'''
-    print "-----------------------------------------------------------------------------"
-    print sys.argv[0]," : vcf filter"
-    print "-----------------------------------------------------------------------------"
-    print "usage: ",sys.argv[0]," -i vcf_file -o output_file [-c min_cov -m max_missing -f min_maf -s]"
-    print "  -i: input vcf file"
-    print "  -o: output vcf file"
-    print "  -m: max missing genotype proportion to keep a variant (between 0 and 1, def = 1)"
-    print "  -c: min coverage to call a genotype (int, def=0)"
-    print "  -f: min minor allele frequency (maf) (between 0 and 1, def=0)"
-    print "  -s: snp only (def= all variants)"
-    print "-----------------------------------------------------------------------------"
+    print("-----------------------------------------------------------------------------")
+    print(sys.argv[0]+" : vcf filter")
+    print("-----------------------------------------------------------------------------")
+    print("usage: "+sys.argv[0]," -i vcf_file -o output_file [-c min_cov -m max_missing -f min_maf -s]")
+    print("  -i: input vcf file [mandatory]")
+    print("  -o: output vcf file [mandatory]")
+    print("  -m: max missing genotype proportion to keep a variant (between 0 and 1, def = 1)")
+    print("  -c: min coverage to call a genotype (int, def=0)")
+    print("  -f: min minor allele frequency (maf) (between 0 and 1, def=0)")
+    print("  -s: snp only (def= all variants)")
+    print("-----------------------------------------------------------------------------")
     sys.exit(2)
 
 
 def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "i:o:c:m:f:s", ["in=", "out=","cov=","miss=", "freq=","snp-only"])
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err)  # will print something like "option -a not recognized"
+        print(str(err))  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
     
@@ -67,7 +74,7 @@ def main():
             assert False, "unhandled option"
 
     if input_file == 0 or output_file == 0:
-        print "Missing arguments"
+        print("Error: options -i and -o are mandatory")
         usage()
         sys.exit(2)
     else:

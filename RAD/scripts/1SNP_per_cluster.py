@@ -1,30 +1,101 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+''' ***********************************************
+
+Script to select only one variant per locus (cluster) in a discoSnp vcf output file (.vcf)
+Author - Claire Lemaitre, Pierre Peterlongo, Inria
+
+Usage:
+python3 1SNP_per_cluster.py -i vcf_file [-o new_vcf_file]
+
+Details:
+The selected variant is not chosen at random, for a given cluster, it is the one with the less missing genotypes (if ties, it is the first read in the input file)
+
+*********************************************** '''
+
 import sys
 import getopt
 
 
-#
-#input: disco.vcf
-#output : nouveau disco.vcf avec un SNP par cluster, celui ayant le moins de génotypes manquants
-#
-#utilisation : python filter_paralogs.py disco.vcf
-#
-    
     
 def usage():
     '''Usage'''
     print("-----------------------------------------------------------------------------")
-    print(sys.argv[0]," : select one variant from a vcf with clusters")
+    print(sys.argv[0]+" : selects one variant per cluster")
     print("-----------------------------------------------------------------------------")
-    print("usage: ",sys.argv[0])
-    print("  -v vcf file [mandatory]")
-    print("  -o: output vcf file path (default = stdout)")
+    print("usage: "+sys.argv[0]+" -i vcf_file [-o output_file]")
+    print("  -i: vcf file [mandatory]")
+    print("  -o: output vcf file (default = stdout)")
     print("  -h: help")
     print("-----------------------------------------------------------------------------")
     sys.exit(2)
     
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:o:")
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(str(err))
+        usage()
+        sys.exit(2)
+
+    # Default parameters
+    vcf_file =       None
+    out_file =      None
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-i"):
+            vcf_file = arg
+        elif opt in ("-o", "--out"):
+            out_file = arg
+        else:
+            assert False, "unhandled option"
+
+    if vcf_file==None:
+        print ("Error: option -i is mandatory")
+        usage()
+        sys.exit(2)
+
+    format_ok = check_format(vcf_file)
+    if not format_ok:
+        print("Error: the format of the input vcf is not correct, it must contain clustering information")
+        sys.exit(2)
+    
+    dict_, nb_SNP_before, nb_SNP_after = store_info(vcf_file)
+    output_newvcf(vcf_file, out_file, dict_)
+
+
+
+
+def check_format(vcf_file):
+    ''' Checks if the vcf has the correct format, ie : the INFO field must contain clustering information, such as:
+        Ty=SNP;Rk=1;UL=1;UR=2;CL=.;CR=.;Genome=.;Sd=.;Cluster=79466;ClSize=12
+        '''
+        
+    filin = open(vcf_file, 'r')
+    checked = False
+    while not checked:
+        line = filin.readline()
+        if line.startswith("#"): continue
+        INFO_split = line.split("\t")[7].split(";")
+        checked = True
+        if len(INFO_split) < 10: return False
+        tmp_cluster = INFO_split[8].split("Cluster=")
+        if len(tmp_cluster) < 2: return False
+        if tmp_cluster[1] == ".": return False
+        try:
+            cl_id = int(tmp_cluster[1])
+        except ValueError:
+            return False
+        return True
+                
+    filin.close()
+
 def store_info(vcf_file):
 
     dict_ = {}  ## {num_cluster : [num_SNP ayant le moins de géno manquants, nb_missgeno]}
@@ -40,11 +111,7 @@ def store_info(vcf_file):
 
         nb_SNP_tot += 1
 
-        try:
-            num_cluster = int(line.split("Cluster=")[1].split(";")[0])
-        except ValueError:
-                print ("No cluster size information stored in the vcf, exit")
-                sys.exit(1)
+        num_cluster = int(line.split("Cluster=")[1].split(";")[0])
           
         if num_cluster == -1: continue
         id_SNP = line.split("\t")[2]
@@ -100,38 +167,6 @@ def output_newvcf(vcf_file, out_file, dict_) :
     filin.close()
     filout.close()
 
-
-def main():
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hv:o:")
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        usage()
-        sys.exit(2)
-    
-    # Default parameters
-    vcf_file =       None
-    out_file =      None
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif opt in ("-v"):
-            vcf_file = arg
-        elif opt in ("-o", "--out"):
-            out_file = arg
-        else:
-            assert False, "unhandled option"
-
-    if vcf_file==None:
-        print ("-v missing")
-        usage()
-        sys.exit(2)
-
-
-
-    dict_, nb_SNP_before, nb_SNP_after = store_info(vcf_file)
-    output_newvcf(vcf_file, out_file, dict_)
 
     
     

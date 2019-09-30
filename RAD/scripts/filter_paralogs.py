@@ -1,17 +1,109 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+''' ***********************************************
+
+Script to filter out variants in a discoSnp vcf output file (.vcf), according to the fraction of heterozygous genotypes per locus
+Author - Claire Lemaitre, Pierre Peterlongo, Inria
+
+Usage:
+python3 filter_paralogs.py -i vcf_file -o new_vcf_file [-x 0.1 -y 0.5]
+
+Details:
+variants with a proportion (not considering missing genotypes) of heterozygous genotypes greater than x are considered as "bad" variants
+all variants (vcf lines) belonging to clusters (loci) with a proportion of "bad" variants greater than y are filtered out
+
+*********************************************** '''
+
 import sys
+import getopt
 
 
-#
-#input: disco.vcf
-#output : new disco.vcf without SNP located in clusters with more than y% SNP heterozygous in more than x% individuals
-#
-#Usage : python filter_paralogs.py disco.vcf x y
-#
+
+def usage():
+    '''Usage'''
+    print("-----------------------------------------------------------------------------")
+    print(sys.argv[0]+" : discoSnp output filtering according to the fraction of heterozygous genotypes per locus")
+    print("-----------------------------------------------------------------------------")
+    print("usage: "+sys.argv[0]+" -i vcf_file -o new_vcf_file [-x 0.1 -y 0.5]")
+    print("  -i: input vcf file [mandatory]")
+    print("  -o: output vcf file [mandatory]")
+    print("  -x: max fraction of heterozygous genotypes per variant (default = 0.1)")
+    print("  -y: max fraction of bad variants per locus (default = 0.5)")
+    print("  -h: help")
+    print("-----------------------------------------------------------------------------")
+    sys.exit(2)
+
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:x:y:o:", ["help", "in=", "x=", "y=", "out="])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(str(err))  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    
+    # Default parameters
+    vcf_file = 0
+    x = 0.1
+    y = 0.5
+    k = 31
+    out_file = 0
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-i", "--in"):
+            vcf_file = arg
+        elif opt in ("-x", "--x"):
+            x = float(arg)
+        elif opt in ("-y", "--y"):
+            y = float(arg)
+        elif opt in ("-o", "--out"):
+            out_file = arg
+        else:
+            assert False, "unhandled option"
+
+    if vcf_file == 0 or out_file == 0:
+        print("Error: options -i and -o are mandatory")
+        usage()
+        sys.exit(2)
+    else:
+
+        format_ok = check_format(vcf_file)
+        if not format_ok:
+            print("Error: the format of the input vcf is not correct, it must contain clustering information")
+            sys.exit(2)
+        
+        dict, nb_cluster_tot = store_info(vcf_file, x)
+        clusters_to_keep, nb_clusters_kept = discard_clusters(dict, y)
+        output_newvcf(vcf_file, out_file, clusters_to_keep)
+
+        print(str(nb_clusters_kept) + " on " + str(nb_cluster_tot) + " clusters had less than " + str(y*100) + "% of SNP with less than " + str(x*100) + "% heterygous genotypes")
 
 
+
+def check_format(vcf_file):
+    ''' Checks if the vcf has the correct format, ie : the INFO field must contain clustering information, such as:
+        Ty=SNP;Rk=1;UL=1;UR=2;CL=.;CR=.;Genome=.;Sd=.;Cluster=79466;ClSize=12
+        '''
+        
+    filin = open(vcf_file, 'r')
+    checked = False
+    while not checked:
+        line = filin.readline()
+        if line.startswith("#"): continue
+        INFO_split = line.split("\t")[7].split(";")
+        checked = True
+        if len(INFO_split) < 10: return False
+        tmp_cluster = INFO_split[8].split("Cluster=")
+        if len(tmp_cluster) < 2: return False
+        if tmp_cluster[1] == ".": return False
+        cl_id = int(tmp_cluster[1])
+        return True
+                
+    filin.close()
 
 def store_info(vcf_file, x):
 
@@ -20,7 +112,7 @@ def store_info(vcf_file, x):
     filin = open(vcf_file, 'r')
 
     while True:
-        """cluster_4651_size_14_SNP_higher_path_826058	31	826058	A	G	.	.	Ty=SNP;Rk=1;UL=1;UR=2;CL=.;CR=.;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:7:144,25,5:0,7:0,72	1/1:14:284,46,5:0,14
+        """SNP_higher_path_9999	31	9999_1	A	G	.	.	Ty=SNP;Rk=1;UL=1;UR=2;CL=.;CR=.;Genome=.;Sd=.;Cluster=79466;ClSize=12	GT:DP:PL:AD:HQ	1/1:7:144,25,5:0,7:0,72	1/1:14:284,46,5:0,14
 :0,71	1/1:8:164,28,5:0,8:0,73	1/1:59:1184,182,7:0,59:0,70	1/1:144:2884,438,11:0,144:0,72	1/1:30:604,95,6:0,30:0,70	1/1:37:744,116,6:0,37:0,72	./.:1:.,.,.:0,1:0,71	1/1:31:624,98,6:0,31
 :0,69	1/1:10:204,34,5:0,10:0,72	1/1:45:904,140,6:0,45:0,72	1/1:31:624,98,6:0,31:0,73	1/1:11:224,37,5:0,11:0,66	1/1:133:2664,405,10:0,133:0,72	1/1:26:524,83,5:0,26:0,68	1/1:
 43:864,134,6:0,43:0,72	1/1:27:544,86,5:0,27:0,72	1/1:6:124,22,5:0,6:0,70	1/1:32:644,101,6:0,32:0,73	1/1:55:1104,170,7:0,55:0,71	1/1:20:404,64,5:0,20:0,73	./.:0:.,.,.:0,0:0,0	./.:
@@ -30,9 +122,8 @@ def store_info(vcf_file, x):
         line = filin.readline()
         if not line: break
         if line.startswith("#"): continue
-        if not line.startswith("cluster"): continue
 
-        num_cluster = int(line.split("\t")[0].split("_")[1])
+        num_cluster = int(line.split("\t")[7].split(";")[8].split("Cluster=")[1])
         
        	if num_cluster not in dict : 
             dict[num_cluster] = [0,0]
@@ -71,10 +162,10 @@ def discard_clusters(dict, y):
     return clusters_to_keep, len(clusters_to_keep)
 
 
-def output_newvcf(vcf_file, clusters_to_keep) :
+def output_newvcf(vcf_file, out_file, clusters_to_keep) :
     
     filin = open(vcf_file, 'r')
-    new_vcf = open("para_" + str(x) + "_" + str(y) + "_" + str(vcf_file), 'w')
+    new_vcf = open(out_file, 'w')
 
     while True:
 
@@ -84,20 +175,13 @@ def output_newvcf(vcf_file, clusters_to_keep) :
              new_vcf.write(line)        
              continue
 
-        if not line.startswith("cluster"): continue
-        cluster = int(line.split("\t")[0].split("cluster_")[1].split("_size")[0]) 
+        cluster = int(line.split("\t")[7].split(";")[8].split("Cluster=")[1])
         if cluster not in clusters_to_keep: continue
         new_vcf.write(line)
 
     filin.close()
+    new_vcf.close()
 
-
-vcf_file=sys.argv[1]
-x = float(sys.argv[2])
-y = float(sys.argv[3])
-
-dict, nb_cluster_tot = store_info(vcf_file, x)
-clusters_to_keep, nb_clusters_kept = discard_clusters(dict, y)
-output_newvcf(vcf_file, clusters_to_keep)
-
-print(str(nb_clusters_kept) + " on " + str(nb_cluster_tot) + " clusters had less than " + str(y*100) + "% of SNP with less than " + str(x*100) + "% heterygous genotypes") 
+if __name__ == "__main__":
+    main()
+                  
