@@ -155,7 +155,7 @@ def print_reverse(gfa_file_name):
     
     
 def print_edges(gfa_file_name):
-    print("#set of edges. Two types of edges, 1/ \"overlaps\" edges, that show an overlap between facts and 2/ \"links\" edges, that represent facts linked by paired reads (distanace unknown)")
+    print("#set of edges. Four types of edges, 1/ \"overlaps\" edges, that show an overlap between facts and 2/ \"links\" edges, that represent facts linked by paired reads (distanace unknown) and 3/ \"successive\" edges that represent two successive facts (without phasing) and 4/ \"incompatible\" edges, no path should contain two nodes linked by such an edge ")
     print("set Edges :=")
     gfa_file = open(gfa_file_name)
     for line in gfa_file.readlines():
@@ -180,7 +180,7 @@ def print_edges(gfa_file_name):
     
     
 def print_edges_content(gfa_file_name):
-    print("#overlap length of each edge. For an \"overlaps\" edge, it indicates the number of common variants. For an \"links\" edge, this is set to zero")
+    print("#overlap length of each edge. For an \"overlaps\" edge, it indicates the number of common variants. For any other edge type (links, successive, or incompatibles), this is set to zero")
     print("param l :=")
     gfa_file = open(gfa_file_name)
     for line in gfa_file.readlines():
