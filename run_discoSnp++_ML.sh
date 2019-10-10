@@ -536,12 +536,11 @@ if [ ! -e $h5prefix.h5 ]; then
     ab_index_size="${#array[@]}"
     for line in `cat ${read_sets}_${kissprefix}_removemeplease`; do
         min_abundance="${array[$i]}"
-        if (( i > ab_index_size )); 
+        if [ $i -ge ${ab_index_size} ] 
         then 
-            min_abundance="${array[$max-1]}"; 
+            min_abundance="${array[${ab_index_size}-1]}"; 
         fi
         i=`expr $i + 1`
-        
         dskCmd="${dsk_build_dir}/dsk -file ${line} -abundance-min ${min_abundance} -abundance-max 2147483647 -solidity-kind sum  -kmer-size $k -out ${prefix_trash}_trashme_${i}.h5"
 
         
@@ -557,11 +556,11 @@ if [ ! -e $h5prefix.h5 ]; then
             exit 1
         fi
         input_h5s=${input_h5s}${prefix_trash}_trashme_${i}.h5,
-        # enables to run up to 20 jobs in parallel 
+        # enables to run up to 10 jobs in parallel 
         while [ 1 ]
         do
             a=`jobs -r|wc -l` # number of previous jobs stilil running 
-            if [ $a -lt 20 ]
+            if [ $a -lt 10 ]
             then
                 break
             fi
