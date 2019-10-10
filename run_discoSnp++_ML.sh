@@ -543,30 +543,39 @@ if [ ! -e $h5prefix.h5 ]; then
         i=`expr $i + 1`
         
         dskCmd="${dsk_build_dir}/dsk -file ${line} -abundance-min ${min_abundance} -abundance-max 2147483647 -solidity-kind sum  -kmer-size $k -out ${prefix_trash}_trashme_${i}.h5"
-        echo "${green}"${dskCmd}"${cyan}"
+
+        
+        toaskiiCmd="${dsk_build_dir}/dsk2ascii -file ${prefix_trash}_trashme_${i}.h5 -out /dev/null/dummy -fasta -c"  
+        echo "${green}"${dskCmd} ${cyan}" && "${green} ${toaskiiCmd} " | gzip > ${prefix_trash}_trashme_${i}.fa.gz &${cyan}"
         if [[ "$wraith" == "false" ]]; then
-            ${dskCmd}
+            ${dskCmd} && ${toaskiiCmd} | gzip > ${prefix_trash}_trashme_${i}.fa.gz&
         fi
-        echo ${reset}
+        # echo ${reset}
         if [ $? -ne 0 ]
         then
             echo "${red}there was a problem with dsk${reset}"
             exit 1
         fi
-        
-        toaskiiCmd="${dsk_build_dir}/dsk2ascii -file ${prefix_trash}_trashme_${i}.h5 -out /dev/null/dummy -fasta -c"  
-        echo "${green}"${toaskiiCmd} " | gzip > ${prefix_trash}_trashme_${i}.fa.gz${cyan}"
-        if [[ "$wraith" == "false" ]]; then
-            ${toaskiiCmd} | gzip  > ${prefix_trash}_trashme_${i}.fa.gz
-        fi
-        echo ${reset}
-        if [ $? -ne 0 ]
-        then
-            echo "${red}there was a problem with dsk2ascci${reset}"
-            exit 1
-        fi
         input_h5s=${input_h5s}${prefix_trash}_trashme_${i}.h5,
+        # enables to run up to 20 jobs in parallel 
+        while [ 1 ]
+        do
+            a=`jobs -r|wc -l` # number of previous jobs stilil running 
+            if [ $a -lt 20 ]
+            then
+                break
+            fi
+            sleep 10
+        done
     done
+    # wait for the last jobs to finish
+    for job in `jobs -p`
+    do
+    echo $job
+        wait $job || let "FAIL+=1"
+    done
+    
+    
     rmCmd="rm -f ${prefix_trash}_trashme_allsolid.fa.gz"
     echo "${green}"${rmCmd}"${cyan}"
     ${rmCmd}
