@@ -41,10 +41,9 @@
 ## Mapping to a reference genome, and keeping the cluster information :
 
 When a reference genome is available, even if variants have been called in a reference-free manner, it could be useful to get the positions of variants on this reference genome. To get such information, two programs are necessary in the case of a discoSnpRAD result:    
-
-        * `VCF_creator` (in dir `[DISCO_DIR]/scripts/`).     
+    * `VCF_creator` (in dir `[DISCO_DIR]/scripts/`).     
             Note : it uses the mapper bwa, which must to be in the PATH env variable.   
-        * **script**  `add_cluster_info_to_mapped_vcf.py` in this current directory, to append the clustering information (and some minimal filtering on cluster size) in the vcf output by VCF_creator.   
+    * **script**  `add_cluster_info_to_mapped_vcf.py` in this current directory, to append the clustering information (and some minimal filtering on cluster size) in the vcf output by VCF_creator.   
 
 Here is the full pipeline to map the result of discoSnpRAD with name prefix `myDiscoSnpRADResult` to a reference genome `myReferenceGenome.fa`:
 ```
