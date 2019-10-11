@@ -578,18 +578,34 @@ if [ ! -e $h5prefix.h5 ]; then
     
     
     rmCmd="rm -f ${prefix_trash}_trashme_allsolid.fa.gz"
-    echo "${green}"${rmCmd}"${cyan}"
-    ${rmCmd}
-    catCmd="cat ${prefix_trash}_trashme_[0-9]*.fa.gz" #>  allsolid.fa.gz
-    echo "${green}"${catCmd} ">  ${prefix_trash}_trashme_allsolid.fa.gz${cyan}"
-    if [[ "$wraith" == "false" ]]; then
-        ${catCmd} >  ${prefix_trash}_trashme_allsolid.fa.gz
-    fi
-    if [ $? -ne 0 ]
-    then
-        echo "${red}there was a problem concatenation of single kmer fasta files${reset}"
-        exit 1
-    fi
+    
+    for file in `ls ${prefix_trash}_trashme_[0-9]*.fa.gz`;
+    do
+        cat_cmd="cat $file >> ${prefix_trash}_trashme_allsolid.fa.gz && rm -f $file"
+        echo "${green}"${cat_cmd}"${cyan}"
+        if [[ "$wraith" == "false" ]]; then
+            cat $file >> ${prefix_trash}_trashme_allsolid.fa.gz && rm -f $file
+        fi
+        if [ $? -ne 0 ]
+        then
+            echo "${red}there was a problem concatenation of single kmer fasta files${reset}"
+            exit 1
+        fi
+    done
+    
+    
+    # echo "${green}"${rmCmd}"${cyan}"
+    # ${rmCmd}
+    # catCmd="cat ${prefix_trash}_trashme_[0-9]*.fa.gz" #>  allsolid.fa.gz
+    # echo "${green}"${catCmd} ">  ${prefix_trash}_trashme_allsolid.fa.gz${cyan}"
+    # if [[ "$wraith" == "false" ]]; then
+    #     ${catCmd} >  ${prefix_trash}_trashme_allsolid.fa.gz
+    # fi
+    # if [ $? -ne 0 ]
+    # then
+    #     echo "${red}there was a problem concatenation of single kmer fasta files${reset}"
+    #     exit 1
+    # fi
     echo "${green}ls ${prefix_trash}_trashme_allsolid.fa.gz > ${prefix_trash}_trashme_allsolid.txt${cyan}"
     ls ${prefix_trash}_trashme_allsolid.fa.gz > ${prefix_trash}_trashme_allsolid.txt
     
@@ -606,16 +622,11 @@ if [ ! -e $h5prefix.h5 ]; then
     fi
     
     
-
-    T="$(($(date +%s)-T))"
-    if [[ "$wraith" == "false" ]]; then
-        echo "${yellow}Graph creation time in seconds: ${T}${reset}"
-    fi
+    
     #####################################################################
     #################### COVERAGE FILE CREATION   #######################
     #####################################################################
-    ## 1/ create the string trashme_1.h5,trashme_2.h5,...,trashme_n.h5 string
-
+    ## create the string trashme_1.h5,trashme_2.h5,...,trashme_n.h5 string
     create_cov_file_cmd="${create_coverage_h5_file_bin} -in ${input_h5s} -coverage_file ${h5prefix}_cov.h5"
     echo "${green}"${create_cov_file_cmd}"${cyan}"
     if [[ "$wraith" == "false" ]]; then
@@ -632,6 +643,12 @@ if [ ! -e $h5prefix.h5 ]; then
     echo ${green}${cleanCmd}${reset}
     if [[ "$wraith" == "false" ]]; then
         ${cleanCmd}
+    fi
+    
+
+    T="$(($(date +%s)-T))"
+    if [[ "$wraith" == "false" ]]; then
+        echo "${yellow}Graph creation time in seconds: ${T}${reset}"
     fi
     
 else
