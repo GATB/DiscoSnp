@@ -545,9 +545,12 @@ if [ ! -e $h5prefix.h5 ]; then
 
         
         toaskiiCmd="${dsk_build_dir}/dsk2ascii -file ${prefix_trash}_trashme_${i}.h5 -out /dev/null/dummy -fasta -c"  
-        echo "${green}"${dskCmd} ${cyan}" && "${green} ${toaskiiCmd} " | gzip > ${prefix_trash}_trashme_${i}.fa.gz &${cyan}"
+        dump_cov_cmd="${create_coverage_h5_file_bin} -in ${prefix_trash}_trashme_${i}.h5 -coverage_file ${prefix_trash}_trashme_${i}_cov_only.h5"
+        rm_dsk_h5_file_cmd="rm -f ${prefix_trash}_trashme_${i}.h5"
+        
+        echo "${green}"${dskCmd} ${cyan}" && "${green} ${toaskiiCmd} " | gzip -1 > ${prefix_trash}_trashme_${i}.fa.gz && "${dump_cov_cmd}" && "${rm_dsk_h5_file_cmd}"&${cyan} "
         if [[ "$wraith" == "false" ]]; then
-            ${dskCmd} && ${toaskiiCmd} | gzip > ${prefix_trash}_trashme_${i}.fa.gz&
+            ${dskCmd} && ${toaskiiCmd} | gzip -1> ${prefix_trash}_trashme_${i}.fa.gz && ${dump_cov_cmd} && ${rm_dsk_h5_file_cmd} &
         fi
         # echo ${reset}
         if [ $? -ne 0 ]
@@ -555,7 +558,7 @@ if [ ! -e $h5prefix.h5 ]; then
             echo "${red}there was a problem with dsk${reset}"
             exit 1
         fi
-        input_h5s=${input_h5s}${prefix_trash}_trashme_${i}.h5,
+        input_h5s=${input_h5s}${prefix_trash}_trashme_${i}_cov_only.h5,
         # enables to run up to 10 jobs in parallel 
         while [ 1 ]
         do
@@ -570,7 +573,6 @@ if [ ! -e $h5prefix.h5 ]; then
     # wait for the last jobs to finish
     for job in `jobs -p`
     do
-    echo $job
         wait $job || let "FAIL+=1"
     done
     
@@ -582,6 +584,11 @@ if [ ! -e $h5prefix.h5 ]; then
     echo "${green}"${catCmd} ">  ${prefix_trash}_trashme_allsolid.fa.gz${cyan}"
     if [[ "$wraith" == "false" ]]; then
         ${catCmd} >  ${prefix_trash}_trashme_allsolid.fa.gz
+    fi
+    if [ $? -ne 0 ]
+    then
+        echo "${red}there was a problem concatenation of single kmer fasta files${reset}"
+        exit 1
     fi
     echo "${green}ls ${prefix_trash}_trashme_allsolid.fa.gz > ${prefix_trash}_trashme_allsolid.txt${cyan}"
     ls ${prefix_trash}_trashme_allsolid.fa.gz > ${prefix_trash}_trashme_allsolid.txt
@@ -620,7 +627,6 @@ if [ ! -e $h5prefix.h5 ]; then
         echo "${red}there was a problem with graph construction${reset}"
         exit 1
     fi
-
 
     cleanCmd="rm -rf ${prefix_trash}_trashme_*"
     echo ${green}${cleanCmd}${reset}
