@@ -1,9 +1,9 @@
 # DiscoSnpRAD: small variant discovery and genotyping for RAD-seq data
 
 
-DiscoSnpRAD is a pipeline based on discoSNP++ to discover small variants in RAD-like sequencing data. The differences with respect to using directly discoSNP++ lies in three main features:   
+DiscoSnpRAD is a pipeline based on discoSnp++ to discover small variants in RAD-like sequencing data. The differences with respect to using directly discoSnp++ lies in three main features:   
 * an enhanced bubble model to deal with RAD-like sequences 
-* using specific discoSNP++ parameters and filters, adapted to RAD-like data
+* using specific discoSnp++ parameters and filters, adapted to RAD-like data
 * clustering the called variants into loci
 
 **Reference:**   
@@ -11,7 +11,7 @@ Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemait
 
 ## Installation
 
-* discoSNP++
+* discoSnp++
 * `short_read_connector` must have been downloaded and installed (clustering task). [https://github.com/GATB/short_read_connector](https://github.com/GATB/short_read_connector)
 
 
@@ -41,5 +41,12 @@ To see all options:
 
 * a log file reminds all filtering steps applied and the name of the output .vcf file
 * a vcf file containing results of filtering and clustering
+
+
+## Content of this directory
+
+Additionnally to the main script of discoSnpRAD, this directory contains two sub-directories :   
+* [clustering_scripts](clustering_scripts/) : it contains the scripts used by the main script of discoSnpRAD for clustering and formatting the variants.
+* [post-processing_scripts](post-processing_scripts/) : it contains several scripts that can be usefull to post-process the results of discoSnpRAD, ie. filtering results according to various criteria, changing format, preparing data for Structure, etc.
 
 
