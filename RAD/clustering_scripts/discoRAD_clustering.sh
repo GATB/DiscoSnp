@@ -98,7 +98,7 @@ echo "############################################################"
 echo "#Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
 
 disco_filtered=${rawdiscofile_base}_filtered
-cmdFilter="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
+cmdFilter="python3 ${EDIR}/fasta_and_cluster_to_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
 echo $cmdFilter
 if [[ "$wraith" == "false" ]]; then
     eval $cmdFilter
@@ -175,7 +175,7 @@ echo "############################################################"
 echo "###################### OUTPUT VCF ##########################"
 echo "############################################################"
 
-cmdVCF="python3 ${EDIR}/../../scripts/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster -s ${max_cluster_size} 2>&1 "
+cmdVCF="python3 ${EDIR}/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster -s ${max_cluster_size} 2>&1 "
 echo $cmdVCF
 if [[ "$wraith" == "false" ]]; then
     eval $cmdVCF

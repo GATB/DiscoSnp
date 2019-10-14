@@ -20,6 +20,7 @@ import random
 import re #regular expressions
 import time
 
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),"../../scripts/"))
 from vcf_formatting_functions import *
 
 
