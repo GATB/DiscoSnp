@@ -18,6 +18,13 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+cyan=`tput setaf 6`
+bold=`tput bold`
+reset=`tput sgr0`
+
 die() {
     printf '%s\n' "$1" >&2
     exit 1
@@ -166,7 +173,7 @@ function help {
 
 
 
-
+echo "${yellow}"
 
 while :; do
     case $1 in
@@ -390,11 +397,12 @@ while :; do
 
     shift
 done
-
+echo $reset
 
 if [ -z "$read_sets" ]; then
-    echo "You must provide at least one read set (-r|--fof)"
+    echo "$red You must provide at least one read set (-r|--fof)"
     help
+    echo $reset
     exit 1
 fi
 
@@ -403,7 +411,7 @@ fi
 rest=$(( $k % 2 ))
 if [ $rest -eq 0 ]
 then
-    echo "k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
+    echo "$red k=$k is even number, to avoid palindromes, we set it to $(($k-1)) $reset"
     k=$(($k-1))
 fi
 
@@ -428,7 +436,7 @@ rm -f ${read_sets}_${kissprefix}_removemeplease
 if [[ "$useref" == "true" ]]; then
 
     if [ -z "$genome" ]; then
-        echo "You can't use option -R without providing a reference genome (-G)"
+        echo "$red You can't use option -R without providing a reference genome (-G) $reset"
         help
         exit 1
     fi
@@ -445,7 +453,7 @@ cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 #################### OPTIONS SUMMARY            #######################
 #######################################################################
 if [[ "$wraith" == "false" ]]; then
-    echo -e "Running discoSnp++ "$version", in directory "$EDIR" with following parameters:"
+    echo -e "$yellow Running discoSnp++ "$version", in directory "$EDIR" with following parameters:"
     echo -e "\t read_sets="$read_sets
     echo -e "\t prefix="$h5prefix
     echo -e "\t c="$c
@@ -469,7 +477,7 @@ if [[ "$wraith" == "false" ]]; then
     date
     echo
 fi
-
+echo $reset
 #######################################################################
 #################### END OPTIONS SUMMARY        #######################
 #######################################################################
@@ -492,81 +500,83 @@ fi
 
 if [ ! -e $h5prefix.h5 ]; then
     T="$(date +%s)"
-    echo -e "############################################################"
-    echo -e "#################### GRAPH CREATION  #######################"
-    echo -e "############################################################"
+    echo -e "$yellow ############################################################"
+    echo -e " #################### GRAPH CREATION  #######################"
+    echo -e " ############################################################$reset"
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
-    echo ${graphCmd}
+    echo $green${graphCmd}$cyan
     if [[ "$wraith" == "false" ]]; then
         ${graphCmd}
     fi
 
     if [ $? -ne 0 ]
     then
-        echo "there was a problem with graph construction"
+        echo "$red there was a problem with graph construction$ reset"
         exit 1
     fi
 
     T="$(($(date +%s)-T))"
     if [[ "$wraith" == "false" ]]; then
-        echo "Graph creation time in seconds: ${T}"
+        echo "$yellow Graph creation time in seconds: ${T}$reset"
     fi
 
 else
     if [[ "$wraith" == "false" ]]; then
-        echo -e "File $h5prefix.h5 exists. We use it as input graph"
+        echo -e "$yellow File $h5prefix.h5 exists. We use it as input graph$reset"
     fi
 fi
 
+echo $reset
 cleanCmd="rm -rf trashme_*"
-echo ${cleanCmd}
+echo $green${cleanCmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${cleanCmd}
 fi
+echo $reset
 
 ######################################################
 #################### KISSNP2   #######################
 ######################################################
 T="$(date +%s)"
-echo -e "############################################################"
-echo -e "#################### KISSNP2 MODULE  #######################"
-echo -e "############################################################"
+echo -e "$yellow ############################################################"
+echo -e " #################### KISSNP2 MODULE  #######################"
+echo -e " ############################################################$reset"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
-echo ${kissnp2Cmd}
+echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}
 fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2"
+    echo "$red there was a problem with kissnp2$reset"
     exit 1
 fi
 
 T="$(($(date +%s)-T))"
 if [[ "$wraith" == "false" ]]; then
-    echo "Bubble detection time in seconds: ${T}"
+    echo "$yellow Bubble detection time in seconds: ${T}$reset"
 fi
 
 if [ ! -f $kissprefix.fa ]
 then
     if [[ "$wraith" == "false" ]]; then
-        echo "No polymorphism predicted by discoSnp++"
+        echo "$yellow No polymorphism predicted by discoSnp++"
         echo -e -n "\t ending date="
         date
-        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/$reset"
         exit 
     fi
 fi
 
 if [ $stop_after_kissnp -eq 1 ]; then
     if [[ "$wraith" == "false" ]]; then
-        echo "-X option detected, computation stopped after variant detection."
+        echo "$yellow -X option detected, computation stopped after variant detection."
         echo "Results (with no read coverage) are located here: "$kissprefix.fa
         echo -e -n "\t ending date="
         date
-        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/"
+        echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ $reset"
         exit 
     fi  
 fi
@@ -577,9 +587,9 @@ fi
 
 T="$(date +%s)"
 if [[ "$wraith" == "false" ]]; then
-    echo -e "#############################################################"
-    echo -e "#################### KISSREADS MODULE #######################"
-    echo -e "#############################################################"
+    echo -e "$yellow #############################################################"
+    echo -e " #################### KISSREADS MODULE #######################"
+    echo -e " #############################################################$reset"
 fi
 
 smallk=$k
@@ -594,17 +604,17 @@ if [ ! -z "${read_sets_kissreads}" ]; then
 fi
 kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
 
-echo $kissreadsCmd
+echo $green $kissreadsCmd$cyan
 if [[ "$wraith" == "false" ]]; then
 $kissreadsCmd
 fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissreads2":
+    echo "$red there was a problem with kissreads2$reset":
     exit 1
 fi
-
+echo $reset
 T="$(($(date +%s)-T))"
 # echo "Kissreads (mapping reads on bubbles) time in seconds: ${T}"
 
@@ -613,15 +623,15 @@ T="$(($(date +%s)-T))"
 #################### SORT AND FORMAT  RESULTS #########################
 #######################################################################
 
-echo -e "###############################################################"
-echo -e "#################### SORT AND FORMAT  RESULTS #################"
-echo -e "###############################################################"
+echo -e "$yellow ###############################################################"
+echo -e " #################### SORT AND FORMAT  RESULTS #################"
+echo -e " ###############################################################$reset"
 if [[ "$wraith" == "false" ]]; then
     sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with the result sorting."
+    echo "$red there was a problem with the result sorting.$reset"
     exit 1
 fi
 
@@ -631,7 +641,7 @@ fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with the result sorting"
+    echo "$red there was a problem with the result sorting$reset"
     exit 1
 fi
 
@@ -652,43 +662,42 @@ rm -rf ${read_sets}_${kissprefix}_removemeplease
 #######################################################################
 
 T="$(date +%s)"
-echo -e "###############################################################"
-echo -e "#################### CREATE VCF         #######################"
-echo -e "###############################################################"
+echo -e "$yellow ###############################################################"
+echo -e " #################### CREATE VCF         #######################"
+echo -e " ############################################################### $reset"
 
 if [ -z "$genome" ]; then #  NO reference genome use, vcf creator mode 1
     vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf"
-    echo $vcfCreatorCmd
+    echo $green$vcfCreatorCmd$cyan
     if [[ "$wraith" == "false" ]]; then
         $vcfCreatorCmd
     fi
-    
     if [ $? -ne 0 ]
     then
-        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+        echo "$red there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone.$reset"
         exit 1
     fi
 else # A Reference genome is provided, vcf creator mode 2
     vcfCreatorCmd="$EDIR/scripts/run_VCF_creator.sh $bwa_path_option -G $genome $bwa_path_option -p ${kissprefix}_coherent.fa -o ${kissprefix}_coherent.vcf  -I $option_cores_post_analysis $e"
-    echo $vcfCreatorCmd
+    echo $green$vcfCreatorCmd$cyan
     if [[ "$wraith" == "false" ]]; then
         $vcfCreatorCmd
     fi 
     
     if [ $? -ne 0 ]
     then
-        echo "there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone."
+        echo "$red there was a problem with VCF creation. See how to use the \"run_VCF_creator.sh\" alone.$reset"
         exit 1
     fi
 fi
-
+echo $reset
 T="$(($(date +%s)-T))"
 if [[ "$wraith" == "false" ]]; then
-    echo "Vcf creation time in seconds: ${T}"
+    echo "$yellow Vcf creation time in seconds: ${T}"
     
-    echo -e "###############################################################"
-    echo -e "#################### DISCOSNP++ FINISHED ######################"
-    echo -e "###############################################################"
+    echo -e " ###############################################################"
+    echo -e " #################### DISCOSNP++ FINISHED ######################"
+    echo -e " ###############################################################"
     Ttot="$(($(date +%s)-Ttot))"
     echo "DiscoSnp++ total time in seconds: ${Ttot}"
     echo -e "################################################################################################################"
@@ -701,5 +710,5 @@ if [[ "$wraith" == "false" ]]; then
         echo -e " An IGV ready VCF file (sorted by position, only mapped variants, 0-based) is \""${kissprefix}_coherent_for_IGV.vcf"\""
     fi
     echo -e " Thanks for using discoSnp++ - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-    echo -e "################################################################################################################"
+    echo -e "################################################################################################################$reset"
 fi
