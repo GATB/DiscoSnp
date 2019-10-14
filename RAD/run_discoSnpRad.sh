@@ -119,12 +119,12 @@ function help {
     echo -e "\t\t Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold)." 
     echo -e "\t\t This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation."
     echo -e "\t\t Default=3"
-    echo -e "\t -C | --max_coverage value <int value in 0, 1 or 2>"
+    echo -e "\t -C | --max_coverage value" 
     echo -e "\t\t Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage)."
     echo -e "\t\t Default=2^31-1"
     
     echo -e "\t --high_precision | -R"
-    echo -e "\t\t low recall / high precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
+    echo -e "\t\t lower recall / higher precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
     
     echo -e "\t -L | --max_diff_len <integer>"
     echo -e "\t\t Longest accepted difference length between two paths of a truncated bubble"
