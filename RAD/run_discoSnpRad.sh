@@ -637,7 +637,7 @@ if [ -f "$src_file" ]; then
         echo "Clustering and vcf formmatting"
     fi
     final_output="${kissprefix}_coherent_clustered.vcf"
-    cmd="$EDIR/scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s $short_read_connector_path -o ${final_output}"
+    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s $short_read_connector_path -o ${final_output}"
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
@@ -650,7 +650,7 @@ else
     if [[ "$wraith" == "false" ]]; then
         echo "NO CLUSTERING (missing -s option)"
         echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
-        echo "  $EDIR/scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
+        echo "  $EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
         #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
         echo "Filtering and vcf formatting"
     fi

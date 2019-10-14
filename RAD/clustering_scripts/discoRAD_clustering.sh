@@ -168,53 +168,6 @@ then
     echo "there was a problem with quick_hierarchical_clustering, exit"
     exit 1
 fi
-# # Generate a .fa file with clustering information
-# disco_final="${disco_filtered}_with_clusters"
-# cmd="python3 ${EDIR}/clusters_and_fasta_to_fasta.py ${disco_filtered}.fa ${disco_simpler}.cluster"
-# echo $cmd " > ${disco_final}.fa"
-# if [[ "$wraith" == "false" ]]; then
-#     eval $cmd "> ${disco_final}.fa"
-# fi
-# if [ $? -ne 0 ]
-# then
-#     echo "there was a problem when generating a .fa file with clustering information, exit"
-#     exit 1
-# fi
-
-######################### VCF generation with cluster information ###########################
-#
-# echo "############################################################"
-# echo "###################### OUTPUT VCF ##########################"
-# echo "############################################################"
-#
-# cmdVCF="python3 ${EDIR}/../../scripts/create_filtered_vcf.py -i ${disco_final}.fa -o ${output_file} 2>&1 "
-# echo $cmdVCF
-# if [[ "$wraith" == "false" ]]; then
-#     eval $cmdVCF
-# fi
-#
-# if [ $? -ne 0 ]
-# then
-#     echo "there was a problem with vcf creation, exit"
-#     exit 1
-# fi
-
-######################### Filter large clusters NO LONGER USED ###########################
-
-#echo "############################################################"
-#echo "################### FILTER CLUSTERS ########################"
-#echo "############################################################"
-#
-#cmdclustsize="${EDIR}/filter_by_cluster_size.sh ${original_disco}_with_clusters.vcf ${max_cluster_size}"
-#echo $cmdclustsize
-#eval $cmdclustsize
-#
-#if [ $? -ne 0 ]
-#then
-#    echo "there was a problem with cluster size fitlering"
-#    exit 1
-#fi
-
 
 ######################### VCF generation with cluster information FROM ORIGINAL FASTA ###########################
 
