@@ -7,7 +7,7 @@
        * removes variants belonging to a cluster (locus) whose size (nb of variants) is outside the given size range (options `-m` and `-M`)
        * removes variants with rank lower than a given threshold given by option `-r`
        * Usage :  
-       `python filter_by_cluster_size_and_rank.py -i vcf_file [-o output_file -m 0 -M 150 -r 0.4]`
+       `python filter_by_cluster_size_and_rank.py -i vcf_file [-o new_vcf_file -m 0 -M 150 -r 0.4]`
 
    3. **script** `filter_vcf_by_indiv_cov_max_missing_and_maf.py`:
        * replaces individual genotypes that have DP less than the value given by option `-c` by missing genotype `./.`
@@ -32,14 +32,34 @@
         * Usage :   
         `python  1SNP_per_cluster.py -i vcf_file -o new_vcf_file`
 
-   5. format change script `vcf2structure.sh`  TODO ask jeremy !!!
+   5. **script** `vcf2structure.sh`    
+        * changes the vcf format to a Structure format (input of the software Structure)
+        * Usage:    
+        `vcf2structure.sh file.vcf > fle.str`   
 
 
-## Mapping to a reference genome, keeping the cluster information :
+## Mapping to a reference genome, and keeping the cluster information :
 
-* script `add_cluster_info_to_mapped_vcf.py`
+When a reference genome is available, even if variants have been called in a reference-free manner, it could be useful to get the positions of variants on this reference genome. To get such information, two programs are necessary in the case of a discoSnpRAD result:    
+    * `VCF_creator` (in dir `[DISCO_DIR]/scripts/`).     
+            Note : it uses the mapper bwa, which must to be in the PATH env variable.   
+    * **script**  `add_cluster_info_to_mapped_vcf.py` in this current directory, to append the clustering information (and some minimal filtering on cluster size) in the vcf output by VCF_creator.   
 
-full pipeline :
+Here is the full pipeline to map the result of discoSnpRAD with name prefix `myDiscoSnpRADResult` to a reference genome `myReferenceGenome.fa`:
+```
+# Running VCF_creator with a given reference genome ()
+sh [DISCO_DIR]/scripts/run_VCF_creator.sh  -G dm6_masked.fa -p myDiscoSnpRADResult_raw_filtered.fa -e -o temp.vcf
+
+# Adding clustering information (and minimal filtering on cluster size)
+python add_cluster_info_to_mapped_vcf.py -m temp.vcf -u myDiscoSnpRADResult_clustered.vcf -o myDiscoSnpRADResult_mapped.vcf
+# final vcf is myDiscoSnpRADResult_mapped.vcf
+```
+
+Additionnally, in a validation context, if one wants to compare variant positions between two such vcf files, the following command will output recall and precision metrics:
+```
+python [DISCO_DIR]/scripts/validation_scripts/compare_vcf_disco_pos_allele_only.py truth.vcf myDiscoSnpRADResult_mapped.vcf
+```
+
 
 <!---
 == Clustering full process ==
