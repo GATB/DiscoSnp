@@ -595,7 +595,7 @@ echo -e "\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
 echo -e "\t###############################################################"
 if [[ "$wraith" == "false" ]]; then
-    sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent_raw.fa
+    sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_raw.fa
 fi
 if [ $? -ne 0 ]
 then
@@ -613,13 +613,12 @@ fi
 
 rm -f ${read_sets}_${kissprefix}_removemeplease 
 rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
+rm -f ${kissprefix}_r.fa
+rm -f ${kissprefix}_uncoherent.fa
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
 #######################################################################
-
-
-
 
 
 
@@ -636,8 +635,8 @@ if [ -f "$src_file" ]; then
     if [[ "$wraith" == "false" ]]; then
         echo "Clustering and vcf formmatting"
     fi
-    final_output="${kissprefix}_coherent_clustered.vcf"
-    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s $short_read_connector_path -o ${final_output}"
+    final_output="${kissprefix}_clustered.vcf"
+    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $short_read_connector_path -o ${final_output}"
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
@@ -650,12 +649,12 @@ else
     if [[ "$wraith" == "false" ]]; then
         echo "NO CLUSTERING (missing -s option)"
         echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
-        echo "  $EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
+        echo "  $EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s short_read_connector_path"
         #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
         echo "Filtering and vcf formatting"
     fi
-    final_output="${kissprefix}_coherent.vcf"
-    cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_coherent_raw.fa -o ${final_output} -m 0.95 -r 0.4"
+    final_output="${kissprefix}.vcf"
+    cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_raw.fa -o ${final_output} -m 0.95 -r 0.4"
     echo $cmd
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
@@ -673,7 +672,7 @@ if [[ "$wraith" == "false" ]]; then
     Ttot="$(($(date +%s)-Ttot))"
     echo "DiscoSnpRad total time in seconds: ${Ttot}"
     echo -e "\t################################################################################################################"
-    echo -e "\t fasta of predicted variant is \""${kissprefix}_coherent_raw.fa"\""
+    echo -e "\t fasta of predicted variant is \""${kissprefix}_raw.fa"\""
     echo -e "\t Ghost VCF file (1-based) is \""${final_output}"\""
     echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
     echo -e "\t################################################################################################################"

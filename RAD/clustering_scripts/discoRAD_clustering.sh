@@ -191,15 +191,14 @@ echo "#######################################################################"
 echo "#########################  CLEANING  ##################################"
 echo "#######################################################################"
 
-#TO UNCOMMENT
-#rm -f ${disco_simpler}*
-#rm -f ${disco_filtered}.fa
-#rm -f ${disco_final}.fa
+
+rm -f ${disco_simpler}*
+rm -f ${disco_filtered}.fa
 
 
 
 echo "============================"
-echo " DISCORAD FINALIZATION DONE "
+echo " DISCORAD clustering DONE "
 echo "============================"
 echo " Results in ${output_file}"
 
