@@ -648,7 +648,7 @@ if [ -f "$src_file" ]; then
     fi
 else
     if [[ "$wraith" == "false" ]]; then
-        echo "NO CLUSTERING (missing -s option)"
+        echo "NO CLUSTERING (missing -S option)"
         echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
         echo "  $EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_coherent_raw.fa -s short_read_connector_path"
         #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
