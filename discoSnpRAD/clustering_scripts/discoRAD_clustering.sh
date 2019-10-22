@@ -5,8 +5,16 @@
 ## short_read_connector: installed and compiled: https://github.com/GATB/short_read_connector
 # echo "WARNING: short_read_connector must have been compiled"
 
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+cyan=`tput setaf 6`
+bold=`tput bold`
+reset=`tput sgr0`
+
 
 function help {
+    echo $reset
 echo "====================================================="
 echo "Filtering, clustering per locus and vcf formatting of $rawdiscofile"
 echo "====================================================="
@@ -55,15 +63,15 @@ while getopts "f:s:o:hw" opt; do
 done
 
 if [[ -z "${rawdiscofile}" ]]; then
-    echo "-f is mandatory" >&2
+    echo "${red}-f is mandatory$reset" >&2
     exit
 fi
 if [[ -z "${short_read_connector_directory}" ]]; then
-    echo "-s is mandatory" >&2
+    echo "${red}-s is mandatory$reset" >&2
     exit
 fi
 if [[ -z "${output_file}" ]]; then
-    echo "-o is mandatory" >&2
+    echo "${red}-o is mandatory$reset" >&2
     exit
 fi
 # Detect the directory path
@@ -91,38 +99,38 @@ max_cluster_size=150
 
 percent_missing=0.95
 
-echo "############################################################"
+echo "${yellow}############################################################"
 echo "######### MISSING DATA AND LOW RANK FILTERING  #############"
 echo "############################################################"
 
-echo "#Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ..."
+echo "${yellow}#Filtering variants with more than ${min_rank} missing data and rank<${min_rank} ...${reset}"
 
 disco_filtered=${rawdiscofile_base}_filtered
 cmdFilter="python3 ${EDIR}/fasta_and_cluster_to_filtered_vcf.py -i ${rawdiscofile} -f -o ${disco_filtered}.fa -m ${percent_missing} -r ${min_rank} 2>&1 "
-echo $cmdFilter
+echo $green$cmdFilter$cyan
 if [[ "$wraith" == "false" ]]; then
     eval $cmdFilter
     
 
     if [ ! -s ${disco_filtered}.fa ]; then
-        echo "No variant pass the filters, exit"
+        echo "${red}No variant pass the filters, exit$reset"
         exit 0
     fi
 fi
 
 ######################### Clustering ###########################
 
-echo "############################################################"
+echo "${yellow}############################################################"
 echo "###################### CLUSTERING ##########################"
 echo "############################################################"
 
-echo "#Clustering variants (sharing at least a ${usedk}-mers)..."
+echo "#Clustering variants (sharing at least a ${usedk}-mers)...${reset}"
 
 # Simplify headers (for dsk purposes)
 
 disco_simpler=${disco_filtered}_simpler
 cmdCat="cat ${disco_filtered}.fa | cut -d \"|\" -f 1 | sed -e \"s/^ *//g\""
-echo $cmdCat "> ${disco_simpler}.fa"
+echo $green $cmdCat "> ${disco_simpler}.fa$cyan"
 if [[ "$wraith" == "false" ]]; then
     eval $cmdCat > ${disco_simpler}.fa
 fi
@@ -130,7 +138,7 @@ fi
  
 #cat ${disco_filtered}.fa | cut -d "|" -f 1 | sed -e "s/^ *//g" > ${disco_simpler}.fa
 cmdLs="ls ${disco_simpler}.fa"
-echo $cmdLs "> ${disco_simpler}.fof"
+echo $green$cmdLs "> ${disco_simpler}.fof$cyan"
 if [[ "$wraith" == "false" ]]; then
     eval $cmdLs > ${disco_simpler}.fof
 fi
@@ -138,58 +146,58 @@ fi
 
 # Compute sequence similarities
 cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
-echo $cmdSRC
+echo $green$cmdSRC$cyan
 if [[ "$wraith" == "false" ]]; then
     eval $cmdSRC
 fi
-
+echo $reset
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with Short Read Connector, exit"
+    echo "${red}there was a problem with Short Read Connector, exit$reset"
     exit 1
 fi
 
 # Format one line per edge
 cmd="python3 ${EDIR}/from_SRC_to_edges.py ${disco_simpler}.txt"
-echo $cmd "> ${disco_simpler}_edges.txt"
+echo $green$cmd "> ${disco_simpler}_edges.txt$cyan"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd "> ${disco_simpler}_edges.txt"
 fi
 
 # Compute the clustering
 cmdqhc="${BINDIR}/quick_hierarchical_clustering ${disco_simpler}_edges.txt"
-echo $cmdqhc " > ${disco_simpler}.cluster"
+echo $green$cmdqhc " > ${disco_simpler}.cluster$cyan"
 if [[ "$wraith" == "false" ]]; then
     eval $cmdqhc "> ${disco_simpler}.cluster"
 fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with quick_hierarchical_clustering, exit"
+    echo "${red}there was a problem with quick_hierarchical_clustering, exit$reset"
     exit 1
 fi
-
+echo $reset
 ######################### VCF generation with cluster information FROM ORIGINAL FASTA ###########################
 
-echo "############################################################"
+echo "${yellow}############################################################"
 echo "###################### OUTPUT VCF ##########################"
-echo "############################################################"
+echo "############################################################$reset"
 
 cmdVCF="python3 ${EDIR}/fasta_and_cluster_to_filtered_vcf.py -i ${disco_filtered}.fa -o ${output_file} -c ${disco_simpler}.cluster -s ${max_cluster_size} 2>&1 "
-echo $cmdVCF
+echo $green$cmdVCF$cyan
 if [[ "$wraith" == "false" ]]; then
     eval $cmdVCF
 fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with vcf creation, exit"
+    echo "${red}there was a problem with vcf creation, exit$reset"
     exit 1
 fi
 
-echo "#######################################################################"
+echo "${yellow}#######################################################################"
 echo "#########################  CLEANING  ##################################"
-echo "#######################################################################"
+echo "#######################################################################$reset"
 
 
 rm -f ${disco_simpler}*
@@ -197,8 +205,8 @@ rm -f ${disco_filtered}.fa
 
 
 
-echo "============================"
+echo "${yellow}============================"
 echo " DISCORAD clustering DONE "
 echo "============================"
-echo " Results in ${output_file}"
+echo " Results in ${output_file}$reset"
 

@@ -22,7 +22,12 @@
 # cmd="$EDIR/run_discoSnpRad.sh "$@" -x -t -e -c 3 -b 1"
 # echo "I run discoSnpRad with following command line: " ${cmd}
 # ${cmd}
-
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+cyan=`tput setaf 6`
+bold=`tput bold`
+reset=`tput sgr0`
 
 
 die() {
@@ -95,6 +100,7 @@ option_phase_variants=""
 #######################################################################
 
 function help {
+    echo $reset
     echo " ************"
     echo " *** HELP ***"
     echo " ************"
@@ -166,6 +172,7 @@ function help {
 #######################################################################
 
 
+echo "${yellow}"
 
 while :; do
     case $1 in
@@ -358,34 +365,38 @@ while :; do
 
     shift
 done
+echo $reset
+
 #######################################################################
 #################### END GET OPTIONS            #######################
 #######################################################################
 
 if [ -z "$read_sets" ]; then
-    echo -e "\t\t\t**************************************************************************"
+    echo -e "${red}\t\t\t**************************************************************************"
     echo -e "\t\t\t** ERROR: You must provide at least one read set (-r) "
     echo -e "\t\t\t**************************************************************************"
+    echo $reset
     exit 1
 fi
 
 src_file="$short_read_connector_path/short_read_connector.sh"
 if [[ "$wraith" == "false" ]]; then
-    echo $src_file
+    echo $yellow${src_file}$reset
 fi
 
 if [[ "$wraith" == "false" ]]; then
     if [ -f "$src_file" ]; then
         if [[ "$wraith" == "false" ]]; then
-            echo "short_read_connector is $src_file"
+            echo "${yellow}short_read_connector is $src_file$reset"
         fi
     else
         if [[ "$wraith" == "false" ]]; then
-            echo -e "\t\t\t**************************************************************************"
+            echo -e "${red}\t\t\t**************************************************************************"
             echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
             echo -e "\t\t\t** $src_file does not exist"
             echo -e "\t\t\t** I will not cluster variants per RAD locus"
             echo -e "\t\t\t**************************************************************************"
+            echo $reset
         fi
     fi
 fi 
@@ -395,7 +406,7 @@ fi
 rest=$(( $k % 2 ))
 if [ $rest -eq 0 ]
 then
-    echo "# k=$k is even number, to avoid palindromes, we set it to $(($k-1))"
+    echo "${red}# k=$k is even number, to avoid palindromes, we set it to $(($k-1))${reset}"
     k=$(($k-1))
 fi
 
@@ -417,7 +428,7 @@ readsFilesDump=${prefix}_read_files_correspondance.txt
 c_dbgh5=$c
 rm -f ${read_sets}_${kissprefix}_removemeplease
 cmdFofRemove="cat ${read_sets}" > ${read_sets}_${kissprefix}_removemeplease
-echo $cmdFofRemove "> ${read_sets}_${kissprefix}_removemeplease"
+echo $green$cmdFofRemove "> ${read_sets}_${kissprefix}_removemeplease$cyan"
 if [[ "$wraith" == "false" ]]; then
     $cmdFofRemove > ${read_sets}_${kissprefix}_removemeplease
 fi
@@ -428,7 +439,7 @@ fi
 #######################################################################
 
 if [[ "$wraith" == "false" ]]; then
-    echo -e "\tRunning discoSnpRad "$version", in directory "$EDIR" with following parameters:"
+    echo -e "${yellow}\tRunning discoSnpRad "$version", in directory "$EDIR" with following parameters:"
     echo -e "\t\t read_sets="$read_sets
     echo -e "\t\t short_read_connector path="$short_read_connector_path
     echo -e "\t\t prefix="$h5prefix
@@ -441,6 +452,7 @@ if [[ "$wraith" == "false" ]]; then
     echo -e "\t\t max_truncated_path_length_difference="$max_truncated_path_length_difference
     echo -e -n "\t starting date="
     date
+    echo $reset
     echo
 fi
 
@@ -452,14 +464,14 @@ fi
 #################### DUMP READ FILES  #######################
 #############################################################
 dumpCmd="${read_file_names_bin} -in $read_sets"
-    echo ${dumpCmd} "> $readsFilesDump"
+    echo $green${dumpCmd} "> $readsFilesDump"$cyan
     if [[ "$wraith" == "false" ]]; then
         ${dumpCmd} > $readsFilesDump
     fi
 
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with readFileName Dumping":
+    echo "${red}there was a problem with readFileName Dumping$reset"
     exit 1
 fi
 
@@ -473,34 +485,34 @@ fi
 
 if [ ! -e $h5prefix.h5 ]; then
     T="$(date +%s)"
-    echo -e "\t############################################################"
+    echo -e "${yellow}\t############################################################"
     echo -e "\t#################### GRAPH CREATION  #######################"
-    echo -e "\t############################################################"
+    echo -e "\t############################################################${reset}"
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
-    echo ${graphCmd}
+    echo $green${graphCmd}$cyan
     if [[ "$wraith" == "false" ]]; then
         ${graphCmd}
     fi
     
     if [ $? -ne 0 ]
     then
-        echo "there was a problem with graph construction"
+        echo "${red}there was a problem with graph construction${reset}"
         exit 1
     fi
 
     T="$(($(date +%s)-T))"
     if [[ "$wraith" == "false" ]]; then
-        echo "Graph creation time in seconds: ${T}"
+        echo "${yellow}Graph creation time in seconds: ${T}${reset}"
     fi
 else
     if [[ "$wraith" == "false" ]]; then
-        echo -e "File $h5prefix.h5 exists. We use it as input graph"
+        echo -e "${yellow}File $h5prefix.h5 exists. We use it as input graph${reset}"
     fi
 fi
 
 cleanCmd="rm -rf trashme_*"
-echo ${cleanCmd}
+echo $green${cleanCmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${cleanCmd}
 fi
@@ -509,31 +521,31 @@ fi
 #################### KISSNP2   #######################
 ######################################################
 T="$(date +%s)"
-echo -e "\t############################################################"
+echo -e "${yellow}\t############################################################"
 echo -e "\t#################### KISSNP2 MODULE  #######################"
-echo -e "\t############################################################"
+echo -e "\t############################################################${reset}"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
-echo ${kissnp2Cmd}
+echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissnp2"
+    echo "${red}there was a problem with kissnp2${reset}"
     exit 1
 fi
 
 T="$(($(date +%s)-T))"
 if [[ "$wraith" == "false" ]]; then
-    echo "Bubble detection time in seconds: ${T}"
+    echo "${yellow}Bubble detection time in seconds: ${T}${reset}"
 fi
 if [ ! -f ${kissprefix}_r.fa ]
 then
         if [[ "$wraith" == "false" ]]; then
-        echo "No polymorphism predicted by discoSnpRad"
+        echo "${red}No polymorphism predicted by discoSnpRad"
         echo -e -n "\t ending date="
         date
-        echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/"
+        echo -e "${yellow}\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/${reset}"
         exit 
     fi
 fi
@@ -541,17 +553,17 @@ fi
 #######################################################################
 #################### REDUNDANCY REMOVAL         #######################
 #######################################################################
-echo -e "\t############################################################"
+echo -e "${yellow}\t############################################################"
 echo -e "\t#################### REDUNDANCY REMOVAL  ###################"
-echo -e "\t############################################################"
+echo -e "\t############################################################$reset"
 redundancy_removal_cmd="python $EDIR/../scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
-echo ${redundancy_removal_cmd}
+echo $green${redundancy_removal_cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
    eval ${redundancy_removal_cmd}
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with redundancy removal":
+    echo "${red}there was a problem with redundancy removal$reset":
     exit 1
 fi
 
@@ -560,9 +572,9 @@ fi
 #######################################################################
 
 T="$(date +%s)"
-echo -e "\t#############################################################"
+echo -e "${yellow}\t#############################################################"
 echo -e "\t#################### KISSREADS MODULE #######################"
-echo -e "\t#############################################################"
+echo -e "\t#############################################################$reset"
 
 smallk=$k
 if (( $smallk>31 ))  ; then
@@ -573,16 +585,16 @@ index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 
 kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose ${option_phase_variants}"
 
-echo $kissreadsCmd
+echo $green$kissreadsCmd$cyan
 if [[ "$wraith" == "false" ]]; then
     eval $kissreadsCmd
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with kissreads2":
+    echo "${red}there was a problem with kissreads2$reset":
     exit 1
 fi
-
+echo $reset
 T="$(($(date +%s)-T))"
 # echo "Kissreads (mapping reads on bubbles) time in seconds: ${T}"
 
@@ -591,15 +603,15 @@ T="$(($(date +%s)-T))"
 #################### SORT AND FORMAT  RESULTS #########################
 #######################################################################
 
-echo -e "\t###############################################################"
+echo -e "${yellow}\t###############################################################"
 echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
-echo -e "\t###############################################################"
+echo -e "\t###############################################################$reset"
 if [[ "$wraith" == "false" ]]; then
     sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_raw.fa
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with the result sorting."
+    echo "${red}there was a problem with the result sorting.$reset"
     exit 1
 fi
 if [[ "$wraith" == "false" ]]; then
@@ -607,7 +619,7 @@ if [[ "$wraith" == "false" ]]; then
 fi
 if [ $? -ne 0 ]
 then
-    echo "there was a problem with the result sorting"
+    echo "${red}there was a problem with the result sorting$reset"
     exit 1
 fi
 
@@ -626,47 +638,48 @@ rm -f ${kissprefix}_uncoherent.fa
 #################### Deal with Downstream analyses ###############################
 ##################################################################################
 
-echo -e "\t###############################################################"
+echo -e "${yellow}\t###############################################################"
 echo -e "\t######## CLUSTERING PER LOCUS AND/OR FORMATTING ###############"
-echo -e "\t###############################################################"
+echo -e "\t###############################################################$reset"
 
 T="$(date +%s)"
 if [ -f "$src_file" ]; then
     if [[ "$wraith" == "false" ]]; then
-        echo "Clustering and vcf formmatting"
+        echo "${yellow}Clustering and vcf formmatting$reset"
     fi
     final_output="${kissprefix}_clustered.vcf"
     cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $short_read_connector_path -o ${final_output}"
-    echo $cmd
+    echo $green$cmd$cyan
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
     fi  
     T="$(($(date +%s)-T))"
     if [[ "$wraith" == "false" ]]; then
-        echo "RAD clustering per locus time in seconds: ${T}"
+        echo "${yellow}RAD clustering per locus time in seconds: ${T}$reset"
     fi
+    echo $reset
 else
     if [[ "$wraith" == "false" ]]; then
-        echo "NO CLUSTERING (missing -S option)"
+        echo "${red}NO CLUSTERING (missing -S option)"
         echo "IF YOU WANT TO CLUSTERIZE RESULTS, RUN: "
         echo "  $EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s short_read_connector_path"
         #echo "  With short_read_connector_path indicating the directory containing short_read_connector.sh command "
-        echo "Filtering and vcf formatting"
+        echo "Filtering and vcf formatting$reset"
     fi
     final_output="${kissprefix}.vcf"
     cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_raw.fa -o ${final_output} -m 0.95 -r 0.4"
-    echo $cmd
+    echo $green$cmd$cyan
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
     fi
     T="$(($(date +%s)-T))"
     if [[ "$wraith" == "false" ]]; then
-        echo "Filtering and vcf formatting time in seconds: ${T}"
+        echo "${red}Filtering and vcf formatting time in seconds: ${T}$reset"
     fi
 fi
 
 if [[ "$wraith" == "false" ]]; then
-    echo -e "\t###############################################################"
+    echo -e "${yellow}\t###############################################################"
     echo -e "\t#################### DISCOSNPRAD FINISHED ######################"
     echo -e "\t###############################################################"
     Ttot="$(($(date +%s)-Ttot))"
@@ -675,7 +688,7 @@ if [[ "$wraith" == "false" ]]; then
     echo -e "\t fasta of predicted variant is \""${kissprefix}_raw.fa"\""
     echo -e "\t Ghost VCF file (1-based) is \""${final_output}"\""
     echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-    echo -e "\t################################################################################################################"
+    echo -e "\t################################################################################################################${reset}"
 fi
 
 
