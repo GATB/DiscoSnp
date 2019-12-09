@@ -114,7 +114,7 @@ public:
     
     void revcomp(char s[]);
     void rev(char s[]);
-    int valid_character(const char c);
+//    int valid_character(const char c);
     kmer_type  codeSeed(const char *seq);
     kmer_type  updateCodeSeed(const char *seq, kmer_type *x);
     char * format_comment(const char * raw_comment);
