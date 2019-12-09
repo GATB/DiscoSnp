@@ -39,8 +39,33 @@ To see all options:
 
 ## Output
 
-* a log file reminds all filtering steps applied and the name of the output .vcf file
-* a vcf file containing results of filtering and clustering
+When run with output prefix name `myDiscoSnpRADresult`, the main output file is :
+
+* `myDiscoSnpRADresult_[parameter_values]_clustered.vcf`: the final set of variants, with various information, including clustering per locus information (see VCF format below).
+* or `myDiscoSnpRADresult_[parameter_values].vcf` if no clustering was performed.
+
+Additionnally, several other files are output that can be usefull :
+
+* `myDiscoSnpRADresult_[parameter_values]_raw.fa`: the raw set of variants in fasta format, prior to any filtering and clustering steps.
+* `myDiscoSnpRADresult_[graph_parameter_values].h5`: the de Bruijn graph in h5 format (reusable with any GATB tool)
+* `myDiscoSnpRADresult_read_files_correspondance.txt`: the correspondence between read file names and IDs given as genotypes in the vcf
+* the standard output reminds all filtering steps applied and the name of the output .vcf file
+
+#### VCF format
+
+Each variant is described with: 
+
+* an ID: `ID` column, 
+
+* two alleles (`REF` and `ALT` columns), 
+
+* a quality value: `INFO` column, `Rk`, between 0 (bad) and 1 (best),
+
+* some clustering information: `INFO` field: with the locus id (`Cluster`) and its number of varying sites (`ClusterSize`),
+
+* and for each sample in the genotype columns (`G1`, `G2`,...): the inferred genotype (`0/0`, `0/1`, `1/1`or `./.`for missing value), the read depths (`RD` total, `AD`per allele), among others.
+
+  
 
 
 ## Content of this directory
