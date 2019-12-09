@@ -29,7 +29,7 @@
 #define LIST_H_
 #include<stdio.h>
 #include<stdlib.h>
-#include<couple.h>
+//#include<couple.h>
 #include<commons.h>
 #include <string.h>
 

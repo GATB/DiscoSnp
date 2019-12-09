@@ -36,7 +36,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<hash.h>
-#include<couple.h>
+//#include<couple.h>
 #include<list.h>
 #include<limits.h>
 #include<assert.h>

@@ -75,9 +75,14 @@ if [[ -z "${output_file}" ]]; then
     exit
 fi
 # Detect the directory path
+
 EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+if [ -d "$EDIR/../../build/" ] ; then # VERSION SOURCE COMPILED
 BINDIR=$EDIR"/../../build/bin"
-rawdiscofile_base=$( basename  "${rawdiscofile}" .fa)
+else # VERSION BINARY
+BINDIR=$EDIR"/../../bin"
+fi
+rawdiscofile_base=$( basename "${rawdiscofile}" .fa)
 
 #################### PARAMETERS VALUES #######################
 
@@ -201,7 +206,7 @@ echo "#######################################################################$re
 
 
 rm -f ${disco_simpler}*
-rm -f ${disco_filtered}.fa
+#rm -f ${disco_filtered}.fa
 
 
 

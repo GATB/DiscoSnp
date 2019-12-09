@@ -207,7 +207,7 @@ void hash_clear(hash_t map, void (*specific_free)(const void *)){
   ssize_t hash_iterator_return_entry(hash_t map, hash_iter iter,
  		char **key, void **data){
  	assert(map != NULL);
- 	assert(iter >= 0);
+//     assert(iter >= 0);
  	assert(key != NULL);
  	assert(data != NULL);
  	//if ((int)iter != -1 && !hash_iterator_is_end(map, iter))

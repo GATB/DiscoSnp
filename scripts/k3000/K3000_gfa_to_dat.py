@@ -250,7 +250,7 @@ def main(gfa_file_name):
     #   to remove cycles
     #   to remove too large cc
     DG = None
-    if False: 
+    if True: 
         max_cc_size=1000
         DG = gpt.store_graph(gfa_file_name)
         gpt.assign_cc(DG,max_cc_size)

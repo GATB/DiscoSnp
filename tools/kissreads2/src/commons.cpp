@@ -43,10 +43,10 @@ void init_static_variables(const int k){
     
 }
 
-int valid_character(const char c){
-	if(c=='A' || c=='C' || c=='G' || c=='T') return 1;
-	return 0;
-}
+//int valid_character(const char c){
+//    if(c=='A' || c=='C' || c=='G' || c=='T') return 1;
+//    return 0;
+//}
 
 void GlobalValues::revcomp(char s[])
 {
@@ -79,36 +79,36 @@ void GlobalValues::rev(char s[])
 		s[len/2]=s[len/2];
 }
 
-char * to_upper (char  * word){
-	int i=0;
-	while(word[i]!='\0') {word[i]=toupper(word[i]); i++;}
-	return word;
-}
+//char * to_upper (char  * word){
+//    int i=0;
+//    while(word[i]!='\0') {word[i]=toupper(word[i]); i++;}
+//    return word;
+//}
 
-char * to_lower (char  * word){
-	int i=0;
-	while(word[i]!='\0') {word[i]=tolower(word[i]); i++;}
-	return word;
-}
+//char * to_lower (char  * word){
+//    int i=0;
+//    while(word[i]!='\0') {word[i]=tolower(word[i]); i++;}
+//    return word;
+//}
 
 //char line[1048576];
 
-/**
- * removes eventual first '>' character
- * remove eventual last '\n' character
- * duplicate the raw_comment
- */
-char * GlobalValues::format_comment(const char * raw_comment){
-    char * duplicate;
-    
-	if(raw_comment[0]=='>') duplicate = strdup(raw_comment+1);
-    else duplicate = strdup(raw_comment);
-    test_alloc(duplicate);
-    
-	int l = strlen(duplicate);
-	if(duplicate[l-1]=='\n') duplicate[l-1]='\0';
-	return duplicate;
-}
+///**
+// * removes eventual first '>' character
+// * remove eventual last '\n' character
+// * duplicate the raw_comment
+// */
+//char * GlobalValues::format_comment(const char * raw_comment){
+//    char * duplicate;
+//    
+//    if(raw_comment[0]=='>') duplicate = strdup(raw_comment+1);
+//    else duplicate = strdup(raw_comment);
+//    test_alloc(duplicate);
+//    
+//    int l = strlen(duplicate);
+//    if(duplicate[l-1]=='\n') duplicate[l-1]='\0';
+//    return duplicate;
+//}
 
 
 

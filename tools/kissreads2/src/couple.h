@@ -30,6 +30,7 @@
 #include <gatb/gatb_core.hpp>
 #include <commons.h>
 
+//TODO: deprecated, replace with a <uint64_t, int> vector.
 
 typedef struct {
 	uint64_t a;
