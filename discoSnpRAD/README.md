@@ -61,7 +61,7 @@ Each variant is described with:
 
 * a quality value: `INFO` column, `Rk`, between 0 (bad) and 1 (best),
 
-* some clustering information: `INFO` field: with the locus id (`Cluster`) and its number of varying sites (`ClusterSize`),
+* some clustering information: `INFO` field: with the locus id (`Cluster`) and its number of varying sites (`ClSize`),
 
 * and for each sample in the genotype columns (`G1`, `G2`,...): the inferred genotype (`0/0`, `0/1`, `1/1`or `./.`for missing value), the read depths (`RD` total, `AD`per allele), among others.
 
