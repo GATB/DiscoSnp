@@ -94,7 +94,7 @@ def main():
                 print("!! No filtered sam output !!")
                 sys.exit(2)      
         else:
-            print("Unkwnown option {} ".format(opt))
+            print("Unknown option {} ".format(opt))
             usage()
             sys.exit(2)
 
