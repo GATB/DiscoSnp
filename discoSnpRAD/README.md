@@ -18,17 +18,18 @@ Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemait
 ## Usage
 
 ```
-./run_discoSnpRad.sh --fof read_file_of_files --src [src_path] [discoSnp++ OPTIONS]
+./run_discoSnpRad.sh -r read_file_of_files -S -p myDiscoSnpRADresult [discoSnp++ OPTIONS]
 ```
 
-Clustering
+**Clustering option** (RAD-specific option):
+
 ```
 -S|--src [src_path]
     performs clustering of variants with short_read_connector
     src_path: **absolute** path to short_read_connector directory, containing the "short_read_connector.sh" file. 
     -Note1: short read connector must be compiled.
     -Note2: if no value is given, it assumes short_read_connector.sh is in the PATH env variable.
-    -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus
+    -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus.
 ```
 
 All other options are described in [discoSnp++ README](../README.md). Note that many discoSNP++ parameters have here default values, specifically adapted to RAD-seq data.
