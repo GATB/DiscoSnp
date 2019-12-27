@@ -22,7 +22,7 @@ echo "this script manages bubble clustering from a discofile.fa file, and the in
 echo " 1/ Remove variants with more than 95% missing genotypes and low rank (<0.4)"
 echo " 2/ Cluster variants per locus"
 echo " 3/ Format the variants in a vcf file with cluster information"
-echo "Usage: ./discoRAD_clustering.sh -f discofile -s SRC_directory/ -o output_file.vcf"
+echo "Usage: ./discoRAD_clustering.sh -f discofile -s SRC_path -o output_file.vcf"
 # echo "nb: all options are MANDATORY\n"
 echo "OPTIONS:"
 echo "\t -f: DiscoSnp fasta output containing coherent predictions"
@@ -44,7 +44,7 @@ while getopts "f:s:o:hw" opt; do
         ;;
 
         s)
-        short_read_connector_directory=$OPTARG
+        short_read_connector_path=$OPTARG
         ;;
 
         o)
@@ -66,7 +66,7 @@ if [[ -z "${rawdiscofile}" ]]; then
     echo "${red}-f is mandatory$reset" >&2
     exit
 fi
-if [[ -z "${short_read_connector_directory}" ]]; then
+if [[ -z "${short_read_connector_path}" ]]; then
     echo "${red}-s is mandatory$reset" >&2
     exit
 fi
@@ -80,7 +80,7 @@ EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 if [ -d "$EDIR/../../build/" ] ; then # VERSION SOURCE COMPILED
 BINDIR=$EDIR"/../../build/bin"
 else # VERSION BINARY
-BINDIR=$EDIR"/../../bin"
+BINDIR=$EDIR/../../bin
 fi
 rawdiscofile_base=$( basename "${rawdiscofile}" .fa)
 
@@ -150,7 +150,7 @@ fi
 #ls ${disco_simpler}.fa > ${disco_simpler}.fof
 
 # Compute sequence similarities
-cmdSRC="${short_read_connector_directory}/short_read_connector.sh -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
+cmdSRC="${short_read_connector_path} -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
 echo $green$cmdSRC$cyan
 if [[ "$wraith" == "false" ]]; then
     eval $cmdSRC

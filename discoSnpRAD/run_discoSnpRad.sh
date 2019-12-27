@@ -72,6 +72,7 @@ output_coverage_option=""
 genotyping="-genotype"
 remove=1
 verbose=1
+clustering="false"
 short_read_connector_path=""
 option_phase_variants=""
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -106,17 +107,19 @@ function help {
     echo " ************"
     echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
     echo "Version "$version
-    echo "Usage: ./run_discoSnpRad.sh --fof read_file_of_files --src_path <directory> [OPTIONS]"
+    echo "Usage: ./run_discoSnpRad.sh --fof read_file_of_files --src [src_path] [OPTIONS]"
     echo -e "MANDATORY"
     echo -e "\t -r|--fof <file name of a file of file(s)>"
     echo -e "\t\t The input read files indicated in a file of file(s)"
     echo -e "\t\t Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
     
     echo -e "\nOPTIONS"
-    echo -e "\t -S|--src_path <directory>"
-    echo -e "\t\t **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
+    echo -e "\t -S|--src [src_path]"
+    echo -e "\t\t performs clustering of variants with short_read_connector"
+    echo -e "\t\t src_path: **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
     echo -e "\t\t -Note1: short read connector must be compiled."
-    echo -e "\t\t -Note2: with this option, discoSnpRad provide a vcf file containing SNPs and INDELS, clustered by locus" 
+    echo -e "\t\t -Note2: if no value is given, it assumes short_read_connector.sh is in the PATH env variable."
+    echo -e "\t\t -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus" 
 
     echo -e "\t -k | --k_size value <int value>"
     echo -e "\t\t Set the length of used kmers. Must fit the compiled value."
@@ -184,15 +187,13 @@ while :; do
     -w)
         wraith="true"
         ;;
-    -S|--src_path)
+    -S|--src)
+    	clustering="true"
         if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
             short_read_connector_path=$2
             shift
-        else
-            die 'ERROR: "'$1'" option requires a non-empty option argument.'
         fi
         ;;
-
     -a|--ambiguity_max_size)
         if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
             max_ambigous_indel=$2
@@ -379,27 +380,40 @@ if [ -z "$read_sets" ]; then
     exit 1
 fi
 
-src_file="$short_read_connector_path/short_read_connector.sh"
-if [[ "$wraith" == "false" ]]; then
-    echo $yellow${src_file}$reset
-fi
+#Checks if clustering can be performed
 
-if [[ "$wraith" == "false" ]]; then
-    if [ -f "$src_file" ]; then
-        if [[ "$wraith" == "false" ]]; then
-            echo "${yellow}short_read_connector is $src_file$reset"
-        fi
-    else
-        if [[ "$wraith" == "false" ]]; then
-            echo -e "${red}\t\t\t**************************************************************************"
+if [[ "$clustering" == "true" ]]; then
+	# first tests the directory given by user if any
+	if [ -n "$short_read_connector_path" ]; then
+		src_file="$short_read_connector_path/short_read_connector.sh"
+    	if [ -f "$src_file" ]; then
+            echo "${yellow}short_read_connector path is $src_file$reset"
+    	else
+    		echo -e "${red}\t\t\t**************************************************************************"
             echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
             echo -e "\t\t\t** $src_file does not exist"
             echo -e "\t\t\t** I will not cluster variants per RAD locus"
             echo -e "\t\t\t**************************************************************************"
             echo $reset
-        fi
+    		clustering="false"
+    	fi
+    else
+    	#then tests if src is in the PATH env variable
+    	src_file=$(command -v short_read_connector.sh)
+    	if [ -n "$src_file" ]; then
+    		echo "${yellow}short_read_connector path is $src_file$reset"
+    	else
+    		echo -e "${red}\t\t\t**************************************************************************"
+            echo -e "\t\t\t** WARNING: I cannot find short_read_connector in PATH. "
+            echo -e "\t\t\t** Try giving the absolute path of short_read_connector directory with option -S"
+            echo -e "\t\t\t** I will not cluster variants per RAD locus"
+            echo -e "\t\t\t**************************************************************************"
+            echo $reset
+    		clustering="false"
+    	fi
     fi
-fi 
+fi
+    		
 
 
 ######### CHECK THE k PARITY ##########
@@ -643,13 +657,13 @@ echo -e "\t######## CLUSTERING PER LOCUS AND/OR FORMATTING ###############"
 echo -e "\t###############################################################$reset"
 
 T="$(date +%s)"
-if [ -f "$src_file" ]; then
+if [[ "$clustering" == "true" ]]; then
     if [[ "$wraith" == "false" ]]; then
         echo "${yellow}Clustering and vcf formmatting$reset"
     fi
     final_output="${kissprefix}_clustered.vcf"
-    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $short_read_connector_path -o ${final_output}"
-    echo $green$cmd$cyan
+    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $src_file -o ${final_output}"
+    echo $green$cmd$cyan$reset
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
     fi  
@@ -668,7 +682,7 @@ else
     fi
     final_output="${kissprefix}.vcf"
     cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_raw.fa -o ${final_output} -m 0.95 -r 0.4"
-    echo $green$cmd$cyan
+    echo $green$cmd$cyan$reset
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
     fi
