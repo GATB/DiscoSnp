@@ -11,7 +11,7 @@ Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemait
 
 ## Installation
 
-* discoSnp++ (see [../README.md](../README.md))
+* DiscoSnpRAD is installed via the discoSnp++ basic instal (from sources or conda install. see [../README.md](../README.md))
 * `short_read_connector` must have been downloaded and installed (clustering task). [https://github.com/GATB/short_read_connector](https://github.com/GATB/short_read_connector)
 
 

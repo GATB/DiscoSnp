@@ -32,12 +32,27 @@ c++ compiler; compilation was tested with gcc and g++ version>=4.5 (Linux) and c
 
 ## Instructions
 
-    # get a local copy of DiscoSnp source code
-    git clone --recursive https://github.com/GATB/DiscoSnp.git
-    
-    # compile the code an run a simple test on your computer
-    cd DiscoSnp
-    sh INSTALL
+### Install from source
+
+```bash
+# get a local copy of DiscoSnp source code
+git clone --recursive https://github.com/GATB/DiscoSnp.git
+
+# compile the code an run a simple test on your computer
+cd DiscoSnp
+sh INSTALL
+```
+
+### Install from Conda repository
+
+```bash
+# create the conda environment 
+conda create -p discoSnp_env discoSnp
+# activate the create environment 
+conda activate discoSnp_env
+```
+
+Once activated, scripts `run_discoSnp++.sh` and `run_discoSnpRad.sh` are executable.
 
 # Getting a binary stable release
 
