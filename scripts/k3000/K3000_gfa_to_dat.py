@@ -4,7 +4,6 @@ import K3000_gfa_post_treatment as gpt # :)
 
 
 """
-data;
 #id of forward and reverse nodes
 set V :=
 p0
@@ -85,7 +84,9 @@ p320	m388	successive	0
 """
 
 def print_header():
-    print("data;")
+    return
+    #NO HEADER
+    # print("data;")
     #print("param Title := ???;")
     #print("param start := \"???\";")
 
@@ -108,7 +109,7 @@ def print_nodes(gfa_file_name, DG=None):
     
 def print_nodes_number_loci(gfa_file_name, DG=None):
     print("#id of nodes with their number of variants")
-    print("param w :=")
+    print("param length :=")
     gfa_file = open(gfa_file_name)
     for line in gfa_file.readlines():
         line=line.strip()
@@ -122,8 +123,8 @@ def print_nodes_number_loci(gfa_file_name, DG=None):
     gfa_file.close()
 
 def print_nodes_weight(gfa_file_name, DG=None):
-    print("#id of nodes with their coverage. Here (3 sept 2019) coverage refers to the read coverage of the less covered allele of all alleles of the fact")
-    print("param w :=")
+    print("#id of nodes with their coverage. Here coverage refers to the read coverage of the less covered allele of all alleles of the fact")
+    print("param ab :=")
     gfa_file = open(gfa_file_name)
     for line in gfa_file.readlines():
         line=line.strip()
@@ -132,6 +133,21 @@ def print_nodes_weight(gfa_file_name, DG=None):
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
             "S       0       28175h;10031h;12786h;-41223l;-26670h; SP:0_426;383_541;427_586;542_661;587_731; BP:0_93;-17_61;54_61;-16_61;14_84;      FC:i:64 RC:i:21"
             print("p"+node_id+"\t"+line.split()[6].split(":")[-1])
+    print(";")
+    gfa_file.close()
+    
+    
+def print_nodes_weight_phased_alleles(gfa_file_name, DG=None):
+    print("#id of nodes with their coverage. Here coverage refers to the total number of reads that phased at least two alleles of the fact ")
+    print("param ab_comapped :=")
+    gfa_file = open(gfa_file_name)
+    for line in gfa_file.readlines():
+        line=line.strip()
+        if line[0]=="S":
+            node_id=line.split()[1]
+            if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
+            "S       0       28175h;10031h;12786h;-41223l;-26670h; SP:0_426;383_541;427_586;542_661;587_731; BP:0_93;-17_61;54_61;-16_61;14_84;      FC:i:64 RC:i:21"
+            print("p"+node_id+"\t"+line.split()[5].split(":")[-1])
     print(";")
     gfa_file.close()
     
@@ -147,14 +163,13 @@ def print_reverse(gfa_file_name,DG=None):
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
             print("p"+node_id+"\t"+"m"+line.split()[1])  # 'p' stands for "plus strand"
-            print("m"+node_id+"\t"+"m"+line.split()[1])  # 'm' stands for "minus strand"
     print(";")
     gfa_file.close()
     
     
 def print_nodes_connected_components(gfa_file_name, DG):
     print("#id of forward nodes with their connected component id. ")
-    print("param c :=")
+    print("param comp :=")
     gfa_file = open(gfa_file_name)
     for line in gfa_file.readlines():
         line=line.strip()
@@ -192,7 +207,17 @@ def print_edges(gfa_file_name, DG=None):
             if overlap_len==0: type="links"
             if overlap_len==-1: type="successive"
             if overlap_len==-2: type="incompatibles"
-            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)  
+            if type == "overlaps": 
+                print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)  
+            
+            else: # All those nodes are non oriented - need all possible combinations
+                for sign_source in "m","p":
+                    for sign_target in "m", "p":
+                        print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
+                
+            
+                
+            
             # do not print other edges (unitig linked and snp linked)
     print(";")
     gfa_file.close()
@@ -224,8 +249,25 @@ def print_edge_coverages(gfa_file_name, DG=None):
                 coverage = int(line.split()[6].split(":")[-1])
             if overlap_len==-1: type="successive"
             if overlap_len==-2: type="incompatibles"
-            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
-            # do not print other edges (unitig linked and snp linked)
+            # print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))
+#             # do not print other edges (unitig linked and snp linked)
+#             # print the reverse of these nodes
+#             if sign_source == "m": sign_source="p"
+#             else: sign_source = "m"
+#             if sign_target == "m": sign_target="p"
+#             else: sign_target = "m"
+#             print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
+#
+            if type == "overlaps": 
+                print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
+            
+            else: # All those nodes are non oriented - need all possible combinations
+                for sign_source in "m","p":
+                    for sign_target in "m", "p":
+                        print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))  
+            
+            
+            
     print(";")
     gfa_file.close()
     
@@ -253,8 +295,24 @@ def print_edges_content(gfa_file_name, DG=None):
             if overlap_len==0: type="links"
             if overlap_len==-1: type="successive"
             if overlap_len==-2: type="incompatibles"
-            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
-            # do not print other edges (unitig linked and snp linked)
+            # print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))
+           #  # do not print other edges (unitig linked and snp linked)
+           #
+           #  # print the reverse of these nodes
+           #  if sign_source == "m": sign_source="p"
+           #  else: sign_source = "m"
+           #  if sign_target == "m": sign_target="p"
+           #  else: sign_target = "m"
+           #  print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
+           #           
+            if type == "overlaps": 
+                print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
+            
+            else: # All those nodes are non oriented - need all possible combinations
+                for sign_source in "m","p":
+                    for sign_target in "m", "p":
+                        print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
+           
     print(";")
     gfa_file.close()
     
@@ -282,6 +340,7 @@ def main(gfa_file_name):
     print_nodes(gfa_file_name,DG)
     print_nodes_number_loci(gfa_file_name, DG=None)
     print_nodes_weight(gfa_file_name,DG)
+    print_nodes_weight_phased_alleles(gfa_file_name, DG)
     print_reverse(gfa_file_name,DG)
     if DG:
         print_nodes_connected_components(gfa_file_name, DG)
