@@ -209,6 +209,15 @@ def print_edges(gfa_file_name, DG=None):
             if overlap_len==-2: type="incompatibles"
             if type == "overlaps": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)  
+                # print the reverse of these nodes
+                if sign_source == "m": sign_source="p"
+                else: sign_source = "m"
+                if sign_target == "m": sign_target="p"
+                else: sign_target = "m"
+                print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
+                
+                
+                
             
             else: # All those nodes are non oriented - need all possible combinations
                 for sign_source in "m","p":
@@ -260,6 +269,12 @@ def print_edge_coverages(gfa_file_name, DG=None):
 #
             if type == "overlaps": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
+                # print the reverse of these nodes
+                if sign_source == "m": sign_source="p"
+                else: sign_source = "m"
+                if sign_target == "m": sign_target="p"
+                else: sign_target = "m"
+                print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
             
             else: # All those nodes are non oriented - need all possible combinations
                 for sign_source in "m","p":
@@ -307,6 +322,12 @@ def print_edges_content(gfa_file_name, DG=None):
            #           
             if type == "overlaps": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
+                # print the reverse of these nodes
+                if sign_source == "m": sign_source="p"
+                else: sign_source = "m"
+                if sign_target == "m": sign_target="p"
+                else: sign_target = "m"
+                print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
             
             else: # All those nodes are non oriented - need all possible combinations
                 for sign_source in "m","p":
