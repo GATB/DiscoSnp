@@ -1,3 +1,8 @@
+* Jan 2020
+	+ Conda Install
+	+ discoRad (independent / reorganized)
+	+ phasing in test (hidden -A option)
+	+ default values modified
 * 9/6/2016 2.2.9
 	+ Fixed a VCF creator bug
 	+ Optimizing VCF creator
