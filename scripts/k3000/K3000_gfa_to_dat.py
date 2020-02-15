@@ -84,11 +84,8 @@ p320	m388	successive	0
 """
 
 def print_header():
-    return
-    #NO HEADER
-    # print("data;")
-    #print("param Title := ???;")
-    #print("param start := \"???\";")
+    print("#haplotype number")
+    print("param mult := XXX")
 
 
 def print_nodes(gfa_file_name, DG=None):
@@ -223,6 +220,8 @@ def print_edges(gfa_file_name, DG=None):
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
+                        if type=="successive":
+                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)
                 
             
                 
@@ -280,6 +279,8 @@ def print_edge_coverages(gfa_file_name, DG=None):
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))  
+                        if type=="successive":
+                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
             
             
             
@@ -333,6 +334,8 @@ def print_edges_content(gfa_file_name, DG=None):
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
+                        if type=="successive":
+                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
            
     print(";")
     gfa_file.close()
