@@ -181,10 +181,28 @@ def print_nodes_connected_components(gfa_file_name, DG):
     gfa_file.close()
     
     
+def printable_successive(printed_successive, source_id, target_id):
+    """
+    1/ checks of source_id <-> target_id not already in printed_successive. If already inside, do nothing and returns false
+    2/ [else] add target_id in source_id key and return true
+    """
+    # source is always the smallest, avoid to test both directions.
+    if target_id < source_id: 
+        tmp = source_id
+        source_id = target_id
+        target_id = tmp
+    if source_id in printed_successive and target_id in printed_successive[source_id]: return False
+    
+    if source_id not in printed_successive: printed_successive[source_id] = []
+    printed_successive[source_id].append(target_id)
+    return True
+    
+
 def print_edges(gfa_file_name, DG=None):
     print("#set of edges. Four types of edges, 1/ \"overlaps\" edges, that show an overlap between facts and 2/ \"links\" edges, that represent facts linked by paired reads (distanace unknown) and 3/ \"successive\" edges that represent two successive facts (without phasing) and 4/ \"incompatible\" edges, no path should contain two nodes linked by such an edge ")
     print("set Edges :=")
     gfa_file = open(gfa_file_name)
+    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -217,10 +235,11 @@ def print_edges(gfa_file_name, DG=None):
                 
             
             else: # All those nodes are non oriented - need all possible combinations
+                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
-                        if type=="successive":
+                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
                             print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)
                 
             
@@ -234,6 +253,7 @@ def print_edge_coverages(gfa_file_name, DG=None):
     print ("#Coverage of the pairend links. Note that overlap links do not have any coverage (just computed from fact overlaps). Also incompatible and successive links do not have coverage, by definition. ")
     print ("param pairend_end_links_coverage :=")
     gfa_file = open(gfa_file_name)
+    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -276,10 +296,11 @@ def print_edge_coverages(gfa_file_name, DG=None):
                 print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
             
             else: # All those nodes are non oriented - need all possible combinations
+                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))  
-                        if type=="successive":
+                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
                             print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
             
             
@@ -291,6 +312,7 @@ def print_edges_content(gfa_file_name, DG=None):
     print("#overlap length of each edge. For an \"overlaps\" edge, it indicates the number of common variants. For any other edge type (links, successive, or incompatibles), this is set to zero")
     print("param l :=")
     gfa_file = open(gfa_file_name)
+    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -331,10 +353,11 @@ def print_edges_content(gfa_file_name, DG=None):
                 print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
             
             else: # All those nodes are non oriented - need all possible combinations
+                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
-                        if type=="successive":
+                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse  
                             print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
            
     print(";")
