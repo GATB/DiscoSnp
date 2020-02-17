@@ -193,7 +193,7 @@ def print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight
         alleles_weight=0
         if str(compacted_fact_id) in compacted_fact_allele_weight: 
             alleles_weight = compacted_fact_allele_weight[str(compacted_fact_id)]
-        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[0]))
+        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[1]))  ## 1 as we take the max (17/02/2020)
         cpt+=1
     sys.stderr.write(str(cpt)+" facts written\n")
     mfile.close()
