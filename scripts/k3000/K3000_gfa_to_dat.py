@@ -236,6 +236,11 @@ def print_edges(gfa_file_name, DG=None):
             
             else: # All those nodes are non oriented - need all possible combinations
                 if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                if type=="links":
+                    sign_source = "p"
+                    sign_target = "p"
+                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
+                    continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
@@ -297,6 +302,11 @@ def print_edge_coverages(gfa_file_name, DG=None):
             
             else: # All those nodes are non oriented - need all possible combinations
                 if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                if type=="links":
+                    sign_source = "p"
+                    sign_target = "p"
+                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage)) 
+                    continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))  
@@ -354,6 +364,11 @@ def print_edges_content(gfa_file_name, DG=None):
             
             else: # All those nodes are non oriented - need all possible combinations
                 if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                if type=="links":
+                    sign_source = "p"
+                    sign_target = "p"
+                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
+                    continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
