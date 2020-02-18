@@ -222,7 +222,7 @@ def print_edges(gfa_file_name, DG=None):
             if overlap_len==0: type="links"
             if overlap_len==-1: type="successive"
             if overlap_len==-2: type="incompatibles"
-            if type == "overlaps": 
+            if type == "overlaps" or type=="successive" or type=="links": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)  
                 # print the reverse of these nodes
                 if sign_source == "m": sign_source="p"
@@ -235,17 +235,17 @@ def print_edges(gfa_file_name, DG=None):
                 
             
             else: # All those nodes are non oriented - need all possible combinations
-                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
-                if type=="links":
-                    sign_source = "p"
-                    sign_target = "p"
-                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
-                    continue
+                # if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                # if type=="links":
+                #     sign_source = "p"
+                #     sign_target = "p"
+                #     print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
+                #     continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type)
-                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
-                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)
+                        # if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
+                        #     print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type)
                 
             
                 
@@ -291,7 +291,7 @@ def print_edge_coverages(gfa_file_name, DG=None):
 #             else: sign_target = "m"
 #             print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
 #
-            if type == "overlaps": 
+            if type == "overlaps"  or type=="successive" or type=="links": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
                 # print the reverse of these nodes
                 if sign_source == "m": sign_source="p"
@@ -301,17 +301,17 @@ def print_edge_coverages(gfa_file_name, DG=None):
                 print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
             
             else: # All those nodes are non oriented - need all possible combinations
-                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
-                if type=="links":
-                    sign_source = "p"
-                    sign_target = "p"
-                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage)) 
-                    continue
+                # if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                # if type=="links":
+                #     sign_source = "p"
+                #     sign_target = "p"
+                #     print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))
+                #     continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(coverage))  
-                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
-                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))  
+                        # if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
+                        #     print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(coverage))
             
             
             
@@ -353,7 +353,7 @@ def print_edges_content(gfa_file_name, DG=None):
            #  else: sign_target = "m"
            #  print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
            #           
-            if type == "overlaps": 
+            if type == "overlaps" or type=="successive" or type=="links": 
                 print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
                 # print the reverse of these nodes
                 if sign_source == "m": sign_source="p"
@@ -363,17 +363,17 @@ def print_edges_content(gfa_file_name, DG=None):
                 print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
             
             else: # All those nodes are non oriented - need all possible combinations
-                if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
-                if type=="links":
-                    sign_source = "p"
-                    sign_target = "p"
-                    print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
-                    continue
+                # if type=="successive" and  not printable_successive(printed_successive, source_id, target_id): continue
+                # if type=="links":
+                #     sign_source = "p"
+                #     sign_target = "p"
+                #     print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))
+                #     continue
                 for sign_source in "m","p":
                     for sign_target in "m", "p":
                         print(sign_target+target_id+"\t"+sign_source+source_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
-                        if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse  
-                            print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))  
+                        # if type=="successive":              # in case of successive edges, one needs to indicate all possibilities p/m and forward and reverse
+                        #     print(sign_source+source_id+"\t"+sign_target+target_id+"\t"+type+"\t"+str(max(0,overlap_len)))
            
     print(";")
     gfa_file.close()

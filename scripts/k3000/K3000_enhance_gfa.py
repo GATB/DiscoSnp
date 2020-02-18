@@ -33,34 +33,44 @@ def compatibles(raw_fact,i,compacted_facts):
     we already know that the 2 facts share at least a snp
     This methods detects if there exists or not a snp, with distinct alleles in the two facts (eg 1000h in one fact, 1000l in the other). 
     Returns false in this case, True else. 
+    When True is returned, a second boolean value is returned. 
+    It is set to True of the raw fact and the compacted_facts[i] are in the same orientation, else it is set to false
     """
     # print (compacted_facts[i])
     # print(raw_fact)
     compacted_fact_i_dict = {} # snps id ->  h or l
+    query_snp_sign=''
     for snp in compacted_facts[i]:
+        if snp[0]=='-': query_snp_sign='-'
+        else:           query_snp_sign='+'
         snp=snp.lstrip('-')     # remove the sign
         compacted_fact_i_dict[snp[:-1]]=snp[-1]
     
     nb_shared=0
+    
+    target_snp_sign=''
     for snp in raw_fact:
+        if snp[0]=='-': target_snp_sign='-'
+        else:           target_snp_sign='+'
         snp=snp.lstrip('-')                                 # remove the sign
         if snp[:-1] in compacted_fact_i_dict:
             if compacted_fact_i_dict[snp[:-1]]!=snp[-1]:    # distinct alleles 
                 # print ("            INCOMPATIBLE        ", snp, compacted_facts[i])
-                return False
+                return False,query_snp_sign==target_snp_sign
             else :
                 nb_shared+=1
         # else: return False      # uncomment if one needs the raw fact to be fully inlcuded in the compacted_facts[i]
     if nb_shared>1: # at least two shared alleles to link two facts.  # note that if test >1 one may avoid lot of computations upstream.
-        return True
+        return True,query_snp_sign==target_snp_sign
     if len(raw_fact)==nb_shared or len(compacted_facts[i])==nb_shared: # the raw fact or the compacted fact is fully mapped
-        return True
-    return False
+        return True,query_snp_sign==target_snp_sign
+    return False,query_snp_sign==target_snp_sign
     
 
 def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
     """
     given the text of a raw fact, returns all compacted_facts ids in which this raw fact occurs
+    add the sign of each of the compacted_facts id in which this raw fact occurs. Negative if it is not the same orientation as the text_raw_fact, else positive
     Example:
         * text_raw_fact: -10000l_0;92837_h;
         * compacted_facts: ... '29731': {'31938l', '499h'} ...  (factid -> list of non oriented alleles)
@@ -80,9 +90,12 @@ def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
             raw_fact_snps.add(oriented_allele.split("_")[0])
     # print ("raw_fact_snps", raw_fact_snps)
     for j in subcompacedfacts:
-        if compatibles(raw_fact_snps, j, compacted_facts):
-            result.add(int(j))
-    
+        cmpt,same_orientation = compatibles(raw_fact_snps, j, compacted_facts)
+        if cmpt:
+            if same_orientation:    result.add(int(j))
+            else:                   result.add(-int(j))
+            
+    # sys.stderr.write(f"{result}\n")
     return result
 
 
@@ -173,6 +186,7 @@ def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
             # detects all compacted_facts in which the rawfact occurs: 
             matching_compacted_fact_ids = get_compatible_facts(rawfact, compacted_facts, snp_to_fact_id)
             for matching_compacted_fact_id in matching_compacted_fact_ids: 
+                matching_compacted_fact_id = abs(matching_compacted_fact_id) # remove the useless sign here
                 if matching_compacted_fact_id not in compacted_fact_weight: 
                     compacted_fact_weight[matching_compacted_fact_id]=0
                 compacted_fact_weight[matching_compacted_fact_id]+=coverage         
@@ -235,10 +249,22 @@ def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw
 def print_pair_edges_gfa_style(pair_edges, occurrence_min=1):
     cpt=0
     for left_fact_id in pair_edges:
+        left_sign = ''
+        if left_fact_id<0:  left_sign = '+'
+        else:               left_sign = '-'
+        abs_left_fact_id = abs(left_fact_id)
         for right_fact_id in pair_edges[left_fact_id]:
+            # the right sign is reversed as pairend reads map -->  <--. Hence if right is forward on a fact we have to reverse this fact
+            right_sign = ''
+            if right_fact_id<0:     right_sign = '-'
+            else:                   right_sign = '+'
+            abs_right_fact_id = abs(right_fact_id)
+            
+            
+            
             if left_fact_id < right_fact_id and pair_edges[left_fact_id][right_fact_id]>=occurrence_min:
                 cpt+=1
-                print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t0M\tFC:i:"+str(pair_edges[left_fact_id][right_fact_id]))
+                print ("L\t"+str(abs_left_fact_id)+"\t"+left_sign+"\t"+str(abs_right_fact_id)+"\t"+right_sign+"\t0M\tFC:i:"+str(pair_edges[left_fact_id][right_fact_id]))
     sys.stderr.write(str(cpt)+" paired fact written\n")
     
 def print_facts_overlaps(phasing_file):
