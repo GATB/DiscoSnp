@@ -250,14 +250,14 @@ def print_pair_edges_gfa_style(pair_edges, occurrence_min=1):
     cpt=0
     for left_fact_id in pair_edges:
         left_sign = ''
-        if left_fact_id<0:  left_sign = '+'
-        else:               left_sign = '-'
+        if left_fact_id<0:  left_sign = '-'
+        else:               left_sign = '+'
         abs_left_fact_id = abs(left_fact_id)
         for right_fact_id in pair_edges[left_fact_id]:
             # the right sign is reversed as pairend reads map -->  <--. Hence if right is forward on a fact we have to reverse this fact
             right_sign = ''
-            if right_fact_id<0:     right_sign = '-'
-            else:                   right_sign = '+'
+            if right_fact_id<0:     right_sign = '+'
+            else:                   right_sign = '-'
             abs_right_fact_id = abs(right_fact_id)
             
             
