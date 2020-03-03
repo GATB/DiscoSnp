@@ -70,6 +70,11 @@ Each variant is described with:
 
   
 
+## Cookbook
+
+[cookbook](./COOKBOOK.md)
+
+
 
 ## Content of this directory
 
