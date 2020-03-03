@@ -74,11 +74,12 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
     print ("H\t#################")
     print ("H\t# Nodes are (compacted) facts with their read mapping coverage. Eg. \"S       81      ccggcgttggcttcca[...]agttct  FC:i:57 RC:i:26 SP:0_178;136_269;179_438;       BP:0_61;-18_61;30_61;   20434h;-21604h;10436h;\".")
     print ("H\t#  * field FC is the coverage of the fact, as provided by the total number of reads that phased at least two alleles of the fact")
-    print ("H\t#  * field RC is the coverage of the fact, as provided by the min of the read coverage of all alleles")
+    print ("H\t#  * field RC is the coverage of the fact, as provided by the max of the read coverage of all alleles")
     print ("H\t#  * field SP stands for \"Sequence Position\". It indicates for each allele of the fact its starting and ending position in the ACGT sequence")
     print ("H\t#  * field BP stands for \"Bubble Position\". For each allele of the fact it indicates:")
     print ("H\t#     - first: the relative position of first nucleotide of the bubble with respect to the position of the last nucleotide of the bubble of the previous allele. This value is equal to zero for the first allele")
     print ("H\t#     - second: the length of the bubble of the allele") 
+    print ("H\t#  * fields min, max, and mean stand resp. for the min, max and mean of the read coverage of all alleles")
     
     print ("H\t# Four types of edges:")
     print ("H\t#   1. Overlap between facts, Overlap length is >0. Eg, \"L	1	-	29384	+	8M\"")
@@ -107,7 +108,8 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
         gfa_line.strip()
         if gfa_line[0]=='H': continue       #Header was changed
         if gfa_line[0]=='S':                #Deal with sequences
-            #S       0       24824h;33997h;10000h; SP:0_166;126_261;178_444; BP:0_83;-20_72;23_61;   FC:i:15 RC:i:26
+            #S       0       -1h;3h;    SP:0_99;50_1899;        BP:0_61;-11_61;    FC:i:48      RC:i:322        min:i:85        max:i:322       mean:i:203.5
+
             gfa_line=gfa_line.split()
             assert gfa_line[2] in header_to_file_position, gfa_line[2]+" is not in header_to_file_position"
             compacted_facts_fa_file.seek(header_to_file_position[gfa_line[2]])
@@ -115,7 +117,7 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             sequence_fa=compacted_facts_fa_file.readline().strip()
             # assert gfa_line[2] == allele_header,gfa_line[2]+" is not "+allele_header+" "+header_fa[1:]
             node_id_to_sequence[gfa_line[1]]=sequence_fa                                #TODO: optimize this to avoid memory usage. One may store the position of the node in the file and retreive the sequence latter
-            print(gfa_line[0]+"\t"+gfa_line[1]+"\t"+sequence_fa+"\t"+gfa_line[5]+"\t"+gfa_line[6]+"\t"+gfa_line[3]+"\t"+gfa_line[4]+"\t"+gfa_line[2])
+            print(gfa_line[0]+"\t"+gfa_line[1]+"\t"+sequence_fa+"\t"+gfa_line[5]+"\t"+gfa_line[6]+"\t"+gfa_line[3]+"\t"+gfa_line[4]+"\t"+gfa_line[2]+"\t"+gfa_line[7]+"\t"+gfa_line[8]+"\t"+gfa_line[9])
             continue
         
         if gfa_line[0]=='L':

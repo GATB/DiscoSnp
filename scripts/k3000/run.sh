@@ -143,9 +143,9 @@ if [[ "$wraith" == "false" ]]; then
 fi
 if [ $? -ne 0 ]
 then
-    echo "${red}           ###Problem detected, check logs.${reset}"
+    echo "${red}           ### Non critical problem detected, check logs.${reset}"
     echo "${green}           ### You may remove useless files: rm -f compacted_facts_int_${read_set_id}.txt compacted_facts_${read_set_id}.gfa graph_${read_set_id}.gfa compacted_facts_${read_set_id}.fa "
-    echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is $(tput blink)${underline}graph_final_${read_set_id}.gfa${no_underline}.${reset}. "
+    echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP ENDED, the final graph is $(tput blink)${underline}graph_final_${read_set_id}.gfa${no_underline}${reset} "
     exit 0
 fi
 

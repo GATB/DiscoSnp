@@ -150,7 +150,6 @@ def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
     """
     Given the compacted facts indexed and the raw disco output: for each compacted fact, find all allele that belong to it and compute its estimated coverage (average, min, max)
     Returns a dictionary: compacted_fact_id -> allele_weight
-    TODO. In fact we use only the "min" value. Thus, no need to compute and to store the mean and max values. 
     """
     alleles_coverage = index_allele_coverage(raw_disco_file_name, read_set_id)
     compacted_fact_allele_weight = {}              # For each compacted fact id, stores its weight
@@ -207,7 +206,7 @@ def print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight
         alleles_weight=0
         if str(compacted_fact_id) in compacted_fact_allele_weight: 
             alleles_weight = compacted_fact_allele_weight[str(compacted_fact_id)]
-        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[1]))  ## 1 as we take the max (17/02/2020)
+        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[1])+"\tmin:i:"+str(alleles_weight[0])+"\tmax:i:"+str(alleles_weight[1])+"\tmean:i:"+str(alleles_weight[2]))  ## RC is max ([1]) as we take the max (17/02/2020)
         cpt+=1
     sys.stderr.write(str(cpt)+" facts written\n")
     mfile.close()
