@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # REQUIRES:
 ## Python 3
@@ -25,10 +25,13 @@ echo " 3/ Format the variants in a vcf file with cluster information"
 echo "Usage: ./discoRAD_clustering.sh -f discofile -s SRC_path -o output_file.vcf"
 # echo "nb: all options are MANDATORY\n"
 echo "OPTIONS:"
-echo "\t -f: DiscoSnp fasta output containing coherent predictions"
-echo "\t -s: Path to Short Read Connector"
-echo "\t -o: output file path (vcf)"
-echo "\t -w: Wraith mode: only show all discoSnpRad commands without running them"
+echo "      -f: DiscoSnp fasta output containing coherent predictions"
+echo "      -m: Max Missing value (default 0.95)"
+echo "      -r: Min Rank (default 0.4)"
+echo "      -c: Max cluster size (default 150)"
+echo "      -s: Path to Short Read Connector"
+echo "      -o: output file path (vcf)"
+echo "      -w: Wraith mode: only show all discoSnpRad commands without running them"
 }
 
 wraith="false"
@@ -36,12 +39,29 @@ wraith="false"
 # help
 # exit
 # fi
+# rank filter parameter
+min_rank=0.4
 
-while getopts "f:s:o:hw" opt; do
+# max cluster size parameter
+max_cluster_size=150
+
+percent_missing=0.95
+
+while getopts "f:s:o:m:r:c:hw" opt; do
     case $opt in
         f)
         rawdiscofile=$OPTARG
         ;;
+
+    m)
+    percent_missing=$OPTARG
+    ;;
+    r)
+    min_rank=$OPTARG
+    ;;
+    c)
+    max_cluster_size=$OPTARG
+    ;;
 
         s)
         short_read_connector_path=$OPTARG
@@ -96,13 +116,7 @@ then
 usedk=31
 fi
 
-# rank filter parameter
-min_rank=0.4
 
-# max cluster size parameter
-max_cluster_size=150
-
-percent_missing=0.95
 
 echo "${yellow}############################################################"
 echo "######### MISSING DATA AND LOW RANK FILTERING  #############"

@@ -8,8 +8,9 @@ These scripts are not intended to be used by a user. They are called by [run_dis
    * This script 
      * manages bubble clustering from a discofile.fa file, 
      * manages the integration of cluster informations in a vcf file
-     * remove variants with more than 95% missing genotypes 
-     * remove low rank (<0.4) variants
+     * remove variants with more than 95% missing genotypes (can be changed with -m option)
+     * remove low rank (<0.4) variants (can be changed with -r option)
+     * remove clusters with more than 150 variants (can be changed with -c option)
    * This script is automatically used in [run_discoSnpRad.sh](https://github.com/GATB/DiscoSnp/blob/master/discoSnpRAD/run_discoSnpRad.sh)
    * It presents no interest to be used alone
 2. **script** ` from_SRC_to_edges.py `

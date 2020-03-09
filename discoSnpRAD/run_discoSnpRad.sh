@@ -75,6 +75,11 @@ verbose=1
 clustering="false"
 short_read_connector_path=""
 option_phase_variants=""
+
+max_size_cluster=150
+max_missing=0.95
+min_rank=0.4
+
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
@@ -108,61 +113,87 @@ function help {
     echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
     echo "Version "$version
     echo "Usage: ./run_discoSnpRad.sh --fof read_file_of_files --src [src_path] [OPTIONS]"
-    echo -e "MANDATORY"
-    echo -e "\t -r|--fof <file name of a file of file(s)>"
-    echo -e "\t\t The input read files indicated in a file of file(s)"
-    echo -e "\t\t Example: -r bank.fof with bank.fof containing the two lines \n\t\t\t data_sample/reads_sequence1.fasta\n\t\t\t data_sample/reads_sequence2.fasta.gz"
-    
-    echo -e "\nOPTIONS"
-    echo -e "\t -S|--src [src_path]"
-    echo -e "\t\t performs clustering of variants with short_read_connector"
-    echo -e "\t\t src_path: **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
-    echo -e "\t\t -Note1: short read connector must be compiled."
-    echo -e "\t\t -Note2: if no value is given, it assumes short_read_connector.sh is in the PATH env variable."
-    echo -e "\t\t -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus" 
+    echo "MANDATORY"
+    echo "      -r|--fof <file name of a file of file(s)>"
+    echo "           The input read files indicated in a file of file(s)"
+    echo "           Example: -r bank.fof with bank.fof containing the two lines" 
+    echo "             data_sample/reads_sequence1.fasta"
+    echo "             data_sample/reads_sequence2.fasta.gz"
+    echo ""
+    echo "PARAMETERS"
+    echo "      -k | --k_size value <int value>"
+    echo "           Set the length of used kmers. Must fit the compiled value."
+    echo "           Default=31"
+    echo "      -c | --min_coverage value <int value>"
+    echo "           Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold)." 
+    echo "           This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation.)"
+    echo "           Default=3"
+    echo "      --high_precision | -R"
+    echo "           lower recall / higher precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
 
-    echo -e "\t -k | --k_size value <int value>"
-    echo -e "\t\t Set the length of used kmers. Must fit the compiled value."
-    echo -e "\t\t Default=31"
-    echo -e "\t -c | --min_coverage value <int value>"
-    echo -e "\t\t Set the minimal coverage per read set: Used by kissnp2 (don't use kmers with lower coverage) and kissreads (read coherency threshold)." 
-    echo -e "\t\t This coverage can be automatically detected per read set (in this case use \"auto\" or specified per read set, see the documentation.)"
-    echo -e "\t\t Default=3"
-    echo -e "\t -C | --max_coverage value" 
-    echo -e "\t\t Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage)."
-    echo -e "\t\t Default=2^31-1"
+    echo ""
+    echo "OPTIONS"
+    echo "      -g | --graph <file name>"
+    echo "           reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo "      -p | --prefix <string>"
+    echo "           All out files will start with this prefix. Default=\"discoRes\""
+    echo "      -C | --max_coverage <int value>" 
+    echo "           Set the maximal coverage for each read set: Used by kissnp2 (don't use kmers with higher coverage)."
+    echo "           Default=2^31-1"
+    echo "      -l | --no_low_complexity"
+    echo "           Remove low complexity bubbles"
+    echo "      -D | --deletion_max_size <int value>"
+    echo "           discoSnpRad will search for deletions of size from 1 to D included. Default=0"
     
-    echo -e "\t --high_precision | -R"
-    echo -e "\t\t lower recall / higher precision mode. With this parameter no symmetrical crossroads may be traversed during bubble detection (by default up to 5 symmetrical crossroads may be traversed during bubble detection)."
+    echo ""
+    echo "CLUSTERING OPTION"
+    echo "      -S|--src [src_path]"
+    echo "           performs clustering of variants with short_read_connector"
+    echo "           src_path: **absolute** path to short_read_connector directory, containing the \"short_read_connector.sh\" file. "
+    echo "           -Note1: short read connector must be compiled."
+    echo "           -Note2: if no value is given, it assumes short_read_connector.sh is in the PATH env variable."
+    echo "           -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus" 
+    echo "      --max_size_cluster <int value> "
+    echo "           Discards cluster containing more than this number of variants. (Default 150)"
+    echo "           Requires the -S or --src option"
     
-    echo -e "\t -L | --max_diff_len <integer>"
-    echo -e "\t\t Longest accepted difference length between two paths of a truncated bubble"
-    echo -e "\t\t default 0"
+    echo ""
+    echo "FILTERING OPTION"
+    echo "      --max_missing <float value> "
+    echo "           Remove variants with more than max_missing % missing values. (Default 0.95, removes variants detected in 5% and less populations)"
+    echo "      --min_rank <float value>"
+    echo "           Remove variants whose rank is smaller than this threshold. (Default 0.4)"
     
-    echo -e "\t -g | --graph <file name>"
-    echo -e "\t\t reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
-    echo -e "\t -D | --deletion_max_size <int>"
-    echo -e "\t\t discoSnpRad will search for deletions of size from 1 to D included. Default=0"
-    echo -e "\t -a | --ambiguity_max_size <int>"
-    echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
-    echo -e "\t -P | --max_snp_per_bubble <int>"
-    echo -e "\t\t discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
-    echo -e "\t -p | --prefix <string>"
-    echo -e "\t\t All out files will start with this prefix. Default=\"discoRes\""
-    echo -e "\t -l | --no_low_complexity"
-    echo -e "\t\t Remove low complexity bubbles"
-    echo -e "\t -d | --max_substitutions <int>"
-    echo -e "\t\t Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=10"
-    echo -e "\t -u | --max_threads <int>"
-    echo -e "\t\t Max number of used threads. 0 means all threads"
-    echo -e "\t\t default 0"
+
 
     
-    echo -e "\t -w\t Wraith mode: only show all discoSnpRad commands without running them"
-    echo -e "\t -v <0 or 1>"
-    echo -e "\t\t Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
-    echo -e "\t -h | --help"
-    echo -e "\t\t Prints this message and exist\n"
+    
+#    echo "      -L | --max_diff_len <integer>" # Hidden - 
+#    echo "           Longest accepted difference length between two paths of a truncated bubble"
+#    echo "           default 0"
+    
+
+#    echo "      -a | --ambiguity_max_size <int>" # Hidden
+#    echo "           Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
+    echo ""
+    echo "ADVANCED OPTIONS"
+    echo "      -P | --max_snp_per_bubble <int>"
+    echo "           discoSnpRad will search up to P SNPs in a unique bubble. Default=5"
+    echo "      -d | --max_substitutions <int>"
+    echo "           Set the number of authorized substitutions used while mapping reads on found SNPs (kissreads). Default=10"
+    
+    
+    echo ""
+    echo "MISC."
+    echo "      -u | --max_threads <int>"
+    echo "           Max number of used threads. 0 means all threads"
+    echo "           default 0"
+    echo "      -w      Wraith mode: only show all discoSnpRad commands without running them"
+    echo "      -v <0 or 1>"
+    echo "           Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
+    echo "      -h | --help"
+    echo "           Prints this message and exist"
+    echo ""
     
     echo "Any further question: read the readme file or contact us via the Biostar forum: https://www.biostars.org/t/discosnp/"
 }
@@ -179,6 +210,34 @@ echo "${yellow}"
 
 while :; do
     case $1 in
+    --max_missing)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+        max_missing=$2
+        shift 1
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    --min_rank)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+        min_rank=$2
+        shift 1
+        echo "min_rank" ${min_rank}
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+
+    --max_size_cluster)
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then # checks that there exists a second value and its is not the start of the next option
+        max_size_cluster=$2
+        shift 1
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
+        ;;
+    
     -A) 
         option_phase_variants="-phasing"
         echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
@@ -373,9 +432,9 @@ echo $reset
 #######################################################################
 
 if [ -z "$read_sets" ]; then
-    echo -e "${red}\t\t\t**************************************************************************"
-    echo -e "\t\t\t** ERROR: You must provide at least one read set (-r) "
-    echo -e "\t\t\t**************************************************************************"
+    echo "${red}               **************************************************************************"
+    echo "               ** ERROR: You must provide at least one read set (-r) "
+    echo "               **************************************************************************"
     echo $reset
     exit 1
 fi
@@ -389,11 +448,11 @@ if [[ "$clustering" == "true" ]]; then
     	if [ -f "$src_file" ]; then
             echo "${yellow}short_read_connector path is $src_file$reset"
     	else
-    		echo -e "${red}\t\t\t**************************************************************************"
-            echo -e "\t\t\t** WARNING: I cannot find short_read_connector (-S). "
-            echo -e "\t\t\t** $src_file does not exist"
-            echo -e "\t\t\t** I will not cluster variants per RAD locus"
-            echo -e "\t\t\t**************************************************************************"
+    		echo "${red}               **************************************************************************"
+            echo "               ** WARNING: I cannot find short_read_connector (-S). "
+            echo "               ** $src_file does not exist"
+            echo "               ** I will not cluster variants per RAD locus"
+            echo "               **************************************************************************"
             echo $reset
     		clustering="false"
     	fi
@@ -403,11 +462,11 @@ if [[ "$clustering" == "true" ]]; then
     	if [ -n "$src_file" ]; then
     		echo "${yellow}short_read_connector path is $src_file$reset"
     	else
-    		echo -e "${red}\t\t\t**************************************************************************"
-            echo -e "\t\t\t** WARNING: I cannot find short_read_connector in PATH. "
-            echo -e "\t\t\t** Try giving the absolute path of short_read_connector directory with option -S"
-            echo -e "\t\t\t** I will not cluster variants per RAD locus"
-            echo -e "\t\t\t**************************************************************************"
+    		echo "${red}               **************************************************************************"
+            echo "               ** WARNING: I cannot find short_read_connector in PATH. "
+            echo "               ** Try giving the absolute path of short_read_connector directory with option -S"
+            echo "               ** I will not cluster variants per RAD locus"
+            echo "               **************************************************************************"
             echo $reset
     		clustering="false"
     	fi
@@ -453,18 +512,18 @@ fi
 #######################################################################
 
 if [[ "$wraith" == "false" ]]; then
-    echo -e "${yellow}\tRunning discoSnpRad "$version", in directory "$EDIR" with following parameters:"
-    echo -e "\t\t read_sets="$read_sets
-    echo -e "\t\t short_read_connector path="$short_read_connector_path
-    echo -e "\t\t prefix="$h5prefix
-    echo -e "\t\t c="$c
-    echo -e "\t\t C="$C
-    echo -e "\t\t k="$k
-    echo -e "\t\t b="$b
-    echo -e "\t\t d="$d
-    echo -e "\t\t D="$D
-    echo -e "\t\t max_truncated_path_length_difference="$max_truncated_path_length_difference
-    echo -e -n "\t starting date="
+    echo "${yellow}     Running discoSnpRad "$version", in directory "$EDIR" with following parameters:"
+    echo "           read_sets="$read_sets
+    echo "           short_read_connector path="$short_read_connector_path
+    echo "           prefix="$h5prefix
+    echo "           c="$c
+    echo "           C="$C
+    echo "           k="$k
+    echo "           b="$b
+    echo "           d="$d
+    echo "           D="$D
+    echo "           max_truncated_path_length_difference="$max_truncated_path_length_difference
+    echo -n "      starting date="
     date
     echo $reset
     echo
@@ -493,12 +552,16 @@ fi
 ############################################################
 #################### GRAPH CREATION  #######################
 ############################################################
+if [ $remove -eq 1 ]; then
+    rm -f $h5prefix.h5
+fi
+
 
 if [ ! -e $h5prefix.h5 ]; then
     T="$(date +%s)"
-    echo -e "${yellow}\t############################################################"
-    echo -e "\t#################### GRAPH CREATION  #######################"
-    echo -e "\t############################################################${reset}"
+    echo "${yellow}     ############################################################"
+    echo "     #################### GRAPH CREATION  #######################"
+    echo "     ############################################################${reset}"
 
     graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf"
     echo $green${graphCmd}$cyan
@@ -518,7 +581,7 @@ if [ ! -e $h5prefix.h5 ]; then
     fi
 else
     if [[ "$wraith" == "false" ]]; then
-        echo -e "${yellow}File $h5prefix.h5 exists. We use it as input graph${reset}"
+        echo "${yellow}File $h5prefix.h5 exists. We use it as input graph${reset}"
     fi
 fi
 
@@ -532,9 +595,9 @@ fi
 #################### KISSNP2   #######################
 ######################################################
 T="$(date +%s)"
-echo -e "${yellow}\t############################################################"
-echo -e "\t#################### KISSNP2 MODULE  #######################"
-echo -e "\t############################################################${reset}"
+echo "${yellow}     ############################################################"
+echo "     #################### KISSNP2 MODULE  #######################"
+echo "     ############################################################${reset}"
 kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
@@ -554,9 +617,9 @@ if [ ! -f ${kissprefix}_r.fa ]
 then
         if [[ "$wraith" == "false" ]]; then
         echo "${red}No polymorphism predicted by discoSnpRad"
-        echo -e -n "\t ending date="
+        echo -n "      ending date="
         date
-        echo -e "${yellow}\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/${reset}"
+        echo "${yellow}      Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/${reset}"
         exit 
     fi
 fi
@@ -564,9 +627,9 @@ fi
 #######################################################################
 #################### REDUNDANCY REMOVAL         #######################
 #######################################################################
-echo -e "${yellow}\t############################################################"
-echo -e "\t#################### REDUNDANCY REMOVAL  ###################"
-echo -e "\t############################################################$reset"
+echo "${yellow}     ############################################################"
+echo "     #################### REDUNDANCY REMOVAL  ###################"
+echo "     ############################################################$reset"
 redundancy_removal_cmd="python $EDIR/../scripts/redundancy_removal_discosnp.py ${kissprefix}_r.fa $k $kissprefix.fa"
 echo $green${redundancy_removal_cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
@@ -583,9 +646,9 @@ fi
 #######################################################################
 
 T="$(date +%s)"
-echo -e "${yellow}\t#############################################################"
-echo -e "\t#################### KISSREADS MODULE #######################"
-echo -e "\t#############################################################$reset"
+echo "${yellow}     #############################################################"
+echo "     #################### KISSREADS MODULE #######################"
+echo "     #############################################################$reset"
 
 smallk=$k
 if (( $smallk>31 ))  ; then
@@ -614,9 +677,9 @@ T="$(($(date +%s)-T))"
 #################### SORT AND FORMAT  RESULTS #########################
 #######################################################################
 
-echo -e "${yellow}\t###############################################################"
-echo -e "\t#################### SORT AND FORMAT  RESULTS #################"
-echo -e "\t###############################################################$reset"
+echo "${yellow}     ###############################################################"
+echo "     #################### SORT AND FORMAT  RESULTS #################"
+echo "     ###############################################################$reset"
 if [[ "$wraith" == "false" ]]; then
     sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_raw.fa
 fi
@@ -649,9 +712,9 @@ rm -f ${kissprefix}_uncoherent.fa
 #################### Deal with Downstream analyses ###############################
 ##################################################################################
 
-echo -e "${yellow}\t###############################################################"
-echo -e "\t######## CLUSTERING PER LOCUS AND/OR FORMATTING ###############"
-echo -e "\t###############################################################$reset"
+echo "${yellow}     ###############################################################"
+echo "     ######## CLUSTERING PER LOCUS AND/OR FORMATTING ###############"
+echo "     ###############################################################$reset"
 
 T="$(date +%s)"
 if [[ "$clustering" == "true" ]]; then
@@ -659,7 +722,7 @@ if [[ "$clustering" == "true" ]]; then
         echo "${yellow}Clustering and vcf formmatting$reset"
     fi
     final_output="${kissprefix}_clustered.vcf"
-    cmd="$EDIR/clustering_scripts/ -f ${kissprefix}_raw.fa -s $src_file -o ${final_output}"
+    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $src_file -o ${final_output} -m ${max_missing} -r ${min_rank} -c ${max_size_cluster}"
     echo $green$cmd$cyan$reset
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
@@ -678,7 +741,7 @@ else
         echo "Filtering and vcf formatting$reset"
     fi
     final_output="${kissprefix}.vcf"
-    cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_raw.fa -o ${final_output} -m 0.95 -r 0.4"
+    cmd="python3 $EDIR/../scripts/create_filtered_vcf.py -i ${kissprefix}_raw.fa -o ${final_output} -m ${max_missing} -r ${min_rank}"
     echo $green$cmd$cyan$reset
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
@@ -690,16 +753,16 @@ else
 fi
 
 if [[ "$wraith" == "false" ]]; then
-    echo -e "${yellow}\t###############################################################"
-    echo -e "\t#################### DISCOSNPRAD FINISHED ######################"
-    echo -e "\t###############################################################"
+    echo "${yellow}     ###############################################################"
+    echo "     #################### DISCOSNPRAD FINISHED ######################"
+    echo "     ###############################################################"
     Ttot="$(($(date +%s)-Ttot))"
     echo "DiscoSnpRad total time in seconds: ${Ttot}"
-    echo -e "\t################################################################################################################"
-    echo -e "\t fasta of predicted variant is \""${kissprefix}_raw.fa"\""
-    echo -e "\t Ghost VCF file (1-based) is \""${final_output}"\""
-    echo -e "\t Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
-    echo -e "\t################################################################################################################${reset}"
+    echo "     ################################################################################################################"
+    echo "      fasta of predicted variant is \""${kissprefix}_raw.fa"\""
+    echo "      Ghost VCF file (1-based) is \""${final_output}"\""
+    echo "      Thanks for using discoSnpRad - http://colibread.inria.fr/discoSnp/ - Forum: http://www.biostars.org/t/discoSnp/"
+    echo "     ################################################################################################################${reset}"
 fi
 
 
