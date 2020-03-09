@@ -1,6 +1,5 @@
 # DiscoSnp-RAD cookbook
 
-{:toc}
 
 Datasets `set1.fastq.gz`, `set2.fastq.gz`, ..., `set5.fastq.gz`  for this cookbook can be downloaded as following: 
 
