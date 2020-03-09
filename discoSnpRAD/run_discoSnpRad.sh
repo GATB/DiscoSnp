@@ -493,9 +493,6 @@ fi
 ############################################################
 #################### GRAPH CREATION  #######################
 ############################################################
-if [ $remove -eq 1 ]; then
-    rm -f $h5prefix.h5
-fi
 
 if [ ! -e $h5prefix.h5 ]; then
     T="$(date +%s)"
@@ -662,7 +659,7 @@ if [[ "$clustering" == "true" ]]; then
         echo "${yellow}Clustering and vcf formmatting$reset"
     fi
     final_output="${kissprefix}_clustered.vcf"
-    cmd="$EDIR/clustering_scripts/discoRAD_clustering.sh -f ${kissprefix}_raw.fa -s $src_file -o ${final_output}"
+    cmd="$EDIR/clustering_scripts/ -f ${kissprefix}_raw.fa -s $src_file -o ${final_output}"
     echo $green$cmd$cyan$reset
     if [[ "$wraith" == "false" ]]; then
         eval $cmd
