@@ -17,7 +17,7 @@ These scripts are not intended to be used by a user. They are called by [run_dis
    * This script is used in [discoRAD_clustering.sh](https://github.com/GATB/DiscoSnp/blob/master/discoSnpRAD/clustering_scripts/discoRAD_clustering.sh)
    * It presents no interest to be used alone
 3. **script** `fasta_and_cluster_to_filtered_vcf`
-   * This script is used in discoRAD_clustering.sh
+   * This script is used in [discoRAD_clustering.sh](https://github.com/GATB/DiscoSnp/blob/master/discoSnpRAD/clustering_scripts/discoRAD_clustering.sh)
    * It presents no interest to be used alone
 
 
