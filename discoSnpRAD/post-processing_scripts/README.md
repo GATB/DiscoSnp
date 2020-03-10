@@ -1,8 +1,8 @@
 # Directory containing some scripts to post-process and filter discoSnpRad results
-   
-	
+
+
 ## Filtering scripts  
-  
+
    1. **script** `filter_by_cluster_size_and_rank.py`:
        * removes variants belonging to a cluster (locus) whose size (nb of variants) is outside the given size range (options `-m` and `-M`)
        * removes variants with rank lower than a given threshold given by option `-r`
@@ -27,7 +27,7 @@
 
 ## Scripts for STRUCTURE analyses :
 
-   4. **script** `1SNP_by_cluster.py`
+   4. **script** `1SNP_per_cluster.py`
         * selects one SNP per cluster (the one with less missing genotypes)
         * Usage :   
         `python  1SNP_per_cluster.py -i vcf_file -o new_vcf_file`
@@ -35,7 +35,8 @@
    5. **script** `vcf2structure.sh`    
         * changes the vcf format to a Structure format (input of the software Structure)
         * Usage:    
-        `vcf2structure.sh file.vcf > fle.str`   
+          `sh vcf2structure.sh file.vcf`
+          (creates a file `file.str`)
 
 
 ## Mapping to a reference genome, and keeping the cluster information :
