@@ -1,10 +1,10 @@
 # DiscoSnp-RAD cookbook
 **Table of Contents**
-* [1. No reference genome - Using only reads 1 from pairs - No clustering](#1.%20No%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20No%20clustering)
-* [2. No reference genome - Using only reads 1 from pairs - With clustering](#2.%20No%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering)
-* [3. Using a reference genome - Using only reads 1 from pairs - With clustering](#3.%20Using%20a%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering)
-* [4. Using forward and reverse reads.](#4.%20Using%20forward%20and%20reverse%20reads.)
-* [5. Post-processing](#5.%20Post-processing)
+* [1. No reference genome - Using only reads 1 from pairs - No clustering](#1)
+* [2. No reference genome - Using only reads 1 from pairs - With clustering](#2)
+* [3. Using a reference genome - Using only reads 1 from pairs - With clustering](#3)
+* [4. Using forward and reverse reads.](#4)
+* [5. Post-processing](#5)
 
 - - - -
 **Prerequisite**
@@ -18,7 +18,7 @@ for i in 1 2 3 4 5; do wget http://bioinformatique.rennes.inria.fr/data_cookbook
 For each example, the full commands are proposed at the end of the section.
 - - - -
 
-## 1. No reference genome - Using only reads 1 from pairs - No clustering
+## 1. <a name="1"> No reference genome - Using only reads 1 from pairs - No clustering</a>
 This is the most classical usage of DiscoSnp-RAD.
 
 Consider one has $n$ rad datasets composed only of reads 1. Suppose those sets are called `set1.fastq.gz`, `set2.fastq.gz`, ..., `setn.fastq.gz`.
@@ -86,7 +86,7 @@ ls set*.fastq.gz > my_fof.txt
 ${disco_path}/discoSnpRAD/run_discoSnpRad.sh -r my_fof.txt
 ```
 
-## 2. No reference genome - Using only reads 1 from pairs - With clustering
+## 2. <a name="2">No reference genome - Using only reads 1 from pairs - With clustering</a>
 Given the fof file created as previously, run discoSnp-RAD indicating the `short_read_connector` installation path.
 
 ```bash
@@ -112,7 +112,7 @@ ls set*.fastq.gz > my_fof.txt
 ${disco_path}/discoSnpRAD/run_discoSnpRad.sh -r my_fof.txt -S ${src_path}
 ```
 
-## 3. Using a reference genome - Using only reads 1 from pairs - With clustering
+## 3. <a name="3">Using a reference genome - Using only reads 1 from pairs - With clustering</a>
 If one disposes for a reference genome, it can be used for determine the position of each predicted variant (without using the reference genome for prediction) on the genome.
 
 We may use the proposed reference genome as following:
@@ -151,7 +151,8 @@ ${disco_path}/scripts/run_VCF_creator.sh -G ref.fa -p discoRad_k_31_c_3_D_0_P_5_
 python ${disco_path}/discoSnpRAD/post-processing_scripts/add_cluster_info_to_mapped_vcf.py -m temp.vcf -u discoRad_k_31_c_3_D_0_P_5_m_5_clustered.vcf -o discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf
 ```
 
-## 4. Using forward and reverse reads.
+## 4. <a name="4">Using forward and reverse reads.</a>
+
 Whatever the wanted usage (with or without reference genome, with or without clustering) one may use pairend data.
 
 Imagine one disposes from 5 pairend read sets
@@ -183,7 +184,7 @@ done
 ls my_fof_set*.txt > my_fof.txt
 ```
 
-## 5. Post-processing
+## 5. <a name="5">Post-processing</a>
 
 A bench of post-processing scripts can be found in the dedicated [directory](https://github.com/GATB/DiscoSnp/tree/master/discoSnpRAD/post-processing_scripts).
 
