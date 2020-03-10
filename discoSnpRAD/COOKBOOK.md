@@ -4,6 +4,7 @@
 * [2. No reference genome - Using only reads 1 from pairs - With clustering](#2.%20No%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering)
 * [3. Using a reference genome - Using only reads 1 from pairs - With clustering](#3.%20Using%20a%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering)
 * [4. Using forward and reverse reads.](#4.%20Using%20forward%20and%20reverse%20reads.)
+* [5. Post-processing](#5.%20Post-processing)
 
 - - - -
 **Prerequisite**
@@ -32,7 +33,10 @@ ls set*.fastq.gz > my_fof.txt
 
 > **Note**If you wish to run DiscoSnp-RAD from a directory distinct from the one containing the read datasets, you have to indicate the absolute paths in the fof:```bash  
 > ls -d $PWD/set*.fastq.gz > my_fof.txt  
+>
 > ```  
+> 
+> ```
 
 **Second**, run discoSnp-RAD, using the input fof:
 
@@ -178,3 +182,86 @@ done
 ```bash
 ls my_fof_set*.txt > my_fof.txt
 ```
+
+## 5. Post-processing
+
+A bench of post-processing scripts can be found in the dedicated [directory](https://github.com/GATB/DiscoSnp/tree/master/discoSnpRAD/post-processing_scripts).
+
+We consider here that [case 3](#3.%20Using%20a%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering) (Using a reference genome - Using only reads 1 from pairs - With clustering) was performed, hence obtaining the file: `discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf`
+
+### 5.1 Filtering scripts
+
+#### **script** `filter_by_cluster_size_and_rank.py`
+
+* Filtering on cluster size. 
+  Use case: Need clusters of size between 2 to 100:
+
+  ```bash
+  python filter_by_cluster_size_and_rank.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o filtered_on_cluster_size.vcf -m 2 -M 100
+  ```
+
+* Filtering on rank.
+  Use case: Need variants with a rank higher than 0.8:
+
+  ```bash
+  python filter_by_cluster_size_and_rank.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o filtered_on_rank.vcf -r 0.8
+  ```
+
+#### script `filter_vcf_by_indiv_cov_max_missing_and_maf.py`
+
+* Filtering on read coverage.
+  Use case: replace by `./.`original genotypes of variants whose total read coverage is below 20:
+
+  ```bash
+  python filter_vcf_by_indiv_cov_max_missing_and_maf.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o non_genotyped_low_covered.vcf -c 20
+  ```
+
+* Filtering on missing genotypes.
+  Use case: Remove variants whose fraction of missing genotypes is greater than 70%:
+
+  ```bash
+  python filter_vcf_by_indiv_cov_max_missing_and_maf.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o filtered_on_missing_geno.vcf -m 0.7
+  ```
+
+* Filtering on minor allele frequency.
+  Use case: Remove variants whose minor allele frequency is smaller than 0.2:
+
+  ```bash
+  python filter_vcf_by_indiv_cov_max_missing_and_maf.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o filtered_on_maf.vcf -f 0.2
+  ```
+
+#### script `filter_paralogs.py`
+
+* Filtering on paralogs.
+  Use case: Remove variants that belong to a cluster such that more than 50% of its variants  have each more than 10% of heterozygous genotypes:
+
+  ```bash
+  python filter_paralogs.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o filtered_on_paralogs.vcf -x 0.1 -y 0.5
+  ```
+
+### 5.2 Scripts for STRUCTURE analyses 
+
+#### script `1SNP_per_cluster.py`
+
+* Conserve one variant per cluster (the one with less missing genotypes).
+  Use case: prepare the vcf file to be used by STRUCTURE:
+
+  ```bash
+  python 1SNP_per_cluster.py -i discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf -o one_variant_per_cluster.vcf
+  ```
+
+#### script `vcf2structure.sh`
+
+* Changes the vcf format to a Structure format (input of the software Structure).
+  Use case: prepare the vcf file to be used by STRUCTURE:
+
+  ```bash
+  sh vcf2structure.sh discoRad_k_31_c_3_D_0_P_5_m_5_mapped.vcf > file.str
+  ```
+
+  
+
+### 5.3 Mapping to a reference, and keeping the cluster information. 
+
+The script `add_cluster_info_to_mapped_vcf.py` can be used in case one wants to map predicted variants to any available genome. This use case was described in [case 3](#3.%20Using%20a%20reference%20genome%20-%20Using%20only%20reads%201%20from%20pairs%20-%20With%20clustering) (Using a reference genome - Using only reads 1 from pairs - With clustering) 
+
