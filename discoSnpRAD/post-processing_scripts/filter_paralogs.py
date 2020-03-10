@@ -97,7 +97,7 @@ def check_format(vcf_file):
         INFO_split = line.split("\t")[7].split(";")
         checked = True
         if len(INFO_split) < 10: return False
-        tmp_cluster = INFO_split[8].split("Cluster=")
+        tmp_cluster = INFO_split[-2].split("Cluster=")
         if len(tmp_cluster) < 2: return False
         if tmp_cluster[1] == ".": return False
         cl_id = int(tmp_cluster[1])
@@ -123,7 +123,7 @@ def store_info(vcf_file, x):
         if not line: break
         if line.startswith("#"): continue
 
-        num_cluster = int(line.split("\t")[7].split(";")[8].split("Cluster=")[1])
+        num_cluster = int(line.split("\t")[7].split(";")[-2].split("Cluster=")[1])
         
        	if num_cluster not in dict : 
             dict[num_cluster] = [0,0]
@@ -175,7 +175,7 @@ def output_newvcf(vcf_file, out_file, clusters_to_keep) :
              new_vcf.write(line)        
              continue
 
-        cluster = int(line.split("\t")[7].split(";")[8].split("Cluster=")[1])
+        cluster = int(line.split("\t")[7].split(";")[-2].split("Cluster=")[1])
         if cluster not in clusters_to_keep: continue
         new_vcf.write(line)
 
