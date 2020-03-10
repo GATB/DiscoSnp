@@ -111,7 +111,8 @@ function help {
     echo " *** HELP ***"
     echo " ************"
     echo "run_discoSnpRad.sh, pipelining kissnp2 and kissreads and clustering per locus for calling SNPs and small indels from RAD-seq data without the need of a reference genome"
-    echo "Version "$version
+    echo "Version: "$version
+    echo "Cookbook: You may find a Cookbook here https://github.com/GATB/DiscoSnp/blob/master/discoSnpRAD/COOKBOOK.md providing classical use cases."
     echo "Usage: ./run_discoSnpRad.sh --fof read_file_of_files --src [src_path] [OPTIONS]"
     echo "MANDATORY"
     echo "      -r|--fof <file name of a file of file(s)>"
@@ -119,6 +120,7 @@ function help {
     echo "           Example: -r bank.fof with bank.fof containing the two lines" 
     echo "             data_sample/reads_sequence1.fasta"
     echo "             data_sample/reads_sequence2.fasta.gz"
+    echo "      Note: DiscoSnp-RAD uses files demultiplexed to samples. Each sample correspond to exactly one line in the input file of files."
     echo ""
     echo "PARAMETERS"
     echo "      -k | --k_size value <int value>"
