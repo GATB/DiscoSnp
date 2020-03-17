@@ -43,16 +43,15 @@ cd DiscoSnp
 sh INSTALL
 ```
 
-### Install from Conda repository
+### Install using Conda
 
-```bash
-# create the conda environment 
-conda create -p discoSnp_env discoSnp
-# activate the create environment 
-conda activate discoSnp_env
+DiscoSnp++ and DiscoSnpRAD are also distributed as a [Bioconda package](https://anaconda.org/bioconda/discosnp):
+
+```
+conda install -c bioconda discosnp
 ```
 
-Once activated, scripts `run_discoSnp++.sh` and `run_discoSnpRad.sh` are executable.
+The scripts `run_discoSnp++.sh` and `run_discoSnpRad.sh` are then executable.
 
 # Getting a binary stable release
 
@@ -85,9 +84,9 @@ Run DiscoSnp WITH mapping results on a reference genome AND using this reference
 See doc/discoSnp_user_guide.pdf or doc/discoSnp_user_guide.txt
 
 # DiscoSnpRad
-While dealing with RAD-Seq data,  `run_discoSnpRad.sh` script should be used. It uses options specific to RAD-Seq: branching strategy, kind of extensions, abundance threshold, and kind of bubbles to be found. Moreover, it clusters variants per locus by calling the `discoRAD_finalization.sh` pipeline. Cluster information is  reported in the final provided VCF file. 
+When dealing with RAD-Seq data,  `run_discoSnpRad.sh` script should be used. It uses options specific to RAD-Seq data: branching strategy, kind of extensions, abundance threshold, and kind of bubbles to be found. Moreover, it clusters variants per locus, the cluster information being reported in the final provided VCF file. 
 
-A README file describes all scripts and the `discoRAD_finalization.sh` pipeline.
+See the [discoSnpRAD README file](https://github.com/GATB/DiscoSnp/tree/master/discoSnpRAD).
 
 # Contact
 
