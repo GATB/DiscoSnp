@@ -120,7 +120,7 @@ function help {
     echo "           Example: -r bank.fof with bank.fof containing the two lines" 
     echo "             data_sample/reads_sequence1.fasta"
     echo "             data_sample/reads_sequence2.fasta.gz"
-    echo "      Note: DiscoSnp-RAD uses files demultiplexed to samples. Each sample correspond to exactly one line in the input file of files."
+    echo "      Note: DiscoSnp-RAD uses files demultiplexed to samples. Each sample corresponds to exactly one line in the input file of files."
     echo ""
     echo "PARAMETERS"
     echo "      -k | --k_size value <int value>"

@@ -15,7 +15,16 @@ Datasets `set1.fastq.gz`, `set2.fastq.gz`, ..., `set5.fastq.gz`  for this cookbo
 for i in 1 2 3 4 5; do wget http://bioinformatique.rennes.inria.fr/data_cookbook_discoSnp-RAD/set$i.fastq.gz; done
 ```
 
-For each example, the full commands are proposed at the end of the section.
+**Full commands:** For each example, the full commands are proposed at the end of the section.
+
+**Computation time** is approximately 10 to 15 minutes per example (once dataset is dowloaded).
+
+***
+
+**Note about multiplexed data**
+
+To date, DiscoSnp-RAD is not able to consider multiplexed data. Hence, input files need to be demultiplexed to samples.
+
 - - - -
 
 ## 1. <a name="1"> No reference genome - Using only reads 1 from pairs - No clustering</a>
