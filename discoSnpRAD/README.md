@@ -7,7 +7,9 @@ DiscoSnpRAD is a pipeline based on discoSnp++ to discover small variants in RAD-
 * clustering the called variants into loci
 
 **Reference:**   
-Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemaitre, C., Peterlongo, P. (2017). [DiscoSnp-RAD: de novo detection of small variants for population genomics](https://www.biorxiv.org/content/early/2017/11/09/216747). BioRxiv
+Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemaitre, C., Peterlongo, P. (2019). [DiscoSnp-RAD: de novo detection of small variants for population genomics](https://www.biorxiv.org/content/10.1101/216747v2). BioRxiv
+
+​	Simulation and validation scripts: `[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3722623.svg)](https://doi.org/10.5281/zenodo.3722623)`
 
 ## Installation
 
@@ -72,7 +74,7 @@ Each variant is described with:
 
 ## Cookbook
 
-[cookbook](./COOKBOOK.md)
+This [cookbook](./COOKBOOK.md) presents classical usages. 
 
 
 
