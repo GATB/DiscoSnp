@@ -1,3 +1,9 @@
+## Next Release
+
+* `-g` option takes a graph as parameter
+
+
+
 ## v2.4.4
 
 * Fixes a bug in option parser for discoSnp-RAD
