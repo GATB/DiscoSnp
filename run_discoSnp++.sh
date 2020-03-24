@@ -60,10 +60,11 @@ x=""
 y=""
 output_coverage_option=""
 genotyping="-genotype"
-remove=1
 verbose=1
 stop_after_kissnp=0
 e=""
+graph_reused="Egg62hdS7knSFvF3" # with -g option, we use a previously created graph. 
+
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
@@ -124,7 +125,7 @@ function help {
     echo -e "\t -s | --symmetrical value <int value>"
     echo -e "\t\t In -b 2 mode only: maximal number of symmetrical crossroads traversed while trying to close a bubble. Default: no limit"
     echo -e "\t -g | --graph <file name>"
-    echo -e "\t\t Reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo -e "\t\t Reuse a previously created graph (.h5 file)"
     echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
     echo -e "\t -D | --deletion_max_size <int>"
     echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
@@ -227,7 +228,12 @@ while :; do
         ;;
 
     -g|--graph)
-        remove=0
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            graph_reused=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
 
@@ -467,6 +473,9 @@ if [[ "$wraith" == "false" ]]; then
     if [ ! -z "${read_sets_kissreads}" ]; then
         echo -e "\t fof_mapping read_file_of_files="${read_sets_kissreads}
     fi
+    if [ -f ${graph_reused} ]; then
+        echo -e "\t reuse graph="${graph_reused}
+    fi
     echo -e "\t p="$prefix
     echo -e "\t G="$genome
     echo -e "\t e="$e
@@ -494,11 +503,7 @@ fi
 ############################################################
 #################### GRAPH CREATION  #######################
 ############################################################
-if [ $remove -eq 1 ]; then
-    rm -f $h5prefix.h5
-fi
-
-if [ ! -e $h5prefix.h5 ]; then
+if [ ! -f ${graph_reused} ]; then # no graph was given or the given graph was not a file. 
     T="$(date +%s)"
     echo -e "$yellow ############################################################"
     echo -e " #################### GRAPH CREATION  #######################"
@@ -509,7 +514,6 @@ if [ ! -e $h5prefix.h5 ]; then
     if [[ "$wraith" == "false" ]]; then
         ${graphCmd}
     fi
-
     if [ $? -ne 0 ]
     then
         echo "$red there was a problem with graph construction$ reset"
@@ -520,10 +524,10 @@ if [ ! -e $h5prefix.h5 ]; then
     if [[ "$wraith" == "false" ]]; then
         echo "$yellow Graph creation time in seconds: ${T}$reset"
     fi
-
+    graph_reused=$h5prefix.h5
 else
     if [[ "$wraith" == "false" ]]; then
-        echo -e "$yellow File $h5prefix.h5 exists. We use it as input graph$reset"
+        echo -e "$yellow File ${graph_reused} exists. We use it as input graph$reset"
     fi
 fi
 
@@ -542,7 +546,7 @@ T="$(date +%s)"
 echo -e "$yellow ############################################################"
 echo -e " #################### KISSNP2 MODULE  #######################"
 echo -e " ############################################################$reset"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
+kissnp2Cmd="${kissnp2_bin} -in ${graph_reused} -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}

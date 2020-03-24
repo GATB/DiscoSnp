@@ -70,11 +70,12 @@ x="-x"
 e="-e"
 output_coverage_option=""
 genotyping="-genotype"
-remove=1
 verbose=1
 clustering="false"
 short_read_connector_path=""
 option_phase_variants=""
+graph_reused="Egg62hdS7knSFvF3" # with -g option, we use a previously created graph. 
+
 
 max_size_cluster=150
 max_missing=0.95
@@ -136,7 +137,7 @@ function help {
     echo ""
     echo "OPTIONS"
     echo "      -g | --graph <file name>"
-    echo "           reuse a previously created graph (.h5 file) with same prefix and same k and c parameters."
+    echo "           Reuse a previously created graph (.h5 file)"
     echo "      -p | --prefix <string>"
     echo "           All out files will start with this prefix. Default=\"discoRes\""
     echo "      -C | --max_coverage <int value>" 
@@ -287,7 +288,12 @@ while :; do
         ;;
 
     -g|--graph)
-        remove=0
+        if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
+            graph_reused=$2
+            shift
+        else
+            die 'ERROR: "'$1'" option requires a non-empty option argument.'
+        fi
         ;;
 
     -l|--no_low_complexity)
@@ -518,6 +524,9 @@ if [[ "$wraith" == "false" ]]; then
     echo "           read_sets="$read_sets
     echo "           short_read_connector path="$short_read_connector_path
     echo "           prefix="$h5prefix
+    if [ -f ${graph_reused} ]; then
+        echo "           reuse graph="${graph_reused}
+    fi
     echo "           c="$c
     echo "           C="$C
     echo "           k="$k
@@ -554,12 +563,9 @@ fi
 ############################################################
 #################### GRAPH CREATION  #######################
 ############################################################
-if [ $remove -eq 1 ]; then
-    rm -f $h5prefix.h5
-fi
 
 
-if [ ! -e $h5prefix.h5 ]; then
+if [ ! -f ${graph_reused} ]; then # no graph was given or the given graph was not a file. 
     T="$(date +%s)"
     echo "${yellow}     ############################################################"
     echo "     #################### GRAPH CREATION  #######################"
@@ -581,9 +587,10 @@ if [ ! -e $h5prefix.h5 ]; then
     if [[ "$wraith" == "false" ]]; then
         echo "${yellow}Graph creation time in seconds: ${T}${reset}"
     fi
+    graph_reused=$h5prefix.h5
 else
     if [[ "$wraith" == "false" ]]; then
-        echo "${yellow}File $h5prefix.h5 exists. We use it as input graph${reset}"
+        echo "${yellow}File ${graph_reused} exists. We use it as input graph${reset}"
     fi
 fi
 
@@ -600,7 +607,7 @@ T="$(date +%s)"
 echo "${yellow}     ############################################################"
 echo "     #################### KISSNP2 MODULE  #######################"
 echo "     ############################################################${reset}"
-kissnp2Cmd="${kissnp2_bin} -in $h5prefix.h5 -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
+kissnp2Cmd="${kissnp2_bin} -in ${graph_reused} -out ${kissprefix}_r  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} -max_symmetrical_crossroads ${option_max_symmetrical_crossroads}  -verbose $verbose -max_truncated_path_length_difference ${max_truncated_path_length_difference}"
 echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}
