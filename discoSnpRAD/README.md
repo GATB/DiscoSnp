@@ -9,7 +9,9 @@ DiscoSnpRAD is a pipeline based on discoSnp++ to discover small variants in RAD-
 **Reference:**   
 Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemaitre, C., Peterlongo, P. (2019). [DiscoSnp-RAD: de novo detection of small variants for population genomics](https://www.biorxiv.org/content/10.1101/216747v2). BioRxiv
 
-​	Simulation and validation scripts: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3722623.svg)](https://doi.org/10.5281/zenodo.3722623)
+​	Simulation and validation scripts: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3724518.svg)](https://doi.org/10.5281/zenodo.3724518)
+
+
 
 ## Installation
 
