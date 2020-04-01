@@ -87,6 +87,7 @@ def get_reverse_complement(seq):
         s = get_complement(seq[i]) + s
     return s
 
+string_allele_value = lambda x: x.split('_')[0]
 allele_value = lambda x: int(x.split('_')[0])
 allele_values = lambda list_: [allele_value(x) for x in list_]
 distance_string_value = lambda x: x.split('_')[1]

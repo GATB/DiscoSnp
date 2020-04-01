@@ -220,7 +220,7 @@ def print_original_gfa(gfa_file_name):
     print ("H\t#       \"S	1	10011l;23229h;-21935l;-8929l;-24397l;10011h;	RC:i:24\", and")
     print ("H\t#       \"S	29384	21935l;-23229h;-10011l;24397l;-23229l;-25549h;-10011h;	RC:i:43\".")
     print ("H\t#   2. Facts linked by paired end reads.  Eg \"L	10735	+	29384	+	0M	FC:i:5\".")
-    print ("H\t#       These links are non directed and do no validate the facts orientation. The coverage indicates the number of pairend read linking the two facts")
+    print ("H\t#       The coverage indicates the number of pairend read linking the two facts")
     print ("H\t#       These links have an overlap of length 0.")
     print ("H\t#   3. Facts linked by unitigs. The unitig finishing a fact overlaps the unitig starting another fact. Eg \"L	19946	+	11433	+	-1M\".")
     print ("H\t#       These links are directed and validate the facts orientation. ")

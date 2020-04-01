@@ -30,7 +30,8 @@ def store_graph(gfa_file_name):
             source = split_gfa_line[1]
             target = split_gfa_line[3]
             overlap = split_gfa_line[5]
-            if overlap == "-2M": continue   #forbiden link
+            if overlap == "0M" or overlap == "-2M": continue   #pairend and forbiden link are not considered
+            # if overlap == "-2M": continue   #forbiden link
             DG.add_edge(source, target,type=overlap)
     gfa_file.close()
     return DG
@@ -54,10 +55,10 @@ def remove_outsider_nodes_from_cc(DG,cc):
     print("n",n,"p",p,"E",E,"V",V)
     #TODO remove outsider nodes from the graph
     
-def assign_cc(DG,max_cc_size):
-    CC=list(nx.connected_components(nx.Graph(DG)))
-    for cc in CC:
-        remove_outsider_nodes_from_cc(DG,cc)
+def assign_cc(DG,max_cc_size=sys.maxsize):
+    #CC=list(nx.connected_components(nx.Graph(DG)))
+    #for cc in CC:
+    #    remove_outsider_nodes_from_cc(DG,cc)
     
     # recompute CC after having removed outsiders from original CCs
     # assign each node to its cc_id
@@ -78,14 +79,15 @@ def remove_cc_with_cycles(DG):
     # remove pairend links and unitig links (unoriented)
     edges_to_remove = []
     for edge in DG.edges.data():
-        if edge[2]['type'] == '-1M' or edge[2]['type'] == '0M' :
+        if edge[2]['type'] == '-1M':
             edges_to_remove.append(edge)
             
     for edge in edges_to_remove:
         DG.remove_edge(edge[0],edge[1])
     cycles = list(nx.simple_cycles(DG))
-    # print("cycles", cycles)
+    # sys.stderr.write(f" removed {len(cycles)} cycles\n")    #DEB
     
+    # tmpnb=0                                         #DEB
     G=nx.Graph(DG)
     for nodes in cycles:
         first_node_in_cycle = nodes[0]              # get the first node, the other ones in the cycle are in the same CC
@@ -93,8 +95,9 @@ def remove_cc_with_cycles(DG):
         CC_with_cycle = nx.node_connected_component(G, first_node_in_cycle)
         for node_id in CC_with_cycle:
             if node_id in DG.nodes():
+                # tmpnb+=1                            #DEB
                 DG.remove_node(node_id)
-    
+    # sys.stderr.write(f" removed {tmpnb} nodes\n")   #DEB
 
 def main():
     '''

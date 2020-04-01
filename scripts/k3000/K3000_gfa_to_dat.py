@@ -392,15 +392,15 @@ def main(gfa_file_name):
     #   to remove cycles
     #   to remove too large cc
     DG = None
-    if True: 
-        max_cc_size=1000
-        DG = gpt.store_graph(gfa_file_name)
-        gpt.assign_cc(DG,max_cc_size)
-        gpt.remove_cc_with_cycles(DG)
+
+    max_cc_size=10000000
+    DG = gpt.store_graph(gfa_file_name) # store the graph without paired edges
+    gpt.assign_cc(DG)
+    gpt.remove_cc_with_cycles(DG)
     
     print_header()
     print_nodes(gfa_file_name,DG)
-    print_nodes_number_loci(gfa_file_name, DG=None)
+    print_nodes_number_loci(gfa_file_name, DG)
     print_nodes_weight(gfa_file_name,DG)
     print_nodes_weight_phased_alleles(gfa_file_name, DG)
     print_reverse(gfa_file_name,DG)
