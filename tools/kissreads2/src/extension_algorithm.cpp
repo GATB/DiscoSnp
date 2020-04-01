@@ -365,7 +365,6 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-                        
                         const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
                         
 #ifdef DEBUG_MAPPING
@@ -464,7 +463,9 @@ struct Functor
         if (gv.phasing){
             if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
 //                cout<<"PHASED "<<endl;//DEB
+                
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+                int nb_variants_in_fact = 0;                                            // # of variants in this fact. If one, we do not output it.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read
                 int previous_upper_case_seq_len=0;                                      // size of the previous upper case sequence
                 bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNPs
@@ -483,11 +484,6 @@ struct Functor
                     std::pair<char,int64_t> signed_var_id =it->second;
                     char sign = signed_var_id.first;
                     int64_t var_id = signed_var_id.second;
-                    //DEBUG
-//                    cout<<"var_id        "<<var_id<<endl;
-                    //
-                    //                    cout<<"pwi        "<<pwi<<endl;
-                    //ENDDEBUG
                     
                     int relative_position;                                              // Relative position of the upper case sequence variant with repect to previous upper case sequence start
                     int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
@@ -502,9 +498,37 @@ struct Functor
                         first_snp=false;
                     }
                     else{
+                        
+                        int end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // Relative distance between the end of the previous upper case sequence and the end of the current upper case sequence.
+                        // if this value is negative, then the current variant is included in the previous one; does not provide information and creates cycles in the phased variants graphs. Thus we remove them.
+                        //  -----[XXXXXXXXXX]---------  previous sequence
+                        //                  -----[XXXXXXXXXX]---------  previous sequence
+                        //       <-relative_position->
+                        //                   <-shift->
+                        //                   <---------------> (end_to_end_distance)
+                        // end_to_end_distance = shift + len(current upper case sequence)
+                        
+                        // When current variant is included in the previous one, then end_to_end_distance is negative:
+                        // -----[XXXXXXXXXX]---------   previous sequence
+                        //   -----[XXXXX]---------      previous sequence
+                        //               <->            (end_to_end_distance) <0
+                        
+                        // end_to_end_distance = shift + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // with
+                        //  shift=relative_position-previous_upper_case_seq_len;
+                        //  relative_position=previous_pwi-pwi;
+                        // hence end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        
+                        if (end_to_end_distance <0){
+                            continue;
+                            
+                        }
+                        
                         relative_position=previous_pwi-pwi;
                         assert(relative_position >=0);
                         shift=relative_position-previous_upper_case_seq_len;
+                        
                     }
                     previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
                     previous_pwi=pwi;
@@ -522,13 +546,18 @@ struct Functor
                     //                                        phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
                     //ENDDEBUG
                     phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                    nb_variants_in_fact++;
                     
                 }
-                // Associate this string to the number of times it is seen when mapping this read set
-                if (phased_variants.find(phased_variant_ids) == phased_variants.end())
-                    phased_variants[phased_variant_ids] = 1;
-                else
-                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+//                cout<<read<<" phased \n"<<phased_variant_ids<<endl; //DEBUG
+                if (nb_variants_in_fact>1)  // No need to store facts composed of zero or one variant
+                {
+                    // Associate this string to the number of times it is seen when mapping this read set
+                    if (phased_variants.find(phased_variant_ids) == phased_variants.end())
+                        phased_variants[phased_variant_ids] = 1;
+                    else
+                        phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+                }
             }
             
             pwi_and_mapped_predictions.clear();
@@ -559,6 +588,7 @@ struct Functor
         if (gv.phasing){
             if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
+                int nb_variants_in_fact = 0;                                            // # of variants in this fact. If one, we do not output it.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read
                 int previous_upper_case_seq_len=0;                                      // size of the previous upper case sequence
                 bool first_snp=true;                                                    // we are going to encounter the first snp of the set of phased SNP
@@ -595,6 +625,32 @@ struct Functor
                         shift = 0;
                     }
                     else{
+                        int end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // Relative distance between the end of the previous upper case sequence and the end of the current upper case sequence.
+                        // if this value is negative, then the current variant is included in the previous one; does not provide information and creates cycles in the phased variants graphs. Thus we remove them.
+                        //  -----[XXXXXXXXXX]---------  previous sequence
+                        //                  -----[XXXXXXXXXX]---------  previous sequence
+                        //       <-relative_position->
+                        //                   <-shift->
+                        //                   <---------------> (end_to_end_distance)
+                        // end_to_end_distance = shift + len(current upper case sequence)
+                        
+                        // When current variant is included in the previous one, then end_to_end_distance is negative:
+                        // -----[XXXXXXXXXX]---------   previous sequence
+                        //   -----[XXXXX]---------      previous sequence
+                        //               <->            (end_to_end_distance) <0
+                        
+                        // end_to_end_distance = shift + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // with
+                        //  shift=relative_position-previous_upper_case_seq_len;
+                        //  relative_position=previous_pwi-pwi;
+                        // hence end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        
+                        if (end_to_end_distance <0){
+                            continue;
+                            
+                        }
+                        
                         relative_position=-(pwi-previous_pwi);
                         assert(relative_position >=0);                      //TODO to remove
                         shift=relative_position-previous_upper_case_seq_len;
@@ -609,8 +665,14 @@ struct Functor
                         phased_variant_id+=sign;
                     phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
                     phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                    nb_variants_in_fact++;
                 }
-                phased_variant_ids += ' ';
+                
+                // Second part of the pair
+                if (nb_variants_in_fact > 0) // Add a ' ' if the left part of the paired fact is not empty
+                    phased_variant_ids += ' ';
+                
+                
                 first_snp=true;                                                     // we are going to encounter the first snp of the set of phased SNP
                 // walk the mapping positions in reverse order. Read mapping at the end of a prediction correspond to first prediction and vice versa:
                 // _________________________                prediction1
@@ -644,11 +706,37 @@ struct Functor
                         shift=0;
                     }
                     else{
+                        int end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // Relative distance between the end of the previous upper case sequence and the end of the current upper case sequence.
+                        // if this value is negative, then the current variant is included in the previous one; does not provide information and creates cycles in the phased variants graphs. Thus we remove them.
+                        //  -----[XXXXXXXXXX]---------  previous sequence
+                        //                  -----[XXXXXXXXXX]---------  previous sequence
+                        //       <-relative_position->
+                        //                   <-shift->
+                        //                   <---------------> (end_to_end_distance)
+                        // end_to_end_distance = shift + len(current upper case sequence)
+                        
+                        // When current variant is included in the previous one, then end_to_end_distance is negative:
+                        // -----[XXXXXXXXXX]---------   previous sequence
+                        //   -----[XXXXX]---------      previous sequence
+                        //               <->            (end_to_end_distance) <0
+                        
+                        // end_to_end_distance = shift + index.all_predictions[var_id]->upperCaseSequence.length();
+                        // with
+                        //  shift=relative_position-previous_upper_case_seq_len;
+                        //  relative_position=previous_pwi-pwi;
+                        // hence end_to_end_distance = previous_pwi-pwi-previous_upper_case_seq_len + index.all_predictions[var_id]->upperCaseSequence.length();
+                        
+                        if (end_to_end_distance <0){
+                            continue;
+                            
+                        }
                         relative_position=-(pwi-previous_pwi);
                         assert(relative_position >=0);                      //TODO to remove
                         shift=relative_position-previous_upper_case_seq_len;
                         if (shift<0)                                        //TODO to remove
                             assert(-shift>previous_upper_case_seq_len);     //TODO to remove
+
                     }
                     previous_upper_case_seq_len=index.all_predictions[var_id]->upperCaseSequence.length();
                     previous_pwi=pwi;
@@ -658,11 +746,16 @@ struct Functor
                         phased_variant_id+=sign;
                     phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
                     phased_variant_ids = phased_variant_ids+phased_variant_id+';';
+                    nb_variants_in_fact++;
                 }
-                
-                // Associate this string to the number of times it is seen when mapping this read set
-                if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
-                else                                                                    phased_variants[phased_variant_ids] = phased_variants[phased_variant_ids]+1;
+                if (nb_variants_in_fact>1)  // No need to store facts composed of zero or one variant
+                {
+                    if (phased_variant_ids.back() == ' ') // Removes last character if this is a ' ' (no phasing in the right part of the paired fact)
+                        phased_variant_ids.pop_back();
+                    // Associate this string to the number of times it is seen when mapping this read set
+                    if (phased_variants.find(phased_variant_ids) == phased_variants.end())  phased_variants[phased_variant_ids] = 1;
+                    else                                                                    phased_variants[phased_variant_ids] =   phased_variants[phased_variant_ids]+1;
+                }
             }
             
             pwi_and_mapped_predictions1.clear();
