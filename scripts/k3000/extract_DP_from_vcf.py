@@ -26,7 +26,9 @@ def extract_DP(vcf_file_name, dataset_id):
     max=0
     sum=0
     nb=0
+    
     with open(vcf_file_name) as vcf_file:
+        # SNP_higher_path_9	22	9	C	G	.	.	Ty=SNP;Rk=0;UL=2;UR=3;CL=.;CR=.;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:540:9155,939,294:48,492:50,50
         for line in vcf_file:
             line = line.strip()
             if line[0] =="#": continue
