@@ -40,10 +40,7 @@ using namespace gatb::core::system::impl;
 
 int main (int argc, char* argv[])
 {
-//    u_int64_t a=17;
-//    u_int64_t b=32;
-//    u_int64_t nbcreated ;
-    
+
 
     
     

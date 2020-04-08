@@ -34,7 +34,7 @@
 #include<string.h>
 #include<list.h>
 #include<commons.h>
-#include<couple.h>
+//#include<couple.h>
 #include<hash.h>
 #include <stdint.h>
 #include<assert.h>
@@ -42,7 +42,8 @@
 class FragmentIndex{
 public:
     hash_t seeds_count;
-    couple * seed_table;
+//    std::vector<std::pair <uint64_t, int >> seed_table;
+    std::pair <uint64_t, int > * seed_table; // TODO change for a vector
     u_int64_t nb_coherent;
     u_int64_t nb_uncoherent;
     

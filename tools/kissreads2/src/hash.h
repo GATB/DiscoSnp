@@ -49,7 +49,7 @@ typedef uint64_t hash_val;
 
 
 
-#include "couple.h"
+//#include "couple.h"
 
 
 /*
@@ -112,7 +112,7 @@ void iterate_and_fill_offsets(hash_t map, GlobalValues &gv );
 
 //int get_seed_info(hash_t map, const char * key, uint64_t * offset_seed, uint64_t * nb_seeds);
 int get_seed_info(hash_t map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds, GlobalValues &gv );
-void hash_fill_kmer_index(hash_t map, const kmer_type * key, couple * seed_table, const int fragment_id, const int position_on_fragment, GlobalValues &gv );
+void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t, int > * seed_table, const int fragment_id, const int position_on_fragment, GlobalValues &gv );
 
 void * hash_list_sorted_by_positions(hash_t map);
  void get_offset_and_nb_from_sinfo(hash_val  sinfo, uint64_t & offset_seed,uint64_t & nb_seeds, GlobalValues &gv  );

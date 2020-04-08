@@ -147,7 +147,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
 
     
-    seed_table  = (p_couple)calloc(total_seeds,sizeof(couple));
+    seed_table  = (std::pair<uint64_t, int> *)calloc(total_seeds,sizeof(std::pair<uint64_t, int>));
     test_alloc(seed_table);
     iterate_and_fill_offsets(seeds_count,gv);
     

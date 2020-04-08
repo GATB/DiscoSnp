@@ -311,8 +311,8 @@ struct Functor
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (unsigned long long occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
-                        couple * value = &(index.seed_table[occurrence_id]);
-                        if (mapped_prediction_as_set.count(value->a)!=0) {
+                        std::pair<uint64_t, int> * value = &(index.seed_table[occurrence_id]);
+                        if (mapped_prediction_as_set.count(value->first)!=0) {
                             continue; // This prediction was already mapped with this read.
                         }
                         
@@ -320,10 +320,10 @@ struct Functor
                         
                         
                         // shortcut
-                        set<u_int64_t> & tested_positions = tested_prediction_and_pwis[value->a];
+                        set<u_int64_t> & tested_positions = tested_prediction_and_pwis[value->first];
                         
                         // get the corresponding prediction sequence
-                        const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
+                        const char * prediction = index.all_predictions[value->first]->upperCaseSequence.c_str();
                         
 #ifdef DEBUG_MAPPING
 //        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
@@ -331,7 +331,7 @@ struct Functor
                         
                         
                         
-                        const int pwi = value->b-seed_position; // starting position of the read on the prediction.
+                        const int pwi = value->second-seed_position; // starting position of the read on the prediction.
                         if (tested_positions.count(pwi) != 0) continue; // this reads was already tested with this prediction at this position. No need to try it again.
                         tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
                         
@@ -365,7 +365,7 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-                        const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
+                        const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->first-value->first%2]->SNP_positions, seed_position, gv.size_seeds);
                         
 #ifdef DEBUG_MAPPING
                         
@@ -379,15 +379,15 @@ struct Functor
                             
                             //    #ifdef PHASING
                             if(gv.phasing){
-                                mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
+                                mapped_prediction_as_set.insert     (value->first);     // This prediction whould not be mapped again with the same read
                                 // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
-                                if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
+                                if (index.all_predictions[value->first]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
                                     
                                     char sign=direction==0?'\0':'-';
                                     
                                     if (direction == 0){
                                         
-                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                     }
                                     else{
@@ -411,7 +411,7 @@ struct Functor
                                          * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
                                          */
                                         const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                         ///
                                     }
@@ -424,7 +424,7 @@ struct Functor
        //                     printf("SUCCESS %d %d \n", pwi, value->a);
        //                     cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
-                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, read_set_id, gv);
+                            feed_coherent_positions(index.all_predictions, value->first, pwi, (int)strlen(read), quality, read_set_id, gv);
                             
                         } // end tuple read prediction position is read coherent
                     }
