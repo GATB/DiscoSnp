@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -25,15 +25,14 @@
  *      Author: ppeterlo
  */
 
-#include <extension_algorithm.h>
+#include <read_mapper.h>
 
-//#define DEBUG_MAPPING
-//#define DEBUG_QUALITY
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
 // Replaces SNP_higher_path_3780|P_1:30_A/G|high|nb_pol_1 by 3780h
-string parse_variant_id(string in){
+inline string parse_variant_id(string in){
     string res="";
     // push the values while they are in [0-9]
     for (char c : in){
@@ -50,7 +49,7 @@ string parse_variant_id(string in){
 
 //feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
 
-void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
+void feed_coherent_positions(vector<Fragment*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
     int start_on_prediction, stop_on_prediction;
     int start_on_read;
     /*
@@ -78,8 +77,8 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     int i;
     
     
-    FragmentInfo* the_prediction=predictions[prediction_id];
-    FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference
+    Fragment* the_prediction=predictions[prediction_id];
+    Fragment* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference
     
     if(pwi+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
@@ -114,7 +113,6 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     
     
     
-#ifdef KMER_SPANNING
     // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
     // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped
     
@@ -124,7 +122,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage
     if(pwi+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read-gv.minimal_read_overlap;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
-#endif
+
     
     for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[i]);
     
@@ -236,15 +234,6 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
 //                            ...
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
-//int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
-
-//    int i, val_min=INT_MAX;
-//    const  int stopi=the_prediction.upperCaseSequence.size();
-//    for(i=0;i<stopi;i++){ // for each position on the read
-//        val_min=min(val_min, the_prediction.local_coverage[read_file_id][i]);
-//    }
-//    return val_min;
-//}
 
 
 // We define a functor that will be cloned by the dispatcher

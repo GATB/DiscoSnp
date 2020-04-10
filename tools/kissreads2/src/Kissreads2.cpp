@@ -3,7 +3,7 @@
 //  discoSnp_GATB
 //
 //  Created by Pierre Peterlongo on 03/07/15.
-//  Copyright (c) 2015 Pierre Peterlongo. All rights reserved.
+//  Copyright (c) 2020 Pierre Peterlongo. All rights reserved.
 //
 
 #include <Kissreads2.h>
@@ -148,6 +148,7 @@ void Kissreads2::execute ()
     cout<<"Mapping of "<<nbReads<<" reads"<<endl;
     vector<ReadMapper> RMvector;
     size_t  nb_cores = getDispatcher()->getExecutionUnitsNumber ();
+    
     for (int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++) {
         RMvector.push_back(ReadMapper(banks_of_queries[read_set_id],read_set_id,nb_cores));
     }
