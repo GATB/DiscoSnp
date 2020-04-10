@@ -28,12 +28,6 @@
 #include<commons.h>
 
 
-
-
-void init_static_variables(const int k){
-    
-}
-
 void GlobalValues::revcomp(char s[])
 {
 	int i;
