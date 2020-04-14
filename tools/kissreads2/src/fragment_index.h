@@ -33,7 +33,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<commons.h>
-#include<hash.h>
+#include<interface_xhash.h>
 #include<stdint.h>
 #include<assert.h>
 
@@ -46,7 +46,7 @@ public:
     std::pair <uint64_t, int > * seed_table; // TODO change for a vector
     
     // the seeds_count enables to know the number of occurrences of each seed. Hence to know 1/ the totale number of occurrences of seekds (size of the seed table) and 2/ to know for each see where it starts in the seed table. 
-    hash_t seeds_count;
+    xhash seeds_count;
 
     u_int64_t nb_coherent;
     u_int64_t nb_uncoherent;
@@ -61,7 +61,8 @@ public:
     
     
     FragmentIndex(const int numberOfIndexedSequences){
-        seeds_count = hash_create_binarykey(); test_alloc(seeds_count);
+//        seeds_count = hash_create_binarykey(); test_alloc(seeds_count);
+        seeds_count = xhash_create_seed_index();
         all_predictions.reserve(numberOfIndexedSequences);
     };
 };

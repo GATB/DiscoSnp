@@ -13,7 +13,7 @@
 // We include what we need for the test
 #include <gatb/gatb_core.hpp>
 #include <commons.h>
-#include <hash.h>
+#include <interface_xhash.h>
 #include <outputs.h>
 #include <fragment.h>
 #include <fragment_index.h>

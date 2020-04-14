@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include "commons.h"
+#include <xhash.h>
 #ifndef _HASH_H
 #define _HASH_H
 
@@ -34,8 +35,6 @@
  * generic types: we typecast in hash_*.c functions for specific implementations
  */
 
-typedef unsigned int *hash_t;
-typedef long* hash_iter;
 
 
 typedef uint64_t hash_val;
@@ -49,15 +48,15 @@ typedef uint64_t hash_val;
  *  - delete table
  */
 
-extern hash_t hash_create_binarykey();
+extern xhash xhash_create_seed_index();
 
-void hash_incr_kmer_count(hash_t map, const kmer_type * key, GlobalValues& gv);
+void hash_incr_kmer_count(xhash * map, const kmer_type * key, GlobalValues& gv);
 
-void iterate_and_fill_offsets( hash_t map, GlobalValues &gv );
+void iterate_and_fill_offsets( xhash * map, GlobalValues &gv );
 
-int get_seed_info(hash_t map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds, GlobalValues &gv );
+int get_seed_info(xhash * map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds, GlobalValues &gv );
 
-void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t, int > * seed_table, const uint64_t fragment_id, const int position_on_fragment, GlobalValues &gv);
+void hash_fill_kmer_index(xhash * map, const kmer_type * key, std::pair <uint64_t, int > * seed_table, const uint64_t fragment_id, const int position_on_fragment, GlobalValues &gv);
 
  void get_offset_and_nb_from_sinfo(hash_val  sinfo, uint64_t & offset_seed,uint64_t & nb_seeds, GlobalValues &gv  );
 

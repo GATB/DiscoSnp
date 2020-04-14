@@ -28,7 +28,7 @@
 #ifndef FRAGMENT_H_
 #define FRAGMENT_H_
 
-#include <hash.h>
+#include <interface_xhash.h>
 #include <gatb/gatb_core.hpp>
 
 

@@ -34,7 +34,7 @@
 #include <commons.h>
 #include <string.h>
 #include <stdlib.h>
-#include <hash.h>
+#include <interface_xhash.h>
 #include <limits.h>
 #include <gatb/gatb_core.hpp>
 

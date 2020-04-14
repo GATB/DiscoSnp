@@ -72,7 +72,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
                 coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives)
-                hash_incr_kmer_count(seeds_count,&coded_seed, gv);
+                hash_incr_kmer_count(&seeds_count,&coded_seed, gv);
                 total_seeds++;
 		}
         all_predictions.push_back(currentFragment);
@@ -86,7 +86,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
     seed_table  = (std::pair<uint64_t, int> *)calloc(total_seeds,sizeof(std::pair<uint64_t, int>));
     test_alloc(seed_table);
-    iterate_and_fill_offsets(seeds_count,gv);
+    iterate_and_fill_offsets(&seeds_count,gv);
     
     
     
@@ -102,7 +102,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
 		stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
             coded_seed=gv.codeSeed(w+i); // init the seed
-            hash_fill_kmer_index(seeds_count,&coded_seed,seed_table, fragment_id, i,gv);
+            hash_fill_kmer_index(&seeds_count,&coded_seed,seed_table, fragment_id, i,gv);
             total_seeds++;
 		}
 	}
@@ -121,7 +121,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         coded_seed=gv.codeSeed(w+i);
         cout<<"i = "<<i<<" "<<coded_seed<<endl;
         
-        if(get_seed_info(seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
+        if(get_seed_info(&seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
             cout<<"nb_occurrences "<<nb_occurrences<<endl;
             // for each occurrence of this seed on the starter:
             for (int ii=offset_seed; ii<offset_seed+nb_occurrences; ii++) {
