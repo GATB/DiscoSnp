@@ -131,14 +131,12 @@ void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t
 int get_seed_info(hash_t map, const kmer_type * key, uint64_t * offset_seed, uint64_t * nb_seeds, GlobalValues &gv ){
     
     const HTItem *res;
-//    hash_val sinfo;
     
     
     res=HashFind((struct HashTable*)map, *key);
     
     if(res!=NULL)
     {
-//        sinfo = (hash_val) (res->data);
         get_offset_and_nb_from_sinfo((hash_val) (res->data), offset_seed, nb_seeds, gv);
         
         return 1;

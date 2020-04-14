@@ -296,7 +296,7 @@ struct Functor
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
                 
-                
+                // TODO. If we want to improve computation time, one needs to dig here. 60 to 80% of time is here, in this get_esed_info.
                 if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (unsigned long long occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
