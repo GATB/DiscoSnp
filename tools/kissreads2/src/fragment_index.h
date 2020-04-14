@@ -39,9 +39,15 @@
 
 class FragmentIndex{
 public:
-    hash_t seeds_count;
-//    std::vector<std::pair <uint64_t, int >> seed_table;
+    
+    // seed table: a seed is assigned to a fragment id (uint64_t) and the position of the seed on this fragment (int)
+    // the seed table is a set of consecutive assigned seeds
+    //    std::vector<std::pair <uint64_t, int >> seed_table;
     std::pair <uint64_t, int > * seed_table; // TODO change for a vector
+    
+    // the seeds_count enables to know the number of occurrences of each seed. Hence to know 1/ the totale number of occurrences of seekds (size of the seed table) and 2/ to know for each see where it starts in the seed table. 
+    hash_t seeds_count;
+
     u_int64_t nb_coherent;
     u_int64_t nb_uncoherent;
     

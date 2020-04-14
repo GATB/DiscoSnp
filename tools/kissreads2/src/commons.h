@@ -77,7 +77,7 @@ public:
         nuc=(unsigned char *)malloc(sizeof(unsigned char)*4); //test_alloc(nuc);
         
         
-        for (int i=0;i<'T'+1;i++) comp[i]=i; // for other iupac alphabet letters
+        for (int i=0;i<'t'+1;i++) comp[i]=i; // for other iupac alphabet letters
         comp[(unsigned char)'A']='T';
         comp[(unsigned char)'T']='A';
         comp[(unsigned char)'C']='G';

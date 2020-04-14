@@ -92,7 +92,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
     total_seeds=0;
     ///second loop over fragments  : create the index
-    for(unsigned long fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
+    for(uint64_t fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
         
         const char * w = all_predictions[fragment_id  ]->upperCaseSequence.c_str();
 #ifdef DEBUG_INDEXING

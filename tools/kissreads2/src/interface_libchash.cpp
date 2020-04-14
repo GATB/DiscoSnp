@@ -95,7 +95,7 @@ void iterate_and_fill_offsets(hash_t map, GlobalValues &gv ){
     
 }
 
-void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t, int > * seed_table, const int fragment_id, const int position_on_fragment, GlobalValues &gv ){
+void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t, int > * seed_table, const uint64_t fragment_id, const int position_on_fragment, GlobalValues &gv ){
     HTItem *res;
 
     hash_val sinfo;
@@ -104,7 +104,10 @@ void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t
     uint64_t indexseed;
     
     std::pair <uint64_t, int > new_couple;
-//    couple new_couple;
+    new_couple.first = fragment_id;
+    new_couple.second = position_on_fragment;
+    
+    
     res=HashFind((struct HashTable*)map, *key);
 
     assert(res!=NULL); //key should be present
@@ -112,8 +115,6 @@ void hash_fill_kmer_index(hash_t map, const kmer_type * key, std::pair <uint64_t
     sinfo = (hash_val) (res->data);
     get_offset_and_nb_from_sinfo(sinfo, &offset_seed, &nb_seeds, gv);
     indexseed = offset_seed +  nb_seeds ;
-    new_couple.first = fragment_id;
-    new_couple.second = position_on_fragment;
     
 
 
