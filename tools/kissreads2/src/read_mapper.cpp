@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -25,15 +25,14 @@
  *      Author: ppeterlo
  */
 
-#include <extension_algorithm.h>
+#include <read_mapper.h>
 
-//#define DEBUG_MAPPING
-//#define DEBUG_QUALITY
+
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 
 // Replaces SNP_higher_path_3780|P_1:30_A/G|high|nb_pol_1 by 3780h
-string parse_variant_id(string in){
+inline string parse_variant_id(string in){
     string res="";
     // push the values while they are in [0-9]
     for (char c : in){
@@ -50,7 +49,7 @@ string parse_variant_id(string in){
 
 //feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, seed_position, read_set_id, gv);
 
-void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
+void feed_coherent_positions(vector<Fragment*> & predictions, const int prediction_id, const int pwi, const int length_read, string quality, int read_set_id, GlobalValues& gv){
     int start_on_prediction, stop_on_prediction;
     int start_on_read;
     /*
@@ -78,8 +77,8 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     int i;
     
     
-    FragmentInfo* the_prediction=predictions[prediction_id];
-    FragmentInfo* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference
+    Fragment* the_prediction=predictions[prediction_id];
+    Fragment* the_reference_prediction = predictions[2*(prediction_id/2)]; // In case of snps, only the upper path prediction contains informations such as the positions of the SNPs. This is the reference
     
     if(pwi+length_read<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
@@ -114,7 +113,6 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     
     
     
-#ifdef KMER_SPANNING
     // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
     // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped
     
@@ -124,7 +122,7 @@ void feed_coherent_positions(vector<FragmentInfo*> & predictions, const int pred
     //  00000000001111111111110000000000000000000000000000000000000000 the_prediction->local_coverage
     if(pwi+length_read-gv.minimal_read_overlap<the_prediction->upperCaseSequence.size()) stop_on_prediction=pwi+length_read-gv.minimal_read_overlap;
     else stop_on_prediction=the_prediction->upperCaseSequence.size();
-#endif
+
     
     for(i=start_on_prediction;i<stop_on_prediction;i++) Sinc8(the_prediction->local_coverage[i]);
     
@@ -236,15 +234,6 @@ bool constrained_read_mappable(const int pwi, const char * fragment, const char 
 //                            ...
 // the position i is contained into a kmer fully contained into only 1 mapped read, return 1
 // for doing this we stored on each position of the fragment the number of k-mers starting at this position that fully belong to a read that was mapped.
-//int minimal_kmer_coverage(FragmentInfo the_prediction, int read_file_id, GlobalValues& gv){
-
-//    int i, val_min=INT_MAX;
-//    const  int stopi=the_prediction.upperCaseSequence.size();
-//    for(i=0;i<stopi;i++){ // for each position on the read
-//        val_min=min(val_min, the_prediction.local_coverage[read_file_id][i]);
-//    }
-//    return val_min;
-//}
 
 
 // We define a functor that will be cloned by the dispatcher
@@ -307,12 +296,12 @@ struct Functor
                     coded_seed=gv.updateCodeSeed(read+seed_position,&coded_seed); // utpdate the previous seed
                 }
                 
-                
-                if(get_seed_info(index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
+                // TODO. If we want to improve computation time, one needs to dig here. 60 to 80% of time is here, in this get_esed_info.
+                if(get_seed_info(&index.seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
                     // for each occurrence of this seed on the prediction:
                     for (unsigned long long occurrence_id=offset_seed; occurrence_id<offset_seed+nb_occurrences; occurrence_id++) {
-                        couple * value = &(index.seed_table[occurrence_id]);
-                        if (mapped_prediction_as_set.count(value->a)!=0) {
+                        std::pair<uint64_t, int> * value = &(index.seed_table[occurrence_id]);
+                        if (mapped_prediction_as_set.count(value->first)!=0) {
                             continue; // This prediction was already mapped with this read.
                         }
                         
@@ -320,10 +309,10 @@ struct Functor
                         
                         
                         // shortcut
-                        set<u_int64_t> & tested_positions = tested_prediction_and_pwis[value->a];
+                        set<u_int64_t> & tested_positions = tested_prediction_and_pwis[value->first];
                         
                         // get the corresponding prediction sequence
-                        const char * prediction = index.all_predictions[value->a]->upperCaseSequence.c_str();
+                        const char * prediction = index.all_predictions[value->first]->upperCaseSequence.c_str();
                         
 #ifdef DEBUG_MAPPING
 //        cout<<"seed = "<<read+seed_position<<"in "<<prediction<<" pos "<<value->b<<prediction+value->b<<endl;//DEB
@@ -331,7 +320,7 @@ struct Functor
                         
                         
                         
-                        const int pwi = value->b-seed_position; // starting position of the read on the prediction.
+                        const int pwi = value->second-seed_position; // starting position of the read on the prediction.
                         if (tested_positions.count(pwi) != 0) continue; // this reads was already tested with this prediction at this position. No need to try it again.
                         tested_positions.insert(pwi); // We store the fact that this read was already tested at this position on this prediction.
                         
@@ -365,7 +354,7 @@ struct Functor
                         // |prediction| <= pwi+minimal_read_overlap
                         
                         
-                        const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->a-value->a%2]->SNP_positions, seed_position, gv.size_seeds);
+                        const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->first-value->first%2]->SNP_positions, seed_position, gv.size_seeds);
                         
 #ifdef DEBUG_MAPPING
                         
@@ -379,15 +368,15 @@ struct Functor
                             
                             //    #ifdef PHASING
                             if(gv.phasing){
-                                mapped_prediction_as_set.insert     (value->a);     // This prediction whould not be mapped again with the same read
+                                mapped_prediction_as_set.insert     (value->first);     // This prediction whould not be mapped again with the same read
                                 // currently the phasing works better with SNPs, as boths paths of  an indel may be mapped by a same read
-                                if (index.all_predictions[value->a]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
+                                if (index.all_predictions[value->first]->nbOfSnps !=0){      // If this is not an indel (todo phase also indels)
                                     
                                     char sign=direction==0?'\0':'-';
                                     
                                     if (direction == 0){
                                         
-                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                     }
                                     else{
@@ -411,7 +400,7 @@ struct Functor
                                          * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
                                          */
                                         const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->a);
+                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                         ///
                                     }
@@ -424,7 +413,7 @@ struct Functor
        //                     printf("SUCCESS %d %d \n", pwi, value->a);
        //                     cout<<pwi<<" "<<index.all_predictions[value->a]->upperCaseSequence<<" "<<read<<endl; //DEB
 #endif
-                            feed_coherent_positions(index.all_predictions, value->a , pwi, (int)strlen(read), quality, read_set_id, gv);
+                            feed_coherent_positions(index.all_predictions, value->first, pwi, (int)strlen(read), quality, read_set_id, gv);
                             
                         } // end tuple read prediction position is read coherent
                     }

@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -77,7 +77,7 @@ public:
         nuc=(unsigned char *)malloc(sizeof(unsigned char)*4); //test_alloc(nuc);
         
         
-        for (int i=0;i<'T'+1;i++) comp[i]=i; // for other iupac alphabet letters
+        for (int i=0;i<'t'+1;i++) comp[i]=i; // for other iupac alphabet letters
         comp[(unsigned char)'A']='T';
         comp[(unsigned char)'T']='A';
         comp[(unsigned char)'C']='G';
@@ -100,8 +100,6 @@ public:
     };
     
     ~GlobalValues(){
-//        free(comp);
-//        free(nuc);
     }
     
     void set_mask_code_seed(){

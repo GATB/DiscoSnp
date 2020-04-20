@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -28,26 +28,31 @@
 #ifndef FRAGMENT_INDEX_H_
 #define FRAGMENT_INDEX_H_
 
-#include<fragment_info.h>
+#include<fragment.h>
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-#include<list.h>
 #include<commons.h>
-#include<couple.h>
-#include<hash.h>
-#include <stdint.h>
+#include<interface_xhash.h>
+#include<stdint.h>
 #include<assert.h>
 
 class FragmentIndex{
 public:
-    hash_t seeds_count;
-    couple * seed_table;
+    
+    // seed table: a seed is assigned to a fragment id (uint64_t) and the position of the seed on this fragment (int)
+    // the seed table is a set of consecutive assigned seeds
+    //    std::vector<std::pair <uint64_t, int >> seed_table;
+    std::pair <uint64_t, int > * seed_table; // TODO change for a vector
+    
+    // the seeds_count enables to know the number of occurrences of each seed. Hence to know 1/ the totale number of occurrences of seekds (size of the seed table) and 2/ to know for each see where it starts in the seed table. 
+    xhash seeds_count;
+
     u_int64_t nb_coherent;
     u_int64_t nb_uncoherent;
     
     
-    vector<FragmentInfo*> all_predictions;
+    vector<Fragment*> all_predictions;
     
 
     void index_predictions (BankFasta inputBank, GlobalValues& gv);       // read and store all starters presents in the pointed file. Index by seeds of length k all these starters.
@@ -56,7 +61,8 @@ public:
     
     
     FragmentIndex(const int numberOfIndexedSequences){
-        seeds_count = hash_create_binarykey(100000); test_alloc(seeds_count); // todo  change to binary key (hash_t)AllocateHashTable(kmersize,1); //
+//        seeds_count = hash_create_binarykey(); test_alloc(seeds_count);
+        seeds_count = xhash_create_seed_index();
         all_predictions.reserve(numberOfIndexedSequences);
     };
 };

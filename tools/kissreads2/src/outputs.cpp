@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -132,8 +132,6 @@ string genotype_simple_model(const int c1, const int c2, const float err, const 
     lik2=floor(-10*lik2);
     
     // FORMATING RESULTS
-//    char * append = (char *)malloc(sizeof(char)*2048); test_alloc(append);
-//    char geno[4];
     stringstream geno;
     if (lik0<lik1 &&lik0<lik2){
         geno<<"0/0";
@@ -209,9 +207,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
                 geno_likelihood << genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
             }
             genotypes<<"G"<<read_set_id+1<<"_"<<geno_likelihood.str()<<"|";
-//            sprintf(append, "G%d_%s|",read_set_id+1,geno_likelihood);
-//            free(geno_likelihood);
-//            strcat(genotypes,append);
+
         }
     }
     //    cout<<"genotypes"<<genotypes<<endl; //DEB
@@ -263,7 +259,7 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
 /**
  * checks if at least one read set provide read coherency for a path.
  */
-inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets, GlobalValues & gv){
+inline bool one_coherent(Fragment * fragment, int number_of_read_sets, GlobalValues & gv){
     int read_set_id;
     for(read_set_id=0;read_set_id<number_of_read_sets;read_set_id++){
 
@@ -277,7 +273,6 @@ inline bool one_coherent(FragmentInfo * fragment, int number_of_read_sets, Globa
 void print_results_2_paths_per_event(ofstream &coherent_out, ofstream &uncoherent_out,  FragmentIndex &index, GlobalValues & gv){
      index.nb_coherent=0;
      index.nb_uncoherent=0;
-    //printf("number ofread sets = %d\n", number_of_read_sets);
     
     //
     //                 C1           C2           C3 ....

@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  *****************************************************************************/
 
 /*
- * fragment_index.c
+ * fragment_index.cpp
  *
  *  Created on: 16 sept. 2010
  *      Author: ppeterlo
@@ -28,70 +28,7 @@
 #include<fragment_index.h>
 
 
-//#define DEBUG_INDEXING
 
-int line_num(FILE * f)
-{
-	rewind(f);
-	char c;
-	int lines = 0;
-	while((c = fgetc(f)) != EOF) if(c == '\n') lines++;
-	if(c != '\n') lines++;
-	rewind(f);
-	return lines;
-}
-
-
-
-char *  strdup_upper_case(char * in){
-    // count number of upper case letters in "in"
-    int count =0;
-    unsigned long i;
-    for(i=0;i<strlen(in);i++) if(in[i]>='A' && in[i]<='Z') count++;
-    char * temp = (char *) malloc(sizeof(char)*(count+1)); test_alloc(temp);
-    unsigned long  j=0;
-    for(i=0;i<strlen(in);i++) if(in[i]>='A' && in[i]<='Z') temp[j++]=in[i];
-    temp[j]='\0';
-    return temp;
-}
-
-
-char * strdup_first_lower(char * in){
-    // count number of first lower case letters in "in"
-    int count =0;
-    unsigned long  i;
-    for(i=0;i<strlen(in);i++)
-        if(in[i]>='a' && in[i]<='z') count++;
-        else break;
-    char * temp = (char *) malloc(sizeof(char)*(count+1)); test_alloc(temp);
-    unsigned long  j=0;
-    for(i=0;i<strlen(in);i++)
-        if(in[i]>='a' && in[i]<='z') temp[j++]=in[i];
-        else break;
-    temp[j]='\0';
-    return temp;
-}
-
-char * strdup_last_lower(char * in){
-    // count number of first lower case letters in "in"
-    int count =0;
-    int i;
-    for(i=strlen(in)-1;i>=0;i--)
-        if(in[i]>='a' && in[i]<='z') {
-            count++;
-        }
-        else break;
-    
-    char * temp = (char *) malloc(sizeof(char)*(count+1)); test_alloc(temp);
-    int j=count-1;
-    for(i=strlen(in)-1;i>=0;i--)
-        if(in[i]>='a' && in[i]<='z'){
-            temp[j--]=in[i];
-        }
-        else break;
-    temp[count]='\0';
-    return temp;
-}
 
 
 void FragmentIndex::empty_coverage(){
@@ -129,13 +66,13 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     // First loop over the sequences: count seeds occurrences
     for (it->first(); !it->isDone(); it->next())
     {
-        FragmentInfo * currentFragment = new FragmentInfo(it->item(), gv.number_of_read_sets);
+        Fragment * currentFragment = new Fragment(it->item(), gv.number_of_read_sets);
 		// read all the seeds present on the fragment
         const char * w = currentFragment->upperCaseSequence.c_str();
         stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
                 coded_seed=gv.codeSeed(w+i); // init the seed (as seeds are not consecutives)
-                hash_incr_kmer_count(seeds_count,&coded_seed, gv);
+                hash_incr_kmer_count(&seeds_count,&coded_seed, gv);
                 total_seeds++;
 		}
         all_predictions.push_back(currentFragment);
@@ -147,15 +84,15 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
     
 
     
-    seed_table  = (p_couple)calloc(total_seeds,sizeof(couple));
+    seed_table  = (std::pair<uint64_t, int> *)calloc(total_seeds,sizeof(std::pair<uint64_t, int>));
     test_alloc(seed_table);
-    iterate_and_fill_offsets(seeds_count,gv);
+    iterate_and_fill_offsets(&seeds_count,gv);
     
     
     
     total_seeds=0;
     ///second loop over fragments  : create the index
-    for(unsigned long fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
+    for(uint64_t fragment_id=0;fragment_id<all_predictions.size();fragment_id++){
         
         const char * w = all_predictions[fragment_id  ]->upperCaseSequence.c_str();
 #ifdef DEBUG_INDEXING
@@ -165,7 +102,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
 		stop=strlen(w)-gv.size_seeds+1;
 		for (i=0;i<stop;i+= gv.index_stride){
             coded_seed=gv.codeSeed(w+i); // init the seed
-            hash_fill_kmer_index(seeds_count,&coded_seed,seed_table, fragment_id, i,gv);
+            hash_fill_kmer_index(&seeds_count,&coded_seed,seed_table, fragment_id, i,gv);
             total_seeds++;
 		}
 	}
@@ -184,7 +121,7 @@ void FragmentIndex::index_predictions (BankFasta inputBank, GlobalValues& gv){
         coded_seed=gv.codeSeed(w+i);
         cout<<"i = "<<i<<" "<<coded_seed<<endl;
         
-        if(get_seed_info(seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
+        if(get_seed_info(&seeds_count,&coded_seed,&offset_seed,&nb_occurrences,gv)){
             cout<<"nb_occurrences "<<nb_occurrences<<endl;
             // for each occurrence of this seed on the starter:
             for (int ii=offset_seed; ii<offset_seed+nb_occurrences; ii++) {

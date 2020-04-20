@@ -3,7 +3,7 @@
 //  discoSnp_GATB
 //
 //  Created by Pierre Peterlongo on 03/07/15.
-//  Copyright (c) 2015 Pierre Peterlongo. All rights reserved.
+//  Copyright (c) 2020 Pierre Peterlongo. All rights reserved.
 //
 
 #ifndef __discoSnp_GATB__Kissreads2__
@@ -13,11 +13,11 @@
 // We include what we need for the test
 #include <gatb/gatb_core.hpp>
 #include <commons.h>
-#include <hash.h>
+#include <interface_xhash.h>
 #include <outputs.h>
-#include <fragment_info.h>
+#include <fragment.h>
 #include <fragment_index.h>
-#include <extension_algorithm.h>
+#include <read_mapper.h>
 
 
 /** We define string constants for command line options. */
@@ -28,7 +28,6 @@
 #define STR_KISSREADS_INDEX_STRIDE         "-index_stride"
 #define STR_KISSREADS_SIZE_K               "-k"
 #define STR_KISSREADS_COVERAGE_FILE_NAME   "-coverage_file"
-//#define STR_KISSREADS_MIN_COVERAGE         "-abundance-min"
 #define STR_URI_OUTPUT_COHERENT            "-co"
 #define STR_URI_OUTPUT_UNCOHERENT          "-unco"
 #define STR_URI_READS_INPUT                "-reads"

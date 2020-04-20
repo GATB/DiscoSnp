@@ -1,7 +1,7 @@
 /*****************************************************************************
  *   discoSnp++: discovering polymorphism from raw unassembled NGS reads
  *   A tool from the GATB (Genome Assembly Tool Box)
- *   Copyright (C) 2014  INRIA
+ *   Copyright (C) 2020  INRIA
  *   Authors: P.Peterlongo, E.Drezen
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -27,26 +27,6 @@
 
 #include<commons.h>
 
-
-//#include<inttypes.h> // DEBUG
-
-//#define GET_ONLY_UPPER_CHARS // can be used for analysing outputs of kissnp where the extension is in upper case while the 2k+1 snp is in upper case. On wants only to analyse the 2k+1 snp
-
-
-//char line[MAX_SIZE_LINE];
-
-//extern kmer_type mask_code_seed;
-
-
-
-void init_static_variables(const int k){
-    
-}
-
-//int valid_character(const char c){
-//    if(c=='A' || c=='C' || c=='G' || c=='T') return 1;
-//    return 0;
-//}
 
 void GlobalValues::revcomp(char s[])
 {
@@ -78,37 +58,6 @@ void GlobalValues::rev(char s[])
 	if (len%2==1)
 		s[len/2]=s[len/2];
 }
-
-//char * to_upper (char  * word){
-//    int i=0;
-//    while(word[i]!='\0') {word[i]=toupper(word[i]); i++;}
-//    return word;
-//}
-
-//char * to_lower (char  * word){
-//    int i=0;
-//    while(word[i]!='\0') {word[i]=tolower(word[i]); i++;}
-//    return word;
-//}
-
-//char line[1048576];
-
-///**
-// * removes eventual first '>' character
-// * remove eventual last '\n' character
-// * duplicate the raw_comment
-// */
-//char * GlobalValues::format_comment(const char * raw_comment){
-//    char * duplicate;
-//    
-//    if(raw_comment[0]=='>') duplicate = strdup(raw_comment+1);
-//    else duplicate = strdup(raw_comment);
-//    test_alloc(duplicate);
-//    
-//    int l = strlen(duplicate);
-//    if(duplicate[l-1]=='\n') duplicate[l-1]='\0';
-//    return duplicate;
-//}
 
 
 
