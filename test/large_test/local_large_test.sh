@@ -54,7 +54,7 @@ fi
 ######################################################
 # With reference run (using previously created graph): 
 ######################################################
-../../run_discoSnp++.sh -r fof.txt -T -G humch1_first_5M.fasta -g -P 1
+../../run_discoSnp++.sh -r fof.txt -T -G humch1_first_5M.fasta -g discoRes_k_31_c_3.h5 -P 1
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
        echo "*** discoSnp failure"
@@ -72,8 +72,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
-awk '!/#/'  discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf  | cut -f 2,4- | grep -v "MULTIPLE" |sort > ref # MULTIPLE are not deterministics
+awk '!/#/'  discoRes_k_31_c_3_D_100_P_1_b_0_coherent.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -95,8 +95,8 @@ fi
 
 
 # Test the for IGV .vcf content
-awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_1_b_0_coherent_for_IGV.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With mapping on ref FAILURE:"
@@ -162,7 +162,7 @@ fi
 ######################################################
 # With reference run (using previously created graph): 
 ######################################################
-../../run_discoSnp++.sh -r fof.txt -T -G humch1_first_5M.fasta -g  -P 10
+../../run_discoSnp++.sh -r fof.txt -T -G humch1_first_5M.fasta -g discoRes_k_31_c_3.h5 -P 10
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
        echo "*** discoSnp failure"
@@ -180,8 +180,8 @@ fi
 
 
 # Test the .vcf content
-awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf  | cut -f 2,4- | sort > ref
-awk '!/#/'  discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | sort > created
+awk '!/#/'  ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf  | cut -f 2,4- | grep -v "MULTIPLE" | sort > ref
+awk '!/#/'  discoRes_k_31_c_3_D_100_P_10_b_0_coherent.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
@@ -203,8 +203,8 @@ fi
 
 
 # Test the for IGV .vcf content
-awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > ref
-awk '!/#/' discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | sort > created
+awk '!/#/' ref_with_mapping_discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > ref
+awk '!/#/' discoRes_k_31_c_3_D_100_P_10_b_0_coherent_for_IGV.vcf | cut -f 2,4- | grep -v "MULTIPLE" | sort > created
 diff created ref
 if [ $? -ne 0 ] ; then
        echo "*** With close SNPS and mapping on ref FAILURE:"
