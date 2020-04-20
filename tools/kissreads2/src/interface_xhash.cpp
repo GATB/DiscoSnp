@@ -40,28 +40,10 @@ xhash xhash_create_seed_index(){
     xhash x;
     xh_init_uint64_t(&x, sizeof(uint64_t));
     return x;
-}
-
-//hash_t hash_create_binarykey(){
-//    /**
-//     *  arguments for AllocateHashTable():
-//     *
-//     *  cchKey: if it's a positive number, then each key is a
-//     *                fixed-length record of that length.  If it's 0,
-//     *                the key is assumed to be a \0-terminated string.
-//     *        fSaveKey: normally, you are responsible for allocating
-//     *                  space for the key.  If this is 1, we make a
-//     *                  copy of the key for you.
-//     */
-//    return (hash_t)AllocateHashTable(sizeof(kmer_type),1);
-//}
+} 
 
 
-
- 
-
-
-inline void get_offset_and_nb_from_sinfo(uint64_t  sinfo, uint64_t * offset_seed,uint64_t * nb_seeds, GlobalValues &gv )
+inline void get_offset_and_nb_from_sinfo(uint64_t  sinfo, uint64_t * offset_seed, uint64_t * nb_seeds, GlobalValues &gv )
 {
     *nb_seeds = sinfo & gv.mask_nbseed;
     *offset_seed = (sinfo >> gv.nbits_nbseeds) & gv.mask_offset_seed ;
