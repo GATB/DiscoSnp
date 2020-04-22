@@ -308,7 +308,7 @@ def print_edges(gfa_file_name, DG=None):
     printed_edges = {}
     print("set Edges :=")
     gfa_file = open(gfa_file_name)
-    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
+    # printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -347,7 +347,7 @@ def print_edge_coverages(gfa_file_name, DG=None):
     print ("param pairend_end_links_coverage :=")
     printed_edges = {}
     gfa_file = open(gfa_file_name)
-    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
+    # printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -392,7 +392,7 @@ def print_edges_content(gfa_file_name, DG=None):
     print("param l :=")
     printed_edges = {}
     gfa_file = open(gfa_file_name)
-    printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
+    # printed_successive = {} # key = id, target = [ids]. Used to retain which successive links ad been writen, avoiding redundancies
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="L":
@@ -462,11 +462,16 @@ def main(gfa_file_name):
     #   to remove too large cc
     DG = None
 
-    max_cc_size=10000000
+    sys.stderr.write("Storing the graph\n")
     DG = gpt.store_graph(gfa_file_name) # store the graph without paired edges
+
+    sys.stderr.write("Detecting connected components\n")
     gpt.assign_cc(DG)
+
+    sys.stderr.write("Removing connected compoenents with cycles\n")
     gpt.remove_cc_with_cycles(DG)
     
+    sys.stderr.write("Printing out the dat file\n")
     print_header()
     print_nodes(gfa_file_name,DG)
     print_nodes_number_loci(gfa_file_name, DG)

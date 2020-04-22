@@ -45,34 +45,28 @@ def file_size(f):
     f.seek(old_file_position, os.SEEK_SET)
     return size
 
-def hamming (s1, s2):
-    "useless -> replaced by hamming_perfect"
+def hamming (s1, s2, max):
+    """ returns True is the hamming distance between {s1} and {s2} at most equal to {max} 
+    jocker N are authorized.
+    s1 and s2 are compared as upper case sequences (eg a==A)
+    """ 
     res=0
     
     if len(s1) != len(s2): return 100000
-    for i in range(len(s1)):
-        if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
+    for i in range(len(s1)):      
+        if s1[i].upper() == 'N' or s2[i].upper()=='N': continue
+        if s1[i].upper()!=s2[i].upper():
             res+=1
-    return res
-
-def hamming_perfect (s1, s2):
-    " check if two UPPER CASE sequences are exactly equal autorizing N jockers"
-    if len(s1) != len(s2): return False
-    for i in range(len(s1)):       
-        if s1[i].upper()!=s2[i].upper() and s1[i].upper()!='N' and s2[i].upper()!='N':
-            return False
+            if res>max: return False
     return True
-            
 
-def check_overlap(s1,s2):
-    # print()
-    # if hamming(s1,s2) >= 5:
-   #      print("s1",s1)
-   #      print("s2",s2,int_snp_id_d,allele_id)
-    # assert hamming(s1,s2) < 5, ""+str(hamming(s1,s2))
-    return  hamming_perfect(s1,s2)
-    # assert s1.upper() == s2.upper()
-    # print()
+def hamming_near_perfect (s1, s2):
+    return hamming (s1,s2, 1) 
+    # if len(s1) != len(s2): return False
+    # for i in range(len(s1)): 
+    #     if s1[i].upper()!=s2[i].upper():
+    #         return False
+    # return True
     
     
     
@@ -191,7 +185,6 @@ def generate_SR_from_disco_pashing(file_name):
             sl.add(facttab)
 
     sl.unique() # Remove redundancies
-
     return sl
 
 def generate_SR(file_name):
@@ -257,6 +250,7 @@ def get_canonical(sr):
         return sr_
 
 def print_maximal_super_reads(SR):
+
     '''print all maximal super reads as a flat format'''
     for sr in SR.traverse():
         if is_canonical(sr) or is_palindromic(sr):

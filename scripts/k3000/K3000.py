@@ -217,18 +217,14 @@ def main():
     sys.stderr.write("  Load phased alleles \r")
     SR = kc.generate_SR_from_disco_pashing(input_file)
     sys.stderr.write("  Load phased alleles.  Done          - nb SR="+ str(len(SR))+"\n")
-    
 
     sys.stderr.write("  Add reverse complements \r")
     kc.add_reverse_SR(SR)
     sys.stderr.write("  Add reverse complements. Done       - nb SR="+ str(len(SR))+"\n")
-
-
-
+    
     sys.stderr.write("  Remove strict inclusions\r")
     SR = remove_strict_inclusions(SR)
     sys.stderr.write("  Remove strict inclusions. Done      - nb SR="+ str(len(SR))+"\n")
- 
 
     sys.stderr.write("  Compaction of simple paths \r")
     SR = compaction(SR)
@@ -249,7 +245,6 @@ def main():
     sys.stderr.write("  Compaction3 of simple paths \r")
     SR = compaction(SR)
     sys.stderr.write("  Compaction3 of simple paths. Done    - nb SR="+ str(len(SR))+"\n")
-
 
     sys.stderr.write("  Print canonical compacted phased alleles\n")
     kc.print_maximal_super_reads(SR)

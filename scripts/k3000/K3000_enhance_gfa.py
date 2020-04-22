@@ -148,24 +148,26 @@ def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
 
 def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
     """
-    Given the compacted facts indexed and the raw disco output: for each compacted fact, find all allele that belong to it and compute its estimated coverage (average, min, max)
+    Given the compacted facts indexed and the raw disco output: 
+    for each compacted fact, find all allele that belong to it and store its coverage
     Returns a dictionary: compacted_fact_id -> allele_weight
     """
     alleles_coverage = index_allele_coverage(raw_disco_file_name, read_set_id)
     compacted_fact_allele_weight = {}              # For each compacted fact id, stores its weight
     for fact_id, fact_value in compacted_facts.items():
-
-        min = sys.maxsize
-        max = -1
-        nb = 0
-        sum=0
+        compacted_fact_allele_weight[fact_id] = []
+        # min = sys.maxsize
+        # max = -1
+        # nb = 0
+        # sum=0
         for allele_id in fact_value: #{'10540l', '4734l', '29633h'}
             allele_coverage = alleles_coverage[allele_id]
-            if allele_coverage<min: min=allele_coverage
-            if allele_coverage>max: max=allele_coverage
-            sum+=allele_coverage
-            nb+=1
-        compacted_fact_allele_weight[fact_id] = [min,max,sum/float(nb)] #min, max, mean
+            compacted_fact_allele_weight[fact_id].append(allele_coverage)
+            # if allele_coverage<min: min=allele_coverage
+            # if allele_coverage>max: max=allele_coverage
+            # sum+=allele_coverage
+            # nb+=1
+        # compacted_fact_allele_weight[fact_id] = [min,max,sum/float(nb)] #min, max, mean
         # print(compacted_fact_allele_weight[fact_id])
     return compacted_fact_allele_weight
 
@@ -201,12 +203,18 @@ def print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight
         line=line.strip()
         compacted_fact_id=int(line.split()[1])
         fact_weight=0
-        if compacted_fact_id in compacted_fact_weight: 
-            fact_weight = compacted_fact_weight[compacted_fact_id]
-        alleles_weight=0
-        if str(compacted_fact_id) in compacted_fact_allele_weight: 
-            alleles_weight = compacted_fact_allele_weight[str(compacted_fact_id)]
-        print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[1])+"\tmin:i:"+str(alleles_weight[0])+"\tmax:i:"+str(alleles_weight[1])+"\tmean:i:"+str(alleles_weight[2]))  ## RC is max ([1]) as we take the max (17/02/2020)
+        # assert (compacted_fact_id in compacted_fact_weight)
+        fact_weight = compacted_fact_weight[compacted_fact_id]
+
+        # assert(str(compacted_fact_id) in compacted_fact_allele_weight)
+
+        alleles_weight = compacted_fact_allele_weight[str(compacted_fact_id)]
+        
+
+
+
+        print(f"{str(line)}\tFC:i:{str(fact_weight)}\tmin:{min(alleles_weight)}\tmax:{max(alleles_weight)}\tmean:{sum(alleles_weight)/len(alleles_weight)}\tAC:{';'.join(str(e) for e in alleles_weight)};")
+        # print(line+"\tFC:i:"+str(fact_weight)+"\tRC:i:"+str(alleles_weight[1])+"\tmin:i:"+str(alleles_weight[0])+"\tmax:i:"+str(alleles_weight[1])+"\tmean:i:"+str(alleles_weight[2]))  ## RC is max ([1]) as we take the max (17/02/2020)
         cpt+=1
     sys.stderr.write(str(cpt)+" facts written\n")
     mfile.close()

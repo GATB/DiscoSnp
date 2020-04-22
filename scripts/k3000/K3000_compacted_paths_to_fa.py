@@ -19,7 +19,7 @@ def index_sequences(fa_file_name):
         if not line1: break
         line1 = line1.strip()
         line2 = mfile.readline().strip()
-        line3 = mfile.readline().strip()
+        mfile.readline().strip()                # USELESS
         line4 = mfile   .readline().strip()
         
         if not line1.startswith(">SNP"): continue
@@ -46,7 +46,10 @@ def index_sequences(fa_file_name):
 
     
 def generate_sequence_paths(sequences, k, compacted_fact_file_name):
-
+    '''
+    Given a set of indexed sequences, the k value and some compacted facts, prints the corresponding fasta seequences
+    Enables also to validate the compacted facts. 
+    '''
     mfile = open(compacted_fact_file_name)
     nb_non_writen=0
     for line in mfile: 
@@ -80,7 +83,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
             ## If a SNP is reversed, we reverse complement the sequence and change "right“ unitig for "left" unitig
         
             allele_id = kc.unitig_id2snp_id(kc.allele_value(int_snp_id_d))
-            # print(int_snp_id_d,allele_id)
+            # print(f"\n\n *****{int_snp_id_d}, {allele_id} ********")
             snp_id = allele_id[:-1]
 
             higher=True
@@ -115,14 +118,14 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                 else:
                     to_be_written = len_upper_case + ru + int(kc.distance_string_value(int_snp_id_d)) - previous_bubble_ru
                     bubble_facts_position_start_stops+=kc.distance_string_value(int_snp_id_d)+"_"+str(len_upper_case)+";"
-                    #DEBUG
+                    # #DEBUG
                     # print("to_be_written =",to_be_written)
                     # print("len seq =",len(seq))
                     # print("previous_bubble_ru =",previous_bubble_ru)
                     # print("len_upper_case =", len_upper_case)
                     # print("start_to_end  =", len_upper_case+ru)
                     # print("shift =", int(kc.distance_string_value(int_snp_id_d)))
-                    #
+                    
                     # print("full_seq =",full_seq)
                     # print("seq =",seq)
                     # if to_be_written>0: print("add ", seq[-to_be_written:])
@@ -143,7 +146,8 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                                 start_on_seq=0
                                 stop_on_seq=start_on_seq+p
                                 
-                            if not kc.hamming_perfect(full_seq[-p:],seq[start_on_seq:stop_on_seq]):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
+                            if not kc.hamming_near_perfect(full_seq[-p:],seq[start_on_seq:stop_on_seq]):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
+                                # print(f"not perfect")
                                 toprint = False
                                 break
                             header+=str(len(full_seq)-len(seq)+to_be_written)    # starting position of the new sequence on the full seq that overlaps the full seq by len(seq)-to_be_written
@@ -167,7 +171,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
                         ### npbru = pbru - shift - len(upper)
                         previous_bubble_ru = previous_bubble_ru-int(kc.distance_string_value(int_snp_id_d))-len_upper_case
                         header += "I_"+str(len(full_seq)+to_be_written-len(seq))+"_"+str(len(full_seq)+to_be_written)+";"                                          # this allele is useless we do not store its start and stop positions
-                        if not kc.hamming_perfect(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written], seq): toprint=False
+                        if not kc.hamming_near_perfect(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written], seq): toprint=False
                         # print(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written]+"\n"+seq+"\n")
                         
                 
