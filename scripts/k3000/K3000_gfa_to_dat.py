@@ -123,7 +123,7 @@ def print_nodes(gfa_file_name, DG=None):
         if not line: break
         line=line.strip()
         if line[0]=="S":
-            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        RC:i:467        min:i:410       max:i:467       mean:i:441.5"
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
             node_id = line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
             print("p"+node_id)  # 'p' stands for "plus strand"
@@ -142,7 +142,7 @@ def print_nodes_number_loci(gfa_file_name, DG=None):
         if line[0]=="S":
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
-            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        RC:i:467        min:i:410       max:i:467       mean:i:441.5"
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
             print("p"+node_id+"\t"+str(len(line.split()[2].strip(";").split(";"))))
             print("m"+node_id+"\t"+str(len(line.split()[2].strip(";").split(";"))))
     print(";")
@@ -157,8 +157,9 @@ def print_nodes_ab_min(gfa_file_name, DG=None):
         if line[0]=="S":
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
-            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        RC:i:467        min:i:410       max:i:467       mean:i:441.5"
-            print("p"+node_id+"\t"+line.split()[7].split(":")[-1])
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
+            print("p"+node_id+"\t"+line.split()[6].split(":")[-1])
+            assert(line.split()[6].split(":")[0]=="min")
     print(";")
     gfa_file.close()
     
@@ -171,8 +172,9 @@ def print_nodes_ab_max(gfa_file_name, DG=None):
         if line[0]=="S":
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
-            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        RC:i:467        min:i:410       max:i:467       mean:i:441.5"
-            print("p"+node_id+"\t"+line.split()[8].split(":")[-1])
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
+            print("p"+node_id+"\t"+line.split()[7].split(":")[-1])
+            assert(line.split()[7].split(":")[0]=="max")
     print(";")
     gfa_file.close()
     
@@ -185,8 +187,9 @@ def print_nodes_ab_avg(gfa_file_name, DG=None):
         if line[0]=="S":
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
-            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        RC:i:467        min:i:410       max:i:467       mean:i:441.5"
-            print("p"+node_id+"\t"+line.split()[9].split(":")[-1])
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
+            print("p"+node_id+"\t"+line.split()[8].split(":")[-1])
+            assert(line.split()[8].split(":")[0]=="mean")
     print(";")
     gfa_file.close()
     
@@ -200,8 +203,9 @@ def print_nodes_weight_phased_alleles(gfa_file_name, DG=None):
         if line[0]=="S":
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
-            "S       0       28175h;10031h;12786h;-41223l;-26670h; SP:0_426;383_541;427_586;542_661;587_731; BP:0_93;-17_61;54_61;-16_61;14_84;      FC:i:64 RC:i:21"
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
             print("p"+node_id+"\t"+line.split()[5].split(":")[-1])
+            assert(line.split()[5].split(":")[0]=="FC")
     print(";")
     gfa_file.close()
     
@@ -213,7 +217,7 @@ def print_reverse(gfa_file_name,DG=None):
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="S":
-            "S       0       28175h;10031h;12786h;-41223l;-26670h; SP:0_426;383_541;427_586;542_661;587_731; BP:0_93;-17_61;54_61;-16_61;14_84;      FC:i:64 RC:i:21"
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
             node_id=line.split()[1]
             if DG and node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
             print("p"+node_id+"\t"+"m"+line.split()[1])  # 'p' stands for "plus strand"
@@ -228,7 +232,7 @@ def print_nodes_connected_components(gfa_file_name, DG):
     for line in gfa_file.readlines():
         line=line.strip()
         if line[0]=="S":
-            "S       0       28175h;10031h;12786h;-41223l;-26670h; SP:0_426;383_541;427_586;542_661;587_731; BP:0_93;-17_61;54_61;-16_61;14_84;      FC:i:64 RC:i:21"
+            "S       0       1234h;-1354h;977h;577h; SP:0_54;53_96;64_117;84_128;    BP:0_41;6_41;-25_41;-26_41;     FC:i:579        min:410 max:467 mean:441.5      AC:436;467;453;410;"
             node_id=line.split()[1]
             if node_id not in DG.nodes(): continue       # this node was removed during gfa post treatment
             cc_id = DG.nodes[node_id]['cc_id']
