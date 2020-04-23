@@ -16,10 +16,10 @@ def set_indexes_from_gfa(gfa_file_name):
         if line[0]!="S": continue # not a compacted fact
         line=line.strip().split()
         compactedfact_id = line[1]
-        facts[compactedfact_id]=set()
+        facts[compactedfact_id]=[] # stored as a set to conserve the variants order, needed for computing AC.
         for value in line[2].strip().split(';')[:-1]:
             snp_id=get_left_clean_snp(value) # from ' -587h' to '587h'
-            facts[compactedfact_id].add(snp_id)
+            facts[compactedfact_id].append(snp_id)
             if snp_id[:-1] not in snp_to_fact_id:
                 snp_to_fact_id[snp_id[:-1]]=set()
             snp_to_fact_id[snp_id[:-1]].add(compactedfact_id)
@@ -156,19 +156,10 @@ def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
     compacted_fact_allele_weight = {}              # For each compacted fact id, stores its weight
     for fact_id, fact_value in compacted_facts.items():
         compacted_fact_allele_weight[fact_id] = []
-        # min = sys.maxsize
-        # max = -1
-        # nb = 0
-        # sum=0
+
         for allele_id in fact_value: #{'10540l', '4734l', '29633h'}
             allele_coverage = alleles_coverage[allele_id]
             compacted_fact_allele_weight[fact_id].append(allele_coverage)
-            # if allele_coverage<min: min=allele_coverage
-            # if allele_coverage>max: max=allele_coverage
-            # sum+=allele_coverage
-            # nb+=1
-        # compacted_fact_allele_weight[fact_id] = [min,max,sum/float(nb)] #min, max, mean
-        # print(compacted_fact_allele_weight[fact_id])
     return compacted_fact_allele_weight
 
 def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name):
