@@ -51,7 +51,7 @@ fi
 
 # Creating a file with sequences of the compacted paths and removing uncoherent compactions
 echo "${green}           ### Creating a fasta file from compacted facts"
-cmd="python3 ${EDIR}/K3000_compacted_paths_to_fa.py ${disco_fa_file} compacted_facts_int_${read_set_id}.txt" 
+cmd="python3 ${EDIR}/K3000_paths_to_fa.py ${disco_fa_file} compacted_facts_int_${read_set_id}.txt" 
 echo "           "$cmd "> compacted_facts_${read_set_id}.fa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > compacted_facts_${read_set_id}.fa

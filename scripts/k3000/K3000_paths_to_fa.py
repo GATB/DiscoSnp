@@ -45,7 +45,7 @@ def index_sequences(fa_file_name):
     
 
     
-def generate_sequence_paths(sequences, k, compacted_fact_file_name):
+def generate_sequence_paths(sequences, compacted_fact_file_name, int_facts_format):
     '''
     Given a set of indexed sequences, the k value and some compacted facts, prints the corresponding fasta seequences
     Enables also to validate the compacted facts. 
@@ -53,7 +53,10 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
     mfile = open(compacted_fact_file_name)
     nb_non_writen=0
     for line in mfile: 
-        # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
+        # * int_facts_format:
+        #   38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
+        # * not int_facts_format:
+        #   -577h_0;-977h_-26;1354h_-25;  =>  1
         header = ">"+line.strip()+ "\tSP:"  # add latter the starting and ending positions of each allele on the global sequence (SP = Sequence positions). Enables to recover the good overlap length in the final GFA file
         bubble_facts_position_start_stops = "BP:" # to the header is also added the Bubble positions. For each allele in the fact we store the distance between the bubble start (upper case letter and the end of the previous bubble (also upper case letter). We add the length of the bubble (upper case letter).
         # EG:
@@ -61,7 +64,7 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
         #                ------------XXXXXXXXXXXXXX----------- 3:14
         #                         ----------XXXXXXXXXXXXXXXX----------   -7:16 (distance is negative is bubbles overlap 
         # print("\n NEW LINE ",line)         #DEBUG
-        line=line.split(';')
+        line=line.split()[0].split(';')
         previous_bubble_ru=0
         full_seq = ""
         toprint = True 
@@ -81,8 +84,10 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
             ## ->
             ## to_be_written = shift + uppercase + ru - previous_bubble_ru
             ## If a SNP is reversed, we reverse complement the sequence and change "right“ unitig for "left" unitig
-        
-            allele_id = kc.unitig_id2snp_id(kc.allele_value(int_snp_id_d))
+            if int_facts_format:
+                allele_id = kc.unitig_id2snp_id(kc.allele_value(int_snp_id_d))
+            else:
+                allele_id = int_snp_id_d.split("_")[0]
             # print(f"\n\n *****{int_snp_id_d}, {allele_id} ********")
             snp_id = allele_id[:-1]
 
@@ -187,13 +192,37 @@ def generate_sequence_paths(sequences, k, compacted_fact_file_name):
         
     mfile.close()
 
+def is_int_fact(file_name):
+    '''
+    Determines if a given file is under the format 
+    2468_0;-2708_6;1954_-25;1154_-26; (called 'int_facts')
+    or
+    -577h_0;-977h_-26;1354h_-25;  =>  1
+    '''
+    with open(file_name) as my_file:
+        while True:
+            line = my_file.readline()
+            if not line: 
+                raise RuntimeError (f'input file {file_name} does not contain correctly formated facts')
+            if line[0] == "#" : continue # comment
+            if  ';' not in line:
+                raise RuntimeError (f'input file {file_name} does not contain correctly formated facts. The line {line} should contain at least a \';\'')
+            # here we are check the kind of file:
+            line = line.split()[0]
+            if 'h' in line or 'l' in line:
+                return False
+            return True
+
+
+
 def main():
     '''
     Creation of a FA file from a compacted fact int file. 
+
     '''
     sequences=index_sequences(sys.argv[1]) #for each snp id: sequences[snp_id]=[left_unitig_len, right_unitig_len, upperseq, lowerseq] 
-    k = kc.determine_k(sys.argv[1])
-    generate_sequence_paths(sequences, k, sys.argv[2])
+    int_facts_format = is_int_fact(sys.argv[2])
+    generate_sequence_paths(sequences, sys.argv[2], int_facts_format)
     
 
 

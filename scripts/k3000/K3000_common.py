@@ -61,6 +61,7 @@ def hamming (s1, s2, max):
     return True
 
 def hamming_near_perfect (s1, s2):
+    # assert hamming (s1,s2, 0), f'\n{s1} and \n{s2}'
     return hamming (s1,s2, 0) 
     # if len(s1) != len(s2): return False
     # for i in range(len(s1)): 

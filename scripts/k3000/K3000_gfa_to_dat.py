@@ -3,6 +3,9 @@ import K3000_gfa_post_treatment as gpt # :)
 # from deprecated import deprecated
 
 
+################# 28 APRIL 2020 - Now this script is managed by Kerian Thuillier    ##################
+################# No more maintained                                                ##################
+
 """
 #id of forward and reverse nodes
 set V :=
