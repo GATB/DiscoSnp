@@ -41,7 +41,8 @@ def index_sequences(compacted_facts_fa_file_name):
 
 def yield_occurring_positions_reverse(k,kmer, seq):
     for i in range(len(seq)-k,-1,-1):
-        if kc.hamming_near_perfect(seq[i:i+k],kmer):
+        if seq[i:i+k] == kmer:
+        # if kc.hamming_near_perfect(seq[i:i+k],kmer):
             yield i
 
 def overlap_length(seqA, seqB):
@@ -63,7 +64,8 @@ def overlap_length(seqA, seqB):
         if i+k > len(seqA):
             erro_code=-2
         if kc.hamming_near_perfect(seqA[-i-k:], seqB[:i+k]):
-            return i
+            return len(seqA[-i-k:])
+        else: print("what")
     return erro_code
     
 # print(overlap_length("TCAACTACTTATTTGTCGTACAAAACTGTCCCGTACATAGGATGATCTTATTCCCGTACCGGATTTCGTACACAATAACAGGAACAATGTCGATATAAAATTTTCTTCAAATGGCTTCAACCCTTACATTATTATGGCAGACGATGTAAACTCTCTAGTCTTCTCAACTCTATTAATAATACATAGTAGTAGCTATTCAGCCATTTTAAAAACGCAATACAACGTTTGTCCCGTAATATT","CTACTTATTTGTCGTACAAAACTGTCCCGTACATAGGATGATCTTATTCCTGTACCGGATTTCGTACACAATAACAGGAACAATGTCGATATAAAATTTTCTTCAAATGGCTTCAACCCTTACATTATTATGGCAGACGACGTAAACTCTCTAGTCTTCTCAACTCTATTAATAATACATAGTAGTAGCTATTCAGCCATTTTAAAAACGCAATACAACGTTTGTCCCGTAATAT"))
@@ -143,9 +145,11 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             if split_gfa_line[2]=='-': seqA=kc.get_reverse_complement(seqA)
             if split_gfa_line[4]=='-': seqB=kc.get_reverse_complement(seqB)
             OL = overlap_length(seqA,seqB)
-            # assert OL!=-1,seqA+" "+seqB
             if OL>-1:
                 print (split_gfa_line[0]+"\t"+split_gfa_line[1]+"\t"+split_gfa_line[2]+"\t"+split_gfa_line[3]+"\t"+split_gfa_line[4]+"\t"+str(OL)+"M")
+                
+
+            
             continue
             
             
