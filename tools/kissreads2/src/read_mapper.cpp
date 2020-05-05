@@ -356,16 +356,15 @@ struct Functor
                         
                         const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->first-value->first%2]->SNP_positions, seed_position, gv.size_seeds);
                         
-#ifdef DEBUG_MAPPING
-                        
+#ifdef DEBUG_MAPPING                  
                         if (is_read_mapped) {
-                            cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->a<<" pos "<<pwi<<" direction "<<direction<<endl;
+                            cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->first<<" pos "<<pwi<<" direction "<<direction<<endl;
                         }
 #endif
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
-                            
+                    
                             //    #ifdef PHASING
                             if(gv.phasing){
                                 mapped_prediction_as_set.insert     (value->first);     // This prediction whould not be mapped again with the same read
@@ -376,7 +375,8 @@ struct Functor
                                     
                                     if (direction == 0){
                                         
-                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->first);
+                                        if (pwi_and_mapped_predictions.find(pwi) == pwi_and_mapped_predictions.end())  
+                                            pwi_and_mapped_predictions[pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                     }
                                     else{
@@ -400,14 +400,14 @@ struct Functor
                                          * |prediction|-pwi-read = 14-(-3)-11 = 6 (CQFD :))
                                          */
                                         const int rc_pwi = strlen(prediction) - pwi - read_len;
-                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->first);
+                                        if (pwi_and_mapped_predictions.find(rc_pwi) == pwi_and_mapped_predictions.end())  
+                                            pwi_and_mapped_predictions[rc_pwi] = std::pair<char,int64_t>(sign,value->first);
                                         // TODO what if this read maps already a variant at the same position ?
                                         ///
                                     }
                                 }
                             }
                             ////// END PHASING
-                            //#endif //PHASING
                             
 #ifdef DEBUG_MAPPING
        //                     printf("SUCCESS %d %d \n", pwi, value->a);
@@ -451,8 +451,9 @@ struct Functor
         /////// PHASING
         if (gv.phasing){
             if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
-//                cout<<"PHASED "<<endl;//DEB
-                
+                //DEBUG    
+                cout<<"\nXX "<<read<<"\n"; 
+                // END DEBUG
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
                 int nb_variants_in_fact = 0;                                            // # of variants in this fact. If one, we do not output it.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read
@@ -473,6 +474,10 @@ struct Functor
                     std::pair<char,int64_t> signed_var_id =it->second;
                     char sign = signed_var_id.first;
                     int64_t var_id = signed_var_id.second;
+
+                //DEBUG    
+                cout<<"\pwi "<<pwi<<" id "<<sign<<var_id<<"\n"; 
+                // END DEBUG
                     
                     int relative_position;                                              // Relative position of the upper case sequence variant with repect to previous upper case sequence start
                     int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
@@ -527,12 +532,13 @@ struct Functor
                     phased_variant_id += parse_variant_id(index.all_predictions[var_id]->sequence.getComment())+"_"+to_string(shift);
                     
                     //DEBUG
-                    //
-                    //                                    cout<<"phased_variant_id        "<<phased_variant_id<<endl;
-                    //                                    cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
-                    //                                    cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
-                    //                                    cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<endl;
-                    //                                        phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                    
+                                                       cout<<"phased_variant_id        "<<phased_variant_id<<endl;
+                                                       cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
+                                                       cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
+                                                       cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<endl;
+                                                           phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                                                        cout<<"shift "<<shift<<endl;
                     //ENDDEBUG
                     phased_variant_ids = phased_variant_ids+phased_variant_id+';';
                     nb_variants_in_fact++;
@@ -573,9 +579,9 @@ struct Functor
         // clear (if one still have to check the reverse complement of the read) or free (else) the list of int for each prediction_id on which we tried to map the current read
         
         /////// PHASING
-        //        #ifdef PHASING
         if (gv.phasing){
             if ((pwi_and_mapped_predictions1.size() + pwi_and_mapped_predictions2.size())>1){                                            // If two or more variants mapped by the same read
+
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
                 int nb_variants_in_fact = 0;                                            // # of variants in this fact. If one, we do not output it.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read

@@ -101,10 +101,10 @@ def remove_cc_with_cycles(DG):
 
 def main():
     '''
-    Compaction of set of super reads coded as set of ids of unitigs
+    Compaction of set of facts coded as set of ids of unitigs
     '''
 
-    parser = argparse.ArgumentParser(description='Compaction of set of super reads coded as set of ids of unitigs.')
+    parser = argparse.ArgumentParser(description='Compaction of set of facts coded as set of ids of unitigs.')
     parser.add_argument("input_file", type=str,
                         help="gfa file " )
 

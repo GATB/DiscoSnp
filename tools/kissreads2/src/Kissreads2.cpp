@@ -16,7 +16,7 @@ using namespace std;
  *
  * A QUICK OVERVIEW OF THE CLASS...
  *
- * This class implements the detection of SNP in a provided de Bruijn graph.
+ * This class implements the mapping of reads on kissnp predictions.
  *
  * It is implemented as a subclass of Tool, so we get all the facilities of the
  * Tool class. We can therefore see two main parts here:

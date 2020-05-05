@@ -17,7 +17,7 @@ rule GFA_construction:
 	output: 
 		temp("compacted_facts.gfa")
 	shell:
-		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/K3000_msr_to_gfa.py {input} > {output}"
+		"python3 /Users/ppeterlo/projets/phasing_disco/create_graph_fact/k3000/K3000_facts_to_gfa.py {input} > {output}"
 
 rule enhance_graph:
 	input: 

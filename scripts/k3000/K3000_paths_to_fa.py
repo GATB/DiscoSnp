@@ -3,8 +3,11 @@
 #
 '''
 Creation of a FA file from a compacted fact int file. 
-@author  pierre peterlongo pierre.peterlongo@inria.fr
 '''
+
+
+__author__ = "Pierre Peterlongo"
+__email__ = "pierre.peterlongo@inria.fr"
 
 import sys
 import K3000_common as kc

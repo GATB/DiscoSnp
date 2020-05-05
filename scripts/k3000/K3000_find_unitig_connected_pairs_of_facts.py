@@ -212,6 +212,7 @@ def print_original_gfa(gfa_file_name):
     print ("H\t#  * field BP stands for \"Bubble Position\". For each allele of the fact it indicates:")
     print ("H\t#     - first: the relative position of first nucleotide of the bubble with respect to the position of the last nucleotide of the bubble of the previous allele. This value is equal to zero for the first allele")
     print ("H\t#     - second: the length of the bubble of the allele") 
+    print ("H\t#  * field EV strands for \"Extreme Variant\". Facts having at least one variant with no input or no output edge are considered as facts having an extreme variants. Their value is set to EV:1. Else, the value is set to EV:0")
     print ("H\t#  * field FC is the coverage of the fact, as provided by the total number of reads that phased at least two alleles of the fact")
     print ("H\t#  * fields min, max, and mean stand resp. for the min, max and mean of the read coverage of all alleles")
     print ("H\t#  * field AC stands for \"Allele Coverage\". The number of reads that map each allele is given in the same order as the variant ids (eg. \"17;410;113;\" are respectively, the coverages of variants \"-577h;-977l;1354l\")")

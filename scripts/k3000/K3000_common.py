@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 #
 '''
-Compaction of super reads. Non ambiguous paths from a set of super reads are compacted
-Resulting super reads are called MSR for Maximal Super Reads
-Common file
+Compaction of facts. Non ambiguous paths from a set of facts are compacted
 @author (except for the 'unique' function) pierre peterlongo pierre.peterlongo@inria.fr
 '''
+
+__author__ = "Pierre Peterlongo"
+__email__ = "pierre.peterlongo@inria.fr"
+
 
 import sys
 import sorted_list
@@ -60,9 +62,9 @@ def hamming (s1, s2, max):
             if res>max: return False
     return True
 
-def hamming_near_perfect (s1, s2):
+def hamming_near_perfect (s1, s2, threshold=1):
     # assert hamming (s1,s2, 0), f'\n{s1} and \n{s2}'
-    return hamming (s1,s2, 0) 
+    return hamming (s1,s2, threshold) 
     # if len(s1) != len(s2): return False
     # for i in range(len(s1)): 
     #     if s1[i].upper()!=s2[i].upper():
@@ -113,8 +115,8 @@ def d_list_order(a_d,b_d):
     return 1
 
 
-def get_reverse_sr(x):
-    ''' reverse of a super read x. Example is super read x = ["4_0","2_3","-6_21"], reverse(x) = ["6_0","-2_21","-4_3"] '''
+def get_reverse_fact(x):
+    ''' reverse of a fact x. Example is fact x = ["4_0","2_3","-6_21"], reverse(x) = ["6_0","-2_21","-4_3"] '''
     res =[]
     for i in range (len(x)):
         value = -allele_value(x[-i-1])                          # With i=0, '-6_21' is transformed into 6
@@ -127,7 +129,7 @@ def get_reverse_sr(x):
 
 
 def is_palindromic(x):
-    ''' return true is a sr x is palindromic, eg [1_0,2_12,-2_13,-1_12]'''
+    ''' return true is a fact x is palindromic, eg [1_0,2_12,-2_13,-1_12]'''
     if len(x)%2 == 1: return False
     for i in range(0,int(len(x)/2)):
         if allele_value(x[i]) != -allele_value(x[-i-1]): return False
@@ -164,7 +166,7 @@ def f(variant):
         
     
 
-def generate_SR_from_disco_pashing(file_name):
+def generate_facts_from_disco_pashing(file_name):
     mfile = open(file_name)
     sl = sorted_list.sorted_list()
     for line in mfile: 
@@ -188,8 +190,8 @@ def generate_SR_from_disco_pashing(file_name):
     sl.unique() # Remove redundancies
     return sl
 
-def generate_SR(file_name):
-    ''' Given an input file storing super reads, store them in the SR array'''
+def generate_facts(file_name):
+    ''' Given an input file storing facts, store them in the fact array'''
     # -10021_0;68561_21;-86758_3;27414_12;
     sr_file = open(file_name, 'r')
     sl = sorted_list.sorted_list()
@@ -204,19 +206,55 @@ def generate_SR(file_name):
         # print(sr)#DEBUG
     return sl
 
+def detect_input_output_edges(facts):
+    '''
+    Given all stored facts and ther reverse complements, stores variants that have at least one input edge (in has_input_edge) 
+    and those that have at least one output edge (in has_output_edge)
+
+    if a fact is ["4_0","2_3","-6_21"], 
+        has_input_edge = {2,-6}
+        has_output_edge = {4,2}
+    
+    
+    this means that ["6_0","-2_21","-4_3"] is also stored, hence:
+        has_input_edge = {2, -6, -2, -4}
+        has_output_edge = {4, 2, 6, -2}
 
 
-def add_reverse_SR(SR):
-    ''' For all super reads in SR, we add there reverse in SR
-    This double the SR size, unless there are palindromes ([1_0,-1_21] for instance). Those are not added.
+
+    Returns:
+        has_input_edge, has_output_edge
+    '''
+    has_input_edge= set()
+    has_output_edge = set()
+
+
+    for fact in facts.traverse():
+        previous_variant_id = ""
+        # print(fact)
+        for variant_id in allele_values(fact):
+            if previous_variant_id == "": # first value, just store it:
+                previous_variant_id = variant_id
+                continue
+            has_output_edge.add(previous_variant_id)
+            has_input_edge.add(variant_id)
+            previous_variant_id = variant_id
+        # print(f'output {has_output_edge}')
+        # print(f'inputput {has_input_edge}')
+        # sys.exit()
+    return has_input_edge,has_output_edge
+
+def add_reverse_facts(facts):
+    ''' For all facts, we add their reverse in the same structure 
+    This double the fact size, unless there are palindromes ([1_0,-1_21] for instance). Those are not added.
     We don't check that this does not create any duplicates'''
-    SR_ = sorted_list.sorted_list()
-    for sr in SR.traverse():
-        if not is_palindromic(sr):
-            SR_.add(get_reverse_sr(sr))
-    for sr in SR_.traverse():
-        SR.add(sr)
-    return SR
+    facts_ = sorted_list.sorted_list()
+    for fact in facts.traverse():
+        if not is_palindromic(fact):
+            facts_.add(get_reverse_fact(fact))
+    for fact in facts_.traverse():
+        facts.add(fact)
+    return facts
 
 
 
@@ -237,23 +275,23 @@ def colinear(x,X,starting_positions):
 
 def is_canonical(sr):
     ''' return True if the canonical representation of sr is itself'''
-    if d_list_sup(sr, get_reverse_sr(sr)):
+    if d_list_sup(sr, get_reverse_fact(sr)):
         return True
     else:
         return False
 
-def get_canonical(sr):
+def get_canonical(fact):
     ''' return the canonical representation of sr'''
-    sr_=get_reverse_sr(sr)
-    if d_list_sup(sr, sr_):    
-        return sr
+    fact_=get_reverse_fact(fact)
+    if d_list_sup(fact, fact_):    
+        return fact
     else:
-        return sr_
+        return fact_
 
-def print_maximal_super_reads(SR):
+def print_maximal_facts(facts):
 
-    '''print all maximal super reads as a flat format'''
-    for sr in SR.traverse():
+    '''print all maximal facts as a flat format'''
+    for sr in facts.traverse():
         if is_canonical(sr) or is_palindromic(sr):
             if len(sr)==1:
                 print (str(allele_value(sr[0]))+";")
@@ -281,32 +319,32 @@ def unitig_id2snp_id(unitig_id):
     return res
 
 
-def get_msr_id(msr):
-    ''' returns the id of a msr
-    WARNING: here msr contains as last value its unique id.
+def get_fact_id(fact):
+    ''' returns the id of a fact
+    WARNING: here fact contains as last value its unique id.
     '''
-    return int(msr[-1].split("_")[1])
+    return int(fact[-1].split("_")[1])
 
-def get_reverse_msr_id(msr,MSR):
-    ''' returns the id of the reverse complement of msr
-    1/ find the sequence of the msr_ in SR
+def get_reverse_fact_id(fact,facts):
+    ''' returns the id of the reverse complement of fact
+    1/ find the sequence of the fact_ in facts
     2/ grab its id
-    WARNING: here msr contains as last value its unique id.
+    WARNING: here fact contains as last value its unique id.
     '''
     #1/
-    # print("reverse msr id of",msr)
-    without_id_reverse_msr = get_reverse_sr(msr[:-1])                           # get the msr reverse complement
-    # print("rc is", without_id_reverse_msr)
-    Y=MSR.get_lists_starting_with_given_prefix(without_id_reverse_msr)          # find the reverse complement in the list.
+    # print("reverse fact id of",fact)
+    without_id_reverse_fact = get_reverse_fact(fact[:-1])                           # get the fact reverse complement
+    # print("rc is", without_id_reverse_fact)
+    Y=facts.get_lists_starting_with_given_prefix(without_id_reverse_fact)          # find the reverse complement in the list.
     # print("Y is", Y)
-    for y in Y:                                                                 # should be of size >= 1. One of them is exactly 'without_id_reverse_msr' plus its id.
-        if len(y) == len(without_id_reverse_msr)+1:                             # 'y' is 'without_id_reverse_msr' with its node id
-            return get_msr_id(y)                                                # 2/
+    for y in Y:                                                                 # should be of size >= 1. One of them is exactly 'without_id_reverse_fact' plus its id.
+        if len(y) == len(without_id_reverse_fact)+1:                             # 'y' is 'without_id_reverse_fact' with its node id
+            return get_fact_id(y)                                                # 2/
     return None                                                                 # Should not happend
 
-# SR=generate_SR("test.txt")
-# SR.unique()
-# SR=add_reverse_SR(SR)
-# SR.unique()
-# for sr in SR.traverse():
+# facts=generate_facts("test.txt")
+# facts.unique()
+# facts=add_reverse_facts(facts)
+# facts.unique()
+# for sr in facts.traverse():
 #     print (sr)

@@ -78,8 +78,8 @@ fi
 
 ### Creating a GFA graph
 echo "${green}           ### Creating a GFA graph"
-# python3 ${EDIR}/K3000_msr_to_gfa.py compacted_facts_int.txt > compacted_facts.gfa 
-cmd="python3 ${EDIR}/K3000_msr_to_gfa.py compacted_facts_int_${read_set_id}.txt"
+# python3 ${EDIR}/K3000_facts_to_gfa.py compacted_facts_int.txt > compacted_facts.gfa 
+cmd="python3 ${EDIR}/K3000_facts_to_gfa.py compacted_facts_int_${read_set_id}.txt"
 echo "           "$cmd "> compacted_facts_${read_set_id}.gfa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > compacted_facts_${read_set_id}.gfa
