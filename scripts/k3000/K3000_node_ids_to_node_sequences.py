@@ -9,7 +9,7 @@ Creation of a FA file from a compacted fact int file.
 import sys
 import K3000_common as kc
 
-def index_sequences(compacted_facts_fa_file_name):
+def index_sequences_seek(compacted_facts_fa_file_name):
     '''
     Stores for each sequence header its position in the fa file. This is used latter to retrieve the corresponding sequences
     '''
@@ -31,13 +31,6 @@ def index_sequences(compacted_facts_fa_file_name):
     compacted_facts_fa_file.close()
     return header_to_file_position
 
-# def kmers_equals_wildchars(kmerA,kmerB):
-#     for i in range(len(kmerA)):
-#         if kmerA[i]==kmerB[i]:  continue
-#         if kmerA[i]=='N':       continue
-#         if kmerB[i]=='N':       continue
-#         return False
-#     return True
 
 def yield_occurring_positions_reverse(k,kmer, seq):
     for i in range(len(seq)-k,-1,-1):
@@ -91,11 +84,12 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
     print ("H\t#  * field AC stands for \"Allele Coverage\". The number of reads that map each allele is given in the same order as the variant ids (eg. \"17;410;113;\" are respectively, the coverages of variants \"-577h;-977l;1354l\")")
    
     print ("H\t# Four types of edges:")
-    print ("H\t#   1. Overlap between facts, Overlap length is >0. Eg, \"L	1	-	29384	+	8M\"")
+    print ("H\t#   1. Overlap between facts, Overlap length is >0. Eg, \"L	1	-	29384	+	8M  OFL:i:2\"")
     print ("H\t#       \"S	1	ACGGACGGACCGT	RC:i:24\", and")
     print ("H\t#       \"S	29384	CGGACCGTACGGACGATCCG;	RC:i:43\".")
+    print ("H\t#       OLF field reminds the length of the fact overlap length (number of variants overlapping)")
     print ("H\t#   2. Facts linked by paired end reads.  Eg \"L	10735	+	29384	+	0M	FC:i:5\".")
-    print ("H\t#       The coverage indicates the number of pairend read linking the two facts")
+    print ("H\t#       The coverage (FC field) indicates the number of pairend read linking the two facts")
     print ("H\t#       These links have a fake overlap of length 0.")
     print ("H\t#   3. Facts linked by unitigs. The unitig finishing a fact overlaps the unitig starting another fact. Eg \"L	19946	+	11433	+	-1M\".")
     print ("H\t#       These links are directed and validate the facts orientation. ")
@@ -150,7 +144,7 @@ def modify_gfa_file(gfa_file_name, compacted_facts_fa_file_name, header_to_file_
             if split_gfa_line[4]=='-': seqB=kc.get_reverse_complement(seqB)
             OL = overlap_length(seqA,seqB)
             if OL>-1:
-                print (split_gfa_line[0]+"\t"+split_gfa_line[1]+"\t"+split_gfa_line[2]+"\t"+split_gfa_line[3]+"\t"+split_gfa_line[4]+"\t"+str(OL)+"M")
+                print (split_gfa_line[0]+"\t"+split_gfa_line[1]+"\t"+split_gfa_line[2]+"\t"+split_gfa_line[3]+"\t"+split_gfa_line[4]+"\t"+str(OL)+"M\tOFL:i:"+split_gfa_line[5][:-1])
                 
 
             
@@ -172,7 +166,7 @@ def main():
         sys.stderr.write("Usage: python K3000_node_ids_to_node_sequences.py graph_plus.gfa compacted_facts.fa > graph_final.gfa\n")
         sys.exit(0)
     sys.stderr.write("Indexing sequence positions\n")
-    header_to_file_position = index_sequences(sys.argv[2])
+    header_to_file_position = index_sequences_seek(sys.argv[2])
     sys.stderr.write("Writing the updated gfa file\n")
     modify_gfa_file(sys.argv[1],sys.argv[2], header_to_file_position)
     

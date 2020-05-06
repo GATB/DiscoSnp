@@ -1,5 +1,6 @@
 import sys
 import K3000_gfa_post_treatment as gpt # :)
+import warnings
 # from deprecated import deprecated
 
 
@@ -462,6 +463,9 @@ def main(gfa_file_name):
     Usage: 
         python ~/workspace/gatb-discosnp/scripts/k3000/K3000_gfa_to_dat.py graph_plus.gfa > graph_diploid.dat
     '''
+    warnings.warn(f"{sys.argv[0]} is not maintenained anymore (May 2020).", DeprecationWarning)
+    
+    
     # Store the information as a graph. 
     # This enables 
     #   to compute connected components

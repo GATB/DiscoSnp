@@ -23,7 +23,7 @@ def index_sequences(fa_file_name):
         line1 = line1.strip()
         line2 = mfile.readline().strip()
         mfile.readline().strip()                # USELESS
-        line4 = mfile   .readline().strip()
+        line4 = mfile.readline().strip()
         
         if not line1.startswith(">SNP"): continue
         

@@ -13,120 +13,124 @@ __email__ = "pierre.peterlongo@inria.fr"
 
 import sys
 import K3000_common as kc
+import argparse
+from collections import defaultdict
 
-
-def index_sequences(fa_file_name):
-    sequences = {}
-    mfile = open(fa_file_name)
-    while True: 
-        line1 = mfile.readline()
-        if not line1: break
-        line1 = line1.strip()
-        line2 = mfile.readline().strip()
-        mfile.readline().strip()
-        line4 = mfile   .readline().strip()
-        
-        if not line1.startswith(">SNP"): continue
-        
-        #line1: 
-        #>SNP_higher_path_9|P_1:30_A/C|high|nb_pol_1|left_unitig_length_152|right_unitig_length_3|C1_25|Q1_63|G1_0/1:399,14,359|rank_0
-            # key is 9h
-            # one need to store the left unitig length. Here 152
-            # one need to store the right unitig length. Here 3
-            # note that the position of the left_unitig_length field is always the same with or without multiple snps.
-        line1 = line1.split('|')
-        snp_id = line1[0].split('_')[-1] # from SNP_higher_path_9 to 9
-        
-        left_unitig_len = int(line1[4].split('_')[-1])
-        right_unitig_len = int(line1[5].split('_')[-1])
-        
-       
-        sequences[snp_id] = [left_unitig_len, right_unitig_len, line2, line4] #sequences[snp_id] = [left_unitig_len, right_unitig_len, upperseq, lowerseq] 
-        
-    mfile.close()
-    return sequences
     
-def generate_sequence_paths(sequences, k, compacted_fact_file_name):
+rev_sign = lambda s: "+" if s == "-" else "-"
 
-    mfile = open(compacted_fact_file_name)
+def store_variant_overlap_length(gfa_file_name):
+    '''
+    Given a graph_final format where overlaps are stored as: 
+    L	0	+	400	+	43M	OFL:i:1
     
-    for line in mfile: 
-        # 38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
-        print(">"+line.strip())
-        line=line.split(';')
-        previous_snp_to_end=0
-        
- 
+    Returns a dictionary: 
+    key = source_fact_id, value = dictionary:
+        key = target_fact_id, value = overlap length (nucleotides) 
+    '''
+    overlap_lengths = defaultdict(dict) 
+    with open(gfa_file_name) as gfa_file:
+        while True:
+            line = gfa_file.readline()
+            if not line: break
+            if line[0] != 'L': continue
+            sline = line.strip().split()
+            OL = int(sline[5][:-1])
+            if OL<1: continue
+            # add the Overlap Length (OL)
+            overlap_lengths[sline[2]+sline[1]][sline[4]+sline[3]] = OL
+            # add it for the reverse 
+            overlap_lengths[rev_sign(sline[4])+sline[3]][rev_sign(sline[2])+sline[1]] = OL
+    return overlap_lengths
 
-        full_seq = ""
-        for i,int_snp_id_d in enumerate(line[:-1]): 
-            
-            ## _________--------X---------______________________________      previous snp (or full sequence we dont care)
-            ##                   <------- previous_snp_to_end --------->
-            ##                   <- k-1 -><------ right_unitig_len ---->      previous snp  -> previous_snp_to_end = k-1+right_unitig_len of the previous snp
-            ##              __--------X---------_________________________________  new SNP
-            ##                   <---->  shift between snps             <------->  to be written
-            
-            
-            ##              __--------X---------_________________________________ (new SNP)
-            ##                   <---------------------------------------------->   shift between snps + k-1 + right_unitig_len 
-            ##                                   - (minus)
-            ##                   <------------------------------------->            previous_snp_to_end + k-1
-            ## _________--------X---------______________________________      previous snp 
-            ##  (k-1)+ight_unitig_len new caracters to write -all already written
-            ##  to be written = (shift between snps) + k-1 + right_unitig_len - previous_snp_to_end - (k-1)
-            ## If a SNP is reversed, we reverse complement the sequence and change "right“ unitig for "left" unitig
-        
-            allele_id = kc.unitig_id2snp_id(kc.allele_value(int_snp_id_d))
-            snp_id = allele_id[:-1]
+def store_fact_sequence(gfa_file_name):
+    '''
+    Given a graph_final format where facts are stored as: 
+    S       1       gtGCAATAAGAATTGTCTTTCTTATAATAATTGTCCAACTTAGgGTCAATTTCTGTACaaacaaCACCATCCAAt     AS:-577h;-977l;1354l;   SP:0_44;11_64;32_75;    BP:0_41;-26_41;-25_41;  EV:0    FC:i:52 min:17  max:410 mean:180.0      AC:410;17;113;
 
-            higher=True
-            if allele_id[-1] == 'l': 
-                higher=False
-            
-            forward=True
-            if allele_id[0] == '-':
-                forward=False
-                snp_id = snp_id[1:]
-            
-            if higher: seq = sequences[snp_id][2]
-            else: seq = sequences[snp_id][3]
-            if forward: 
-                # start_to_snp = sequences[snp_id][0]+k-1   UNUSED
-                snp_to_stop = sequences[snp_id][1]+k-1
-            else: 
-                seq=kc.get_reverse_complement(seq)
-                # start_to_snp = sequences[snp_id][1]+k-1   UNUSED
-                snp_to_stop = sequences[snp_id][0]+k-1
-            
-            #treat first snp apart
-            if i==0: 
-                full_seq+=seq
-                
-            else:
-                to_be_written = int(kc.distance_string_value(int_snp_id_d))+ snp_to_stop - previous_snp_to_end
-                if to_be_written>0:                                 # an overelap exists
-                    full_seq+=seq[-to_be_written:]
-                else:                                               # no overlap
-                    for _ in range(-to_be_written):
-                        full_seq+="N"
-                # print(seq[-to_be_written:], end='')
-            # print (i,int_snp_id_d,seq)
-            previous_snp_to_end = snp_to_stop
-            
-        print(full_seq)
-            
-            
-            
+    
+    Returns a dictionary: 
+    key = fact_id, value = sequence:
+    '''
+    fact_sequence = defaultdict(dict) 
+    with open(gfa_file_name) as gfa_file:
+        while True:
+            line = gfa_file.readline()
+            if not line: break
+            if line[0] != 'S': continue
+            sline = line.strip().split()
+            fact_sequence[sline[1]] = sline[2]
+    return fact_sequence
+
+def get_sequence(facts_sequence, fact_id):
+    '''
+    fact id is given by \'+12\' or \'-12\'
+    fact sequences are indexed by \'12\' inly.
+    if sign is \'+\' returns the corresponding sequence
+    else returns its reverse complement
+    '''
+    forward_sequence  = facts_sequence[fact_id[1:]]
+    if fact_id[0] == '+':   return forward_sequence
+    else:                   return kc.get_reverse_complement(forward_sequence)
+        
+
+
+
+def generate_fa(gfa_file_name, path_facts_file_name):
+    '''
+    paths file contains lines as: haplotypeID	ccID	fact1;fact2;fact3
+    eg.
+    8   1   -8;4;-12
+    we transforme them into a fasta file: 
+    >CC_id|Path_id|Optional stuffs
+    ACGT...
+    '''
+
+    overlap_lengths = store_variant_overlap_length(gfa_file_name)
+    facts_sequence = store_fact_sequence(gfa_file_name)
+
+    with open(path_facts_file_name) as path_facts_file:
+        while True:
+            line = path_facts_file.readline()
+            if not line: break
+            sline = line.strip().split()
+            haplotype_id = sline[0]
+            cc_id = sline[1]
+            facts_path = sline[2]
+            facts_path = facts_path.strip(";") # just in case
+            previous_fact = facts_path.split(";")[0]
+            sequence =  get_sequence(facts_sequence, previous_fact)
+            for current_fact in facts_path.split(";")[1:]:
+                # TODO: remove those asserts when clearly tested.
+                assert (previous_fact in overlap_lengths)
+                assert (current_fact in overlap_lengths[previous_fact])
+                OL = overlap_lengths[previous_fact][current_fact]
+                assert(get_sequence(facts_sequence, previous_fact)[-OL:].upper() == get_sequence(facts_sequence, current_fact)[:OL].upper())
+                sequence += get_sequence(facts_sequence, current_fact)[OL:]
+                previous_fact = current_fact
+            print(f">{cc_id}|{haplotype_id}|{facts_path}\n{sequence}")
     
 
 def main():
     '''
     Creation of a FA file from a compacted fact int file. 
     '''
-    sequences=index_sequences(sys.argv[1]) #for each snp id: sequences[snp_id]=[left_unitig_len, right_unitig_len, upperseq, lowerseq] 
-    k = kc.determine_k(sys.argv[1])
-    generate_sequence_paths(sequences, k, sys.argv[2])
+
+    parser = argparse.ArgumentParser(description='From phased facts to fasta file.')
+    parser.add_argument("--gfa", type=str,
+                        help="File containing the gfa generated by k3000/run.sh (usually named graph_final_X.gfa, with X the read set id)",
+                        required=True)
+    
+    parser.add_argument("--paths", type=str,
+                        help="File containing pahsed facts (format: \"haplotypeID	ccID	fact1;fact2;fact3\"",
+                        required=True)
+
+
+    args = parser.parse_args()
+    gfa_file_name = str(args.gfa)
+    path_facts_file_name = str(args.paths)
+    generate_fa(gfa_file_name, path_facts_file_name)
+    
     
 
 

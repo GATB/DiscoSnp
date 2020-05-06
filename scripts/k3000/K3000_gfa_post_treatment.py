@@ -1,3 +1,5 @@
+import warnings # deprecated
+
 import networkx as nx
 
 import sys
@@ -103,7 +105,7 @@ def main():
     '''
     Compaction of set of facts coded as set of ids of unitigs
     '''
-
+    warnings.warn(f"{sys.argv[0]} is not maintenained anymore (May 2020).", DeprecationWarning)
     parser = argparse.ArgumentParser(description='Compaction of set of facts coded as set of ids of unitigs.')
     parser.add_argument("input_file", type=str,
                         help="gfa file " )
