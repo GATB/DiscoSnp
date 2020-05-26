@@ -186,7 +186,7 @@ class sorted_list(object):
                     
     def index_nodes(self):
         ''' For each element in the structure, we add its id as a last value, stored as i_14, for instance for node 14.'''
-        index_id=0
+        index_id=1
         for key, value in self.main_dict.items():
             for mylist in value: 
                 if mylist != None:
