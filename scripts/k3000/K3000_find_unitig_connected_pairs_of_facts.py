@@ -200,9 +200,17 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
        
     mfile.close()
     return LOs, LIs, RIs, ROs
-    
 
-def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name):
+def add_canonical(canonical_links, left_fact_id, right_fact_id):
+    if abs(left_fact_id) <= abs(right_fact_id): # prints only canonical 
+        if left_fact_id not in canonical_links: canonical_links[left_fact_id] = set()
+        canonical_links[left_fact_id].add(right_fact_id)
+    else:
+        if -right_fact_id not in canonical_links: canonical_links[-right_fact_id] = set()
+        canonical_links[-right_fact_id].add(-left_fact_id)
+
+
+def store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name):
     """ given the association (k-1)mers -> leftfacts, we may derive the links between facts
     1. RIA == LOB and ROA == LIB           -> A+ -> B+
     2. RIA == rc(ROB) and ROA == rc(RIB)   -> A+ -> B-
@@ -220,6 +228,7 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_na
     once co-mapped and if there exists no other variant (eg m) between r, and l. 
     This information is stored in thie closests dictionary
     """
+    canonical_links = {}
     mfile = open(fa_file_name)
     while True:
         line1 = mfile.readline()
@@ -244,14 +253,19 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_na
                 set_of_right_facts_compatible = LOs[RIA].intersection(LIs[ROA])                                                  # select all facts ids both whose LO == RI and LI == RO                 -> A+ -> B+
                 for right_fact_id in set_of_right_facts_compatible:
                     for left_fact_id in rightmost_snp_to_fact_id[snp_id]:
-                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t-1M")                          # -1 enables to detect those links
+                        add_canonical(canonical_links, left_fact_id, right_fact_id)
+                        # print (f"L\t{abs(left_fact_id)}\t{sign(left_fact_id)}\t{abs(right_fact_id)}\t{sign(right_fact_id)}\t-1Ma")
+                        # print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t-1Ma")                          # -1 enables to detect those links
 
             # CASE 2.
             if kc.get_reverse_complement(RIA) in ROs and kc.get_reverse_complement(ROA) in RIs:
                 set_of_right_facts_compatible = ROs[kc.get_reverse_complement(RIA)].intersection(RIs[kc.get_reverse_complement(ROA)])  # select all facts ids both whose RIA == rc(ROB) and ROA == rc(RIB)     -> A+ -> B-
                 for right_fact_id in set_of_right_facts_compatible:
                     for left_fact_id in rightmost_snp_to_fact_id[snp_id]:
-                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t-\t-1M")                          # -1 enables to detect those links
+                        add_canonical(canonical_links, left_fact_id, -right_fact_id)
+                        # print (f"L\t{abs(left_fact_id)}\t{sign(left_fact_id)}\t{abs(right_fact_id)}\t{revsign(right_fact_id)}\t-1Ma")
+                        
+                        # print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t-\t-1Mb")                          # -1 enables to detect those links
                     
             # CASE 3. & 4. -> they are symetrical:
             # Cases 1. & 2. : detects A -> B and A -> B_, the other cases are
@@ -259,17 +273,12 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_na
             # CASE 4. B -> A   will be detected when traversing Bn detecting then A  (Case 1.)
 
     mfile.close()
+    return canonical_links
 
-def add_canonical(canonical_links, left_fact_id, right_fact_id):
-    if abs(left_fact_id) <= abs(right_fact_id): # prints only canonical 
-        if left_fact_id not in canonical_links: canonical_links[left_fact_id] = set()
-        canonical_links[left_fact_id].add(right_fact_id)
-    else:
-        if -right_fact_id not in canonical_links: canonical_links[-right_fact_id] = set()
-        canonical_links[-right_fact_id].add(-left_fact_id)
 
-sign = lambda s: "+" if s >=0 else "-"
-def print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests):
+
+
+def store_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests, canonical_links):
     """
     given a set of rightmost snp to fact ids and leftmost snp to fact id, and the closests variants dictionary:
     add links between facts
@@ -280,19 +289,21 @@ def print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fac
     # hence some links are lost. 
     # To avoid non-symetrical prints we store all canonical links and then we print them
 
-    ## 1/2: store
-    canonical_links = {}
     for source, target in closests.items():
+        if target[1]<0: continue
         if source in rightmost_snp_to_fact_id and target[0] in leftmost_snp_to_fact_id:
             for left_fact_id in rightmost_snp_to_fact_id[source]:
                 for right_fact_id in leftmost_snp_to_fact_id[target[0]]:
                     add_canonical(canonical_links, left_fact_id, right_fact_id)
+    return canonical_links
 
-    ## 2/2: print
+
+sign = lambda s: "+" if s >=0 else "-"
+revsign = lambda s: "-" if s >=0 else "+"  
+def print_canonical_successive_links(canonical_links):
     for source, targets in canonical_links.items():
         for target in targets: 
             print(f"L\t{abs(source)}\t{sign(source)}\t{abs(target)}\t{sign(target)}\t-1M")
-
 
 
 def print_original_gfa(gfa_file_name):
@@ -346,16 +357,18 @@ def main (gfa_file_name, fa_file_name):
 
 
 
-    sys.stderr.write("#Print successive links obtained from kmers\n")
-    print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
+    sys.stderr.write("#Compute successive links obtained from kmers\n")
+    canonical_links = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
     del LOs, LIs, RIs, ROs
 
     sys.stderr.write("#Store distances between co-mapped variants\n")
     closests = store_closest_variant_id(gfa_file_name)
    
-    sys.stderr.write("#Print successive links obtained from co-mapped variants\n")
-    print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests)
+    sys.stderr.write("#Compute successive links obtained from co-mapped variants\n")
+    canonical_links = store_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests, canonical_links)
 
+    sys.stderr.write(f"#Write successive links\n")
+    print_canonical_successive_links(canonical_links)
 
     
 if __name__ == "__main__":
