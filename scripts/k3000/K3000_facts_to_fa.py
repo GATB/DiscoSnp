@@ -65,7 +65,7 @@ def store_fact_sequence(gfa_file_name):
 def get_sequence(facts_sequence, fact_id):
     '''
     fact id is given by \'+12\' or \'-12\'
-    fact sequences are indexed by \'12\' inly.
+    fact sequences are indexed by \'12\' only.
     if sign is \'+\' returns the corresponding sequence
     else returns its reverse complement
     '''
@@ -74,15 +74,22 @@ def get_sequence(facts_sequence, fact_id):
     else:                   return kc.get_reverse_complement(forward_sequence)
         
 
-
+def formatpathid (pathid: str) -> str:
+    '''
+    given a path id with format mp (eg. m2093)
+    transformt it to format +- (eg. -2093)
+    '''
+    if pathid[0] == 'm': return '-'+pathid[1:]
+    if pathid[0] == 'p': return '+'+pathid[1:]
+    raise ValueError
 
 def generate_fa(gfa_file_name, path_facts_file_name):
     '''
-    paths file contains lines as: haplotypeID	ccID	fact1;fact2;fact3
+    paths file contains lines as: haplotypeID	ccID	fact1;fact2;fact3   abundance
     eg.
-    8   1   -8;4;-12
+    1       19      m463;p3596;m2093;p2782  583.0
     we transforme them into a fasta file: 
-    >CC_id|Path_id|Optional stuffs
+    >CC_id|Path_id|abundance|Optional stuffs
     ACGT...
     '''
 
@@ -97,18 +104,21 @@ def generate_fa(gfa_file_name, path_facts_file_name):
             haplotype_id = sline[0]
             cc_id = sline[1]
             facts_path = sline[2]
+            abundance  = sline[3]
             facts_path = facts_path.strip(";") # just in case
-            previous_fact = facts_path.split(";")[0]
+            previous_fact = formatpathid(facts_path.split(";")[0])
             sequence =  get_sequence(facts_sequence, previous_fact)
             for current_fact in facts_path.split(";")[1:]:
+                current_fact = formatpathid(current_fact)
                 # TODO: remove those asserts when clearly tested.
                 assert (previous_fact in overlap_lengths)
                 assert (current_fact in overlap_lengths[previous_fact])
                 OL = overlap_lengths[previous_fact][current_fact]
-                assert(get_sequence(facts_sequence, previous_fact)[-OL:].upper() == get_sequence(facts_sequence, current_fact)[:OL].upper())
+                assert(kc.hamming_near_perfect (get_sequence(facts_sequence, previous_fact)[-OL:], get_sequence(facts_sequence, current_fact)[:OL]))
+                # assert(get_sequence(facts_sequence, previous_fact)[-OL:].upper() == get_sequence(facts_sequence, current_fact)[:OL].upper())
                 sequence += get_sequence(facts_sequence, current_fact)[OL:]
                 previous_fact = current_fact
-            print(f">{cc_id}|{haplotype_id}|{facts_path}\n{sequence}")
+            print(f">{cc_id}|{haplotype_id}|{facts_path}|{abundance}\n{sequence}")
     
 
 def main():

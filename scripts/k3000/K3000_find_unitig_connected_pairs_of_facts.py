@@ -1,8 +1,69 @@
 import sys
 import K3000_common as kc
+def update_closests(closests, source, target, distance):
+    # the previously stored distance from previous to current is bigger, replace it: 
+    if source in closests: 
+        if distance < closests[source][1]:
+            closests[source] = (target, distance)
+    # the variant "source" had no successor: 
+    else: # source not in closest
+        closests[source] = (target, distance)
+
+
+def store_closest_variant_id(gfa_file_name):
+    """
+    Given a gfa file, store for each variant id (eg 12) the closest next variant (eg -42). In this case: 
+    closests[12]=-42 and 
+    closests[42]=[-12]
+
+
+    The distance is computed from the BP field
+    
+    S       1       -577h;-977l;1354l;      SP:0_44;11_64;32_75;    BP:0_41;-26_41;-25_41;  EV:0    FC:i:52 min:17  max:410 mean:180.0      AC:410;17;113;
+
+
+    closests[-577]=-977
+    closests[-977]=1354
+    closests[-1354]=977
+    closests[977]=577
+
+    returns closests, that actualy contains alsoe the relative distance eg:
+    closests[-577]=(-977,-26)
+    closests[-977]=(1354,-25)
+    closests[-1354]=(977,-25)
+    closests[977]=(577,-26)
+    .
+    """
+    closests={}                          # key = variant id, value = couple (variant id, distance (from SP))
+    with open(gfa_file_name) as gfa_file:
+        for line in gfa_file.readlines():
+            if line[0]!='S': continue
+            line = line.split()
+            ids = line[2].strip(';').split(';')
+            distances = line[4].strip(';').split(':')[1].split(';')
+            previous = int(ids[0][:-1])                         # -577
+            for i in range(1,len(ids)):
+                ## previous to current
+                current = int(ids[i][:-1])                      # -977 with i=1
+                distance = int(distances[i].split('_')[0])      # -26 with i=1
+                ## Forward order: previous to current ##
+                update_closests(closests, previous, current, distance) 
+                ## reverse order: -current to -previous ##
+                update_closests(closests, -current, -previous, distance) 
+                previous = current
+    return closests
+    
+
+
+            
+
+
+
+
 
 def store_fact_extreme_snp_ids(gfa_file_name):
-    """ Given a gfa file, store the id of each extreme SNP (without h or l)
+    """ 
+    Given a gfa file, store the id of each extreme SNP (without h or l)
     """
     mfile = open(gfa_file_name)
     leftmost_snp_to_fact_id={}   # each SNP id (with order and without h or l) is linked to some compacted facts id
@@ -17,16 +78,18 @@ def store_fact_extreme_snp_ids(gfa_file_name):
         compactedfact_id = int(line[1])
         
         #left
-        leftmost_snp_id=int(line[2].strip().split(';')[0][:-1])
-        if leftmost_snp_id not in leftmost_snp_to_fact_id:
-            leftmost_snp_to_fact_id[leftmost_snp_id] = set()
+        leftmost_snp_id=int(line[2].strip().split(';')[0][:-1]) # eg. 24617
+        if leftmost_snp_id not in leftmost_snp_to_fact_id: leftmost_snp_to_fact_id[leftmost_snp_id] = set()
         leftmost_snp_to_fact_id[leftmost_snp_id].add(compactedfact_id)
+        if -leftmost_snp_id not in rightmost_snp_to_fact_id:  rightmost_snp_to_fact_id[-leftmost_snp_id] = set()
+        rightmost_snp_to_fact_id[-leftmost_snp_id].add(-compactedfact_id)
         
         #right
-        rightmost_snp_id=int(line[2].strip().split(';')[-2][:-1])# -1 is empty
-        if rightmost_snp_id not in rightmost_snp_to_fact_id:
-            rightmost_snp_to_fact_id[rightmost_snp_id] = set()
+        rightmost_snp_id=int(line[2].strip(';').split(';')[-1][:-1])# -1 is empty
+        if rightmost_snp_id not in rightmost_snp_to_fact_id: rightmost_snp_to_fact_id[rightmost_snp_id] = set()
         rightmost_snp_to_fact_id[rightmost_snp_id].add(compactedfact_id)
+        if -rightmost_snp_id not in leftmost_snp_to_fact_id: leftmost_snp_to_fact_id[-rightmost_snp_id] = set()
+        leftmost_snp_to_fact_id[-rightmost_snp_id].add(-compactedfact_id)
     
     mfile.close()
     return leftmost_snp_to_fact_id, rightmost_snp_to_fact_id
@@ -73,8 +136,6 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
         
         snp_id = int(line1.split("|")[0].split('_')[-1])
         
-        # stored = False # DEBUG
-        central_sequence = None
         
         ### FORWARD CASES ###
         # This SNP (forward) is the starting of at least one compacted fact. Thus we store its remakable left (k-1)mers and we associate them to the corresponding facts
@@ -96,8 +157,7 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
         if snp_id in rightmost_snp_to_fact_id:
             # stored = True
             RO = line2[-k+1:].upper()           # get the last (k-1)mer
-            if not central_sequence:
-                central_sequence = get_uppercase_sequence(line2)
+            central_sequence = get_uppercase_sequence(line2)
             RI = central_sequence[-k+1:]
             # association (k-1)mer -> facts
             if RO not in ROs: ROs[RO] = set()
@@ -107,7 +167,7 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
             # print("heyR",str(snp_id)," hoR ", rightmost_snp_to_fact_id[snp_id])
             
         ### REVERSE CASES ###
-        # In this cses a facts starts by the reverse of a SNP, eg, -10321. In this case it is sufficient to reverse complement the sequence of the SNP and to have exactly the same treatment as in the forward case. 
+        # In this case a fact starts by the reverse of a SNP, eg, -10321. In this case it is sufficient to reverse complement the sequence of the SNP and to have exactly the same treatment as in the forward case. 
         # This SNP (reverse) is the starting of at least one compacted fact. Thus we store its remakable left (k-1)mers and we associate them to the corresponding facts
         if -snp_id in leftmost_snp_to_fact_id:
             # stored = True
@@ -129,38 +189,36 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
             # stored = True
             line2 = kc.get_reverse_complement(line2)
             RO = line2[-k+1:].upper()           # get the last (k-1)mer
-            if not central_sequence:
-                central_sequence = get_uppercase_sequence(line2)
+            central_sequence = get_uppercase_sequence(line2)
             RI = central_sequence[-k+1:]
             # association (k-1)mer -> facts
             if RO not in ROs: ROs[RO] = set()
             ROs[RO] = ROs[RO].union(rightmost_snp_to_fact_id[-snp_id])
             if RI not in RIs: RIs[RI] = set()
             RIs[RI] = RIs[RI].union(rightmost_snp_to_fact_id[-snp_id])
-            # print("heyR",str(-snp_id)," hoR ", rightmost_snp_to_fact_id[-snp_id])
-        # if stored:
-        #     print(line2)
-        #     print(LOs)
-        #     print(LIs)
-        #     print(RIs)
-        #     print(ROs)
-            # sys.exit(0)
+       
+       
     mfile.close()
     return LOs, LIs, RIs, ROs
     
 
-def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id,fa_file_name):
+def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name):
     """ given the association (k-1)mers -> leftfacts, we may derive the links between facts
     1. RIA == LOB and ROA == LIB           -> A+ -> B+
     2. RIA == rc(ROB) and ROA == rc(RIB)   -> A+ -> B-
     3. LOA == rc(LIB) and LIA == rc(LOB)   -> A- -> B+
     4. LOA == RIB and LIA == ROB           -> A- -> B- (eq B+ -> A+)
     
-    In this function we traverse again all SNPS, 
+    In this function we traverse again all variants, 
      for those that are the END of a fact : 
         check if their RI and RO may lead to one of the previous link
      for those whose reverse complement is the END of a fact : 
         Reverse the sequence and then check if their RI and RO may lead to one of the previous link
+
+    Case co-mapped:
+    Finaly, two successive facts can exist if their extreme variants (eg r and l) were seen at least 
+    once co-mapped and if there exists no other variant (eg m) between r, and l. 
+    This information is stored in thie closests dictionary
     """
     mfile = open(fa_file_name)
     while True:
@@ -183,17 +241,17 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id,fa_file_nam
             
             # CASE 1.
             if RIA in LOs and ROA in LIs:
-                set_of_left_facts_compatible = LOs[RIA].intersection(LIs[ROA])                                                  # select all facts ids both whose LO == RI and LI == RO                 -> A+ -> B+
-                for left_fact_id in set_of_left_facts_compatible:
-                    for right_fact_id in rightmost_snp_to_fact_id[snp_id]:
-                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t"+str(-1)+"M")                          # -1 enables to detect those links
+                set_of_right_facts_compatible = LOs[RIA].intersection(LIs[ROA])                                                  # select all facts ids both whose LO == RI and LI == RO                 -> A+ -> B+
+                for right_fact_id in set_of_right_facts_compatible:
+                    for left_fact_id in rightmost_snp_to_fact_id[snp_id]:
+                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t+\t-1M")                          # -1 enables to detect those links
 
             # CASE 2.
             if kc.get_reverse_complement(RIA) in ROs and kc.get_reverse_complement(ROA) in RIs:
-                set_of_left_facts_compatible = ROs[kc.get_reverse_complement(RIA)].intersection(RIs[kc.get_reverse_complement(ROA)])  # select all facts ids both whose RIA == rc(ROB) and ROA == rc(RIB)     -> A+ -> B-
-                for left_fact_id in set_of_left_facts_compatible:
-                    for right_fact_id in rightmost_snp_to_fact_id[snp_id]:
-                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t-\t"+str(-1)+"M")                          # -1 enables to detect those links
+                set_of_right_facts_compatible = ROs[kc.get_reverse_complement(RIA)].intersection(RIs[kc.get_reverse_complement(ROA)])  # select all facts ids both whose RIA == rc(ROB) and ROA == rc(RIB)     -> A+ -> B-
+                for right_fact_id in set_of_right_facts_compatible:
+                    for left_fact_id in rightmost_snp_to_fact_id[snp_id]:
+                        print ("L\t"+str(left_fact_id)+"\t+\t"+str(right_fact_id)+"\t-\t-1M")                          # -1 enables to detect those links
                     
             # CASE 3. & 4. -> they are symetrical:
             # Cases 1. & 2. : detects A -> B and A -> B_, the other cases are
@@ -201,6 +259,41 @@ def print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id,fa_file_nam
             # CASE 4. B -> A   will be detected when traversing Bn detecting then A  (Case 1.)
 
     mfile.close()
+
+def add_canonical(canonical_links, left_fact_id, right_fact_id):
+    if abs(left_fact_id) <= abs(right_fact_id): # prints only canonical 
+        if left_fact_id not in canonical_links: canonical_links[left_fact_id] = set()
+        canonical_links[left_fact_id].add(right_fact_id)
+    else:
+        if -right_fact_id not in canonical_links: canonical_links[-right_fact_id] = set()
+        canonical_links[-right_fact_id].add(-left_fact_id)
+
+sign = lambda s: "+" if s >=0 else "-"
+def print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests):
+    """
+    given a set of rightmost snp to fact ids and leftmost snp to fact id, and the closests variants dictionary:
+    add links between facts
+    """
+
+    # is case variants a b were found with distance d
+    # and latter a' b were foun with distance d' < d, we did not deduced a a' with distance d-d'
+    # hence some links are lost. 
+    # To avoid non-symetrical prints we store all canonical links and then we print them
+
+    ## 1/2: store
+    canonical_links = {}
+    for source, target in closests.items():
+        if source in rightmost_snp_to_fact_id and target[0] in leftmost_snp_to_fact_id:
+            for left_fact_id in rightmost_snp_to_fact_id[source]:
+                for right_fact_id in leftmost_snp_to_fact_id[target[0]]:
+                    add_canonical(canonical_links, left_fact_id, right_fact_id)
+
+    ## 2/2: print
+    for source, targets in canonical_links.items():
+        for target in targets: 
+            print(f"L\t{abs(source)}\t{sign(source)}\t{abs(target)}\t{sign(target)}\t-1M")
+
+
 
 def print_original_gfa(gfa_file_name):
     mfile = open(gfa_file_name)
@@ -239,29 +332,31 @@ def print_original_gfa(gfa_file_name):
 
 
 def main (gfa_file_name, fa_file_name):
-    sys.stderr.write("#Store extreme left and right SNP id for each fact\n")
-    leftmost_snp_to_fact_id, rightmost_snp_to_fact_id   = store_fact_extreme_snp_ids(gfa_file_name)
-    k                                                   = kc.determine_k(fa_file_name)
-    sys.stderr.write("#Store remarkable kmers for each such SNP\n")
-    LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name,k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
 
     sys.stderr.write("#Print original gfa\n")
     print_original_gfa(gfa_file_name)
-    sys.stderr.write("#Print links\n")
+
+
+    sys.stderr.write("#Store extreme left and right variant id for each fact\n")
+    leftmost_snp_to_fact_id, rightmost_snp_to_fact_id   = store_fact_extreme_snp_ids(gfa_file_name)
+    k                                                   = kc.determine_k(fa_file_name)
+    sys.stderr.write("#Store remarkable kmers for each such variant\n")
+    LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
+
+
+
+
+    sys.stderr.write("#Print successive links obtained from kmers\n")
     print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
     del LOs, LIs, RIs, ROs
 
     sys.stderr.write("#Store distances between co-mapped variants\n")
     closests = store_closest_variant_id(gfa_file_name)
+   
     sys.stderr.write("#Print successive links obtained from co-mapped variants\n")
     print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests)
 
 
-
-for i in range(12):
-    if i == 6: break
-    print(i)
-sys.exit(0)
     
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
