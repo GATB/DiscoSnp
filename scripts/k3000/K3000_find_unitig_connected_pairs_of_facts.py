@@ -249,6 +249,19 @@ def main (gfa_file_name, fa_file_name):
     print_original_gfa(gfa_file_name)
     sys.stderr.write("#Print links\n")
     print_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
+    del LOs, LIs, RIs, ROs
+
+    sys.stderr.write("#Store distances between co-mapped variants\n")
+    closests = store_closest_variant_id(gfa_file_name)
+    sys.stderr.write("#Print successive links obtained from co-mapped variants\n")
+    print_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests)
+
+
+
+for i in range(12):
+    if i == 6: break
+    print(i)
+sys.exit(0)
     
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])

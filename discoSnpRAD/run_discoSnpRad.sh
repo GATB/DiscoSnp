@@ -146,7 +146,7 @@ function help {
     echo "      -l | --no_low_complexity"
     echo "           Remove low complexity bubbles"
     echo "      -D | --deletion_max_size <int value>"
-    echo "           discoSnpRad will search for deletions of size from 1 to D included. Default=0"
+    echo "           discoSnpRad will search for deletions of size from 0 to D included. Default=0 (no deletion)"
     
     echo ""
     echo "CLUSTERING OPTION"

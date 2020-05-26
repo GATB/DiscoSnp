@@ -128,7 +128,7 @@ function help {
     echo -e "\t\t Reuse a previously created graph (.h5 file)"
     echo -e "\t -X\t Stop discoSnp++ right after variant calling - the output is only a fasta file with no coverage information."
     echo -e "\t -D | --deletion_max_size <int>"
-    echo -e "\t\t discoSnp++ will search for deletions of size from 1 to D included. Default=100"
+    echo -e "\t\t discoSnp++ will search for deletions of size from 0 to D included. -D 0 means no deletion detected. Default=100."
     echo -e "\t -a | --ambiguity_max_size <int>"
     echo -e "\t\t Maximal size of ambiguity of INDELs. INDELS whose ambiguity is higher than this value are not output  [default '20']"
     echo -e "\t -P | --max_snp_per_bubble <int>"
