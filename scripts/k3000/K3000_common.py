@@ -182,6 +182,7 @@ def valid_fact(rawfact):
 def generate_facts_from_disco_pashing(file_name):
     mfile = open(file_name)
     sl = sorted_list.sorted_list()
+    nb_non_valid = 0
     for line in mfile: 
         #9h_0;35100h_34;-42157l_33; -16792l_0;-41270h_70; => 1
         # or
@@ -192,7 +193,9 @@ def generate_facts_from_disco_pashing(file_name):
         line=line.strip().split("=>")[0]
         line=line.strip().split()
         for fact in line: 
-            if not valid_fact(fact): continue
+            if not valid_fact(fact): 
+                nb_non_valid+=1
+                continue
             facttab=[]
             for variant in fact.split(';')[:-1]:
                 facttab.append(f(variant.split('_')[0])+"_"+variant.split('_')[1])
@@ -202,7 +205,7 @@ def generate_facts_from_disco_pashing(file_name):
             sl.add(facttab)
 
     sl.unique() # Remove redundancies
-    return sl
+    return sl, nb_non_valid
 
 def generate_facts(file_name):
     ''' Given an input file storing facts, store them in the fact array'''

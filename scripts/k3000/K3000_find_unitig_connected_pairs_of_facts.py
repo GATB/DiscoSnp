@@ -355,14 +355,14 @@ def main (gfa_file_name, fa_file_name):
     LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
 
     sys.stderr.write("#Compute successive links obtained from kmers\n")
-    canonical_links = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
+    canonical_links                                     = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
     del LOs, LIs, RIs, ROs
 
     sys.stderr.write("#Store distances between co-mapped variants\n")
-    closests = store_closest_variant_id(gfa_file_name)
+    closests                                            = store_closest_variant_id(gfa_file_name)
    
     sys.stderr.write("#Compute successive links obtained from co-mapped variants\n")
-    canonical_links = store_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests, canonical_links)
+    canonical_links                                     = store_link_facts_from_comapped(leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, closests, canonical_links)
 
     sys.stderr.write(f"#Write successive links\n")
     print_canonical_successive_links(canonical_links)

@@ -30,7 +30,7 @@ def set_indexes_from_gfa(gfa_file_name):
 query_sign = lambda s : "-" if s[0]=="-" else "+"   
 
 def compatibles(raw_fact,compacted_fact):
-    """"given a raw fact, detects if it is (at least partly) included into the compacted_fact[i]
+    """"given a raw fact, detects if it is totaly included into the compacted_fact[i]
     we already know that the 2 facts share at least a snp
     This methods detects if there exists or not a snp, with distinct alleles in the two facts (eg 1000h in one fact, 1000l in the other). 
     Returns false in this case, True else. 
@@ -45,6 +45,10 @@ def compatibles(raw_fact,compacted_fact):
         id_only = variant.lstrip('-')[:-1]
         query_fact_to_pm[id_only] = query_sign(variant)
         query_fact_to_hl[id_only] = variant[-1]
+
+    ## checks that all variants from the raw fact are included in the compacted_fact: 
+    for variant in raw_fact:
+        if variant.lstrip('-') not in compacted_fact: return False, None
 
     ## check compacted fact vs query fact
     same_direction  = False

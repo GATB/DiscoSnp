@@ -116,12 +116,12 @@ def  fusion    (facts,x):
     2/ there exists no other x' left overlapping y that is not collinear with x
     Once done, we compact x and y, and this is finished for x.
     '''
-    y,len_u = right_unique_extention(facts,x)              # Define, if exists, the unique y != x having the largest right overlap with x.
+    y,len_u = right_unique_extention(facts,x)           # Define, if exists, the unique y != x having the largest right overlap with x.
     if y == None: return 0                              # if no unique right extension, finished, x is not right extensible.
     if y == x: return 0                                 # Do not compact x with itself, else, enter an infinite loop
-    y_ = kc.get_reverse_fact(y)                           # what are left extentions of y, we right extend its reverse complement.
+    y_ = kc.get_reverse_fact(y)                         # what are left extentions of y, we right extend its reverse complement.
     if y_ == x: return 0                                # Do not compact x with its own reverse complement.
-    xprime_, dontcare = right_unique_extention(facts,y_)   # Define, if exists, the unique xprime_ (!= y_) having the largest right overlap with y_.
+    xprime_, _ = right_unique_extention(facts,y_)       # Define, if exists, the unique xprime_ (!= y_) having the largest right overlap with y_.
     if xprime_ == None: return 0                        # if no unique left extension of the unique right extention of x, finished, x is not right extensible.
 
     # assert xprime_ == kc.get_reverse_fact(x), "X "+str(x)+" xprime_ "+str(xprime_)+" Y "+str(y)+" Y_"+str(y_)+"\n"
@@ -217,8 +217,8 @@ def main():
     input_file = str(args.input_file)
     
     sys.stderr.write("  Load phased alleles \r")
-    facts = kc.generate_facts_from_disco_pashing(input_file)
-    sys.stderr.write("  Load phased alleles.  Done          - nb facts="+ str(len(facts))+"\n")
+    facts, nb_nonvalid = kc.generate_facts_from_disco_pashing(input_file)
+    sys.stderr.write("  Load phased alleles.  Done          - nb facts="+ str(len(facts))+" of which "+str(nb_nonvalid)+" are non valid\n")
 
     sys.stderr.write("  Add reverse complements \r")
     kc.add_reverse_facts(facts)
