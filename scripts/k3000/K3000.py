@@ -218,7 +218,7 @@ def main():
     
     sys.stderr.write("  Load phased alleles \r")
     facts, nb_nonvalid = kc.generate_facts_from_disco_pashing(input_file)
-    sys.stderr.write("  Load phased alleles.  Done          - nb facts="+ str(len(facts))+" of which "+str(nb_nonvalid)+" are non valid\n")
+    sys.stderr.write("  Load phased alleles.  Done          - nb facts="+ str(len(facts))+". "+str(nb_nonvalid)+" were removed because they are non valid\n")
 
     sys.stderr.write("  Add reverse complements \r")
     kc.add_reverse_facts(facts)
