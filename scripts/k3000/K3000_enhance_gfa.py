@@ -79,21 +79,16 @@ def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
     result = set()                              # Stores the id of the compacted facts that are compatible with the input text_raw_fact
     text_raw_fact=text_raw_fact.rstrip(';')     #Avoids an empty value when splitting with ';'
     for oriented_allele in text_raw_fact.split(";"):
-        # print("oriented_allele -"+oriented_allele+"-")
         snp_id_only=get_left_clean_snp(oriented_allele).split("_")[0][:-1]      # get the snp id non oriented
-        # print("snp_id_only",snp_id_only)
         if snp_id_only in snp_to_fact_id: # the snp may be absent in case it was removed by the sequence concatenation process. 
             subcompacedfacts=subcompacedfacts.union(snp_to_fact_id[snp_id_only])    # fill the subcompacedfacts with all facts in which the snp id non oriented occurs. 
-            # print("subcompacedfacts", subcompacedfacts)
             raw_fact_snps.add(oriented_allele.split("_")[0])
-    # print ("raw_fact_snps", raw_fact_snps)
     for j in subcompacedfacts:
         cmpt,same_orientation = compatibles(raw_fact_snps, compacted_facts[j])
         if cmpt:
             if same_orientation:    result.add(int(j))
             else:                   result.add(-int(j))
             
-    # sys.stderr.write(f"{result}\n")
     return result
 
 
@@ -232,7 +227,6 @@ def detects_pairs_of_linked_compacted_paths(compacted_facts, snp_to_fact_id, raw
         line=line.strip().split("=>")[0]    # remove coverage
         line=line.strip().split()        # two pairs
         if len(line)<2: continue            # we consider only pairs of facts
-        # print(line)
         # for the first fact, detects all compacted_facts in which it occurs: 
         left_compacted_facts = get_compatible_facts(line[0], compacted_facts, snp_to_fact_id)
         # for the second fact, detects all compacted_facts in which it occurs: 
