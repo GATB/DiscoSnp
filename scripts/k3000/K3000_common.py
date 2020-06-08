@@ -62,7 +62,7 @@ def hamming (s1, s2, max):
             if res>max: return False
     return True
 
-def hamming_near_perfect (s1, s2, threshold=1):
+def hamming_near_perfect (s1, s2, threshold=0):
     # assert hamming (s1,s2, 0), f'\n{s1} and \n{s2}'
     return hamming (s1,s2, threshold) 
     # if len(s1) != len(s2): return False
@@ -163,8 +163,21 @@ def f(variant):
     return s+str(res)
 
 
-        
-    
+def valid_fact(rawfact):
+    """
+    Checks if a fact is valid.
+    A fact containing twice or more the same variant id is not valid. 
+    eg: 9h_0;35100h_34;-42157l_33; ok
+    eg: 10081h_0;10081l_13; ko
+    eg: 10081h_0;10081h_13; ko
+    eg: -10081h_0;10081l_13; ko
+    """
+    id_variants = set()
+    for variant in rawfact.rstrip(';').split(';'):
+        id_variant = variant.lstrip("-").split("_")[0][:-1] # from -10081h_0 to 10081
+        if id_variant in id_variants: return False
+        id_variants.add(id_variant)
+    return True    
 
 def generate_facts_from_disco_pashing(file_name):
     mfile = open(file_name)
@@ -179,6 +192,7 @@ def generate_facts_from_disco_pashing(file_name):
         line=line.strip().split("=>")[0]
         line=line.strip().split()
         for fact in line: 
+            if not valid_fact(fact): continue
             facttab=[]
             for variant in fact.split(';')[:-1]:
                 facttab.append(f(variant.split('_')[0])+"_"+variant.split('_')[1])
