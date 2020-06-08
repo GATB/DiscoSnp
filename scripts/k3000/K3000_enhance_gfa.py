@@ -48,7 +48,7 @@ def compatibles(raw_fact,compacted_fact):
 
     ## checks that all variants from the raw fact are included in the compacted_fact: 
     for variant in raw_fact:
-        if variant.lstrip('-') not in compacted_fact: return False, None
+        if variant not in compacted_fact and variant.lstrip('-') not in compacted_fact: return False, None
 
     ## check compacted fact vs query fact
     same_direction  = False
@@ -164,7 +164,7 @@ def detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     Given the compacted facts indexed and the raw phasing information: for each compacted fact, find all facts that belong to it and compute its estimated coverage
     Returns a dictionary: compacted_fact_id -> weight
     """
-    compacted_fact_weight = {}              # For each compacted fact id, stores its weight
+    compacted_fact_weight = {}              # For each compacted fact id (int), stores its weight
     mfile = open(raw_facts_file_name)
     for line in mfile.readlines():
         if line[0]=="#" : continue          # comment
@@ -336,6 +336,7 @@ def print_pairs_of_edges_sharing_snp(facts_shared_snps):
 def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     sys.stderr.write("#INDEX FACTS\n")
     compacted_facts, snp_to_fact_id = set_indexes_from_gfa(phasing_file)
+    print(f"{compacted_facts['4301']}")
     
     sys.stderr.write("#COMPUTE THE COMPACTED FACT COVERAGES\n")
     compacted_fact_weight = detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
