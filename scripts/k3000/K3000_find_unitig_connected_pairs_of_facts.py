@@ -354,9 +354,6 @@ def main (gfa_file_name, fa_file_name):
     sys.stderr.write("#Store remarkable kmers for each such variant\n")
     LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
 
-
-
-
     sys.stderr.write("#Compute successive links obtained from kmers\n")
     canonical_links = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
     del LOs, LIs, RIs, ROs
