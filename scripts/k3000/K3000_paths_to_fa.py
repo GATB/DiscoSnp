@@ -164,10 +164,11 @@ def line2seq(line, sequences, int_facts_format):
                     ### ----------XXXXXXXX-------------------------- 
                     ###                   <--      pbru           -->
                     ###        -------------------XXXXX-------
-                    ###                   <shift >     
+                    ###                   <shift >            < tbw > (negative)
                     ###                                <---npbru --->  (next previous_bubble_ru)
                     ### pbru = shift +len(upper) + npbru --> 
                     ### npbru = pbru - shift - len(upper)
+                    ### TODO BUG ? (I_ here is alway followed by a negative value in the experiments I made (june 2020))
                     previous_bubble_ru = previous_bubble_ru-int(kc.distance_string_value(int_snp_id_d))-len_upper_case
                     header += "I_"+str(len(full_seq)+to_be_written-len(seq))+"_"+str(len(full_seq)+to_be_written)+";"                                          # this allele is useless we do not store its start and stop positions
                     if not kc.hamming_near_perfect(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written], seq): toprint=False
