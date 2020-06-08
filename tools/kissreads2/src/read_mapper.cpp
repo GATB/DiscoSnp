@@ -451,9 +451,6 @@ struct Functor
         /////// PHASING
         if (gv.phasing){
             if (pwi_and_mapped_predictions.size()>1){                                   // If two or more variants mapped by the same read
-                //DEBUG    
-                cout<<"\nXX "<<read<<"\n"; 
-                // END DEBUG
                 string phased_variant_ids ="";                                          // Create a string containing the (lexicographically) ordered set of variant ids.
                 int nb_variants_in_fact = 0;                                            // # of variants in this fact. If one, we do not output it.
                 int previous_pwi;                                                       // position of the previous pwi snp on the read
@@ -475,9 +472,6 @@ struct Functor
                     char sign = signed_var_id.first;
                     int64_t var_id = signed_var_id.second;
 
-                //DEBUG    
-                cout<<"\pwi "<<pwi<<" id "<<sign<<var_id<<"\n"; 
-                // END DEBUG
                     
                     int relative_position;                                              // Relative position of the upper case sequence variant with repect to previous upper case sequence start
                     int shift=0;                                                        // distance between the current upper case sequence start and the previous one. May be negative.
@@ -533,13 +527,13 @@ struct Functor
                     
                     //DEBUG
                     
-                                                       cout<<"phased_variant_id        "<<phased_variant_id<<endl;
-                                                       cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
-                                                       cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
-                                                       cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<endl;
-                                                           phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
-                                                        cout<<"shift "<<shift<<endl;
-                    //ENDDEBUG
+                    //                                    cout<<"phased_variant_id        "<<phased_variant_id<<endl;
+                    //                                    cout<<"from sequence:           "<<index.all_predictions[var_id]->sequence.getComment()<<endl;
+                    //                                    cout<<"parsed from sequence:    "<<parse_variant_id(index.all_predictions[var_id]->sequence.getComment())<<endl;
+                    //                                    cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<endl;
+                    //                                        phased_variant_id+="_"+index.all_predictions[var_id]->upperCaseSequence; //DEBUG
+                    //                                     cout<<"shift "<<shift<<endl;
+                    // //ENDDEBUG
                     phased_variant_ids = phased_variant_ids+phased_variant_id+';';
                     nb_variants_in_fact++;
                     
