@@ -427,11 +427,9 @@ struct Functor
             tested_prediction_and_pwis.clear();
             mapped_prediction_as_set.clear();
             
-            // Return the read if necessary //
-            if (direction == 0){
+            // Return the read (for next loop round or for putting back in the right direction)
                 gv.revcomp(read);
                 gv.rev (quality);
-            }
             
         } // end both directions
         return pwi_and_mapped_predictions;
@@ -739,6 +737,12 @@ struct Functor
                 }
                 if (nb_variants_in_fact>1)  // No need to store facts composed of zero or one variant
                 {
+                    //DEBUG
+                    // cout << phased_variant_ids <<endl;
+                    // cout << "read1: "<<read1<<endl;
+                    // cout << "read2: "<<read2<<endl;
+                    //END DEBUG
+
                     if (phased_variant_ids.back() == ' ') // Removes last character if this is a ' ' (no phasing in the right part of the paired fact)
                         phased_variant_ids.pop_back();
                     // Associate this string to the number of times it is seen when mapping this read set
