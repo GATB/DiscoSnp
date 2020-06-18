@@ -17,7 +17,7 @@ Uricaru R., Rizk G., Lacroix V., Quillery E., Plantard O., Chikhi R., Lemaitre C
 
 Peterlongo, P., Riou, C., Drezen, E., Lemaitre, C. (2017). [DiscoSnp ++ : de novo detection of small variants from raw unassembled read set(s).](http://doi.org/https://doi.org/10.1101/209965) BioRxiv.
 
-Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemaitre, C., Peterlongo, P. (2017). [DiscoSnp-RAD: de novo detection of small variants for population genomics](https://www.biorxiv.org/content/early/2017/11/09/216747). BioRxiv
+Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemaitre, C., Peterlongo, P. (2017). [DiscoSnp-RAD: de novo detection of small variants for population genomics](https://peerj.com/articles/9291/). *PeerJ* 8 (2020): e9291.
 
 ## DiscoSnp++ or DiscoSnpRad
 We propose a DiscoSnp++ adaptation for RAD-Seq data. A script, called `run_discoSnpRad.sh`, is adapted to this kind of data. See below for more details.
