@@ -54,7 +54,7 @@ def hamming (s1, s2, max):
     """ 
     res=0
     
-    if len(s1) != len(s2): return 100000
+    if len(s1) != len(s2): return False
     for i in range(len(s1)):      
         if s1[i].upper() == 'N' or s2[i].upper()=='N': continue
         if s1[i].upper()!=s2[i].upper():
