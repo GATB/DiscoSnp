@@ -132,7 +132,7 @@ def main():
                         required=True)
     
     parser.add_argument("--paths", type=str,
-                        help="File containing pahsed facts (format: \"haplotypeID	ccID	fact1;fact2;fact3\"",
+                        help="File containing phased facts (format: \"haplotypeID	ccID	fact1;fact2;fact3\"",
                         required=True)
 
 

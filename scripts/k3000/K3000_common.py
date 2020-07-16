@@ -62,7 +62,7 @@ def hamming (s1, s2, max):
             if res>max: return False
     return True
 
-def hamming_near_perfect (s1, s2, threshold=1):
+def hamming_near_perfect (s1, s2, threshold=0):
     # assert hamming (s1,s2, 0), f'\n{s1} and \n{s2}'
     return hamming (s1,s2, threshold) 
     # if len(s1) != len(s2): return False

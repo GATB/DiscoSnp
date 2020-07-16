@@ -52,7 +52,7 @@ def index_sequences(fa_file_name, sequences = {}):
     return sequences
     
     
-def line2seq(line, sequences, hamming_max=1):
+def line2seq(line, sequences, hamming_max=0):
     '''
     Parses a (non paired) fact, represented by ints or not
     Returns a bench of information relative to the line to be printed or not to be printed
@@ -226,7 +226,7 @@ def main():
     '''
     sequences=index_sequences(sys.argv[1]) #for each snp id: sequences[snp_id]=[left_unitig_len, right_unitig_len, upperseq, lowerseq] 
     sequences=index_sequences(sys.argv[2], sequences) #for each snp id: sequences[snp_id]=[left_unitig_len, right_unitig_len, upperseq, lowerseq] 
-    generate_sequence_paths(sequences, sys.argv[3], 2)
+    generate_sequence_paths(sequences, sys.argv[3])
     
 
 
