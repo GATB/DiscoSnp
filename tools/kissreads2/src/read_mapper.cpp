@@ -356,11 +356,11 @@ struct Functor
                         
                         const bool is_read_mapped = constrained_read_mappable(pwi, prediction, read, gv.subst_allowed, index.all_predictions[value->first-value->first%2]->SNP_positions, seed_position, gv.size_seeds);
                         
-#ifdef DEBUG_MAPPING                  
-                        if (is_read_mapped) {
-                            cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->first<<" pos "<<pwi<<" direction "<<direction<<endl;
-                        }
-#endif
+// #ifdef DEBUG_MAPPING                  
+                        // if (is_read_mapped) {
+                            // cout<<endl<<read<<" mapped on "<<prediction<<" "<<value->first<<" pos "<<pwi<<" direction "<<direction<<endl;
+                        // }
+// #endif
                         
                         if(is_read_mapped){ // tuple read prediction position is read coherent
                             __sync_fetch_and_add (number_of_mapped_reads, 1);
