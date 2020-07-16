@@ -243,6 +243,7 @@ while :; do
     
     -A) 
         option_phase_variants="-phasing"
+        extend="-t"
         echo "Will phase variants during kissreads process - WARNING this option is too experimental and thus not described in the help message"
         echo "You can obtain clusters using script : \"script/from_phased_alleles_to_clusters.sh file_name_of_phased_alleles\" (the filename(s) is/are given during kissreads process"
         ;;
