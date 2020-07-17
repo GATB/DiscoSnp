@@ -9,21 +9,31 @@ no_underline=`tput rmul`
 
 wraith=false #$4 # set to true if you only want to see commands without executing them
 phased_allele_file=$1
-disco_fa_file=$2
-read_set_id=$3
+disco_cofa_file=$2
+disco_uncofa_file=$3
+read_set_id=$4
 EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 if [ -z "$phased_allele_file" ]; then
     echo "${red}           You must provide a phased file name${reset}"
+    echo "${red}           Usage: $0 phased_allele_file disco_coherent.fa disco_uncoherent.fa read_set_id${reset}"
     exit 1
 fi
 
-if [ -z "$disco_fa_file" ]; then
-    echo "${red}           You must provide a disco file (\"...coherent.fa\")${reset}"
+if [ -z "$disco_cofa_file" ]; then
+    echo "${red}           You must provide a disco (coherent) file (\"...coherent.fa\")${reset}"
+    echo "${red}           Usage: $0 phased_allele_file disco_coherent.fa disco_uncoherent.fa read_set_id${reset}"
+    exit 1
+fi
+
+if [ -z "$disco_uncofa_file" ]; then
+    echo "${red}           You must provide a disco (uncoherent) file (\"...uncoherent.fa\")${reset}"
+    echo "${red}           Usage: $0 phased_allele_file disco_coherent.fa disco_uncoherent.fa read_set_id${reset}"
     exit 1
 fi
 
 if [ -z "$read_set_id" ]; then
-    echo "${red}           You must provide a read set id (integer value from 1 to the number of read set used to create file $disco_fa_file ${reset}"
+    echo "${red}           You must provide a read set id (integer value from 1 to the number of read set used to create file $disco_cofa_file ${reset}"
+    echo "${red}           Usage: $0 phased_allele_file disco_coherent.fa disco_uncoherent.fa read_set_id${reset}"
     exit 1
 fi
 
@@ -33,11 +43,42 @@ fi
 
 echo "${green}${bold}           ### EXPLOITATION OF PHASING INFORMATION OBTAINED FROM DISCOSNP${reset}"
 echo "${green}           ### Input phased_allele_file: `sha1sum ${phased_allele_file}`${reset}"
-echo "${green}           ### Input disco_fa_file:      `sha1sum ${disco_fa_file}`${reset}"
+echo "${green}           ### Input disco_cofa_file:      `sha1sum ${disco_cofa_file}`${reset}"
+echo "${green}           ### Input disco_uncofa_file:      `sha1sum ${disco_uncofa_file}`${reset}"
 echo "${green}           ### Input read_set_id:        ${read_set_id}${reset}"
 echo ""
+
+# Prefiltering: removing non perfectly overlapping facts
+echo "${green}           ### Removing non perfectly overlapping facts"
+cmd="python3 ${EDIR}/K3000_filter_badly_overlapping_variants.py ${disco_cofa_file} ${disco_uncofa_file} ${phased_allele_file}"
+echo "           "$cmd "> filtered_${phased_allele_file}${cyan}"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmd > filtered_${phased_allele_file}
+fi
+if [ $? -ne 0 ]
+then
+    echo "${red}           ###Problem detected, check logs.${reset}"
+    exit 1
+fi
+
+
+# Determining working zones: 
+echo "${green}           ### Determining working zones"
+cmd="python3 ${EDIR}/K3000_working_zone_no_redundant_edges.py filtered_${phased_allele_file}"
+echo "           "$cmd " > wz_filtered_${phased_allele_file}${cyan}"
+if [[ "$wraith" == "false" ]]; then
+    eval $cmd > wz_filtered_${phased_allele_file}
+fi
+if [ $? -ne 0 ]
+then
+    echo "${red}           ###Problem detected, check logs.${reset}"
+    exit 1
+fi
+
+
+# Creating a file where simple paths are compacted
 echo "${green}           ### Creating a file where simple paths are compacted"
-cmd="python3 ${EDIR}/K3000.py ${phased_allele_file}"
+cmd="python3 ${EDIR}/K3000.py wz_filtered_${phased_allele_file}"
 echo "           "$cmd "> compacted_facts_int_${read_set_id}.txt${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > compacted_facts_int_${read_set_id}.txt
@@ -49,9 +90,11 @@ then
 fi
 
 
+
+
 # Creating a file with sequences of the compacted paths and removing uncoherent compactions
 echo "${green}           ### Creating a fasta file from compacted facts"
-cmd="python3 ${EDIR}/K3000_paths_to_fa.py ${disco_fa_file} compacted_facts_int_${read_set_id}.txt" 
+cmd="python3 ${EDIR}/K3000_paths_to_fa.py ${disco_cofa_file} ${disco_uncofa_file} compacted_facts_int_${read_set_id}.txt" 
 echo "           "$cmd "> compacted_facts_${read_set_id}.fa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > compacted_facts_${read_set_id}.fa
@@ -94,8 +137,7 @@ fi
 
 # Adding paired edges and counting of compacted facts
 echo "${green}           ### Adding paired edges and counting of compacted facts"
-# python3 ${EDIR}/enhance_gfa.py compacted_facts.gfa ${phased_allele_file} > graph.gfa
-cmd="python3 ${EDIR}/K3000_enhance_gfa.py compacted_facts_${read_set_id}.gfa ${phased_allele_file} ${disco_fa_file} ${read_set_id}"
+cmd="python3 ${EDIR}/K3000_enhance_gfa.py compacted_facts_${read_set_id}.gfa wz_filtered_${phased_allele_file} ${disco_cofa_file} ${disco_uncofa_file} ${read_set_id}"
 echo "           "$cmd" > graph_${read_set_id}.gfa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > graph_${read_set_id}.gfa
@@ -109,8 +151,8 @@ fi
 
 # Detecting snp succesion
 echo "${green}           ### Detecting snp succession"
-# python3 ${EDIR}/find_unitig_connected_pairs_of_facts.py graph.gfa ${disco_fa_file} > graph_plus.gfa
-cmd="python3 ${EDIR}/K3000_find_unitig_connected_pairs_of_facts.py graph_${read_set_id}.gfa ${disco_fa_file}"
+# python3 ${EDIR}/find_unitig_connected_pairs_of_facts.py graph.gfa ${disco_cofa_file} > graph_plus.gfa
+cmd="python3 ${EDIR}/K3000_find_unitig_connected_pairs_of_facts.py graph_${read_set_id}.gfa ${disco_cofa_file} ${disco_uncofa_file}"
 echo "           "$cmd" > graph_plus_${read_set_id}.gfa${cyan}"
 if [[ "$wraith" == "false" ]]; then
     eval $cmd > graph_plus_${read_set_id}.gfa

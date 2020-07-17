@@ -104,7 +104,7 @@ def get_uppercase_sequence(sequence):
     return res
  
 
-def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_snp_to_fact_id):
+def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, LOs = {}, LIs = {}, RIs = {}, ROs = {}):
     """
     Given a disco output, store for SNPs the remarkable (k-1)mers.
     
@@ -118,10 +118,10 @@ def store_remarkable_kmers(fa_file_name, k, leftmost_snp_to_fact_id, rightmost_s
     We store only RO and RI for SNPs that are a right most SNP of at least a fact
     """
     
-    LOs = {} # key: (k-1)mer, value: set of fact ids
-    LIs = {} # key: (k-1)mer, value: set of fact ids
-    RIs = {} # key: (k-1)mer, value: set of fact ids
-    ROs = {} # key: (k-1)mer, value: set of fact ids
+    # LOs = {} # key: (k-1)mer, value: set of fact ids
+    # LIs = {} # key: (k-1)mer, value: set of fact ids
+    # RIs = {} # key: (k-1)mer, value: set of fact ids
+    # ROs = {} # key: (k-1)mer, value: set of fact ids
     
     mfile = open(fa_file_name)
     while True:
@@ -210,7 +210,7 @@ def add_canonical(canonical_links, left_fact_id, right_fact_id):
         canonical_links[-right_fact_id].add(-left_fact_id)
 
 
-def store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name):
+def store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name, canonical_links = {}):
     """ given the association (k-1)mers -> leftfacts, we may derive the links between facts
     1. RIA == LOB and ROA == LIB           -> A+ -> B+
     2. RIA == rc(ROB) and ROA == rc(RIB)   -> A+ -> B-
@@ -228,7 +228,7 @@ def store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, f
     once co-mapped and if there exists no other variant (eg m) between r, and l. 
     This information is stored in thie closests dictionary
     """
-    canonical_links = {}
+    
     mfile = open(fa_file_name)
     while True:
         line1 = mfile.readline()
@@ -342,7 +342,7 @@ def print_original_gfa(gfa_file_name):
 
 
 
-def main (gfa_file_name, fa_file_name):
+def main (gfa_file_name, co_fa_file_name, unco_fa_file_name):
 
     sys.stderr.write("#Print original gfa\n")
     print_original_gfa(gfa_file_name)
@@ -350,12 +350,14 @@ def main (gfa_file_name, fa_file_name):
 
     sys.stderr.write("#Store extreme left and right variant id for each fact\n")
     leftmost_snp_to_fact_id, rightmost_snp_to_fact_id   = store_fact_extreme_snp_ids(gfa_file_name)
-    k                                                   = kc.determine_k(fa_file_name)
+    k                                                   = kc.determine_k(co_fa_file_name)
     sys.stderr.write("#Store remarkable kmers for each such variant\n")
-    LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
+    LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(co_fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id)
+    LOs, LIs, RIs, ROs                                  = store_remarkable_kmers(unco_fa_file_name, k,leftmost_snp_to_fact_id, rightmost_snp_to_fact_id, LOs, LIs, RIs, ROs)
 
     sys.stderr.write("#Compute successive links obtained from kmers\n")
-    canonical_links                                     = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, fa_file_name)
+    canonical_links                                     = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, co_fa_file_name)
+    canonical_links                                     = store_sequence_link_facts(LOs, LIs, RIs, ROs, k, rightmost_snp_to_fact_id, unco_fa_file_name, canonical_links)
     del LOs, LIs, RIs, ROs
 
     sys.stderr.write("#Store distances between co-mapped variants\n")
@@ -369,4 +371,4 @@ def main (gfa_file_name, fa_file_name):
 
     
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

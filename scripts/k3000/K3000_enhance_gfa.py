@@ -99,13 +99,12 @@ def get_compatible_facts(text_raw_fact, compacted_facts, snp_to_fact_id):
 
 get_allele_id = lambda x: x.split("_")[-1]+x.split("_")[1][0]   #>SNP_higher_path_9 to "9h"
 get_coverage  = lambda x: int(x.split("_")[-1])                 #C1_31 to int(31)
-def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
+def index_allele_coverage(raw_disco_fa_file_name, read_set_id, alleles_coverage = {}):
     """
     For each allele name (eg 21112l) provides its coverage in the considered read set)
     Returns a dictionary: allele_id -> coverage
     Used only by "detects_allele_coverage"
     """
-    alleles_coverage = {}                    # Fora each allele, store its read coverage
     mfile = open(raw_disco_fa_file_name)
     # first variant rteated appart to recover the position of the coverage in which we are interested
     coverage_field=-1
@@ -144,13 +143,14 @@ def index_allele_coverage(raw_disco_fa_file_name, read_set_id):
     mfile.close()
     return alleles_coverage
 
-def detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id):
+def detects_allele_coverage(compacted_facts, raw_disco_co_file_name, raw_disco_unco_file_name, read_set_id):
     """
     Given the compacted facts indexed and the raw disco output: 
     for each compacted fact, find all allele that belong to it and store its coverage
     Returns a dictionary: compacted_fact_id -> allele_weight
     """
-    alleles_coverage = index_allele_coverage(raw_disco_file_name, read_set_id)
+    alleles_coverage = index_allele_coverage(raw_disco_co_file_name, read_set_id)
+    alleles_coverage = index_allele_coverage(raw_disco_unco_file_name, read_set_id, alleles_coverage)
     compacted_fact_allele_weight = {}              # For each compacted fact id, stores its weight
     for fact_id, fact_value in compacted_facts.items():
         compacted_fact_allele_weight[fact_id] = []
@@ -334,7 +334,7 @@ def print_pairs_of_edges_sharing_snp(facts_shared_snps):
     sys.stderr.write(str(cpt)+" pairs of facts sharing at least one snp written\n")
 
 
-def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
+def main (phasing_file,raw_facts_file_name, raw_disco_co_file_name, raw_disco_unco_file_name, read_set_id):
     sys.stderr.write("#INDEX FACTS\n")
     compacted_facts, snp_to_fact_id = set_indexes_from_gfa(phasing_file)
     
@@ -342,7 +342,7 @@ def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     compacted_fact_weight = detects_facts_coverage(compacted_facts, snp_to_fact_id, raw_facts_file_name)
     
     sys.stderr.write("#COMPUTE THE COMPACTED FACT ALLELE COVERAGES\n")
-    compacted_fact_allele_weight=detects_allele_coverage(compacted_facts, raw_disco_file_name, read_set_id)
+    compacted_fact_allele_weight=detects_allele_coverage(compacted_facts, raw_disco_co_file_name, raw_disco_unco_file_name, read_set_id)
     
     sys.stderr.write("#PRINT COMPACTED FACTS \n")
     print_facts(phasing_file,compacted_fact_weight, compacted_fact_allele_weight)
@@ -362,7 +362,7 @@ def main (phasing_file,raw_facts_file_name, raw_disco_file_name, read_set_id):
     
     
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]) # compacted_facts.gfa phased_alleles_read_set_id_1.txt discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa 1
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4],  sys.argv[5]) # compacted_facts.gfa phased_alleles_read_set_id_1.txt discoRes_k_31_c_2_D_0_P_3_b_2_coherent.fa discoRes_k_31_c_2_D_0_P_3_b_2_uncoherent.fa 1
 
     
     
