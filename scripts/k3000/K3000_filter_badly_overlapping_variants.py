@@ -60,7 +60,7 @@ def filter_and_print_phased_facts(sequences, raw_fact_file_name):
 
         printed_fact = ""
         for fact_as_ids in line.split():    
-            toprint, _, _, _ = kc.line2seq(fact_as_ids, sequences, False, 0)
+            toprint, _, _, _ = kc.line2seq(fact_as_ids, sequences, False)
             if toprint:
                 conserved+=1
                 if len(printed_fact)>0: printed_fact+=" "

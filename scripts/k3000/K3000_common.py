@@ -47,7 +47,7 @@ def file_size(f):
     f.seek(old_file_position, os.SEEK_SET)
     return size
 
-def hamming (s1, s2, max):
+def hamming_near_perfect (s1, s2, max=0):
     """ returns True is the hamming distance between {s1} and {s2} at most equal to {max} 
     jocker N are authorized.
     s1 and s2 are compared as upper case sequences (eg a==A)
@@ -62,14 +62,6 @@ def hamming (s1, s2, max):
             if res>max: return False
     return True
 
-def hamming_near_perfect (s1, s2, threshold=0):
-    # assert hamming (s1,s2, 0), f'\n{s1} and \n{s2}'
-    return hamming (s1,s2, threshold) 
-    # if len(s1) != len(s2): return False
-    # for i in range(len(s1)): 
-    #     if s1[i].upper()!=s2[i].upper():
-    #         return False
-    # return True
     
     
     
@@ -453,7 +445,7 @@ def test_update_SNP_positions():
     
 # test_update_SNP_positions()
     
-def line2seq(line, sequences, int_facts_format, hamming_max=0):
+def line2seq(line, sequences, int_facts_format, hamming_max=3):
     '''
     Parses a (non paired) fact, represented by ints or not
     Returns a bench of information relative to the line to be printed or not to be printed

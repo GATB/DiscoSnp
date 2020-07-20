@@ -38,7 +38,7 @@ def generate_sequence_paths(sequences, compacted_fact_file_name, int_facts_forma
         # if the input fact contains a space it means that this is a paired fact, each part is treated
         for fact_as_ids in line.split():
             # print(fact_as_ids)
-            toprint, header, bubble_facts_position_start_stops, full_seq = kc.line2seq(fact_as_ids, sequences, int_facts_format)
+            toprint, header, bubble_facts_position_start_stops, full_seq = kc.line2seq(fact_as_ids, sequences, int_facts_format, 0)
             if toprint:
                 print(f">{header}\t{bubble_facts_position_start_stops}\n{full_seq}")
             else: nb_non_writen+=1
