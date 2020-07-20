@@ -366,6 +366,18 @@ def get_reverse_fact_id(fact,facts):
 # for sr in facts.traverse():
 #     print (sr)
 
+def get_snp_positions(comment_line):
+    """ 
+    from a comment line, eg:
+    >SNP_higher_path_99|P_1:20_C/T,P_2:25_T/C|high|nb_pol_2|left_unitig_length_21|right_unitig_length_14|C1_262|Q1_73|G1_0/1:5710,65,3395|rank_0
+    returns the snp positions, eg
+    [20, 25]
+    """
+    positions = []
+    for variants_localization in comment_line.split("|")[1].split(','):
+        positions.append(int(variants_localization.split(":")[1].split("_")[0]))
+    return positions
+
 
 def index_sequences(fa_file_name, sequences = {}):
     mfile = open(fa_file_name)
@@ -385,18 +397,61 @@ def index_sequences(fa_file_name, sequences = {}):
             # one need to store the left unitig length. Here 152
             # one need to store the right unitig length. Here 3
             # note that the position of the left_unitig_length field is always the same with or without multiple snps.
+        snp_positions = get_snp_positions(line1)
         line1 = line1.split('|')
         snp_id = line1[0].split('_')[-1] # from SNP_higher_path_9 to 9
+
+        
+        
         
         left_unitig_len = int(line1[4].split('_')[-1])
         right_unitig_len = int(line1[5].split('_')[-1])
         
        
-        sequences[snp_id] = [left_unitig_len, right_unitig_len, line2, line4] #sequences[snp_id] = [left_unitig_len, right_unitig_len, upperseq, lowerseq] 
+        sequences[snp_id] = [left_unitig_len, right_unitig_len, line2, line4, snp_positions] #sequences[snp_id] = [left_unitig_len, right_unitig_len, upperseq, lowerseq, snp_positions] 
         
     mfile.close()
     return sequences
+
+def seq_to_lower_case_except_SNPs(seq, snp_positions):
+    """ given a sequence in ACGTN, put everything in lower case, except the variant positions """
+    res=""
+    for i, letter in enumerate(seq):
+        if i in snp_positions: res+=letter.upper()
+        else: res+=letter.lower()
+    return res
+
+def update_SNP_positions(seq1, seq2):
+    """
+    Given a sequence `seq1` with upper case letters showing SNP positions, eg
+    acggcgagTg
+    update SNPs positions given a a sequence `seq2` of the same length, eg: 
+    aGggTgaggg    
+    final results is 
+    aGggTgagTg
+    In case of equality of lower case letter, seq1 is abitrary showen
+    raises an error if two distinct upper case letters occur at the same position
+    """
+    new_seq = ""
+    for i, letter in enumerate(seq1):
+        if seq2[i].isupper():
+            # detects errors
+            if letter.isupper() and letter != seq2[i]: raise ValueError (f'cannot concatenate {seq1} with {seq2}, no solution for position {i} of suffix')
+            # no error conserve the previous value as it was upper case
+            new_seq+=seq2[i]
+        # here either letter is upper, we keep it, or letter is lower, we also keept it. 
+        else: new_seq+=letter
+    return new_seq
+
+
+
+def test_update_SNP_positions():
+    seq1 = "atggcgagTg"
+    seq2 = "aGggTgtggg"
+    res = update_SNP_positions(seq1,seq2)
+    assert res == "aGggTgagTg"
     
+# test_update_SNP_positions()
     
 def line2seq(line, sequences, int_facts_format, hamming_max=0):
     '''
@@ -409,7 +464,7 @@ def line2seq(line, sequences, int_facts_format, hamming_max=0):
     # ------XXXXXXXXXXXXXXXXXX------  0_18
     #                ------------XXXXXXXXXXXXXX----------- 3:14
     #                         ----------XXXXXXXXXXXXXXXX----------   -7:16 (distance is negative is bubbles overlap 
-    # print("\n NEW LINE ",line)         #DEBUG
+
     line=line.strip(';').split(';')
     previous_bubble_ru=0
     full_seq = ""
@@ -447,35 +502,43 @@ def line2seq(line, sequences, int_facts_format, hamming_max=0):
             forward=False
             snp_id = snp_id[1:]
         try:
+
             if higher: seq = sequences[snp_id][2]
             else: seq = sequences[snp_id][3]
             if forward: 
                 lu = sequences[snp_id][0]
                 ru = sequences[snp_id][1]
+                len_bubble = len(seq)-lu-ru # len sequence - len left unitig - len right unitig
+                snp_positions = sequences[snp_id][4]
             else: 
                 seq=get_reverse_complement(seq)
                 lu = sequences[snp_id][1]
                 ru = sequences[snp_id][0]
+                len_bubble = len(seq)-lu-ru # len sequence - len left unitig - len right unitig
+                snp_positions = [len_bubble-x for x in sequences[snp_id][4]] # reverse snp positions
+                snp_positions.sort() # and sort them in increasing order
 
-            len_upper_case = len(seq)-lu-ru # len sequence - len left unitig - len right unitig
+
+            #conserves only SNP positions in upper case: 
+            seq = seq_to_lower_case_except_SNPs(seq, snp_positions)
             
             #treat first snp apart
             if i==0: 
                 full_seq+=seq
                 previous_bubble_ru = ru
                 header+="0_"+str(len(full_seq))+";" # SP==Sequence Positions
-                bubble_facts_position_start_stops+="0_"+str(len_upper_case)+";"
+                bubble_facts_position_start_stops+="0_"+str(len_bubble)+";"
                 # print("full_seq =",full_seq)
                 
             else:
-                to_be_written = len_upper_case + ru + int(distance_string_value(int_snp_id_d)) - previous_bubble_ru
-                bubble_facts_position_start_stops+=distance_string_value(int_snp_id_d)+"_"+str(len_upper_case)+";"
+                to_be_written = len_bubble + ru + int(distance_string_value(int_snp_id_d)) - previous_bubble_ru
+                bubble_facts_position_start_stops+=distance_string_value(int_snp_id_d)+"_"+str(len_bubble)+";"
                 # #DEBUG
                 # print("to_be_written =",to_be_written)
                 # print("len seq =",len(seq))
                 # print("previous_bubble_ru =",previous_bubble_ru)
-                # print("len_upper_case =", len_upper_case)
-                # print("start_to_end  =", len_upper_case+ru)
+                # print("len_bubble =", len_bubble)
+                # print("start_to_end  =", len_bubble+ru)
                 # print("shift =", int(distance_string_value(int_snp_id_d)))
                 
                 # print("full_seq =",full_seq)
@@ -498,12 +561,19 @@ def line2seq(line, sequences, int_facts_format, hamming_max=0):
                             start_on_seq=0
                             stop_on_seq=start_on_seq+p
                             
-                        if not hamming_near_perfect(full_seq[-p:],seq[start_on_seq:stop_on_seq], hamming_max):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
-                            # print(f"Too far\n{full_seq[-p:]}\n{seq[start_on_seq:stop_on_seq]}\n")
+                        if not hamming_near_perfect(full_seq[-p:], seq[start_on_seq:stop_on_seq], hamming_max):    #Fake read (happens with reads containing indels). We could try to retreive the good sequence, but it'd be time consuming and useless as other reads should find the good shift.
                             toprint = False
                             break
                         header+=str(len(full_seq)-len(seq)+to_be_written)    # starting position of the new sequence on the full seq that overlaps the full seq by len(seq)-to_be_written
-                        full_seq+=seq[-to_be_written:] 
+                        try:
+                            overlap = update_SNP_positions(full_seq[-p:], seq[start_on_seq:stop_on_seq])
+                        except ValueError as err: 
+                            toprint = False
+                            # sys.stderr.write(f"{format(err)} \n")
+                            break
+                            
+                        full_seq = full_seq[:-p]+overlap+seq[-to_be_written:] 
+
                         header+="_"+str(len(full_seq))+";"                           # ending position of the new sequence on the full seq. 
                     else:                                           # the to_be_written part is bigger than the length of the new sequence, we fill with Ns and add the full new seq
                         for i in range(to_be_written-len(seq)):
@@ -522,12 +592,24 @@ def line2seq(line, sequences, int_facts_format, hamming_max=0):
                     ### pbru = shift +len(upper) + npbru --> 
                     ### npbru = pbru - shift - len(upper)
                     ### TODO BUG ? (I_ here is alway followed by a negative value in the experiments I made (june 2020))
-                    previous_bubble_ru = previous_bubble_ru-int(distance_string_value(int_snp_id_d))-len_upper_case
-                    header += "I_"+str(len(full_seq)+to_be_written-len(seq))+"_"+str(len(full_seq)+to_be_written)+";"                                          # this allele is useless we do not store its start and stop positions
-                    if not hamming_near_perfect(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written], seq, hamming_max): 
-                        # print(f"Too far:\n{full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written]}\n{seq}\n")
+                    previous_bubble_ru = previous_bubble_ru-int(distance_string_value(int_snp_id_d))-len_bubble
+                    
+                    overlap_start = len(full_seq)+to_be_written-len(seq) #(included)
+                    overlap_stop = len(full_seq)+to_be_written #(excluded)
+                    
+                    header += "I_"+str(overlap_start)+"_"+str(overlap_stop)+";"                                          # this allele is useless we do not store its start and stop positions
+                    
+                    if not hamming_near_perfect(full_seq[overlap_start:overlap_stop], seq, hamming_max): 
+                        # print(f"Too far:\n{full_seq[overlap_start:overlap_stop]}\n{seq}\n")
                         toprint=False
-                    # print(full_seq[len(full_seq)+to_be_written-len(seq):len(full_seq)+to_be_written]+"\n"+seq+"\n")
+                    # print(full_seq[overlap_start:overlap_stop]+"\n"+seq+"\n")
+                    try:
+                        overlap = update_SNP_positions(full_seq[overlap_start:overlap_stop], seq)
+                    except ValueError as err: 
+                        toprint = False
+                        # sys.stderr.write(f"{format(err)} \n")
+                        break
+                    full_seq = full_seq[:overlap_start] + overlap + full_seq[overlap_stop:]
                     
             
         except KeyError: # in case a variant is in the phasing file but absent from the disco file. This is due to uncoherent prediction

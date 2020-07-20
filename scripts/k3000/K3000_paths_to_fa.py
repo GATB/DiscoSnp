@@ -25,6 +25,7 @@ def generate_sequence_paths(sequences, compacted_fact_file_name, int_facts_forma
     mfile = open(compacted_fact_file_name)
     nb_non_writen=0
     for line in mfile: 
+        if line[0] == "#": continue
         # * int_facts_format:
         #   38772_0;-21479_1;27388_3;-494_28;-45551_36;-11894_10;-50927_7;-66981_10;29405_22;34837_1;20095_5;
         # * not int_facts_format:
