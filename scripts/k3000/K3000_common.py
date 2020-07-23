@@ -406,10 +406,13 @@ def index_sequences(fa_file_name, sequences = {}):
     return sequences
 
 def seq_to_lower_case_except_SNPs(seq, snp_positions):
-    """ given a sequence in ACGTN, put everything in lower case, except the variant positions """
+    """ given a sequence in ACGTN, put everything in lower case, except the variant positions on the upper case bubble"""
     res=""
-    for i, letter in enumerate(seq):
-        if i in snp_positions: res+=letter.upper()
+    position_on_bubble=-1
+    for letter in seq:
+        if letter.isupper():
+            position_on_bubble+=1
+        if position_on_bubble!=-1 and position_on_bubble in snp_positions: res+=letter.upper()
         else: res+=letter.lower()
     return res
 
@@ -425,10 +428,12 @@ def update_SNP_positions(seq1, seq2):
     raises an error if two distinct upper case letters occur at the same position
     """
     new_seq = ""
+    # print(f'Try concatenate \n{seq1} with \n{seq2}')
+
     for i, letter in enumerate(seq1):
         if seq2[i].isupper():
             # detects errors
-            if letter.isupper() and letter != seq2[i]: raise ValueError (f'cannot concatenate {seq1} with {seq2}, no solution for position {i} of suffix')
+            if letter.isupper() and letter != seq2[i]: raise ValueError (f'Cannot concatenate \n{seq1} with \n{seq2}, no solution for position {i} of suffix')
             # no error conserve the previous value as it was upper case
             new_seq+=seq2[i]
         # here either letter is upper, we keep it, or letter is lower, we also keept it. 
@@ -507,7 +512,7 @@ def line2seq(line, sequences, int_facts_format, hamming_max=3):
                 lu = sequences[snp_id][1]
                 ru = sequences[snp_id][0]
                 len_bubble = len(seq)-lu-ru # len sequence - len left unitig - len right unitig
-                snp_positions = [len_bubble-x for x in sequences[snp_id][4]] # reverse snp positions
+                snp_positions = [len_bubble-x-1 for x in sequences[snp_id][4]] # reverse snp positions
                 snp_positions.sort() # and sort them in increasing order
 
 
