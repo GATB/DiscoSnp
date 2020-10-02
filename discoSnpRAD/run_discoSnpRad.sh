@@ -453,7 +453,7 @@ fi
 if [[ "$clustering" == "true" ]]; then
 	# first tests the directory given by user if any
 	if [ -n "$short_read_connector_path" ]; then
-		src_file="$short_read_connector_path/short_read_connector.sh"
+		src_file="$short_read_connector_path/short_read_connector_linker.sh"
     	if [ -f "$src_file" ]; then
             echo "${yellow}short_read_connector path is $src_file$reset"
     	else
@@ -467,9 +467,9 @@ if [[ "$clustering" == "true" ]]; then
     	fi
     else
     	#then tests if src is in the PATH env variable
-    	src_file=$(command -v short_read_connector.sh)
+    	src_file=$(command -v short_read_connector_linker.sh)
     	if [ -n "$src_file" ]; then
-    		echo "${yellow}short_read_connector path is $src_file$reset"
+    		echo "${yellow}short_read_connector_linker path is $src_file$reset"
     	else
     		echo "${red}               **************************************************************************"
             echo "               ** WARNING: I cannot find short_read_connector in PATH. "
@@ -523,7 +523,7 @@ fi
 if [[ "$wraith" == "false" ]]; then
     echo "${yellow}     Running discoSnpRad "$version", in directory "$EDIR" with following parameters:"
     echo "           read_sets="$read_sets
-    echo "           short_read_connector path="$short_read_connector_path
+    echo "           short_read_connector_linker path="$short_read_connector_path
     echo "           prefix="$h5prefix
     if [ -f ${graph_reused} ]; then
         echo "           reuse graph="${graph_reused}

@@ -30,7 +30,7 @@ Gauthier, J., Mouden, C.,  Suchan, T., Alvarez, N., Arrigo, N., Riou, C., Lemait
 ```
 -S|--src [src_path]
     performs clustering of variants with short_read_connector
-    src_path: **absolute** path to short_read_connector directory, containing the "short_read_connector.sh" file. 
+    src_path: **absolute** path to short_read_connector directory, containing the "short_read_connector_linker.sh" file. 
     -Note1: short read connector must be compiled.
     -Note2: if no value is given, it assumes short_read_connector.sh is in the PATH env variable.
     -Note3: with this option, discoSnpRad outputs a vcf file containing the variants clustered by locus.

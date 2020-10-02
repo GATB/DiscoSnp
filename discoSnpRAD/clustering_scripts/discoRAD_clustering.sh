@@ -164,17 +164,36 @@ fi
 #ls ${disco_simpler}.fa > ${disco_simpler}.fof
 
 # Compute sequence similarities
-cmdSRC="${short_read_connector_path} -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p ${disco_simpler}  1>&2 "
-echo $green$cmdSRC$cyan
+#version SRC < 1.2.0:
+#cmdSRC="${short_read_connector_path} -b ${disco_simpler}.fa -q ${disco_simpler}.fof -s 0 -k ${usedk} -a 1 -l -p
+
+cmdSRC_index="${short_read_connector_path} index -b ${disco_simpler}.fa -i index_disco.dumped -a 1 -l -k ${usedk} ${disco_simpler}  1>&2 "
+echo $green$cmdSRC_index$cyan
 if [[ "$wraith" == "false" ]]; then
-    eval $cmdSRC
+    eval $cmdSRC_index
 fi
 echo $reset
 if [ $? -ne 0 ]
 then
-    echo "${red}there was a problem with Short Read Connector, exit$reset"
+    echo "${red}there was a problem with Short Read Connector indexation phase, exit$reset"
     exit 1
 fi
+
+
+cmdSRC_query="${short_read_connector_path} query -i index_disco.dumped -q ${disco_simpler}.fof -l -p  ${disco_simpler} 1>&2 "
+echo $green$cmdSRC_query$cyan
+if [[ "$wraith" == "false" ]]; then
+    eval $cmdSRC_query
+fi
+echo $reset
+if [ $? -ne 0 ]
+then
+    echo "${red}there was a problem with Short Read Connector query phase, exit$reset"
+    exit 1
+fi
+
+
+
 
 # Format one line per edge
 cmd="python3 ${EDIR}/from_SRC_to_edges.py ${disco_simpler}.txt"
