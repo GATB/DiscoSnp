@@ -107,7 +107,7 @@ void Kissreads2::execute ()
     stringstream sstring_cutoffs;
     if(myIntegers.getNbItems() != gv.number_of_read_sets) // No STR_KISSREADS_COVERAGE_FILE_NAME provided or wrong .H5 file
     {
-        cout<<"\t WARNING: no coverage file provided or wrong number of read sets ("<<myIntegers.getNbItems()<<" in coverage file for "<<gv.number_of_read_sets<<" read sets"<<endl;
+        cout<<"\t WARNING: no coverage file provided or wrong number of read sets ("<<myIntegers.getNbItems()<<" in coverage file for "<<gv.number_of_read_sets<<" read sets)"<<endl;
         cout<<"\t we use min coverage 0 for all read sets (all predictions are coherent)."<<endl;
         for(int i=0;i<gv.number_of_read_sets;i++) {gv.min_coverage.push_back(0); sstring_cutoffs<<"0 ";}
     }
