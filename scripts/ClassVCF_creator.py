@@ -66,9 +66,6 @@ def shift_from_cigar_code(cigarcode, pospol):
         # print ("shift",cigarcode,pospol)
         parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #ParsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
         # print (parsingCigarCode)
-        listPosRef=[]
-        listShift=[]
-        somme=0
         shift=0
         pos=0
         i=1
@@ -526,7 +523,6 @@ class PATH():
                 #Creation of a dict with mapping position associated with number of mismatch
                 
                 if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
-                        # print ("hohoho", variant)
                         for item in variant:
                                 if "XA" in item:
                                         #Parsing XA tag
@@ -1301,7 +1297,7 @@ class VCFFIELD():
                                 print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
                                 error+=1
                 if error>0:
-                        print(" !!! Line where the error occured !!!")
+                        print(" !!! Line where the error occurred !!!")
                         print(VARIANT.upper_path.listSam)
                         print(VARIANT.lower_path.listSam)
                 else : return (error)                                   
