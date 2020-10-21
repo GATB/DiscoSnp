@@ -62,6 +62,7 @@ then
 fi
 
 
+
 # Determining working zones: 
 echo "${green}           ### Determining working zones"
 cmd="python3 ${EDIR}/K3000_working_zone_no_redundant_edges.py filtered_${phased_allele_file}"

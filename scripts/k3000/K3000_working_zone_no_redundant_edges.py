@@ -5,21 +5,24 @@ import K3000_common as kc
 Given an input phased variants, select and output only "working zones"
 A working zone is defined by
 1/ Coverage XXX todo
-2/ Topology: conserve only parts defined with X patterns. 
+2/ Topology: conserve only parts defined with X patterns.
 A node is linked to at most two other nodes.
 If a node n1 is linked to two nodes n2 and n3, then n2 and n3 have at most two sons, n4 and n5
 """
 
+
 def get_reverse_fact(x):
     ''' reverse of a fact x. Example  x = "4l_0;2h_3;-6h_21", reverse(x) = "6h_0;-2h_21;-4l_3"'''
-    res =""
-    x=x.strip(";").split(";")
-    for i in range (len(x)):
+    res = ""
+    x = x.strip(";").split(";")
+    for i in range(len(x)):
         original_id = x[-i-1]
-        if original_id[0]=="-": reversed_id = original_id[1:]
-        else:                   reversed_id = "-"+original_id
-        if i==0: 
-            value=kc.string_allele_value(reversed_id)+"_0"                               # With i=0, add '_0' to the value
+        if original_id[0] == "-":
+            reversed_id = original_id[1:]
+        else:
+            reversed_id = "-"+original_id
+        if i == 0:
+            value=kc.string_allele_value(reversed_id)+"_0"                                  # With i=0, add '_0' to the value
         else:
             value=kc.string_allele_value(reversed_id)+"_"+kc.distance_string_value(x[-i])   # With i=1, add '_21' to the value
         res+=value+";"
@@ -250,11 +253,9 @@ def existing_fact(fact, nodes, edges):
     
     ### Nodes
     for shift_node in s_fact:
-        
         if shift_node.split('_')[0] not in nodes: 
             # sys.stderr.write(f"{shift_node.split('_')[0]} not in nodes\n")
             return False
-        
     ### Edges
     for i in range(len(s_fact)-1):
         source = s_fact[i].split('_')[0]
@@ -283,8 +284,7 @@ def print_as_facts(nodes, edges, fact_file_name):
                     printed_something = True
             if printed_something:
                 print ("=> ", line.split()[-1])
-            
-    
+
 
     
 def print_as_gfa(nodes, edges):
@@ -323,21 +323,15 @@ def main():
         outgfa=True
         sys.stderr.write(f"Output data as a gfa graph\n")
     nodes = store_nodes(sys.argv[1])
-        
-    # print (nodes)
     edges = store_ordered_edges(sys.argv[1], nodes)
-    # while remove_transitive_redundant(edges) > 0:
- #        True
     keep_only_consecutive_edges(edges)
-    
-    
-    
+
     remove_distances(edges)
-    remove_tips(edges, nodes)
+    # remove_tips(edges, nodes)
     working_zones(edges, nodes)
-    remove_tips(edges, nodes)
+    # remove_tips(edges, nodes)
     if outgfa:
-        print_as_gfa (nodes, edges)
+        print_as_gfa(nodes, edges)
     else:
         print_as_facts(nodes, edges, sys.argv[1])
     

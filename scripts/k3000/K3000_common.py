@@ -371,18 +371,18 @@ def get_snp_positions(comment_line):
     return positions
 
 
-def index_sequences(fa_file_name, sequences = {}):
+def index_sequences(fa_file_name, sequences={}):
     mfile = open(fa_file_name)
-    while True: 
+    while True:
         line1 = mfile.readline()
         if not line1: break
         line1 = line1.strip()
         line2 = mfile.readline().strip()
-        mfile.readline().strip()                # USELESS
+        mfile.readline()              # USELESS
         line4 = mfile.readline().strip()
-        
+
         if not line1.startswith(">SNP"): continue
-        
+
         #line1: 
         #>SNP_higher_path_9|P_1:30_A/C|high|nb_pol_1|left_unitig_length_152|right_unitig_length_3|C1_25|Q1_63|G1_0/1:399,14,359|rank_0
             # key is 9h
@@ -391,16 +391,12 @@ def index_sequences(fa_file_name, sequences = {}):
             # note that the position of the left_unitig_length field is always the same with or without multiple snps.
         snp_positions = get_snp_positions(line1)
         line1 = line1.split('|')
-        snp_id = line1[0].split('_')[-1] # from SNP_higher_path_9 to 9
+        snp_id = line1[0].split('_')[-1]  # from SNP_higher_path_9 to 9
 
-        
-        
-        
         left_unitig_len = int(line1[4].split('_')[-1])
         right_unitig_len = int(line1[5].split('_')[-1])
-        
-       
-        sequences[snp_id] = [left_unitig_len, right_unitig_len, line2, line4, snp_positions] #sequences[snp_id] = [left_unitig_len, right_unitig_len, upperseq, lowerseq, snp_positions] 
+
+        sequences[snp_id] = [left_unitig_len, right_unitig_len, line2, line4, snp_positions]  #sequences[snp_id] = [left_unitig_len, right_unitig_len, upperseq, lowerseq, snp_positions] 
         
     mfile.close()
     return sequences
