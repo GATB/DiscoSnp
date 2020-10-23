@@ -1277,29 +1277,29 @@ class VCFFIELD():
                                         if previous_position<current_position:
                                                 error+=0
                                         else:
-                                                print("!!! an error occurred in determining the position of close snps !!!")
+                                                sys.stderr.write("!!! an error occurred in determining the position of close snps !!!\n")
                                                 error+=1
                                 previous_position=current_position
                         if "SNP" in table[0][1] and table[0][6]=="PASS":
-                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
+                                 sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
                                  error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
-                                print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
+                                sys.stderr.write("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!\n")
                                 error+=1
                 except(TypeError,IndexError): # Case of SNP and INDEL
                         if "SNP" in table[0] and table[6]=="PASS":
-                                 print("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!")
+                                 sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
                                  error+=1
                         if "INDEL" in table[0] and table[6]=="PASS":
-                                 print("!!! an error occurred in determining the filter of indel (an unmapped INDEL is \"PASS\")!!!")
+                                 sys.stderr.write("!!! an error occurred in determining the filter of indel (an unmapped INDEL is \"PASS\")!!!\n")
                                  error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
-                                print("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!")
+                                sys.stderr.write("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!\n")
                                 error+=1
                 if error>0:
-                        print(" !!! Line where the error occurred !!!")
-                        print(VARIANT.upper_path.listSam)
-                        print(VARIANT.lower_path.listSam)
+                        sys.stderr.write(" !!! Line where the error occurred !!!\n")
+                        sys.stderr.write(str(VARIANT.upper_path.listSam)+"\n")
+                        sys.stderr.write(str(VARIANT.lower_path.listSam)+"\n")
                 else : return (error)                                   
                                 
                 
