@@ -524,7 +524,7 @@ class PATH():
                 
                 if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
                         for item in variant:
-                                if "XA" in item:
+                                if "XA:Z" in item:
                                         #Parsing XA tag
                                         listXA=item.split(":")[2].split(';')
                                         strXA = ','.join(listXA)
@@ -729,15 +729,15 @@ class PATH():
                 NM=0
                 #Defines NM tag:
                 for field in self.listSam:
-                        if "NM" in field:
+                        if "NM:" in field:
                                 nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
-                      if "MD" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
+                      if "MD:" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
                         print ("!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?")
                         sys.exit()
                       else:                                              
                         for field in self.listSam:
-                                if "MD" in field:
+                                if "MD:" in field:
                                         posMut = field.split(":")[2] #MD tag parsing
                 return (posMut,nbMismatch)               
 #---------------------------------------------------------------------------------------------------------------------------
