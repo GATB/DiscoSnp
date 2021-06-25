@@ -20,10 +20,11 @@ from ClassVCF_creator import *
 def InitVariant(line1,line2,fileName,dicoIndex):
         """Initialization of the variant by taking into account its type"""
         #Object Creation    
-        if "SNP" in line1 and "|nb_pol_1|" in line1:
-                variant_object=SNP(line1,line2)
-        elif "SNP" in line1 and "|nb_pol_1|" not in line1:
-                variant_object=SNPSCLOSE(line1,line2)
+        if "SNP" in line1:
+                if "|nb_pol_1|" in line1:
+                        variant_object=SNP(line1,line2)
+                else:
+                        variant_object=SNPSCLOSE(line1,line2)
         elif "INDEL" in line1:
                 #Supression of indel when the ambiguity is greater than 20
                 #if int(line1.split("\t")[0].split("|")[1].split("_")[3])>=20:
@@ -32,7 +33,7 @@ def InitVariant(line1,line2,fileName,dicoIndex):
         else :
                 print("!!!!Undefined Variant!!!!")
                 return (1,1)                
-        variant_object.setDicoIndex(dicoIndex)                
+        variant_object.dicoIndex=dicoIndex               
         #VCF object Creation and filling variant's attribut   
         vcf_field_object=VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)
@@ -92,8 +93,8 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
         #Checks if the variant has close SNPs        
         if int(variant_object.nb_pol)>1:#Close SNPs
                 variant_object.RetrieveDicoClose(dicoCloseUp,dicoCloseLow)#fills the dictionnary with all informations for each snps of the path
-                table=variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
-        else:#Indel simple SNP
+                table = variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
+        else:#Indel or simple SNP
                 variant_object.WhichPathIsTheRef(vcf_field_object)#Checks which path will be considered as reference in the VCF File
                 table = [0]*10
         #Defines the mapping position for the couple        
@@ -104,81 +105,77 @@ def UnmappedTreatement(variant_object,vcf_field_object,nbGeno,seq1,seq2):
 #############################################################################################
 #############################################################################################
 def CounterGenotype(fileName):
-        samfile=open(fileName,'r')
-        nbGeno=0
-        while True:
-                line=samfile.readline()
-                if not line: break #End of file
-                if line.startswith('@'): continue #We do not read headers
-                #>SNP_higher_path_3|P_1:30_C/G|high|nb_pol_1|left_unitig_length_86|right_unitig_length_261|left_contig_length_166|right_contig_length_761|C1_124|C2_0|Q1_0|Q2_0|G1_0/0:10,378,2484|G2_1/1:2684,408,10|rank_1
-                if nbGeno==0:
-                        line=line.rstrip('\r').rstrip('\n').split('\t')
-                        for i in line:
-                                if 'SNP' or 'INDEL' in i:
-                                        nomDisco=i.split('|')
-                                        for k in nomDisco:
-                                                if k[0]=='G':
-                                                        nbGeno+=1
-                                        samfile.close()
-                                        return(nbGeno)
+        with open(fileName, "r") as samfile:
+                nbGeno=0
+                while True:
+                        line=samfile.readline()
+                        if not line: break #End of file
+                        if line.startswith('@'): continue #We do not read headers
+                        #>SNP_higher_path_3|P_1:30_C/G|high|nb_pol_1|left_unitig_length_86|right_unitig_length_261|left_contig_length_166|right_contig_length_761|C1_124|C2_0|Q1_0|Q2_0|G1_0/0:10,378,2484|G2_1/1:2684,408,10|rank_1
+                        if nbGeno==0:
+                                line=line.strip().split('\t')
+                                for i in line:
+                                        if 'SNP' or 'INDEL' in i:
+                                                nomDisco=i.split('|')
+                                                for k in nomDisco:
+                                                        if k[0]=='G':
+                                                                nbGeno+=1
+                                                return(nbGeno)
+        sys.stderr.write(f"Non valid sam file {fileName}\n")                
+        sys.exit(2)
 #############################################################################################
 #############################################################################################
 def GetIndex(fileName):
-       stream_file=open(fileName,'r')
-       while True:                
-                line=stream_file.readline()
-                if not line: break #End of file
-                if line.startswith('@'): continue #We do not read headers
-                if ".fa" in fileName:
-                        line=line.strip('>')
-                        listLine=line.split("|")
-                elif ".sam" in fileName:
-                        listLine=line.split("\t")[0].split("|")
-                #Init dictionnary
-                dicoIndex={}
-                if "C1_" in line:
-                        dicoIndex["C"]=[]
-                if "G1_" in line:
-                        dicoIndex["G"]=[]
-                if "Q1_" in line:
-                        dicoIndex["Q"]=[]
-                if "unitig" in line:
-                       dicoIndex["unitig"]=[]
-                if "contig" in line :
-                       dicoIndex["contig"]=[]     
-                for i in range(len(listLine)):
-                        if 'P_1' in listLine[i]:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
-                                dicoIndex["P_"]=int(i)                         
-                        elif "unitig" in listLine[i]:                                
-                                if "left" in listLine[i]:
-                                        dicoIndex["unitig"].append(int(i))
-                                if "right" in listLine[i]:
-                                        dicoIndex["unitig"].append(int(i))                                     
-                        elif "contig" in listLine[i]:
-                                if "left" in listLine[i]:
-                                       dicoIndex["contig"].append(int(i)) 
-                                if "right" in listLine[i]:
-                                       dicoIndex["contig"].append(int(i)) 
-                        elif "rank" in listLine[i]:
-                                dicoIndex["rank"]=int(i)
-                        elif "nb_pol" in listLine[i]:
-                                dicoIndex["nb_pol"]=int(i)                                                             
-                        elif "G" in listLine[i]: #Gets the genotype and likelihood by samples
-                               matchG=re.match(r'^G',listLine[i])# finds the genotype in the item of the dicoSnp++ header
-                               if matchG:
-                                       dicoIndex["G"].append(int(i))
-                        elif "C" in listLine[i]:                                
-                                matchC=re.match(r'^C',listLine[i])
-                                if matchC:
-                                       dicoIndex["C"].append(int(i))
-                                       
-                        elif "Q" in listLine[i]:
-                              matchQ=re.match(r'^Q',listLine[i])
-                              if matchQ:
-                                dicoIndex["Q"].append(int(i))  
-                break
-       stream_file.close()                              
-       return(dicoIndex)                     
+        with open(fileName,'r') as stream_file:
+                while True:                
+                        line=stream_file.readline()
+                        if not line: break #End of file
+                        line = line.strip()
+                        if line.startswith('@'): continue #We do not read headers
+                        if ".fa" in fileName:
+                                line=line.strip('>')
+                                listLine=line.split("|")
+                        elif ".sam" in fileName:
+                                listLine=line.split("\t")[0].split("|")
+                        #Init dictionnary
+                        dicoIndex={}
+                        if "C1_" in line:
+                                dicoIndex["C"]=[]
+                        if "G1_" in line:
+                                dicoIndex["G"]=[]
+                        if "Q1_" in line:
+                                dicoIndex["Q"]=[]
+                        if "unitig" in line: dicoIndex["unitig"]=[]
+                        if "contig" in line: dicoIndex["contig"]=[]     
+                        for i in range(len(listLine)):
+                                if 'P_1' in listLine[i]:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
+                                        dicoIndex["P_"]=int(i)                         
+                                elif "unitig" in listLine[i]:                                
+                                        if "left" in listLine[i]:
+                                                dicoIndex["unitig"].append(int(i))
+                                        if "right" in listLine[i]:
+                                                dicoIndex["unitig"].append(int(i))                                     
+                                elif "contig" in listLine[i]:
+                                        if "left" in listLine[i]: dicoIndex["contig"].append(int(i)) 
+                                        if "right" in listLine[i]: dicoIndex["contig"].append(int(i)) 
+                                elif "rank" in listLine[i]:
+                                        dicoIndex["rank"]=int(i)
+                                elif "nb_pol" in listLine[i]:
+                                        dicoIndex["nb_pol"]=int(i)                                                             
+                                elif "G" in listLine[i]: #Gets the genotype and likelihood by samples
+                                        matchG=re.match(r'^G',listLine[i])# finds the genotype in the item of the dicoSnp++ header
+                                        if matchG:
+                                                dicoIndex["G"].append(int(i))
+                                elif "C" in listLine[i]:                                
+                                        matchC=re.match(r'^C',listLine[i])
+                                        if matchC:
+                                                dicoIndex["C"].append(int(i))
+                                elif "Q" in listLine[i]:
+                                        matchQ=re.match(r'^Q',listLine[i])
+                                        if matchQ:
+                                                dicoIndex["Q"].append(int(i))  
+                        break                            
+        return(dicoIndex)                     
 
 #############################################################################################
 #############################################################################################

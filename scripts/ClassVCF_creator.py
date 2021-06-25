@@ -14,6 +14,20 @@ import re
 import time
 
 
+
+char2char = dict() # for fast reverse complement computations
+char2char['A'] = 'T'
+char2char['T'] = 'A'
+char2char['C'] = 'G'
+char2char['G'] = 'C'
+char2char['a'] = 't'
+char2char['t'] = 'a'
+char2char['c'] = 'g'
+char2char['g'] = 'c'
+def ReverseComplement(nucleotide):
+        """Take a sequence or a nucleotide and reverse it"""
+        return ''.join(char2char[c] for c in nucleotide)[::-1]
+
 #Class and methods_________________________________________________________________________________________________________
 #INDEX_____________________________________________________________________________________________________________
 #________________class VARIANT(): corresponds to a discosnp bubble with information common to both paths________________ 
@@ -22,7 +36,6 @@ import time
 #  \______/
 # => Methods
 #      FillInformationFromHeader(self,VCFObject):"""Parsing of the DiscoSnp++ header"""
-#      ReverseComplement(self,nucleotide):"""Take a sequence or a nucleotide and reverse it"""
 #      CheckContigUnitig(self,unitig,contig):"""Checks if there is an extension in the form of contig or unitig to take into account in the mapping position"""
 #      RetrievePolymorphismFromHeader(self):'''Gets from the dicoAllele all the positions, and the nucleotides'''
 #      MismatchChecker(self):"""In case of divergent main position (case snp whose two paths are mapped ) to define the reference = > check the number of mismatch
@@ -60,8 +73,7 @@ import time
 
 #________________class VCFFIELD():________________
 #      PrintOneLine(self,table,VCF):
-    
-                     
+
 def shift_from_cigar_code(cigarcode, pospol):
         # print ("shift",cigarcode,pospol)
         parsingCigarCode=re.findall('(\d+|[A-Za-z])',cigarcode) #ParsingCigarCode=['2', 'S', '3', 'M', '1', 'I', '25', 'M']
@@ -69,7 +81,7 @@ def shift_from_cigar_code(cigarcode, pospol):
         shift=0
         pos=0
         i=1
-        while i<len(parsingCigarCode):#Goes through the list by twos to get all the letters and to take them into account
+        while i<len(parsingCigarCode): #Goes through the list by twos to get all the letters and to take them into account
                 if parsingCigarCode[i]=="S":
                         shift-=int(parsingCigarCode[i-1])
                         pos+=int(parsingCigarCode[i-1])
@@ -92,6 +104,7 @@ def shift_from_cigar_code(cigarcode, pospol):
                         pos+=int(parsingCigarCode[i-1])
                 elif parsingCigarCode[i]=="X":
                         pos+=int(parsingCigarCode[i-1])
+                        
                 if pos>=pospol:
                         # print("return", str(pospol+shift))
                         return pospol+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence                                
@@ -103,35 +116,21 @@ def shift_from_cigar_code(cigarcode, pospol):
 class VARIANT():
         """Object corresponding to a discosnp++ bubble"""
         def __init__(self,line1,line2):
-                self.upper_path=PATH(line1)#line in the file corresponding to the upper path
-                self.lower_path=PATH(line2)#line in the file corresponding to the lower path
-                self.variantID="" #ID of discoSnp++
-                self.discoName=""#name of the variant : SNP_higher_path_99
-                self.unitigLeft=""#length of the unitig left
-                self.unitigRight=""#length of the unitig right
-                self.contigLeft=""#length of the contig left
-                self.contigRight=""#length of the contig right
-                self.rank=""#rank calculated by discosnp++
-                self.nb_pol=""# number of polymorphisme in the disco path 
-                self.dicoGeno={}#dictionnary with the information of the genotype dicoGeno[listgeno[0]]=[listgeno[1],listlikelihood]
-                self.dicoAllele={}#dictionnary of all the information from the header of discosnp++ : depending on the variant
-                self.mappingPositionCouple=0#mapping position of the bubble after correction
-                self.dicoIndex={}#dictionnary with all the index of every items in discoSnp++ header 
+                self.upper_path = PATH(line1)#line in the file corresponding to the upper path
+                self.lower_path = PATH(line2)#line in the file corresponding to the lower path
+                self.variantID = "" #ID of discoSnp++
+                self.discoName = ""#name of the variant : SNP_higher_path_99
+                self.len_unitig_left = ""#length of the unitig left
+                self.len_unitig_right = ""#length of the unitig right
+                self.contigLeft = ""#length of the contig left
+                self.contigRight = ""#length of the contig right
+                self.rank = ""#rank calculated by discosnp++
+                self.nb_pol = ""# number of polymorphisme in the disco path 
+                self.dicoGeno = {}#dictionnary with the information of the genotype dicoGeno[listgeno[0]] = [listgeno[1],listlikelihood]
+                self.dicoAllele = {}#dictionnary of all the information from the header of discosnp++ : depending on the variant
+                self.mappingPositionCouple = 0#mapping position of the bubble after correction
+                self.dicoIndex = {}#dictionnary with all the index of every items in discoSnp++ header 
 
-                self.char2char = dict() # for fast reverse complement computations
-                self.char2char['A'] = 'T'
-                self.char2char['T'] = 'A'
-                self.char2char['C'] = 'G'
-                self.char2char['G'] = 'C'
-                self.char2char['a'] = 't'
-                self.char2char['t'] = 'a'
-                self.char2char['c'] = 'g'
-                self.char2char['g'] = 'c'
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------                                           
-        def setDicoIndex(self,dicoIndex):
-                """Gets a dictionnary with the position of each item in discoSnp header"""
-                self.dicoIndex=dicoIndex
 #---------------------------------------------------------------------------------------------------------------------------
 ##Example :SNP_higher_path_99|P_1:30_A/C|high|nb_pol_1|left_unitig_length_129|right_unitig_length_901|C1_0|C2_30|G1_1/1:744,116,6|G2_0/0:6,95,604|rank_1.00000
 #---------------------------------------------------------------------------------------------------------------------------                                           
@@ -160,8 +159,8 @@ class VARIANT():
                                 self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}
                 #Get unitig
                 if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
-                        self.unitigLeft=discoList[self.dicoIndex["unitig"][0]].split("_")[3] 
-                        self.unitigRight=discoList[self.dicoIndex["unitig"][1]].split("_")[3] 
+                        self.len_unitig_left=int(discoList[self.dicoIndex["unitig"][0]].split("_")[3])
+                        self.len_unitig_right=discoList[self.dicoIndex["unitig"][1]].split("_")[3] 
                 #Get contig
                 if "contig" in self.dicoIndex and "contig" in headerVariantUp:
                         self.contigLeft=discoList[self.dicoIndex["contig"][0]].split("_")[3] 
@@ -173,33 +172,14 @@ class VARIANT():
                 self.nb_pol=int(discoList[self.dicoIndex["nb_pol"]].split('_')[2])
                 if "G" in self.dicoIndex and "G1" in headerVariantUp:
                         for i in self.dicoIndex["G"]:
-                               listgeno=discoList[i].replace("_",":").split(":")
-                               if len(listgeno)>2:
+                                listgeno=discoList[i].replace("_",":").split(":")
+                                if len(listgeno)>2:
                                         self.dicoGeno[listgeno[0]]=[listgeno[1],(listgeno[2].split(','))]
-                               else:                                     
+                                else:                                     
                                         self.dicoGeno[listgeno[0]]=[listgeno[1]]  
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------              
         
-        def ReverseComplement(self,nucleotide):
-                """Take a sequence or a nucleotide and reverse it"""
-                return ''.join(self.char2char[c] for c in nucleotide)[::-1]
-                # if len(nucleotide)==1:#nucleotide
-                #         if nucleotide=="A": return "T"
-                #         if nucleotide=="T": return "A"
-                #         if nucleotide=="C": return "G"
-                #         return "C"
-                # elif len(nucleotide)>1:#Sequence
-                #         i=0
-                #         listSeq=list(nucleotide)
-                #         seq=''
-                #         while i<len(listSeq):
-                #                 if seq!='':#adds the nucleotide to the already reversed sequence
-                #                         seq=str(self.ReverseComplement(listSeq[i]))+seq
-                #                 else :#first nucleotide of the sequence
-                #                         seq=str(self.ReverseComplement(listSeq[i]))
-                #                 i+=1
-                #         return(seq)
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
         def CheckContigUnitig(self,unitig,contig):
@@ -209,8 +189,7 @@ class VARIANT():
                 elif unitig:# if there is not a contig we keep the length of the unitig
                         return(int(unitig))#return the unitig length
                 else:
-                        return 0
-                                                                                                                                                                                                                                            
+                        return 0                                                                                                                                                                                                        
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                   
         def RetrievePolymorphismFromHeader(self):
@@ -222,8 +201,8 @@ class VARIANT():
                         self.lower_path.listPosReverse.append(len(self.upper_path.seq)-int(posD))
                         self.upper_path.listNucleotideForward.append(ntUp)
                         self.lower_path.listNucleotideForward.append(ntLow)
-                        self.upper_path.listNucleotideReverse.append(self.ReverseComplement(ntUp))
-                        self.lower_path.listNucleotideReverse.append(self.ReverseComplement(ntLow))
+                        self.upper_path.listNucleotideReverse.append(ReverseComplement(ntUp))
+                        self.lower_path.listNucleotideReverse.append(ReverseComplement(ntLow))
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                    
         def MismatchChecker(self):
@@ -236,6 +215,7 @@ class VARIANT():
                 if self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0:             #Checks if both paths are mapped 
                         nmUp=int(self.upper_path.dicoMappingPos[self.upper_path.mappingPosition][0])    #Distance with the reference for the snpUp
                         nmLow=int(self.lower_path.dicoMappingPos[self.lower_path.mappingPosition][0])   #Distance with the reference for the snpLow
+                        # Pierre 25 06 2021: BUG here in case the two paths are not mapped in the same orientation. 
                         if nmUp<nmLow:                                                                  #Checks if the upper path has a distance with the reference smaller than the lower path
                                 self.lower_path.boolRef=False                                           # Defines the boolean to know which path will be defined as reference
                                 self.upper_path.boolRef=True 
@@ -292,44 +272,46 @@ class VARIANT():
                         return
                 else:
                         for i in range(0,nbGeno): #for each genotype
-                                coverage=str(listcovUp[i])+","+str(listcovLow[i])#defines allele depth 
-                                key="G"+str(i+1) # Creates the dictionary key
+                                coverage=f"{listcovUp[i]},{listcovLow[i]}"#defines allele depth 
+                                key=f"G{i+1}" # Creates the dictionary key
                                 current_genotype = self.dicoGeno[key]#Gets the genotypes associated to the key
                                 likelihood=current_genotype[1]#Gets the likelihood associated to the key
                                 if listfqUp!="" and listfqLow!="":
-                                        fq_quality=":"+str(listfqUp[i])+","+str(listfqLow[i])
+                                        fq_quality=f":{listfqUp[i]},{listfqLow[i]}"
                                 else :
                                         fq_quality=""
                                 if self.lower_path.boolRef==True: #Checks if the mapped path is the lower (in this case exchange 0/0 to 1/1 and 1/1 to 0/0 ; exchanges the likelihood to have the good one for each genotypes)
                                         if listfqUp!="":
-                                                fq_quality=":"+str(listfqLow[i])+","+str(listfqUp[i])
+                                                fq_quality=f":{listfqLow[i]},{listfqUp[i]}"
                                         else :
                                                 fq_quality=""
-                                        coverage=str(listcovLow[i])+","+str(listcovUp[i])#Inverts the coverage
+                                        coverage=f"{listcovLow[i]},{listcovUp[i]}"#Inverts the coverage
                                         #Inverts the first and the last likelihood
                                         likelihoodStart=likelihood[2]
                                         likelihoodEnd=likelihood[0]
                                         likelihood[0]=likelihoodStart
                                         likelihood[2]=likelihoodEnd
                                         #Inverts the genotype
-                                        if "1/1" in current_genotype[0]:
-                                                current_genotype[0]=current_genotype[0].replace("1/1","0/0")
-                                        elif "0/0" in current_genotype[0]:
-                                                current_genotype[0]=current_genotype[0].replace("0/0","1/1")
+                                        if current_genotype[0] == "0/0": current_genotype[0] = "1/1" 
+                                        elif current_genotype[0] == "1/1": current_genotype[0] = "0/0" 
+                                        # if "1/1" in current_genotype[0]:
+                                        #         current_genotype[0]=current_genotype[0].replace("1/1","0/0")
+                                        # elif "0/0" in current_genotype[0]:
+                                        #         current_genotype[0]=current_genotype[0].replace("0/0","1/1")
                                 if VCFObject.phased==True: #In case of phasing we change the "/" symbol
-                                    current_genotype[0]=current_genotype[0].replace("/","|")
+                                        current_genotype[0]=current_genotype[0].replace("/","|")
                                 if isinstance(likelihood,list):
-                                    likelihood=str(','.join(current_genotype[1]))
+                                        likelihood=str(','.join(current_genotype[1]))
                                 else:
-                                    likelihood=str(likelihood)
+                                        likelihood=str(likelihood)
                                 genotypes+=str(current_genotype[0])+":"+str(int(listcovUp[i])+int(listcovLow[i]))+":"+likelihood+":"+str(coverage)+str(fq_quality)
-                                       
+
                                 if i<nbGeno-1 :
                                         genotypes+="\t" #Adds a \t except if this is the last genotype
                 #Write results in VCF object
                         VCFObject.formatField="GT:DP:PL:AD"
                         if listfqUp!="":
-                              VCFObject.formatField="GT:DP:PL:AD:HQ"  
+                                VCFObject.formatField="GT:DP:PL:AD:HQ"  
                         VCFObject.genotypes=genotypes                                                                                                               
     
 #---------------------------------------------------------------------------------------------------------------------------
@@ -347,42 +329,43 @@ class VARIANT():
 
                 table[5]="."
                 table[6]=VCFObject.filterField
-                table[7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(VCFObject.nucleoRef)+";Sd="+str(VCFObject.reverse)
+                table[7]=f"Ty={VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.contigLeft};CR={self.contigRight};Genome={VCFObject.nucleoRef};Sd={VCFObject.reverse}"
                 if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
-                        table[7]+=";XA="+str(VCFObject.XA)
+                        table[7]+=f";XA={VCFObject.XA}"
                 #TODO: eviter ces replace.
                 #TODO global: pourquoi stocker les valeurs quand on peut les simplement afficher ?
-                table[7]=table[7].replace("None",".")
-                table[7]=table[7].replace("none",".")
-                table[7]=table[7].replace("=;","=.;")
-                # print (table[7])
+                # table[7]=table[7].replace("None",".") # Done during VCFObject.PrintOneLine
+                table[7]=table[7].replace("none",".") # todo: verifier que ca peut encore arriver
+                table[7]=table[7].replace("=;","=.;") # todo: verifier que ca peut encore arriver
                 table[8]=VCFObject.formatField
                 table[9]=VCFObject.genotypes
                 error=VCFObject.CheckOutputConsistency(table,self)
                 if error == 0: 
-                        VCFObject.PrintOneLine(table,VCFfile)#Print the line into the VCF
+                        VCFObject.PrintOneLine(table,VCFfile) #Print the line into the VCF
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
                                 
         def WhichPathIsTheRef(self,VCFObject):
                 """Finds which path is identical to the reference genome (with boolRef) and defines it as the ref : specific method for each type of variant"""       
                 #Checks the exception : different mapping position or both paths identical to the reference 
-                if ((self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0) and self.upper_path.mappingPosition!=self.lower_path.mappingPosition):
+                if ((self.upper_path.mappingPosition>0 and \
+                        self.lower_path.mappingPosition>0) \
+                        and self.upper_path.mappingPosition!=self.lower_path.mappingPosition):
                         self.MismatchChecker()
                         return
                 if self.upper_path.boolRef==self.lower_path.boolRef:
                         self.MismatchChecker()
                         return 
-                                          
+                
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         def RetrieveMappingPositionCouple(self): #Validation SNP second part (specific method for close snps)
-               """Defines the mapping position for the couple of variant by checking boolRef"""
-               #for INDEL and simple snp
-               if self.upper_path.boolRef==True:
-                       self.mappingPositionCouple=self.upper_path.mappingPosition+int(self.upper_path.correctedPos[0])+int(self.mappingPositionCouple)-1                       
-               else:
-                       self.mappingPositionCouple=self.lower_path.mappingPosition+int(self.lower_path.correctedPos[0])+int(self.mappingPositionCouple)-1
+                """Defines the mapping position for the couple of variant by checking boolRef"""
+                #for INDEL and simple snp
+                if self.upper_path.boolRef==True:
+                        self.mappingPositionCouple=self.upper_path.mappingPosition+int(self.upper_path.correctedPos[0])+int(self.mappingPositionCouple)-1                       
+                else:
+                        self.mappingPositionCouple=self.lower_path.mappingPosition+int(self.lower_path.correctedPos[0])+int(self.mappingPositionCouple)-1
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------
         # def CheckStrandAndReverseNucleotideNONOPTIMIZED(self,nucleo):
@@ -393,14 +376,14 @@ class VARIANT():
         #                 if self.upper_path.boolReverse=="1" and self.lower_path.boolReverse==".":
         #                         return (nucleo)
         #                 if self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nuclotide
-        #                         return (self.ReverseComplement(nucleo))
+        #                         return (ReverseComplement(nucleo))
         #         elif self.lower_path.boolRef==True:#Checks if the lower path is the reference
         #                 if self.upper_path.boolReverse==self.lower_path.boolReverse or (self.lower_path.boolReverse==1 and self.upper_path.boolReverse=="."):#if the mapping strand is the same on both path => returns the nucleotide
         #                         return (nucleo)
         #                 if self.lower_path.boolReverse=="1" and self.upper_path.boolReverse==".":
         #                         return (nucleo)
         #                 if self.upper_path.boolReverse!=self.lower_path.boolReverse:#if the mapping strand is different on both path => returns the reverse nucleotide
-        #                         return (self.ReverseComplement(nucleo))
+        #                         return (ReverseComplement(nucleo))
         #         else :
         #                 return (nucleo)
         #
@@ -411,7 +394,7 @@ class VARIANT():
                 if self.upper_path.boolReverse!=self.lower_path.boolReverse:# if the mapping strand is different on both path => returns the reverse nuclotide
                         if (str(self.upper_path.boolReverse)=="1" and self.lower_path.boolReverse==".") or (self.upper_path.boolReverse=="." and str(self.lower_path.boolReverse)=="1"):
                                 return nucleo # Case in which one of the two variants matched with a 2 or more indel, thus considered as non mapped. June 3017
-                        return self.ReverseComplement(nucleo)
+                        return ReverseComplement(nucleo)
                 else :
                         return nucleo 
 #---------------------------------------------------------------------------------------------------------------------------
@@ -467,39 +450,23 @@ class PATH():
                         self.RetrieveDicoMappingPosition()
                         self.CheckBitwiseFlag()
                 else:                                                   #Mode ghost fastafile
-                       line=line.strip('>').split("\n")
-                       line.pop()
-                       self.listSam=line                                #gets the sequence of the path
-                       self.discoName=self.listSam[0]
-                       self.seq=""
-                       self.mappingPosition=0                           #mapping position of the path 
-                       self.boolReverse="."                             #We need to define the absence of strand           
+                        line=line.strip('>').split("\n")
+                        line.pop()
+                        self.listSam=line                                #gets the sequence of the path
+                        self.discoName=self.listSam[0]
+                        self.seq=""
+                        self.mappingPosition=0                           #mapping position of the path 
+                        self.boolReverse="."                             #We need to define the absence of strand           
 
         def RetrieveXA(self,VCFObject):
-                # print ("RetrieveXA",VCFObject.XA)
-
-                # self.filterField=None
-                # self.variantType=None
-                # self.phased=None #phased genotype
-                # self.formatField=None
-                # self.genotypes="" #genotype field =>put it in the vcf
-                # self.chrom=""
-                # self.ref=""
-                # self.alt=""
-                # self.qual=""
-                # self.nucleoRef=None
-                # self.reverse=""
-                # self.XA=None
                 
                 VCFObject.XA=""
-                # print ("self.dicoMappingPos.items()",self.dicoMappingPos.items())
-                # print ("self.listPosVariantOnPathToKeep", self.listPosVariantOnPathToKeep)
                 for position,(NM,cigarcode) in self.dicoMappingPos.items():
-                       if cigarcode!="":
+                        if cigarcode!="":
                                 VCFObject.XA+=position.split('_')[0]+'_'+str(shift_from_cigar_code(cigarcode,abs(int(position.split('_')[-1]))+self.listPosVariantOnPathToKeep[0]-1))+"," # todo: sens + décalage du variant.
                 if VCFObject.XA:
                         VCFObject.XA=VCFObject.XA.rstrip(',')
-                # print ("And now RetrieveXA",VCFObject.XA)
+
                 
                             
 #---------------------------------------------------------------------------------------------------------------------------
@@ -571,14 +538,14 @@ class PATH():
         def CheckBitwiseFlag(self):
                 """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
                 if int(self.listSam[1]) & 16:#Reverse strand
-                     self.boolReverse="-1" 
-                     self.listPosVariantOnPathToKeep=self.listPosReverse
+                        self.boolReverse="-1" 
+                        self.listPosVariantOnPathToKeep=self.listPosReverse
                 elif int(self.listSam[1]) & 4: #Unmapped
-                     self.listPosVariantOnPathToKeep=self.listPosForward
-                     self.boolReverse="."  
+                        self.listPosVariantOnPathToKeep=self.listPosForward
+                        self.boolReverse="."  
                 else:  #Forward strand                   
-                     self.listPosVariantOnPathToKeep=self.listPosForward
-                     self.boolReverse="1"        
+                        self.listPosVariantOnPathToKeep=self.listPosForward
+                        self.boolReverse="1"        
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------          
@@ -651,11 +618,10 @@ class PATH():
                 #Allows or disallows soft clip in BWA
                 #if int(shift)<=-(int(PosVariant)):#Test if the variant is really mapped (soft clipping > variant position => unmmaped variant)
                 if int(shift)<=-2:#we allow 2 soft clip (for bwa mem)
-                      self.boolRef=False
-                      self.mappingPosition=0#It is considered that the path is unmapped
-                      return()  
+                        self.boolRef=False
+                        self.mappingPosition=0#It is considered that the path is unmapped
+                        return()  
                 nucleoRef=None
-                boolEgalRef=None
                 matchInt=None
                 parsingPosMut=re.findall('(\d+|[A-Za-z]|\^)',posMut)
                 while i<len(parsingPosMut):#Converts the number into integer 
@@ -695,50 +661,49 @@ class PATH():
                         self.boolRef=False
                         self.nucleoRef="." 
                 VCFObject.nucleoRef=nucleoRef  
-    # boolEgalRef : boolean if TRUE the nucleotide in the variant is equal to the reference
-    # nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
+# nucleoRef : if the nucleotide is different from the reference return the nucleotide of reference
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                         
         def RetrieveCoverage(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
                 if "C" in dicoIndex:
-                     spitted_input=self.discoName.split("|")
-                     for i in dicoIndex["C"]:
-                         # matchC=re.match(r'^C',spitted_input[i])
-                         if spitted_input[i][0]=='C':
-                                self.listCoverage.append(spitted_input[i].split('_')[1])
+                        spitted_input=self.discoName.split("|")
+                        for i in dicoIndex["C"]:
+                                # matchC=re.match(r'^C',spitted_input[i])
+                                if spitted_input[i][0]=='C':
+                                        self.listCoverage.append(spitted_input[i].split('_')[1])
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                         
         def RetrieveQualityFQ(self,dicoIndex):
                 """Gets the coverage by path in the discosnp++ header"""
                 if "Q" in dicoIndex:
-                     spitted_input=self.discoName.split("|")
-                     for i in dicoIndex["Q"]:   
-                         # matchQ=re.match(r'^Q',self.discoName.split("|")[i])
-                         if spitted_input[i][0]=="Q":
-                             self.listFQQuality.append(spitted_input[i].split('_')[1])
-                             
+                        spitted_input=self.discoName.split("|")
+                        for i in dicoIndex["Q"]:   
+                                # matchQ=re.match(r'^Q',self.discoName.split("|")[i])
+                                if spitted_input[i][0]=="Q":
+                                        self.listFQQuality.append(spitted_input[i].split('_')[1])
                 else : self.listFQQuality = ""                              
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
         def GetTag(self):
                 """Gets the number of mismatch in the samline"""
                 variant=self.listSam
-                countM=0
-                NM=0
+
+
                 #Defines NM tag:
-                for field in self.listSam:
+                for field in self.listSam: # TODO : avoid this loop
                         if "NM:" in field:
-                                nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper           
+                                nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper       
+                                break    
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
-                      if "MD:" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
-                        print ("!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?")
-                        sys.exit()
-                      else:                                              
-                        for field in self.listSam:
-                                if "MD:" in field:
-                                        posMut = field.split(":")[2] #MD tag parsing
+                        if "MD:" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
+                                print ("!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?")
+                                sys.exit()
+                        else:                                              
+                                for field in self.listSam:
+                                        if "MD:" in field:
+                                                posMut = field.split(":")[2] #MD tag parsing
                 return (posMut,nbMismatch)               
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
@@ -810,7 +775,7 @@ class SNP(VARIANT):
         def WhichPathIsTheRef(self,VCFObject):
                 """Finds which path is identical to the reference genome (with boolRef) and defines it as the ref : specific method for each type of variant"""  
                 VARIANT.WhichPathIsTheRef(self,VCFObject)                
-                posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                posUnmapped=self.CheckContigUnitig(self.len_unitig_left,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
                 if self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0:
@@ -842,7 +807,7 @@ class SNP(VARIANT):
                                         VCFObject.alt=self.upper_path.nucleo
                                         VCFObject.reverse=self.lower_path.boolReverse
                                         VCFObject.nucleoRef=self.lower_path.nucleoRef
-                      
+
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Lower path mapped and upper path unmapped      
                 elif self.upper_path.mappingPosition<=0 and self.lower_path.mappingPosition>0:
@@ -904,17 +869,17 @@ class INDEL(VARIANT):
                         self.smallestSequence=self.upper_path.seq
                         if self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".":
                                 self.longestSequenceForward=self.lower_path.seq
-                                self.longestSequenceReverse=self.ReverseComplement(self.lower_path.seq)
+                                self.longestSequenceReverse=ReverseComplement(self.lower_path.seq)
                         else:
-                                self.longestSequenceForward=self.ReverseComplement(self.lower_path.seq)
+                                self.longestSequenceForward=ReverseComplement(self.lower_path.seq)
                                 self.longestSequenceReverse=self.lower_path.seq
                 else:
-                       self.smallestSequence=self.lower_path.seq
-                       if self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".":
+                        self.smallestSequence=self.lower_path.seq
+                        if self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".":
                                 self.longestSequenceForward=self.upper_path.seq
-                                self.longestSequenceReverse=self.ReverseComplement(self.upper_path.seq)
-                       else:
-                                self.longestSequenceForward=self.ReverseComplement(self.upper_path.seq)
+                                self.longestSequenceReverse=ReverseComplement(self.upper_path.seq)
+                        else:
+                                self.longestSequenceForward=ReverseComplement(self.upper_path.seq)
                                 self.longestSequenceReverse=self.upper_path.seq
                 for key,(posD,ind,amb) in self.dicoAllele.items():#Goes through the dictionary of parsed header
                         #In case of forward strand mapped
@@ -935,7 +900,7 @@ class INDEL(VARIANT):
         def WhichPathIsTheRef(self,VCFObject):
                 #Finds the path identical to the reference
                 VARIANT.WhichPathIsTheRef(self,VCFObject)
-                posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                posUnmapped=self.CheckContigUnitig(self.len_unitig_left,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
                 old_boolRef_Up=None
                 old_boolRef_Low=None
                 #In case of unmapped variant : we have to define a reference
@@ -955,8 +920,8 @@ class INDEL(VARIANT):
                                 self.lower_path.nucleo=self.insertReverse
                                 self.upper_path.nucleo=self.ntStartReverse
                         else:
-                               self.upper_path.nucleo=self.insertReverse
-                               self.lower_path.nucleo=self.ntStartReverse 
+                                self.upper_path.nucleo=self.insertReverse
+                                self.lower_path.nucleo=self.ntStartReverse 
                 #If the upper path or the lower path is the ref and if it is a reference mappind
                 # 7/6/2016: CL and PP: changed this elif for the else. Avoids an issue with self.upper_path.nucleo not initialized. Large tests results are the same. 
                 else:#if (self.lower_path.boolRef==True and (self.lower_path.boolReverse=="1" or self.lower_path.boolReverse==".")) or (self.upper_path.boolRef==True and (self.upper_path.boolReverse=="1" or self.lower_path.boolReverse==".")):
@@ -1054,7 +1019,7 @@ class SNPSCLOSE(VARIANT):
                 VCFObject.phased=True 
                 table = [0] * 10 #Create a 10 cols array
                 tablebis=[]
-                posUnmapped=self.CheckContigUnitig(self.unitigLeft,self.contigLeft)
+                posUnmapped=self.CheckContigUnitig(self.len_unitig_left,self.contigLeft)
                 listPositionPolymorphismeOnPathUp=self.upper_path.listPosVariantOnPathToKeep
                 listPositionPolymorphismeOnPathLow=self.lower_path.listPosVariantOnPathToKeep
                 VCFObject.nucleoRef=[]
@@ -1093,30 +1058,30 @@ class SNPSCLOSE(VARIANT):
                                         listPolymorphismPos=listPositionPolymorphismeOnPathLow
                         #dicoClose[self.listPosVariantOnPathToKeep[i]]=[self.boolRef,self.nucleoRef,correctedPos[i],nucleo,self.boolReverse,(int(correctedPos[i])+int(self.mappingPosition))]
                         for comptPol in range(len(listPolymorphismPos)): #Goes through the list of the variant position starting with the smallest
-                            
-                            positionSnpUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][5]
-                            positionSnpLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][5]
-                            nucleoUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][3]
-                            nucleoRefUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][1]
-                            nucleoLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][3]
-                            nucleoRefLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][1]
-                            #Fills the variable table with the vcf fields ; Checks the "REF" path to fill the vcf
-                            if self.lower_path.boolRef==True and self.upper_path.boolRef==False: #The lower path is defined as REF
-                               
-                                VCFObject.chrom=self.lower_path.listSam[2]
-                                table[1]=int(positionSnpLow)-1
-                                table[3]=nucleoLow
-                                table[4]=self.CheckStrandAndReverseNucleotide(nucleoUp)
-                                VCFObject.nucleoRef.append([nucleoRefLow,positionSnpLow])
-                                VCFObject.reverse=self.lower_path.boolReverse   
-                            elif self.upper_path.boolRef==True and self.lower_path.boolRef==False:#The upper path is defined as REF
-                                table[1]=int(positionSnpUp)-1
-                                table[3]=nucleoUp
-                                table[4]=self.CheckStrandAndReverseNucleotide(nucleoLow)
-                                VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
-                                VCFObject.chrom=self.upper_path.listSam[2]
-                                VCFObject.reverse=self.upper_path.boolReverse                             
-                            tablebis.append(list(table))#Stocks the variable with all the vcf fields for each close snp to sort it and print it in the vcf
+                                
+                                positionSnpUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][5]
+                                positionSnpLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][5]
+                                nucleoUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][3]
+                                nucleoRefUp=self.dicoCloseSNPUp[listPositionPolymorphismeOnPathUp[comptPol]][1]
+                                nucleoLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][3]
+                                nucleoRefLow=self.dicoCloseSNPLow[listPositionPolymorphismeOnPathLow[comptPol]][1]
+                                #Fills the variable table with the vcf fields ; Checks the "REF" path to fill the vcf
+                                if self.lower_path.boolRef==True and self.upper_path.boolRef==False: #The lower path is defined as REF
+                                
+                                        VCFObject.chrom=self.lower_path.listSam[2]
+                                        table[1]=int(positionSnpLow)-1
+                                        table[3]=nucleoLow
+                                        table[4]=self.CheckStrandAndReverseNucleotide(nucleoUp)
+                                        VCFObject.nucleoRef.append([nucleoRefLow,positionSnpLow])
+                                        VCFObject.reverse=self.lower_path.boolReverse   
+                                elif self.upper_path.boolRef==True and self.lower_path.boolRef==False:#The upper path is defined as REF
+                                        table[1]=int(positionSnpUp)-1
+                                        table[3]=nucleoUp
+                                        table[4]=self.CheckStrandAndReverseNucleotide(nucleoLow)
+                                        VCFObject.nucleoRef.append([nucleoRefUp,positionSnpUp])
+                                        VCFObject.chrom=self.upper_path.listSam[2]
+                                        VCFObject.reverse=self.upper_path.boolReverse                             
+                                tablebis.append(list(table))#Stocks the variable with all the vcf fields for each close snp to sort it and print it in the vcf
                         tablebis=sorted(tablebis, key=lambda colonnes: colonnes[1])
                         return (tablebis)
 #---------------------------------------------------------------------------------------------------------------------------
@@ -1148,7 +1113,7 @@ class SNPSCLOSE(VARIANT):
                         VCFObject.reverse=self.upper_path.boolReverse
                         for comptPol in range(len(listPositionPolymorphismeOnPathUp)):
                                 if (int(self.upper_path.boolReverse)==-1):
-                                        nucleoLow=self.ReverseComplement(self.lower_path.listNucleotideForward[comptPol])
+                                        nucleoLow=ReverseComplement(self.lower_path.listNucleotideForward[comptPol])
                                         nucleoUp=self.upper_path.listNucleotideReverse[comptPol]
                                 elif int(self.upper_path.boolReverse)==1:
                                         nucleoLow=self.lower_path.listNucleotideForward[comptPol]
@@ -1170,7 +1135,7 @@ class SNPSCLOSE(VARIANT):
                         VCFObject.reverse=self.lower_path.boolReverse
                         for comptPol in range(len(listPositionPolymorphismeOnPathLow)):
                                 if (int(self.lower_path.boolReverse)==-1):
-                                        nucleoUp=self.ReverseComplement(self.upper_path.listNucleotideForward[comptPol])
+                                        nucleoUp=ReverseComplement(self.upper_path.listNucleotideForward[comptPol])
                                         nucleoLow=self.lower_path.listNucleotideReverse[comptPol]
                                 elif int(self.lower_path.boolReverse)==1:
                                         nucleoUp=self.upper_path.listNucleotideForward[comptPol]
@@ -1194,8 +1159,8 @@ class SNPSCLOSE(VARIANT):
                 #ID=1
                 subIDs = range(1,len(table)+1,1) #subIDs for the different SNPs of a given close bubble : ex: 454_1, 454_2 and 454_3 for 3 SNPs inside the bubble of ID 454
                 if VCFObject.reverse == "-1":
-                    # if the bubble of close SNPs is mapped on reverse strand, their subIDs are reversed, this way the subID always correspond to the order of apparition of the SNP in the bubble path
-                    subIDs = range(len(table),0,-1)
+                        # if the bubble of close SNPs is mapped on reverse strand, their subIDs are reversed, this way the subID always correspond to the order of apparition of the SNP in the bubble path
+                        subIDs = range(len(table),0,-1)
                 i=0
                 nucleoRef=None
                 if VCFObject.chrom=="*":
@@ -1208,12 +1173,11 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(subIDs[line])
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
-                        table[line][7]="Ty="+str(VCFObject.variantType)+";Rk="+str(self.rank)+";UL="+str(self.unitigLeft)+";UR="+str(self.unitigRight)+";CL="+str(self.contigLeft)+";CR="+str(self.contigRight)+";Genome="+str(nucleoRef)+";Sd="+str(VCFObject.reverse)
-                        # print table[line][7]
+                        table[line][7]=f"Ty{VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.contigLeft};CR={self.contigRight};Genome={nucleoRef};Sd={VCFObject.reverse}"
                         if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
-                                table[line][7]+=";XA="+str(VCFObject.XA)
+                                table[line][7]+=f";XA={VCFObject.XA}"
                         #TODO: eviter ces "replace"
-                        table[line][7]=table[line][7].replace("None",".")
+                        # table[line][7]=table[line][7].replace("None",".") # done during PrintOneLine
                         table[line][7]=table[line][7].replace("none",".")
                         table[line][7]=table[line][7].replace("=;","=.;")
                         table[line][8]=VCFObject.formatField
