@@ -63,12 +63,18 @@ def MappingTreatement(variant_object,vcf_field_object,nbGeno):
         #Defines the mapping position for the couple
         variant_object.RetrieveMappingPositionCouple()
         #Checks if the couple is validated with only one mapping position       
-        vcf_field_object.RetrieveFilterField(CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path))
+        vcf_field_object.filterField = CheckAtDistanceXBestHits(variant_object.upper_path,variant_object.lower_path)
+
         #Defines the genotype for the couple
         variant_object.RetrieveGenotypes(nbGeno,vcf_field_object)
+        
         #Defines variant with multiple mapping : return the XA tag in the vcf file : case of multiply mapped variant
-        variant_object.upper_path.RetrieveXA(vcf_field_object)
-        variant_object.lower_path.RetrieveXA(vcf_field_object)
+        # assert (variant_object.upper_path.boolRef != variant_object.lower_path.boolRef)
+        
+        if variant_object.upper_path.boolRef:
+                variant_object.upper_path.RetrieveXA(vcf_field_object)
+        else:
+                variant_object.lower_path.RetrieveXA(vcf_field_object)
         return(table)
         
 #############################################################################################
@@ -139,41 +145,47 @@ def GetIndex(fileName):
                                 listLine=line.split("\t")[0].split("|")
                         #Init dictionnary
                         dicoIndex={}
-                        if "C1_" in line:
+                        if "|C1_" in line:
                                 dicoIndex["C"]=[]
-                        if "G1_" in line:
+                        if "|G1_" in line:
                                 dicoIndex["G"]=[]
-                        if "Q1_" in line:
+                        if "|Q1_" in line:
                                 dicoIndex["Q"]=[]
-                        if "unitig" in line: dicoIndex["unitig"]=[]
-                        if "contig" in line: dicoIndex["contig"]=[]     
-                        for i in range(len(listLine)):
-                                if 'P_1' in listLine[i]:#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
-                                        dicoIndex["P_"]=int(i)                         
-                                elif "unitig" in listLine[i]:                                
-                                        if "left" in listLine[i]:
-                                                dicoIndex["unitig"].append(int(i))
-                                        if "right" in listLine[i]:
-                                                dicoIndex["unitig"].append(int(i))                                     
-                                elif "contig" in listLine[i]:
-                                        if "left" in listLine[i]: dicoIndex["contig"].append(int(i)) 
-                                        if "right" in listLine[i]: dicoIndex["contig"].append(int(i)) 
-                                elif "rank" in listLine[i]:
-                                        dicoIndex["rank"]=int(i)
-                                elif "nb_pol" in listLine[i]:
-                                        dicoIndex["nb_pol"]=int(i)                                                             
-                                elif "G" in listLine[i]: #Gets the genotype and likelihood by samples
-                                        matchG=re.match(r'^G',listLine[i])# finds the genotype in the item of the dicoSnp++ header
-                                        if matchG:
-                                                dicoIndex["G"].append(int(i))
-                                elif "C" in listLine[i]:                                
-                                        matchC=re.match(r'^C',listLine[i])
-                                        if matchC:
-                                                dicoIndex["C"].append(int(i))
-                                elif "Q" in listLine[i]:
-                                        matchQ=re.match(r'^Q',listLine[i])
-                                        if matchQ:
-                                                dicoIndex["Q"].append(int(i))  
+                        if "_unitig_" in line: dicoIndex["unitig"]=[]
+                        if "_contig_" in line: dicoIndex["contig"]=[]     
+                        for i, value in enumerate(listLine):
+                                if value[0] == "C":                               
+                                        dicoIndex["C"].append(i)
+                                        continue
+                                
+                                if value[0] == "G":#Gets the genotype and likelihood by samples
+                                        dicoIndex["G"].append(i)
+                                        continue
+                                
+                                if value[0] == "Q":
+                                        dicoIndex["Q"].append(i)
+                                        continue
+                                
+                                if value.startswith("P_1"):#P_1:30_A/G => {'P_1': ['30', 'A', 'G']} or P_1:30_A/G,P_2:31_G/A
+                                        dicoIndex["P_"]=i  
+                                        continue
+                                
+                                if value.startswith("left_unitig") or value.startswith("right_unitig"):
+                                        dicoIndex["unitig"].append(i)
+                                        continue
+                                
+                                if "contig" in value:
+                                        if "left" in value: dicoIndex["contig"].append(i) 
+                                        if "right" in value: dicoIndex["contig"].append(i) 
+                                        continue
+                                
+                                if value.startswith("rank"):
+                                        dicoIndex["rank"]=i
+                                        continue
+                                
+                                if value.startswith("nb_pol"):
+                                        dicoIndex["nb_pol"]=i  
+                                        continue
                         break                            
         return(dicoIndex)                     
 
@@ -181,7 +193,6 @@ def GetIndex(fileName):
 #############################################################################################
 def CheckAtDistanceXBestHits(upper_path,lower_path):
         """Prediction validation : checks if the couple is validated with only one mapping position """
-        
         posUp=upper_path.dicoMappingPos
         posLow=lower_path.dicoMappingPos
         # get the best mapping distance for upper path 
@@ -197,7 +208,7 @@ def CheckAtDistanceXBestHits(upper_path,lower_path):
         for position,(nbMismatch,cigarcode) in posLow.items(): 
                 if nbMismatch<best_low:
                         best_low=nbMismatch
-    
+
         # get the union of the mapping position at the best mapping positions
         position_set = set()
         for position,(nbMismatch,cigarcode) in posUp.items():

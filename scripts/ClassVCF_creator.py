@@ -137,7 +137,7 @@ class VARIANT():
         def FillInformationFromHeader(self,VCFObject):
                 """Parsing of the DiscoSnp++ header. Gets unitig, contig, rank, genotypes"""
                 headerVariantUp=self.upper_path.listSam[0]#header of the upper path
-                headerVariantLow= self.lower_path.listSam[0]#header of the lower path
+                # headerVariantLow= self.lower_path.listSam[0]#header of the lower path
                 discoList=headerVariantUp.split('|')#splitting the header of discosnp++ into a list
                 self.discoName=discoList[0]#fills the attribut discoName of the variant object
                 # print discoList
@@ -160,7 +160,7 @@ class VARIANT():
                 #Get unitig
                 if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
                         self.len_unitig_left=int(discoList[self.dicoIndex["unitig"][0]].split("_")[3])
-                        self.len_unitig_right=discoList[self.dicoIndex["unitig"][1]].split("_")[3] 
+                        self.len_unitig_right=int(discoList[self.dicoIndex["unitig"][1]].split("_")[3])
                 #Get contig
                 if "contig" in self.dicoIndex and "contig" in headerVariantUp:
                         self.contigLeft=discoList[self.dicoIndex["contig"][0]].split("_")[3] 
@@ -459,13 +459,16 @@ class PATH():
                         self.boolReverse="."                             #We need to define the absence of strand           
 
         def RetrieveXA(self,VCFObject):
-                
-                VCFObject.XA=""
-                for position,(NM,cigarcode) in self.dicoMappingPos.items():
+                localXA=""
+                for position,(_,cigarcode) in self.dicoMappingPos.items():
                         if cigarcode!="":
-                                VCFObject.XA+=position.split('_')[0]+'_'+str(shift_from_cigar_code(cigarcode,abs(int(position.split('_')[-1]))+self.listPosVariantOnPathToKeep[0]-1))+"," # todo: sens + décalage du variant.
-                if VCFObject.XA:
-                        VCFObject.XA=VCFObject.XA.rstrip(',')
+                                chromosome = '_'.join(position.split('_')[:-1])
+                                mapping_position = int(position.split('_')[-1])
+                                shifted_mapping_position = shift_from_cigar_code(cigarcode,abs(mapping_position)+self.listPosVariantOnPathToKeep[0]-1)
+                                localXA+=chromosome+'_'+str(shifted_mapping_position)+","
+                
+                localXA=localXA.rstrip(',')
+                VCFObject.XA = localXA
 
                 
                             
@@ -489,33 +492,37 @@ class PATH():
                 # listerreur=set([(int(variant[3])-1),(int(variant[3])+1),(int(variant[3])+2),(int(variant[3])+3),(int(variant[3])-3),(int(variant[3])-2),int(variant[3])])
                 #Creation of a dict with mapping position associated with number of mismatch
                 
-                if 'XA:Z' in ''.join(variant): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
-                        for item in variant:
+                # XA cannot occur in the 11 mandatory fields: QNAME	FLAG	RNAM	POS	MAPQ	CIGAR	RNEXT	PNEXT	TLEN	SEQ	QUAL
+                
+                if 'XA:Z' in ''.join(variant[11:]): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
+                        for item in variant[11:]: # TODO: do not search for eahc variant where XA occurs. 
                                 if "XA:Z" in item:
                                         #Parsing XA tag
                                         listXA=item.split(":")[2].split(';')
-                                        strXA = ','.join(listXA)
-                                        listXA = strXA.split(',')
+                                        strXA = ','.join(listXA)        # TODO: useless (?)
+                                        listXA = strXA.split(',')       # TODO: useless (?)
                                         listXA.pop()
                                         alternative_positions=listXA     #position=[chrom1,pos1,cigarcode1,number of mismatch1 , chrom2,pos2,cigarcode2,number of mismatch2,...]. pos_i may be negative, in case of revcomp mapping.
                                         self.XA=item
                                         break                #no need to search for XA in other fields
                         i=1
                         while i<len(alternative_positions): #Runs through the list 4 by 4 to get all the positions 
-                                # print (alternative_positions)
-                                if alternative_positions[i-1]==variant_chromosome and abs(int(alternative_positions[i])) > variant_position-4 and abs(int(alternative_positions[i]))<variant_position+4: 
-                                    i+=4
-                                    continue #Checks if the position is not too close to the main one
-                                # if abs(int(position[i])) not in listerreur : #Checks if the position is not too close to the main one
+                                
+                                if alternative_positions[i-1]==variant_chromosome and\
+                                        abs(int(alternative_positions[i])) > variant_position-4 and\
+                                        abs(int(alternative_positions[i])) < variant_position+4: 
+                                        i+=4
+                                        continue #Checks if the position is not too close to the main one
+                                
                                 self.dicoMappingPos[alternative_positions[i-1]+"_"+alternative_positions[i]]=[int(alternative_positions[i+2]), alternative_positions[i+1]]#the position is associated to the number of mismatch in a dictionary
-                                # print ("self.dicoMappingPos["+alternative_positions[i-1]+"_"+alternative_positions[i],"=",int(alternative_positions[i+2]), alternative_positions[i+1])
+                                
                                 i+=4
                                 
 
                 if variant_position>0:#adds the main mapping position to the dictionary of all mapping positions
-                      posMut,nbMismatch=self.GetTag()
-                      #In case of mapped variant without MD TAG :
-                      self.dicoMappingPos[abs(int(variant[3]))]=[int(nbMismatch),""]
+                        posMut,nbMismatch=self.GetTag()
+                        #In case of mapped variant without MD TAG :
+                        self.dicoMappingPos[abs(int(variant[3]))]=[nbMismatch,""]
 #---------------------------------------------------------------------------------------------------------------------------
 #
 #FLAG = field to test
@@ -692,18 +699,19 @@ class PATH():
 
 
                 #Defines NM tag:
-                for field in self.listSam: # TODO : avoid this loop
+                for field in self.listSam[11:]: # TODO : avoid this loop
                         if "NM:" in field:
-                                nbMismatch=field.split(":")[2]#Gets the number of mismatch for the first position given by the mapper       
+                                nbMismatch=int(field.split(":")[-1])#Gets the number of mismatch for the first position given by the mapper       
                                 break    
                 if abs(int(variant[3]))>0:#Check if the variant is really mapped
                         if "MD:" not in str(variant):#Not MD Tag in the variant we deduce the value from the cigarcode
                                 print ("!!! No MD tag in your sam file : Could you try with the last version of bwa (upper than 0.7.8) ?")
                                 sys.exit()
                         else:                                              
-                                for field in self.listSam:
+                                for field in self.listSam[11:]:
                                         if "MD:" in field:
                                                 posMut = field.split(":")[2] #MD tag parsing
+                                                break
                 return (posMut,nbMismatch)               
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                             
@@ -734,12 +742,11 @@ class PATH():
                                                 self.nucleoRef=self.listNucleotideReverse[i]
                                 dicoClose[self.listPosVariantOnPathToKeep[i]]=[(self.boolRef),(self.nucleoRef),(listCorrectedPos[i]),(self.nucleo),(self.boolReverse),(int(listCorrectedPos[i])+int(self.mappingPosition))]#Fills the dictionary to keep all informations for close snps
                                 if i==0: #Keeps the information of the first snp/indel to fill the attributs of the path object
-                                      boolRef=self.boolRef
-                                      nucleoRef=self.nucleoRef
-                                      nucleo=self.nucleo
+                                        boolRef=self.boolRef
+                                        nucleoRef=self.nucleoRef
+                                        nucleo=self.nucleo
                                 self.nucleoRef=None#Resets the reference nucleotide for the next snp (case of close snps)
-                                
-                                                                                                                                                                                                          
+                                                                                                                                                                                                    
                 if int(self.mappingPosition)<=0:#Case of unmapped path
                         listCorrectedPos=self.listPosForward#We keep the forward position for every snps/indel on the path
                         self.listPosVariantOnPathToKeep=self.listPosForward
@@ -1207,11 +1214,7 @@ class VCFFIELD():
                 self.nucleoRef=None
                 self.reverse=""
                 self.XA=None
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------    
-        def RetrieveFilterField(self,filterField):
-                self.filterField=filterField
-                
+           
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------    
         
@@ -1245,18 +1248,18 @@ class VCFFIELD():
                                                 error+=1
                                 previous_position=current_position
                         if "SNP" in table[0][1] and table[0][6]=="PASS":
-                                 sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
-                                 error+=1
+                                        sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
+                                        error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
                                 sys.stderr.write("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!\n")
                                 error+=1
                 except(TypeError,IndexError): # Case of SNP and INDEL
                         if "SNP" in table[0] and table[6]=="PASS":
-                                 sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
-                                 error+=1
+                                sys.stderr.write("!!! an error occurred in determining the filter of close snps (an unmapped SNP is \"PASS\")!!!\n")
+                                error+=1
                         if "INDEL" in table[0] and table[6]=="PASS":
-                                 sys.stderr.write("!!! an error occurred in determining the filter of indel (an unmapped INDEL is \"PASS\")!!!\n")
-                                 error+=1
+                                sys.stderr.write("!!! an error occurred in determining the filter of indel (an unmapped INDEL is \"PASS\")!!!\n")
+                                error+=1
                         if VARIANT.upper_path.boolRef==None or VARIANT.lower_path.boolRef==None:
                                 sys.stderr.write("!!! Impossible to determine if path are identical to the reference or not (check cigarcode or ReferenceChecker) !!!\n")
                                 error+=1
@@ -1264,17 +1267,4 @@ class VCFFIELD():
                         sys.stderr.write(" !!! Line where the error occurred !!!\n")
                         sys.stderr.write(str(VARIANT.upper_path.listSam)+"\n")
                         sys.stderr.write(str(VARIANT.lower_path.listSam)+"\n")
-                else : return (error)                                   
-                                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                 
-                               
+                else : return (error)     
