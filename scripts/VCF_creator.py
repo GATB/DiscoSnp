@@ -116,26 +116,30 @@ def main():
         #Start to read the file two lines by two lines
         if ".sam" in fileName: #Checks if it's a stream_file
                 while True:
-                        line1=stream_file.readline()   
-                        if not line1: break #End of file
+                        line1=stream_file.readline() 
+                        if not line1: break #End of file  
+                        line1 = line1.strip()
                         if line1.startswith('@'):
                                 if filtered_sam:
                                         filtered_sam_file.write(line1) 
                                 continue #We do not read headers                                
+                        
                         while True:
-                                listline1=line1.split("\t")  
-                                if int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
+                                listline1=line1.split("\t") 
+                                if len(listline1) > 1 and int(listline1[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
                                         line1=stream_file.readline()
                                 else: break
-                        line2=stream_file.readline() #Read couple of lines
+                        line2=stream_file.readline().strip() #Read couple of lines
                         while True:
                                 listline2=line2.split("\t") 
-                                if int(listline2[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
+                                if len(listline2) > 1 and int(listline2[1]) & 2048 :#checks if it's not a secondary alignment => means splitted aligned sequence 
                                         line2=stream_file.readline()
+                                        if not line2: break # happens when second part of the previous pair (last one) add an unread secondary alignment
                                 else: break           
                         #Initializes variant object with the samline
                         #if InitVariant(line1,line2)[0]==1:
                         #                continue
+                        if not line2: break
                         variant_object, vcf_field_object=InitVariant(line1,line2,fileName, fieldIndex) #Fills the object with the line of the stream_file                
                         if variant_object.CheckCoupleVariantID()==1: #Checks whether the two lines are from the same path
                                 sys.exit(1)

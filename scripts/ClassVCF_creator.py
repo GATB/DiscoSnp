@@ -14,7 +14,7 @@ import re
 import time
 
 
-
+#      CheckStrandAndReverseNucleotide(self,nucleo):"""Reverse the alt nucleotide if it is needed""" 
 char2char = dict() # for fast reverse complement computations
 char2char['A'] = 'T'
 char2char['T'] = 'A'
@@ -45,7 +45,6 @@ def ReverseComplement(nucleotide):
 #      FillVCF(self,VCFfile,nbGeno,table,VCFObject): """Take all necessary input variables to fill the vcf;  Fills the fields of the table which will be printed in the vcf ; return the table"""  
 #      WhichPathIsTheRef(self,VCFObject): """Finds which path is identical to the reference genome and defines it as the ref : specific method for each type of variant""" 
 #      RetrieveMappingPositionCouple(self): """Defines the mapping position for the couple of variant"""
-#      CheckStrandAndReverseNucleotide(self,nucleo):"""Reverse the alt nucleotide if it is needed"""     
 #      CheckCoupleVariantID(self):"""Test if the couple of paths has the same ID"""
 
 #________________class PATH(): """corresponds to one path"""________________
@@ -82,28 +81,30 @@ def shift_from_cigar_code(cigarcode, pospol):
         pos=0
         i=1
         while i<len(parsingCigarCode): #Goes through the list by twos to get all the letters and to take them into account
-                if parsingCigarCode[i]=="S":
-                        shift-=int(parsingCigarCode[i-1])
-                        pos+=int(parsingCigarCode[i-1])
-                elif parsingCigarCode[i]=="M":
-                        pos+=int(parsingCigarCode[i-1])
-                elif parsingCigarCode[i]=="D":
-                        shift+=int(parsingCigarCode[i-1])
-                elif parsingCigarCode[i]=="I":
-                        shift-=int(parsingCigarCode[i-1])#There is a nucleotide of shift compared to the reference
-                        pos+=int(parsingCigarCode[i-1]) #We advance in the query SEQ
+                local_cigar_code = parsingCigarCode[i]
+                previous_local_cigar_code = parsingCigarCode[i-1]
+                if local_cigar_code=="S":
+                        shift-=int(previous_local_cigar_code)
+                        pos+=int(previous_local_cigar_code)
+                elif local_cigar_code=="M":
+                        pos+=int(previous_local_cigar_code)
+                elif local_cigar_code=="D":
+                        shift+=int(previous_local_cigar_code)
+                elif local_cigar_code=="I":
+                        shift-=int(previous_local_cigar_code)#There is a nucleotide of shift compared to the reference
+                        pos+=int(previous_local_cigar_code) #We advance in the query SEQ
                 #Hard clipping (clipped sequences NOT present in SEQ)
-                elif parsingCigarCode[i]=="H":
-                        shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
-                        pos+=int(parsingCigarCode[i-1])
+                elif local_cigar_code=="H":
+                        shift-=int(previous_local_cigar_code) # It's the shift in the alignment between the reference and the sequence of the variant 
+                        pos+=int(previous_local_cigar_code)
                 #Padding (silent deletion from padded reference)
-                elif parsingCigarCode[i]=="P":
-                        shift+=int(parsingCigarCode[i-1])
-                        pos+=int(parsingCigarCode[i-1])
-                elif parsingCigarCode[i]=="=":
-                        pos+=int(parsingCigarCode[i-1])
-                elif parsingCigarCode[i]=="X":
-                        pos+=int(parsingCigarCode[i-1])
+                elif local_cigar_code=="P":
+                        shift+=int(previous_local_cigar_code)
+                        pos+=int(previous_local_cigar_code)
+                elif local_cigar_code=="=":
+                        pos+=int(previous_local_cigar_code)
+                elif local_cigar_code=="X":
+                        pos+=int(previous_local_cigar_code)
                         
                 if pos>=pospol:
                         # print("return", str(pospol+shift))
@@ -125,7 +126,7 @@ class VARIANT():
                 self.contigLeft = ""#length of the contig left
                 self.contigRight = ""#length of the contig right
                 self.rank = ""#rank calculated by discosnp++
-                self.nb_pol = ""# number of polymorphisme in the disco path 
+                self.nb_pol = ""# number of polymorphism in the disco path 
                 self.dicoGeno = {}#dictionnary with the information of the genotype dicoGeno[listgeno[0]] = [listgeno[1],listlikelihood]
                 self.dicoAllele = {}#dictionnary of all the information from the header of discosnp++ : depending on the variant
                 self.mappingPositionCouple = 0#mapping position of the bubble after correction
@@ -142,21 +143,31 @@ class VARIANT():
                 self.discoName=discoList[0]#fills the attribut discoName of the variant object
                 # print discoList
                 self.variantID=self.discoName.split("_")[-1]#Gets the variantID ex:56468
-                if ("SNP" in self.discoName): VCFObject.variantType="SNP"
+                if self.discoName.startswith("SNP"): VCFObject.variantType="SNP"
                 else: VCFObject.variantType="INDEL"
                 # VCFObject.variantType=self.discoName.split("_")[0]#fills the VCF object with the variant type
                 listgeno=[]#splitted informations by genotype contained in the header of discoSnp++
                 #Get dicoAllele P_1:30_A/G => {'P_1': ['30', 'A', 'G']} 
 
                 pos=discoList[self.dicoIndex["P_"]].split(',')
-                for item in pos:
-                        if VCFObject.variantType=="SNP":#Specific dictionary dicoAllele in case of simple snp
-                                if ":" in item:
-                                        listP_=item.split(":")
-                                        self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1].split("/")[0]),(listP_[1].split("_")[1].split("/")[1])]#{'P_1': ['30', 'A', 'G']}
-                        elif VCFObject.variantType=="INDEL":#INDEL case : P_1:30_3_2 => {'P_1': ['30', '3', '2']} specific to the INDEL
+                if VCFObject.variantType=="SNP":#Specific dictionary dicoAllele in case of simple snp
+                        for item in pos:
+                                listP_=item.split(":")
+                                self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1].split("/")[0]),(listP_[1].split("_")[1].split("/")[1])]#{'P_1': ['30', 'A', 'G']}
+                elif VCFObject.variantType=="INDEL":#INDEL case : P_1:30_3_2 => {'P_1': ['30', '3', '2']} specific to the INDEL
+                        for item in pos:
                                 listP_=item.split(":")
                                 self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}
+
+                
+                # for item in pos:
+                #         if VCFObject.variantType=="SNP":#Specific dictionary dicoAllele in case of simple snp
+                #                 # if ":" in item:
+                #                 listP_=item.split(":")
+                #                 self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1].split("/")[0]),(listP_[1].split("_")[1].split("/")[1])]#{'P_1': ['30', 'A', 'G']}
+                #         elif VCFObject.variantType=="INDEL":#INDEL case : P_1:30_3_2 => {'P_1': ['30', '3', '2']} specific to the INDEL
+                #                 listP_=item.split(":")
+                #                 self.dicoAllele[listP_[0]]=[(listP_[1].split("_")[0]),(listP_[1].split("_")[1]),(listP_[1].split("_")[2])]#  {'P_1': ['30', '3', '2']}
                 #Get unitig
                 if "unitig" in self.dicoIndex and "unitig" in headerVariantUp:
                         self.len_unitig_left=int(discoList[self.dicoIndex["unitig"][0]].split("_")[3])
@@ -495,7 +506,7 @@ class PATH():
                 # XA cannot occur in the 11 mandatory fields: QNAME	FLAG	RNAM	POS	MAPQ	CIGAR	RNEXT	PNEXT	TLEN	SEQ	QUAL
                 
                 if 'XA:Z' in ''.join(variant[11:]): # XA: tag for multiple mapping : Checks if the upper path is multiple mapped : XA Alternative hits; format: (chr,pos,CIGAR,NM;)*
-                        for item in variant[11:]: # TODO: do not search for eahc variant where XA occurs. 
+                        for item in variant[11:]: 
                                 if "XA:Z" in item:
                                         #Parsing XA tag
                                         listXA=item.split(":")[2].split(';')
@@ -541,18 +552,19 @@ class PATH():
 #2048  supplementary alignment
 #
 #---------------------------------------------------------------------------------------------------------------------------                                                                   
-                                                                                                                  
         def CheckBitwiseFlag(self):
                 """Checks if the BitwiseFlag contains the tested value such as : read reverse strand, read unmmaped and so on."""
                 if int(self.listSam[1]) & 16:#Reverse strand
                         self.boolReverse="-1" 
                         self.listPosVariantOnPathToKeep=self.listPosReverse
-                elif int(self.listSam[1]) & 4: #Unmapped
+                        return
+                if int(self.listSam[1]) & 4: #Unmapped
                         self.listPosVariantOnPathToKeep=self.listPosForward
                         self.boolReverse="."  
-                else:  #Forward strand                   
-                        self.listPosVariantOnPathToKeep=self.listPosForward
-                        self.boolReverse="1"        
+                        return
+                #else:  #Forward strand                   
+                self.listPosVariantOnPathToKeep=self.listPosForward
+                self.boolReverse="1"        
 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------          
@@ -569,28 +581,30 @@ class PATH():
                 j=0
                 listpol=self.listPosVariantOnPathToKeep
                 while i<len(parsingCigarCode):#Goes through the list by twos to get all the letters and to take them into account
-                        if parsingCigarCode[i]=="S":
-                                shift-=int(parsingCigarCode[i-1])
-                                pos+=int(parsingCigarCode[i-1])
-                        elif parsingCigarCode[i]=="M":
-                                pos+=int(parsingCigarCode[i-1])
-                        elif parsingCigarCode[i]=="D":
-                                shift+=int(parsingCigarCode[i-1])
-                        elif parsingCigarCode[i]=="I":
-                                shift-=int(parsingCigarCode[i-1])#There is a nucleotide of shift compared to the reference
-                                pos+=int(parsingCigarCode[i-1]) #We advance in the query SEQ
+                        local_cigar_code = parsingCigarCode[i]
+                        previous_local_cigar_code = parsingCigarCode[i-1]
+                        if local_cigar_code=="S":
+                                shift-=int(previous_local_cigar_code)
+                                pos+=int(previous_local_cigar_code)
+                        elif local_cigar_code=="M":
+                                pos+=int(previous_local_cigar_code)
+                        elif local_cigar_code=="D":
+                                shift+=int(previous_local_cigar_code)
+                        elif local_cigar_code=="I":
+                                shift-=int(previous_local_cigar_code)#There is a nucleotide of shift compared to the reference
+                                pos+=int(previous_local_cigar_code) #We advance in the query SEQ
                         #Hard clipping (clipped sequences NOT present in SEQ)
-                        elif parsingCigarCode[i]=="H":
-                                shift-=int(parsingCigarCode[i-1]) # It's the shift in the alignment between the reference and the sequence of the variant 
-                                pos+=int(parsingCigarCode[i-1])
+                        elif local_cigar_code=="H":
+                                shift-=int(previous_local_cigar_code) # It's the shift in the alignment between the reference and the sequence of the variant 
+                                pos+=int(previous_local_cigar_code)
                         #Padding (silent deletion from padded reference)
-                        elif parsingCigarCode[i]=="P":
-                                shift+=int(parsingCigarCode[i-1])
-                                pos+=int(parsingCigarCode[i-1])
-                        elif parsingCigarCode[i]=="=":
-                                pos+=int(parsingCigarCode[i-1])
-                        elif parsingCigarCode[i]=="X":
-                                pos+=int(parsingCigarCode[i-1])
+                        elif local_cigar_code=="P":
+                                shift+=int(previous_local_cigar_code)
+                                pos+=int(previous_local_cigar_code)
+                        elif local_cigar_code=="=":
+                                pos+=int(previous_local_cigar_code)
+                        elif local_cigar_code=="X":
+                                pos+=int(previous_local_cigar_code)
                         if len(listpol)==1:#Simple SNP and INDEL
                                 if pos>=int(listpol[0]):
                                         posRef=int(listpol[0])+shift#takes into account the shift to add the after the mapping position and the variant position in the sequence                                

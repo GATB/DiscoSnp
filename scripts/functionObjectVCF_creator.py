@@ -35,7 +35,7 @@ def InitVariant(line1,line2,fileName,dicoIndex):
                 return (1,1)                
         variant_object.dicoIndex=dicoIndex               
         #VCF object Creation and filling variant's attribut   
-        vcf_field_object=VCFFIELD()
+        vcf_field_object = VCFFIELD()
         variant_object.FillInformationFromHeader(vcf_field_object)
         return (variant_object, vcf_field_object)   
         
