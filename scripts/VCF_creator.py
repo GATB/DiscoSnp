@@ -49,19 +49,18 @@ def usage():
 def main():
         #Default value
         listName=[] #List from the file name used to create the VCF
-        nbSnp=0 #number of SNP in the input file
         nbGeno=0 #number of genotype for every path
         filtered_sam=False
         filtered_sam_file=""
         VCFFile = None
         ###OPTIONS 
         try:
-                opts, args = getopt.getopt(sys.argv[1:],"h:s:o:f:",["help","sam_file=","output=","output_filtered_SAM="])
+                opts, args = getopt.getopt(sys.argv[1:],"s:o:f:h",["help","sam_file=","output=","output_filtered_SAM="])
                 if not opts:
                         usage()
                         sys.exit(2)
         except getopt.GetoptError as e:
-                print(e)
+                sys.stderr.write(f"{e}\n")
                 usage()
                 sys.exit(2)
         for opt, arg in opts : 
@@ -79,7 +78,7 @@ def main():
                                         listName[1]=listName[1].replace("_", " ")
                                 stream_file=open(fileName,'r')
                         else : 
-                                print("!! No file: " +str(arg)+"!!")
+                                sys.stderr.write(f"File \"{arg}\" does not exist")
                                 sys.exit(2)  
                 elif opt in ("-o","--output"):
                         if not arg:
@@ -93,11 +92,7 @@ def main():
                                 filtered_sam_file = open(arg,'w')
                         else:
                                 sys.stderr.write("!! No filtered sam output !!\n")
-                                sys.exit(2)          
-                else:
-                        sys.stderr.write(f"Unknown option {format(opt)}\n")
-                        usage()
-                        sys.exit(2)
+                                sys.exit(2)    
 
         if not VCFFile:
                 VCFFile = sys.stdout
