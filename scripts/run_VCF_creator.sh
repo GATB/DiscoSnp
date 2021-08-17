@@ -18,7 +18,22 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #*****************************************************************************
 
+# First check that python is installed and has version 3 or more:
+if ! hash python; then
+    echo "python is not installed"
+    exit 1
+fi
+
+ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
+if [ "$ver" -lt "30" ]; then
+    echo "This script requires python 3.0 or greater"
+    exit 1
+fi
+
+# Get the local directory path
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Option initialisations and defaults
 remove=0
 PATH_VCF_creator=""
 samfile=""

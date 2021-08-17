@@ -60,7 +60,7 @@ def main():
                         usage()
                         sys.exit(2)
         except getopt.GetoptError as e:
-                sys.stderr.write(f"{e}\n")
+                sys.stderr.write(f"--- {e}\n")
                 usage()
                 sys.exit(2)
         for opt, arg in opts : 
@@ -92,7 +92,11 @@ def main():
                                 filtered_sam_file = open(arg,'w')
                         else:
                                 sys.stderr.write("!! No filtered sam output !!\n")
-                                sys.exit(2)    
+                                sys.exit(2)          
+                else:
+                        sys.stderr.write(f"Unknown option {format(opt)}\n")
+                        usage()
+                        sys.exit(2)
 
         if not VCFFile:
                 VCFFile = sys.stdout
