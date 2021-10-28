@@ -226,7 +226,7 @@ if [ -z "$samfile" ];then
                      echo -e "...And the file disco : option -p..."
                      exit 1
               else
-
+                     echo -e " run python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile"
                      python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
                      if [ $? -ne 0 ]
                      then
