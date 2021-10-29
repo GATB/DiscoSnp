@@ -335,6 +335,7 @@ else
        fi
 fi
 
+echo -e "python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile"
 python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile 
 if [ $? -ne 0 ]
 then
