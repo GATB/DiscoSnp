@@ -1,4 +1,7 @@
- 
+
+# Create the file of file: 
+ls humch1_00* > fof.txt
+
 #####################
 # Default option run: 
 #####################

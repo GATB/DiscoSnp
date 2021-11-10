@@ -19,6 +19,6 @@
 ##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">
 ##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	G1	G2
-SNP_higher_path_3	196	3	C	G	.	.	Ty=SNP;Rk=1;UL=86;UR=261;CL=166;CR=761;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:124:10,378,2484:124,0:0,0	1/1:134:2684,408,10:0,134:0,0
-SNP_higher_path_2	908	2	A	T	.	.	Ty=SNP;Rk=1;UL=86;UR=49;CL=878;CR=49;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:74:8,227,1484:74,0:0,0	1/1:86:1724,263,8:0,86:0,0
-SNP_higher_path_1	499	1	A	T	.	.	Ty=SNP;Rk=1;UL=469;UR=261;CL=469;CR=458;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:110:2204,335,9:0,110:0,0	0/0:114:9,347,2284:114,0:0,0
+SNP_higher_path_3	198	 3	C	G	.	.	Ty=SNP;Rk=1;UL=86;UR=261;CL=166;CR=761;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:124:10,378,2484:124,0:0,0	1/1:134:2684,408,10:0,134:0,0
+SNP_higher_path_2	910	 2	A	T	.	.	Ty=SNP;Rk=1;UL=86;UR=49;CL=878;CR=49;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:74:8,227,1484:74,0:0,0	1/1:86:1724,263,8:0,86:0,0
+SNP_higher_path_1	501	 1	A	T	.	.	Ty=SNP;Rk=1;UL=469;UR=261;CL=469;CR=458;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:110:2204,335,9:0,110:0,0	0/0:114:9,347,2284:114,0:0,0

@@ -234,6 +234,11 @@ if [ -z "$samfile" ];then
                             exit 1
                      fi
                      echo -e "... Creation of the vcf file : done ...==> $vcffile"
+
+                     echo -e " Transforming the created zero-based vcf onto a one-based vcf file"
+                     cmd="python  $PATH_VCF_creator/zero2one.py -i $vcffile"
+                     echo $cmd
+                     $cmd
                      exit
               fi
        fi
@@ -357,6 +362,17 @@ if [ $igv -eq 1 ] ; then
        echo -e "... Creation of the vcf file: done ...==> $vcffile"
        
        cat tmp.vcf > $nameVCFIGV\_for_IGV.vcf
+
+       echo -e " Transforming the created zero-based vcf (and for IGV vcf) onto one-based vcf files"
+       cmd="python  $PATH_VCF_creator/zero2one.py -i $vcffile"
+       echo $cmd
+       $cmd
+       cmd="python  $PATH_VCF_creator/zero2one.py -i $nameVCFIGV\_for_IGV.vcf"
+       echo $cmd
+       $cmd
+
+
+
 fi
 
 

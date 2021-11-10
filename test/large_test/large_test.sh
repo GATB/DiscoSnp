@@ -6,17 +6,15 @@ wget http://bioinformatique.rennes.inria.fr/disco_tests/data_test_disco.zip
 # create: sh generate_refs.sh
 unzip data_test_disco.zip
 
-# Create the file of file: 
-ls humch1_00* > fof.txt
  
 sh local_large_test.sh
 
 
 rm -f created ref discoRes*
 rm -f data_test_disco.zip
-rm -f humch1_*
-rm -f fof.txt
-rm -f ref*
+# rm -f humch1_*
+# rm -f fof.txt
+# rm -f ref*
 
 
 

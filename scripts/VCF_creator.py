@@ -179,3 +179,6 @@ def main():
 
 if __name__ == '__main__':
         main()
+        sys.stderr.write(f"VCF file had been generated. Beware, this is a zero-based VCF file.\n")
+        sys.stderr.write(f"Please use 'zero2one.py' script if you wish to obtain a one-based VCF.\n")
+        

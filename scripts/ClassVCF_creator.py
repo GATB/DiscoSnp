@@ -124,11 +124,11 @@ class VARIANT():
                 self.upper_path = PATH(line1)#line in the file corresponding to the upper path
                 self.lower_path = PATH(line2)#line in the file corresponding to the lower path
                 self.variantID = "" #ID of discoSnp++
-                self.discoName = ""#name of the variant : SNP_higher_path_99
-                self.len_unitig_left = ""#length of the unitig left
-                self.len_unitig_right = ""#length of the unitig right
-                self.contigLeft = ""#length of the contig left
-                self.contigRight = ""#length of the contig right
+                self.discoName = "" #name of the variant : SNP_higher_path_99
+                self.len_unitig_left = 0#length of the unitig left
+                self.len_unitig_right = 0#length of the unitig right
+                self.len_contig_left = 0#length of the contig left
+                self.len_contig_right = 0#length of the contig right
                 self.rank = ""#rank calculated by discosnp++
                 self.nb_pol = ""# number of polymorphism in the disco path 
                 self.dicoGeno = {}#dictionnary with the information of the genotype dicoGeno[listgeno[0]] = [listgeno[1],listlikelihood]
@@ -178,8 +178,8 @@ class VARIANT():
                         self.len_unitig_right=int(discoList[self.dicoIndex["unitig"][1]].split("_")[3])
                 #Get contig
                 if "contig" in self.dicoIndex and "contig" in headerVariantUp:
-                        self.contigLeft=discoList[self.dicoIndex["contig"][0]].split("_")[3] 
-                        self.contigRight=discoList[self.dicoIndex["contig"][1]].split("_")[3] 
+                        self.len_contig_left=int(discoList[self.dicoIndex["contig"][0]].split("_")[3]) 
+                        self.len_contig_right=int(discoList[self.dicoIndex["contig"][1]].split("_")[3]) 
                 #Get rank
                 if "rank" in self.dicoIndex and "rank" in headerVariantUp:
                         self.rank=discoList[self.dicoIndex["rank"]].split('_')[1]
@@ -192,19 +192,7 @@ class VARIANT():
                                         self.dicoGeno[listgeno[0]]=[listgeno[1],(listgeno[2].split(','))]
                                 else:                                     
                                         self.dicoGeno[listgeno[0]]=[listgeno[1]]  
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------              
-        
-#---------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-        def CheckContigUnitig(self,unitig,contig):
-                """Checks if there is an extension in form of contig or unitig to take into account in the position of the variant on the path (if the prediction is not mapped"""
-                if contig:#we keep the length of the contig to add it in the event of unmapped path
-                        return(int(contig))#return the contig length
-                elif unitig:# if there is not a contig we keep the length of the unitig
-                        return(int(unitig))#return the unitig length
-                else:
-                        return 0                                                                                                                                                                                                        
+                                                                                                                                                                 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                                   
         def RetrievePolymorphismFromHeader(self):
@@ -344,7 +332,7 @@ class VARIANT():
 
                 table[5]="."
                 table[6]=VCFObject.filterField
-                table[7]=f"Ty={VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.contigLeft};CR={self.contigRight};Genome={VCFObject.nucleoRef};Sd={VCFObject.reverse}"
+                table[7]=f"Ty={VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.len_contig_left};CR={self.len_contig_right};Genome={VCFObject.nucleoRef};Sd={VCFObject.reverse}"
                 if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                         table[7]+=f";XA={VCFObject.XA}"
                 #TODO: eviter ces replace.
@@ -800,7 +788,8 @@ class SNP(VARIANT):
         def WhichPathIsTheRef(self,VCFObject):
                 """Finds which path is identical to the reference genome (with boolRef) and defines it as the ref : specific method for each type of variant"""  
                 VARIANT.WhichPathIsTheRef(self,VCFObject)                
-                posUnmapped = self.CheckContigUnitig(self.len_unitig_left,self.contigLeft) #Takes into account the length of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                posUnmapped = max(self.len_unitig_left,self.len_contig_left) #Takes into account the length of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                # self.CheckContigUnitig(self.len_unitig_left,self.len_contig_left) #Takes into account the length of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : two mapped paths
                 if self.upper_path.mappingPosition>0 and self.lower_path.mappingPosition>0:
@@ -852,20 +841,19 @@ class SNP(VARIANT):
 #---------------------------------------------------------------------------------------------------------------------------
 ##Case : Both paths are unmapped       
                 elif self.upper_path.mappingPosition<=0 and self.lower_path.mappingPosition<=0:
+                        self.mappingPositionCouple=int(posUnmapped)
                         if  self.lower_path.nucleo<self.upper_path.nucleo:
                                 VCFObject.chrom = self.lower_path.discoName.split("|")[0]
                                 VCFObject.ref = self.lower_path.nucleo
                                 VCFObject.alt = self.upper_path.nucleo
                                 VCFObject.reverse = self.lower_path.boolReverse
                                 VCFObject.nucleoRef = self.lower_path.nucleoRef
-                                self.mappingPositionCouple=int(posUnmapped)
                         else:
                                 VCFObject.chrom = self.upper_path.discoName.split("|")[0]
                                 VCFObject.ref = self.upper_path.nucleo
                                 VCFObject.alt = self.lower_path.nucleo
                                 VCFObject.reverse = self.upper_path.boolReverse
                                 VCFObject.nucleoRef = self.upper_path.nucleoRef
-                                self.mappingPositionCouple=int(posUnmapped)
                                 
 #---------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------                                     
@@ -927,7 +915,7 @@ class INDEL(VARIANT):
         def WhichPathIsTheRef(self,VCFObject):
                 #Finds the path identical to the reference
                 VARIANT.WhichPathIsTheRef(self,VCFObject)
-                posUnmapped = self.CheckContigUnitig(self.len_unitig_left,self.contigLeft) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
+                posUnmapped = max(self.len_unitig_left,self.len_contig_left) #Takes into account the lenght of the unitig/contig for the position of unmapped allele (position of the allele on the lower path)
                 old_boolRef_Up=None
                 old_boolRef_Low=None
                 #In case of unmapped variant : we have to define a reference
@@ -1046,7 +1034,7 @@ class SNPSCLOSE(VARIANT):
                 VCFObject.phased=True 
                 table = [0] * 10 #Create a 10 cols array
                 tablebis=[]
-                posUnmapped = self.CheckContigUnitig(self.len_unitig_left,self.contigLeft)
+                posUnmapped = max(self.len_unitig_left,self.len_contig_left)
                 listPositionPolymorphismeOnPathUp = self.upper_path.listPosVariantOnPathToKeep
                 listPositionPolymorphismeOnPathLow = self.lower_path.listPosVariantOnPathToKeep
                 VCFObject.nucleoRef=[]
@@ -1196,7 +1184,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(subIDs[line])
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
-                        table[line][7]=f"Ty{VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.contigLeft};CR={self.contigRight};Genome={nucleoRef};Sd={VCFObject.reverse}"
+                        table[line][7]=f"Ty{VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.len_contig_left};CR={self.len_contig_right};Genome={nucleoRef};Sd={VCFObject.reverse}"
                         if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                                 table[line][7]+=f";XA={VCFObject.XA}"
                         #TODO: eviter ces "replace"
