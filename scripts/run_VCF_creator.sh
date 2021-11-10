@@ -367,7 +367,7 @@ if [ $igv -eq 1 ] ; then
        cmd="python  $PATH_VCF_creator/zero2one.py -i $vcffile"
        echo $cmd
        $cmd
-       cmd="python  $PATH_VCF_creator/zero2one.py -i $nameVCFIGV\_for_IGV.vcf"
+       cmd="python  $PATH_VCF_creator/zero2one.py -i ${nameVCFIGV}_for_IGV.vcf"
        echo $cmd
        $cmd
 

@@ -1,5 +1,9 @@
 ## Next Release
 
+### V2.6.0
+
+- VCF file is now one-based (previously zero-based)
+
 ## V2.4.5
 
 * `-g` option takes a graph as parameter (instead of determining itself a graph name)
