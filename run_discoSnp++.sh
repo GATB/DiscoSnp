@@ -509,7 +509,7 @@ if [ ! -f ${graph_reused} ]; then # no graph was given or the given graph was no
     echo -e " #################### GRAPH CREATION  #######################"
     echo -e " ############################################################$reset"
 
-    graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf -histo-max 100000000"
+    graphCmd="${dbgh5_bin} -in ${read_sets}_${kissprefix}_removemeplease -out $h5prefix -kmer-size $k -abundance-min ${c_dbgh5} -abundance-max $C -solidity-kind one ${option_cores_gatb} -verbose $verbose  -skip-bcalm -skip-bglue -no-mphf -histo-max 1000000"
     echo $green${graphCmd}$cyan
     if [[ "$wraith" == "false" ]]; then
         ${graphCmd}
