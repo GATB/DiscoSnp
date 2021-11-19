@@ -546,7 +546,7 @@ T="$(date +%s)"
 echo -e "$yellow ############################################################"
 echo -e " #################### KISSNP2 MODULE  #######################"
 echo -e " ############################################################$reset"
-kissnp2Cmd="${kissnp2_bin} -in ${graph_reused} -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb $output_coverage_option -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
+kissnp2Cmd="${kissnp2_bin} -in ${graph_reused} -out $kissprefix  -b $b $l $x -P $P  -D $D $extend $option_cores_gatb -coverage_file ${h5prefix}_cov.h5 -max_ambigous_indel ${max_ambigous_indel} ${option_max_symmetrical_crossroads}  -verbose $verbose"
 echo $green${kissnp2Cmd}$cyan
 if [[ "$wraith" == "false" ]]; then
     ${kissnp2Cmd}
@@ -606,7 +606,7 @@ index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 if [ ! -z "${read_sets_kissreads}" ]; then
     read_sets=${read_sets_kissreads}
 fi
-kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  $read_sets -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  ${read_sets}_${kissprefix}_removemeplease -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
 
 echo $green $kissreadsCmd$cyan
 if [[ "$wraith" == "false" ]]; then
@@ -649,8 +649,8 @@ then
     exit 1
 fi
 
-rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
-rm -rf ${read_sets}_${kissprefix}_removemeplease 
+# rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
+# rm -rf ${read_sets}_${kissprefix}_removemeplease 
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
