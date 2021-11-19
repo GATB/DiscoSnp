@@ -649,8 +649,8 @@ then
     exit 1
 fi
 
-# rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
-# rm -rf ${read_sets}_${kissprefix}_removemeplease 
+rm -f $kissprefix.fa ${kissprefix}_coherent ${kissprefix}_uncoherent
+rm -rf ${read_sets}_${kissprefix}_removemeplease 
 
 #######################################################################
 #################### DISCOSNP FINISHED ###############################
