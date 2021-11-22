@@ -19,12 +19,12 @@
 #*****************************************************************************
 
 # First check that python is installed and has version 3 or more:
-if ! hash python; then
-    echo "python is not installed"
+if ! hash python3; then
+    echo "python3 is not installed"
     exit 1
 fi
 
-ver=$(python -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
+ver=$(python3 -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1\2/')
 if [ "$ver" -lt "30" ]; then
     echo "This script requires python 3.0 or greater"
     exit 1
@@ -227,16 +227,16 @@ if [ -z "$samfile" ];then
                      exit 1
               else
                      echo -e " run python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile"
-                     python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
+                     python3 $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile #-n $n
                      if [ $? -ne 0 ]
                      then
-                            echo "there was a problem with the VCF creation (command was \"python $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile\""
+                            echo "there was a problem with the VCF creation (command was \"python3 $PATH_VCF_creator/VCF_creator.py -s $discoSNPs -o $vcffile\""
                             exit 1
                      fi
                      echo -e "... Creation of the vcf file : done ...==> $vcffile"
 
                      echo -e " Transforming the created zero-based vcf onto a one-based vcf file"
-                     cmd="python  $PATH_VCF_creator/zero2one.py -i $vcffile"
+                     cmd="python3  $PATH_VCF_creator/zero2one.py -i $vcffile"
                      echo $cmd
                      $cmd
                      exit
@@ -279,9 +279,9 @@ if [ -z "$samfile" ];then
                      discoSNPsbis=$(basename $discoSNPs .fa)"bis.fasta"
 
                      if [ $map_with_extensions -eq 1 ];then
-                            python $PATH_VCF_creator/keep_extensions_disco_file.py $discoSNPs $discoSNPsbis
+                            python3 $PATH_VCF_creator/keep_extensions_disco_file.py $discoSNPs $discoSNPsbis
                      else
-                            python $PATH_VCF_creator/remove_extensions_disco_file.py $discoSNPs $discoSNPsbis
+                            python3 $PATH_VCF_creator/remove_extensions_disco_file.py $discoSNPs $discoSNPsbis
                      fi
                      if [ -z "$discoSNPsbis" ];then
                             echo "...Error with the script remove_extensions_disco_file.py..."
@@ -340,11 +340,11 @@ else
        fi
 fi
 
-echo -e "python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile"
-python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile 
+echo -e "python3 $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile"
+python3 $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile 
 if [ $? -ne 0 ]
 then
-       echo "there was a problem with the VCF creation (command was \"python $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile \""
+       echo "there was a problem with the VCF creation (command was \"python3 $PATH_VCF_creator/VCF_creator.py -s $samfile -o $vcffile \""
        exit 1
 fi
 echo -e "... Creation of the vcf file: done ...==> $vcffile "
@@ -353,10 +353,10 @@ echo -e "... Creation of the vcf file: done ...==> $vcffile "
 if [ $igv -eq 1 ] ; then
        $DIR/create_IGV_compatible_VCF.sh $vcffile
        nameVCFIGV=$( basename $vcffile .vcf )
-       python $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf
+       python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf
        if [ $? -ne 0 ]
        then
-              echo "there was a problem with the IGV VCF creation (command was \"python $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf\""
+              echo "there was a problem with the IGV VCF creation (command was \"python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf\""
               exit 1
        fi
        echo -e "... Creation of the vcf file: done ...==> $vcffile"
@@ -364,10 +364,10 @@ if [ $igv -eq 1 ] ; then
        cat tmp.vcf > $nameVCFIGV\_for_IGV.vcf
 
        echo -e " Transforming the created zero-based vcf (and for IGV vcf) onto one-based vcf files"
-       cmd="python  $PATH_VCF_creator/zero2one.py -i $vcffile"
+       cmd="python3 $PATH_VCF_creator/zero2one.py -i $vcffile"
        echo $cmd
        $cmd
-       cmd="python  $PATH_VCF_creator/zero2one.py -i $nameVCFIGV\_for_IGV.vcf"
+       cmd="python3 $PATH_VCF_creator/zero2one.py -i $nameVCFIGV\_for_IGV.vcf"
        echo $cmd
        $cmd
 
