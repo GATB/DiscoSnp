@@ -14,7 +14,7 @@ def zero2one(input_vcf_file_name: str):
             vcf_line = vcf_line.strip().split()
             new_POS = int(vcf_line[1]) + 1
             end_line = '\t'.join(vcf_line[2:])
-            new_vcf_line = f"{vcf_line[0]}\t{new_POS}\t {end_line}"
+            new_vcf_line = f"{vcf_line[0]}\t{new_POS}\t{end_line}"
             print(new_vcf_line)
 
 if __name__ == "__main__":
