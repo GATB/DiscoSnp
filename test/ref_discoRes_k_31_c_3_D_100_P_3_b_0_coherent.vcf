@@ -1,5 +1,5 @@
 ##fileformat=VCFv4.1
-##filedate=20211110
+##filedate=20211123
 ##source=VCF_creator
 ##SAMPLE=file://discoRes_k_31_c_3_D_100_P_3_b_0_coherent.fa
 ##REF=<ID=REF,Number=1,Type=String,Description="Allele of the path Disco aligned with the least mismatches">
@@ -19,6 +19,6 @@
 ##FORMAT=<ID=AD,Number=2,Type=Integer,Description="Depth of each allele by sample">
 ##FORMAT=<ID=HQ,Number=2,Type=Integer,Description="Haplotype Quality">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	G1	G2
-SNP_higher_path_3	200	 3	C	G	.	.	Ty=SNP;Rk=1;UL=86;UR=261;CL=169;CR=764;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:124:10,378,2484:124,0:0,0	1/1:134:2684,408,10:0,134:0,0
-SNP_higher_path_2	912	 2	A	T	.	.	Ty=SNP;Rk=1;UL=86;UR=52;CL=881;CR=52;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:74:8,227,1484:74,0:0,0	1/1:86:1724,263,8:0,86:0,0
-SNP_higher_path_1	503	 1	A	T	.	.	Ty=SNP;Rk=1;UL=472;UR=261;CL=472;CR=461;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:110:2204,335,9:0,110:0,0	0/0:114:9,347,2284:114,0:0,0
+SNP_higher_path_3	200	3	C	G	.	.	Ty=SNP;Rk=1;UL=86;UR=261;CL=169;CR=764;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:124:10,378,2484:124,0:0,0	1/1:134:2684,408,10:0,134:0,0
+SNP_higher_path_2	912	2	A	T	.	.	Ty=SNP;Rk=1;UL=86;UR=52;CL=881;CR=52;Genome=.;Sd=.	GT:DP:PL:AD:HQ	0/0:74:8,227,1484:74,0:0,0	1/1:86:1724,263,8:0,86:0,0
+SNP_higher_path_1	503	1	A	T	.	.	Ty=SNP;Rk=1;UL=472;UR=261;CL=472;CR=461;Genome=.;Sd=.	GT:DP:PL:AD:HQ	1/1:110:2204,335,9:0,110:0,0	0/0:114:9,347,2284:114,0:0,0
