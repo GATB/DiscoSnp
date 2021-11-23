@@ -56,13 +56,13 @@ P=3 # number of polymorphsim per bubble
 option_max_symmetrical_crossroads=""
 l="-l"
 extend="-t"
-x="-x"
-y=""
+x="" # if set to -x : authorize non closed bubbles (used mainly in RNA seq)
 output_coverage_option=""
 genotyping="-genotype"
 verbose=1
 stop_after_kissnp=0
-e=""
+aav=0 # if set to not zero : considers the aav context: 1/ no uncoherent 2/ authorize -x option 
+e="" # if set to -e: Map variant predictions on reference genome with their unitig or contig extensions
 graph_reused="Egg62hdS7knSFvF3" # with -g option, we use a previously created graph. 
 
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -160,8 +160,11 @@ function help {
     echo -e "\t\t Optional unless option -G used and bwa is not in the binary path."
     echo -e "\t -e\t Map variant predictions on reference genome with their unitig or contig extensions."
     echo -e "\t\t Useless unless mapping on reference genome is required (option -G). "
-    echo 
+
+    echo -e "\nCONTEXT OPTION"
+    echo -e "\t -z\t Considers AAV context: all predictions are coherents and authorize non closed bubbles (-x option)" 
     
+    echo -e "\nMISC."
     echo -e "\t -w\t Wraith mode: only show all discoSnp++ commands without running them"
     echo -e "\t -v <0 or 1>"
     echo -e "\t\t Verbose 0 (avoids progress output) or 1 (enables progress output) -- default=1."
@@ -186,6 +189,10 @@ while :; do
     -X)
         stop_after_kissnp=1
         ;;
+
+    -z)
+        aav=1
+        ;;
     -w)
         wraith="true"
         ;;
@@ -202,7 +209,7 @@ while :; do
             die 'ERROR: "'$1'" option requires a non-empty option argument.'
         fi
         ;;
-       
+
     -v)        
         if [ "$2" ] && [ ${2:0:1} != "-" ] ; then
             verbose=$2
@@ -350,11 +357,7 @@ while :; do
         ;;
 
     -x)
-        x="-x" ##CHARLOTTE
-        ;;
-
-    -y)
-        y="-x" ##CHARLOTTE
+        x="-x" ##Authorise non closed bubbles
         ;;
 
     -G|--reference_genome)
@@ -366,9 +369,8 @@ while :; do
         fi
         ;;
 
-
     -e)
-        e="-e"
+        e="-e" # map with extensions to the reference genome
         ;;
 
     -u|--max_threads)
@@ -453,6 +455,9 @@ if [[ "$useref" == "true" ]]; then
 fi
 cat $read_sets >> ${read_sets}_${kissprefix}_removemeplease
 
+if [ $aav -eq 1 ]; then
+    x="-x"
+fi
 
 
 #######################################################################
@@ -479,6 +484,7 @@ if [[ "$wraith" == "false" ]]; then
     echo -e "\t p="$prefix
     echo -e "\t G="$genome
     echo -e "\t e="$e
+    echo -e "\t x="$x
     
     
     
@@ -590,11 +596,10 @@ fi
 #######################################################################
 
 T="$(date +%s)"
-if [[ "$wraith" == "false" ]]; then
     echo -e "$yellow #############################################################"
     echo -e " #################### KISSREADS MODULE #######################"
     echo -e " #############################################################$reset"
-fi
+
 
 smallk=$k
 if (( $smallk>31 ))  ; then
@@ -606,7 +611,13 @@ index_stride=$(($i+1)); size_seed=$(($smallk-$i)) # DON'T modify this.
 if [ ! -z "${read_sets_kissreads}" ]; then
     read_sets=${read_sets_kissreads}
 fi
-kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  ${read_sets}_${kissprefix}_removemeplease -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose $y ${option_phase_variants}"
+
+if [ $aav -eq 1 ]; then
+    rmcmd="rm -f ${h5prefix}_cov.h5"
+    echo $green${rmcmd}$cyan
+    $rmcmd # erase this file so all predictions are coherent after kissreads
+fi
+kissreadsCmd="${kissreads2_bin} -predictions $kissprefix.fa -reads  ${read_sets}_${kissprefix}_removemeplease -co ${kissprefix}_coherent -unco ${kissprefix}_uncoherent -k $k -size_seeds ${size_seed} -index_stride ${index_stride} -hamming $d  $genotyping -coverage_file ${h5prefix}_cov.h5 $option_cores_gatb  -verbose $verbose ${option_phase_variants}"
 
 echo $green $kissreadsCmd$cyan
 if [[ "$wraith" == "false" ]]; then
@@ -627,9 +638,12 @@ T="$(($(date +%s)-T))"
 #################### SORT AND FORMAT  RESULTS #########################
 #######################################################################
 
+if [[ "$wraith" == "false" ]]; then
 echo -e "$yellow ###############################################################"
 echo -e " #################### SORT AND FORMAT  RESULTS #################"
 echo -e " ###############################################################$reset"
+fi
+
 if [[ "$wraith" == "false" ]]; then
     sort -rg ${kissprefix}_coherent | cut -d " " -f 2 | tr ';' '\n' > ${kissprefix}_coherent.fa
 fi
