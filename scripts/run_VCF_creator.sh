@@ -99,7 +99,7 @@ while getopts "hB:c:G:p:wk:Ief:o:t:" opt; do
        case $opt in
 
               t)
-              bwa_threads="-t ",$OPTARG
+              bwa_threads="-t $OPTARG"
               ;;
 
               w)
@@ -318,11 +318,11 @@ if [ -z "$samfile" ];then
        #---------------------------------------------------------------------------------------------------------------------------
        #---------------------------------------------------------------------------------------------------------------------------
        ##Alignment discosnps on the reference genome
-       echo "ALIGNMENT: $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis > $samfile"
-       $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis > $samfile
+       echo "ALIGNMENT: $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis $bwa_threads > $samfile"
+       $PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis $bwa_threads > $samfile
        if [ $? -ne 0 ]
        then
-              echo "there was a problem with BWA (command was \"$PATH_BWA/bwa mem $genome $discoSNPsbis > $samfile\""
+              echo "there was a problem with BWA (command was \"$PATH_BWA/bwa mem -h 80 -k $k $genome $discoSNPsbis $bwa_threads > $samfile\""
               exit 1
        fi
        #---------------------------------------------------------------------------------------------------------------------------
