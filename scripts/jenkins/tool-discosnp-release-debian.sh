@@ -91,13 +91,21 @@ git clone https://github.com/pgdurand/github-release-api.git
 #                       RETRIEVE ARCHIVES FROM INRIA FORGE     #
 ################################################################
 
+CI_URL=https://ci.inria.fr/gatb-core/view/RConnector-gitlab/
+
+JENKINS_TASK_DEB=tool-discosnp-build-debian7-64bits-gcc-4.7-gitlab
+JENKINS_TASK_MAC=tool-discosnp-build-macos-10.9.5-gcc-4.2.1-gitlab
+
 #retrieve last build from ci-inria (see tool-discosnp-build-XXX tasks)
-scp ${INRIA_FORGE_LOGIN}@scm.gforge.inria.fr:/home/groups/gatb-tools/htdocs/ci-inria/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-bin-Linux.tar.gz .
+wget $CI_URL/$JENKINS_TASK_DEB/lastSuccessfulBuild/artifact/$JENKINS_TASK_DEB/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-bin-Linux.tar.gz
 [ $? != 0 ] && exit 1
-scp ${INRIA_FORGE_LOGIN}@scm.gforge.inria.fr:/home/groups/gatb-tools/htdocs/ci-inria/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-bin-Darwin.tar.gz .
+
+wget $CI_URL/$JENKINS_TASK_MAC/lastSuccessfulBuild/artifact/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-bin-Darwin.tar.gz
 [ $? != 0 ] && exit 1
-scp ${INRIA_FORGE_LOGIN}@scm.gforge.inria.fr:/home/groups/gatb-tools/htdocs/ci-inria/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-Source.tar.gz .
+
+wget $CI_URL/$JENKINS_TASK_MAC/lastSuccessfulBuild/artifact/${ARCHIVE_NAME}-${BRANCH_TO_BUILD}-Source.tar.gz
 [ $? != 0 ] && exit 1
+
 
 ################################################################
 #                       INTERACT WITH GITHUB                   #
