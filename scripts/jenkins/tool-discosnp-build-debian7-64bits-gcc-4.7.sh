@@ -109,7 +109,7 @@ if [ $? -eq 0 ] && [ "$INRIA_FORGE_LOGIN" != none ] && [ "$DO_NOT_STOP_AT_ERROR"
     ls -atlhrsF
 
     #-- Move the generated bin bundle to the workspace (so that it can be uploaded as a Jenkins job artifact)
-    mv ${TOOL_NAME}-${BRANCH_TO_BUILD}-bin-Linux.tar.gz $JENKINS_WORKSPACE/
+    mv *-${BRANCH_TO_BUILD}-bin-Linux.tar.gz $JENKINS_WORKSPACE/
 
 fi
 
