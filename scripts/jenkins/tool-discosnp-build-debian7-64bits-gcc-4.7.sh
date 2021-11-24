@@ -28,6 +28,8 @@ DO_NOT_STOP_AT_ERROR : ${DO_NOT_STOP_AT_ERROR}
  Jenkins build parameters (built in)
 -----------------------------------------
 BUILD_NUMBER         : ${BUILD_NUMBER}
+JENKINS_HOME         : ${JENKINS_HOME}
+WORKSPACE            : ${WORKSPACE}
 "
 
 error_code () { [ "$DO_NOT_STOP_AT_ERROR" = "true" ] && { return 0 ; } }
@@ -55,11 +57,14 @@ g++ --version
 [ `gcc -dumpversion` = 4.7 ] && { echo "GCC 4.7"; } || { echo "GCC version is not 4.7, we exit"; exit 1; }
 
 JENKINS_TASK=tool-${TOOL_NAME}-build-debian7-64bits-gcc-4.7-gitlab
+JENKINS_WORKSPACE=$WORKSPACE/$JENKINS_TASK/
+
 GIT_DIR=/scratchdir/builds/workspace/gatb-${TOOL_NAME}
 BUILD_DIR=/scratchdir/$JENKINS_TASK/gatb-${TOOL_NAME}/build
 
 rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR
+mkdir -p $JENKINS_WORKSPACE
 
 #-----------------------------------------------
 # we need gatb-core submodule to be initialized
