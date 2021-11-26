@@ -91,8 +91,7 @@ git clone https://github.com/pgdurand/github-release-api.git
 #                       RETRIEVE ARCHIVES FROM INRIA FORGE     #
 ################################################################
 
-CI_URL=https://ci.inria.fr/gatb-core/view/RConnector-gitlab/
-
+CI_URL=https://ci.inria.fr/gatb-core/view/DiscoSnp-gitlab/job
 JENKINS_TASK_DEB=tool-discosnp-build-debian7-64bits-gcc-4.7-gitlab
 JENKINS_TASK_MAC=tool-discosnp-build-macos-10.9.5-gcc-4.2.1-gitlab
 
