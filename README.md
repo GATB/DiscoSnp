@@ -3,7 +3,7 @@
 
 | **Linux** | **Mac OSX** |
 |-----------|-------------|
-[![Build Status](https://ci.inria.fr/gatb-core/view/DiscoSnp/job/tool-discosnp-build-debian7-64bits-gcc-4.7/badge/icon)](https://ci.inria.fr/gatb-core/view/DiscoSnp/job/tool-discosnp-build-debian7-64bits-gcc-4.7/) | [![Build Status](https://ci.inria.fr/gatb-core/view/DiscoSnp/job/tool-discosnp-build-macos-10.9.5-gcc-4.2.1/badge/icon)](https://ci.inria.fr/gatb-core/view/DiscoSnp/job/tool-discosnp-build-macos-10.9.5-gcc-4.2.1/)
+[![Build Status](https://ci.inria.fr/gatb-core/view/DiscoSnp-gitlab/job/tool-discosnp-build-debian7-64bits-gcc-4.7-gitlab/badge/icon)](https://ci.inria.fr/gatb-core/view/DiscoSnp-gitlab/job/tool-discosnp-build-debian7-64bits-gcc-4.7-gitlab/) | [![Build Status](https://ci.inria.fr/gatb-core/view/DiscoSnp-gitlab/job/tool-discosnp-build-macos-10.9.5-gcc-4.2.1-gitlab/badge/icon)](https://ci.inria.fr/gatb-core/view/DiscoSnp-gitlab/job/tool-discosnp-build-macos-10.9.5-gcc-4.2.1-gitlab/)
 
 [![License](http://img.shields.io/:license-affero-blue.svg)](http://www.gnu.org/licenses/agpl-3.0.en.html)
 
