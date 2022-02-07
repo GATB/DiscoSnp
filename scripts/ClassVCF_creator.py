@@ -1184,7 +1184,7 @@ class SNPSCLOSE(VARIANT):
                         table[line][2]=str(self.variantID)+"_"+str(subIDs[line])
                         table[line][5]="."
                         table[line][6]=VCFObject.filterField
-                        table[line][7]=f"Ty{VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.len_contig_left};CR={self.len_contig_right};Genome={nucleoRef};Sd={VCFObject.reverse}"
+                        table[line][7]=f"Ty={VCFObject.variantType};Rk={self.rank};UL={self.len_unitig_left};UR={self.len_unitig_right};CL={self.len_contig_left};CR={self.len_contig_right};Genome={nucleoRef};Sd={VCFObject.reverse}"
                         if VCFObject.filterField=="MULTIPLE" and VCFObject.XA:
                                 table[line][7]+=f";XA={VCFObject.XA}"
                         #TODO: eviter ces "replace"
