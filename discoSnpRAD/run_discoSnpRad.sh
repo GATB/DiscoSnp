@@ -81,8 +81,7 @@ max_size_cluster=150
 max_missing=0.95
 min_rank=0.4
 
-#EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
+EDIR=$( python3 -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
 if [ -d "$EDIR/../build/" ] ; then # VERSION SOURCE COMPILED
     read_file_names_bin=$EDIR/../build/bin/read_file_names

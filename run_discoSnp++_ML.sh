@@ -67,7 +67,7 @@ stop_after_kissnp=0
 e=""
 prefix_trash=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo ''`
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
+EDIR=$( python3 -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED

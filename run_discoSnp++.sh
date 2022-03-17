@@ -66,7 +66,7 @@ e="" # if set to -e: Map variant predictions on reference genome with their unit
 graph_reused="Egg62hdS7knSFvF3" # with -g option, we use a previously created graph. 
 
 #EDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-EDIR=$( python -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
+EDIR=$( python3 -c "import os.path; print(os.path.dirname(os.path.realpath(\"${BASH_SOURCE[0]}\")))" ) # as suggested by Philippe Bordron 
 
 
 if [ -d "$EDIR/build/" ] ; then # VERSION SOURCE COMPILED
