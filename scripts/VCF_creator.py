@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #*****************************************************************************
 #   VCF_Creator: mapping and VCF creation feature in DiscoSnp++

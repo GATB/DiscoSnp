@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ###################################
 # change extensions in uppercase and replace relative positions of SNPs in the header
