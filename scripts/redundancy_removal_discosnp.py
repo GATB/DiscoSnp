@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/python3
 # -*- coding: utf-8 -*-
 ###################################
 # from kissnp output: 

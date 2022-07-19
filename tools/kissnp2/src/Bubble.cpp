@@ -24,7 +24,7 @@
 #include <string>
 using namespace std;
 
-#define DEBUG(a) // a
+#define DEBUG(a)  //a
 const char* BubbleFinder::STR_BFS_MAX_DEPTH   = "-bfs-max-depth";
 const char* BubbleFinder::STR_BFS_MAX_BREADTH = "-bfs-max-breadth";
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 if len(sys.argv) !=2:
     sys.stdout.write("Mandatory: python discoSnp_to_csv.py prefix_coherent_k_kval_c_cval.fa\n")
