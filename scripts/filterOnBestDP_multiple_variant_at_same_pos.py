@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #To apply on sorted vcf by position
 #Usage : python filterOnBestDP_multiple_variant_at_same_pos.py <vcf_for_igv> > output.vcf

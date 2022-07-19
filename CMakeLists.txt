@@ -1,10 +1,12 @@
 project(DiscoSNP++)
 
 cmake_minimum_required(VERSION 2.6)
-#add_compile_options(
+
+
+# add_compile_options(
 # "-Wall" "-Wpedantic" "-Wextra" "-fexceptions"
 #  "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
-#)
+# )
 ################################################################################
 # The version number.
 ################################################################################
@@ -82,6 +84,11 @@ SET (CPACK_SOURCE_IGNORE_FILES
     "^${GATB_CORE_HOME}/\\.project"  ;
     "^${GATB_CORE_HOME}/\\.gitignore"
 )
+
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 -g -DNDEBUG")
+
 
 # For creating the BINARY package we include the files we want
 INSTALL (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/discoSnpRAD        DESTINATION .)
