@@ -146,6 +146,8 @@ def format_vcf(splitted_1, splitted_2, nb_samples, rank, sequence, cluster_id, c
         ID = id
         if not isolated:
             ID += f"_{i}"
+            if i>1:
+                GENO = GENO.replace('/', "|") # inform that the snp is phased. 
         my_line = "\t".join([CHROM, str(POS), ID, REF, ALT, ".", ".", INFO, FORMAT, GENO])
         vcf_line += my_line + "\n"
         i += 1
