@@ -187,8 +187,8 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
     
 	//	float sum=0;
 	for(int read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
-        sum_up[read_set_id]=index.all_predictions[fragment_id]->number_mapped_reads[read_set_id];
-        sum_lo[read_set_id]=index.all_predictions[fragment_id+1]->number_mapped_reads[read_set_id];
+        sum_up[read_set_id] = index.all_predictions[fragment_id  ]->number_mapped_reads[read_set_id];
+        sum_lo[read_set_id] = index.all_predictions[fragment_id+1]->number_mapped_reads[read_set_id];
 	}
     const float err = 0.01;
     const float prior_het = 1/(float)3;
@@ -200,11 +200,12 @@ void print_couple_i(ofstream &fasta_out, FragmentIndex & index, int fragment_id,
         // CONSTRUCT THE COMMON HEADER COMMENT (Genotypes, Coverages, Qualities, Rank)
         for(read_set_id=0;read_set_id<gv.number_of_read_sets;read_set_id++){
             stringstream geno_likelihood;
-            if (!index.all_predictions[fragment_id]->read_coherent[read_set_id] && !index.all_predictions[fragment_id+1]->read_coherent[read_set_id]) {
-                geno_likelihood<<"./.:.,.,.";
+            // If at least one of the path is read coherent, we propose a genotype: 
+            if (index.all_predictions[fragment_id]->read_coherent[read_set_id] || index.all_predictions[fragment_id+1]->read_coherent[read_set_id]){
+                geno_likelihood<<genotype_simple_model(sum_up[read_set_id],sum_lo[read_set_id], err, prior_het);
             }
-            else {
-                geno_likelihood << genotype_simple_model(sum_up[read_set_id], sum_lo[read_set_id], err, prior_het);
+            else{
+                geno_likelihood<<"./.:.,.,.";
             }
             genotypes<<"G"<<read_set_id+1<<"_"<<geno_likelihood.str()<<"|";
 

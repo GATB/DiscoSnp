@@ -1,3 +1,6 @@
+## V2.6.2 
+* Add information of phased SNPs in the VCF when using discoSnpRad
+
 ## V2.6.1
 
 * Update python version in vcf creator, fixed CI issues

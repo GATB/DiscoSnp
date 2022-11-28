@@ -66,7 +66,6 @@ public:
     uint64_t  mask_nbseed;
     uint64_t  mask_offset_seed;
     unsigned int nbits_nbseeds;//saturated increment of unsigned char
-    bool radseq_option;
     bool phasing;
     
     GlobalValues(){

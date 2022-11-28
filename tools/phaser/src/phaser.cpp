@@ -117,7 +117,6 @@ void phaser::execute ()
     
     gv.compute_genotypes=       props->get    (STR_phaser_GENOTYPE) != 0;
     gv.standard_fasta=          props->get    (STR_phaser_OUTPUT_FASTA) != 0;
-    gv.radseq_option=           props->get    (STR_RADSEQ) != 0; //CHARLOTTE
     gv.set_mask_code_seed();
     
     
