@@ -353,15 +353,16 @@ echo -e "... Creation of the vcf file: done ...==> $vcffile "
 if [ $igv -eq 1 ] ; then
        $DIR/create_IGV_compatible_VCF.sh $vcffile
        nameVCFIGV=$( basename $vcffile .vcf )
-       python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf
+       tmpvcf=$(mktemp tmp.vcf.XXXX) # Avoid overwriting if user already has file named tmp.vcf
+       python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > $tmpvcf
        if [ $? -ne 0 ]
        then
-              echo "there was a problem with the IGV VCF creation (command was \"python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > tmp.vcf\""
+              echo "there was a problem with the IGV VCF creation (command was \"python3 $PATH_VCF_creator/filterOnBestDP_multiple_variant_at_same_pos.py $nameVCFIGV\_for_IGV.vcf > $tmpvcf\""
               exit 1
        fi
        echo -e "... Creation of the vcf file: done ...==> $vcffile"
        
-       cat tmp.vcf > $nameVCFIGV\_for_IGV.vcf
+       cat $tmpvcf > $nameVCFIGV\_for_IGV.vcf
 
        echo -e " Transforming the created zero-based vcf (and for IGV vcf) onto one-based vcf files"
        cmd="python3  $PATH_VCF_creator/zero2one.py -i $vcffile"
@@ -370,14 +371,11 @@ if [ $igv -eq 1 ] ; then
        cmd="python3  $PATH_VCF_creator/zero2one.py -i ${nameVCFIGV}_for_IGV.vcf"
        echo $cmd
        $cmd
-
-
-
 fi
 
 
 if [ $remove -eq 1 ];then
-       rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis tmp.vcf
+       rm -f $indexamb $indexann $indexbwt $indexpac $indexsa $saifile $discoSNPsbis $tmpvcf
 else
-       rm -f tmp.vcf $discoSNPsbis
+       rm -f $tmpvcf $discoSNPsbis
 fi
