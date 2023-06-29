@@ -111,6 +111,7 @@ BubbleFinder::BubbleFinder (const BubbleFinder& bf)
     traversalKind        = bf.traversalKind;
     breadth_first_queue  = bf.breadth_first_queue;
     accept_truncated_bubbles = bf.accept_truncated_bubbles;
+    max_truncated_path_length_difference = bf.max_truncated_path_length_difference;
     
     /** Copy by reference (not by value). */
     setOutputBank   (bf._outputBank);
@@ -553,21 +554,23 @@ bool BubbleFinder::expand (
                 return false;
             }
         int disymetrical_end_size=0;
-        // First case: only upper path ends
-        if (suc2 == 1 && expand_one_simple_path (node2, local_extended_string2, max_truncated_path_length_difference, disymetrical_end_size)) {
+
+        // First case: the both paths end, nothing additional to be checked.
+        if (suc1 == suc2) {
+            bubble.truncated = true;
+        }
+        // Second case: only upper path ends
+        else if (suc1 == 0 && expand_one_simple_path (node2, local_extended_string2, max_truncated_path_length_difference, disymetrical_end_size)) {
             disymetrical_end_size=-disymetrical_end_size;
             bubble.truncated    =true;
+            // cout << "extend path 2" << " size " << disymetrical_end_size << endl;
+        }
+        // Third case: only lower path ends
+        else if (suc2 == 0 && expand_one_simple_path (node1, local_extended_string1, max_truncated_path_length_difference, disymetrical_end_size)) {
+            bubble.truncated    =true;
+            // cout << "extend path 1" << " size " << disymetrical_end_size << endl;
         }
         
-        // second case: only lower path ends
-        if (suc1 == 1 && expand_one_simple_path (node1, local_extended_string1, max_truncated_path_length_difference, disymetrical_end_size)) {
-            bubble.truncated    =true;
-        }
-        
-        // third case: the both paths end, nothing additional to be checked.
-        if (suc1 == suc2) {
-            bubble.truncated    =true;
-        }
     
         if (bubble.truncated){
             /** We call expand_heart with a false nextnode **/
@@ -1056,8 +1059,8 @@ IProperties* BubbleFinder::getConfig () const
     props-> add (1, "rad",                                      "%d", accept_truncated_bubbles);
     props->add (1, "traversal",                                 "%s", toString (traversalKind).c_str());
     if (accept_truncated_bubbles){
-        props->add(1, "radseq mode",                           "");
-        props->add(2, "max_truncated_path_length_difference",   "%d", accept_truncated_bubbles);
+        props->add(1, "radseq mode",                            "");
+        props->add(2, "max_truncated_path_length_difference",   "%d", max_truncated_path_length_difference);
     }
     
     return props;

@@ -113,7 +113,7 @@ void Kissnp2::execute ()
     /** We load the graph from the provided uri. */
     
     string input_graph =   "-in "+getInput()->getStr(STR_URI_INPUT)+" -no-mphf";
-    
+   
     Graph graph = Graph::create(input_graph.c_str());
     // DEBUG
 //    cout<<"INFOS: "<<graph.getInfo()<<endl;
@@ -169,12 +169,11 @@ void Kissnp2::execute ()
     /** We get the number of nodes. */
     nbNodes = it.size();
     
+    
     /** We loop the nodes. */
     status = getDispatcher()->iterate (it, bubbleFinder);
     
 
-    
-    
     
     /** We aggregate information for user. */
     getInfo()->add (1, bubbleFinder.getConfig());
